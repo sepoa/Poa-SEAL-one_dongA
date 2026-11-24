@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="COMPONENT_GUIDE" header="false" tpl="editor.tpl">
+    <variable>
+        <var name="columnObj" value="$($sObject._vp).find('#kxGRsQcBzDSsQcsWaS')[0]"/>
+        <var name="containerObj" value="$($sObject._vp).find('#kxGRsQcBzDSsQcNdIz')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+            var guideObject = {
+                layout : {
+                    title : "Layout",
+                    path : "/resource/plugin/sepoasoft/screenbuilder/guide/LayoutGuide.html"
+                },
+                css : {
+                	title: "CSS",
+                	path : "/resource/plugin/sepoasoft/screenbuilder/guide/SC_CSS.html"
+                },
+                tabbar : {
+                	title : "Tabbar",
+                	path : "/resource/plugin/sepoasoft/screenbuilder/guide/TabbarGuide.html"
+                }
+            }
+            
+			var attachFilePath;
+			if(guideObject[Sepoa.params.type]){
+                attachFilePath = guideObject[Sepoa.params.type].path;
+            } else {
+                attachFilePath =  "";
+            }
+            
+            selfObj.mcover.d.hidden = true
+            var url = window.CONTEXT_NAME + attachFilePath;;
+            if(Sepoa.params.scroll){
+            	url += "#SCREEN_"+Sepoa.params.scroll;
+            }
+            
+            window.document.location = url;
+        ]]>
+	</onloadscript>
+    <userscript>
+       
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZ1pjdHJRY2haY3RyUWNNZWZQIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJDT01QT05FTlRfR1VJREUifSwiaWQiOiJnWmN0clFjaFpjdHJRY01lZlAiLCJ0eXBlIjoiYm9keSJ9LCJreEdSc1FjQnpEU3NRY3NXYVMiOnsibGF5b3V0Ijp7IkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfSGphYW1rdFlObmJwIjoibnVsbCIsImRoeElkXzd5RGEyY2huZG5DOSI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImNvbHVtbk9iaiIsIk9CSkVDVF9JRCI6Imt4R1JzUWNCekRTc1Fjc1dhUyJ9LCJpZCI6Imt4R1JzUWNCekRTc1Fjc1dhUyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJreEdSc1FjQnpE
+        U3NRY05kSXoiOnsibGF5b3V0Ijp7IkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfNzRWZzdhTTBzeDFNIjoibnVsbCIsImRoeElkX0w1bEk1REhXbUJ4NSI6Im51bGwiLCJkaHhJZF9LbVBMWDF0a3V1aFIiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiY29udGFpbmVyT2JqIiwiT0JKRUNUX0lEIjoia3hHUnNRY0J6RFNzUWNOZEl6IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJreEdSc1FjQnpEU3NRY05kSXoiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiZ1pjdHJRY2haY3RyUWNNZWZQIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJreEdSc1FjQnpEU3NRY05kSXoiLCJ0eXBlIjoiY29u
+        dGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoia3hHUnNRY0J6RFNzUWNzV2FTIiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL1Rvb2xzL1NjcmVlbkJ1aWxkZXIvUG9wdXAvQ29tcG9uZW50R3VpZGUueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiR1VJREUiLCJQUkVGSVgiOiJDT01QT05FTlQiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJUb29scy9TY3JlZW5CdWlsZGVyL1BvcHVwIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQ29tcG9uZW50R3VpZGUiLCJTQ1JFRU5fSUQiOiJDT01QT05FTlRfR1VJREUifX0sImh0bWwiOiI8ZGl2IGlkPVwiZ1pjdHJRY2haY3RyUWNNZWZQXCIgY2xh
+        c3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9
+        XCJreEdSc1FjQnpEU3NRY05kSXpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwia3hHUnNRY0J6RFNzUWNzV2FTXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVu
+        dF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

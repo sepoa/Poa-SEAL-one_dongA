@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_405" header="false">
+    <button id="btnObj">
+        <btn div="mSyOesdSaCPesdCrpp" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(  )"/>
+    </button>
+    <form id="formObj" div="qAbprMeNOiprMedMnr" form-id="file:///resource/ux/admin/form/AD_405.js">
+    	<event type="onButtonClick" callback="onButtonClick" />
+    </form>
+    <onloadscript/>
+    <userscript>
+        <var name="formObj"/>
+        <var name="createFlag" value="false"/>
+        <function name="createNew" args="">
+        <![CDATA[
+            formObj.clear();
+            changeMode('new')
+        ]]>
+        </function>
+        <function name="changeMode" args="mode">
+        <![CDATA[
+        	doSelectCopyClientCallback();
+        	
+            if (mode == 'new') {
+                formObj.showItem('CLIENT_CODE_CHECK');
+                formObj.showItem('CLIENT_COPY');
+                formObj.setReadonly('CLIENT_CODE', false);
+                formObj.setReadonly('SERVICE_URL', false);
+                formObj.setValue('COMPANY_CODE', '1000');
+                
+                var tabbarObj = getOAObject('AD_402').tabbarObj;
+                callFunction('AD_402', 'tabActivate', [tabbarObj.tabs('MODULE'), false]);
+                callFunction('AD_402', 'tabActivate', [tabbarObj.tabs('DESIGN'), false]);
+                callFunction('AD_402', 'tabActivate', [tabbarObj.tabs('NOTIFICATION'), false]);
+                callFunction('AD_401', 'listUnselectAll', []);
+            
+                createFlag = false;
+            } else if (mode == 'default') {
+                formObj.hideItem('CLIENT_CODE_CHECK');
+                formObj.hideItem('CLIENT_COPY');
+                formObj.setReadonly('CLIENT_CODE', true);
+                formObj.setReadonly('SERVICE_URL', true);
+            
+                createFlag = true;
+            }
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if (id == 'CLIENT_CODE_CHECK') {
+                doCheckDuplicate();
+            } else if(id == 'CLIENT_COPY') {
+            	doSelectCopyClient();
+            }
+        ]]>
+        </function>
+        <function name="doCheckDuplicate" args="">
+        <![CDATA[
+            if (!formObj.validateItem('CLIENT_CODE')) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+            }
+            
+            doServiceAjax('sepoa.svc.admin.AD_400', 'CONNECTION', 'doCheckDuplicate', null, function(so) {
+                if (so.status != 1) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+            
+                if (sf.getArrayMap().length == 0) {
+                    createFlag = true;
+                    Alert(Sepoa.cache.text.get('AD_405.DO_NOT_DUPLICATE'));
+                } else {
+                    createFlag = false;
+                    Alert(Sepoa.cache.text.get('AD_405.DUPLICATE'));
+                }
+            });
+        ]]>
+        </function>
+        <function name="doSelectCopyClient" args="">
+        <![CDATA[
+        	PopupCommonPost('UXP0001', doSelectCopyClientCallback);
+        ]]>
+        </function>
+        <function name="doSelectCopyClientCallback" args="code, name">
+        <![CDATA[
+        	formObj.setItemLabel('CLIENT_COPY', sUtils.cache.text.get('AD_405.CLIENT_COPY'));
+        	dataOutput.setValue('COPY_CLIENT_CODE', '');
+        	
+        	if(code) {
+        		var msg = sUtils.string.dataReplacer(sUtils.cache.text.get('AD_405.COPY_TO_CLIENT_CODE'), {CODE: code});
+        		formObj.setItemLabel('CLIENT_COPY', msg);
+        		dataOutput.setValue('COPY_CLIENT_CODE', code);
+        	}
+        ]]>
+        </function>
+        <function name="doQuery" args="clientCode, companyCode, createNewObj">
+        <![CDATA[
+            changeMode('default');
+            
+            var params = {
+                CLIENT_CODE: clientCode,
+                COMPANY_CODE: companyCode
+            };
+            
+            if (createNewObj) {
+                params = $.extend(true, params, createNewObj);
+            }
+            
+            doServiceAjax('sepoa.svc.admin.AD_405', 'CONNECTION', 'doQueryForm', params, function(so) {
+                if (so.status != 1) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+            
+                formObj.dataMapper(sf);
+            });
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            if (!formObj.validate()) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'))
+                return;
+            }
+            
+            if (createFlag == false) {
+                Alert(Sepoa.cache.text.get('AD_405.DUPLICATE_CHECK_AGAIN'));
+                return;
+            }
+            
+            Confirm(Sepoa.cache.text.get('AD_405.SAVE_AND_SERVER_RELOAD'), function(flag) {
+                if (flag) {
+                    var params = $.extend(true, formObj.getFormData(), {
+                        SERVICE_FROM: formObj.getValue('SERVICE_FROM'),
+                        SERVICE_TO: formObj.getValue('SERVICE_TO'),
+                        COPY_CLIENT_CODE: dataOutput.getValue('COPY_CLIENT_CODE')
+                    });
+            
+                    doServiceAjax('sepoa.svc.admin.AD_405', 'TRANSACTION', 'doSaveForm', params, function(so) {
+                        if (so.status != 1) {
+                            Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                            return;
+                        }
+            
+                        Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+                        callFunction('AD_401', 'doQuery', []);
+                    })
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYnp1eGRzZGJ6dXhkc2RQRmpKIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8xM2FNdmJTOWp0Q0YiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1JRVXJvWU44NHJ0aSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQwNSIsIk9CSkVDVF9JRCI6ImJ6dXhkc2RienV4ZHNkUEZqSiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6ImJ6dXhkc2RienV4ZHNkUEZqSiIsInR5cGUi
+        OiJib2R5In0sIm1TeU9lc2RTYUNQZXNkQ3JwcCI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV8wX1RZUEUiOiJzYXZlIiwiSVRFTV8wX1BBUkFNIjoiIiwiT0JKRUNUX0lEIjoibVN5T2VzZFNhQ1Blc2RDcnBwIiwiSVRFTV8wX09OQ0xJQ0si
+        OiJkb1NhdmUiLCJJVEVNXzBfSUQiOiJTQVZFIiwiSVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9URVhUIjoi7KCA7J6lIiwiSVRFTV8wX1NPUlQiOiIxIn0sImlkIjoibVN5T2VzZFNhQ1Blc2RDcnBwIiwidHlwZSI6ImJ1dHRvbiJ9LCJxQWJwck1lTk9pcHJNZWRNbnIiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF95c2hzeHU3ajVXSmYiOiJudWxsIiwiZGh4SWRfQ05qYlQ4VUkwWHhGIjoibnVsbCIsIkFM
+        SUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX1dsU0Fxd21seTFveCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6InFBYnByTWVOT2lwck1lZE1uciIsIkZPUk1fSUQiOiJmaWxlOi8vL3Jlc291cmNlL3V4L2FkbWluL2Zvcm0vQURfNDA1LmpzIn0sImlkIjoicUFicHJNZU5PaXByTWVkTW5yIiwidHlwZSI6ImZvcm0iLCJldmVudHMiOltdfX0sInRyZWUiOnsiaWQiOiJienV4ZHNkYnp1eGRzZFBGakoiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Im1TeU9lc2RTYUNQZXNkQ3JwcCIsInR5cGUiOiJidXR0b24ifSx7ImlkIjoicUFicHJNZU5PaXByTWVkTW5y
+        IiwidHlwZSI6ImZvcm0ifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vU3lzdGVtQ2xpZW50TWFuYWdlbWVudC9BZG1pblN5c3RlbUNsaWVudE1hbmFnZW1lbnRCYXNpYy54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiI0MDUiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6IlN5c3RlbUNsaWVudE1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pblN5c3RlbUNsaWVudE1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkJhc2ljIiwiU0NSRUVOX0lEIjoiQURfNDA1In19LCJodG1sIjoiPGRpdiBpZD1cImJ6dXhkc2RienV4ZHNkUEZqSlwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9h
+        dXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5
+        bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm1TeU9lc2RTYUNQZXNkQ3JwcFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYg
+        aWQ9XCJxQWJwck1lTk9pcHJNZWRNbnJcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2Zvcm1cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

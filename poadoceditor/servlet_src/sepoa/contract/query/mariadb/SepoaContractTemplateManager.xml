@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doSelectDocument">
+	<![CDATA[
+		SELECT HOUSE_CODE
+			 , COMPANY_CODE
+			 , CONT_FORM_NO
+             , CONT_TYPE
+			 , ADD_DATE
+			 , ADD_TIME
+			 , ADD_USER_ID
+			 , CHANGE_DATE
+			 , CHANGE_TIME
+			 , CHANGE_USER_ID
+			 , DEL_FLAG
+			 , CONT_FORM_NAME
+			 , CONT_FORM_DESC
+			 , STATUS
+			 , USE_FLAG
+			 , CATEGORY
+			 , CONT_METHOD
+			 , USE_FROM
+			 , USE_TO
+             , SIGNER_CODE
+		  FROM SCFGL
+		 WHERE HOUSE_CODE                   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE                 = ${session.COMPANY_CODE}
+		   AND CONT_FORM_NO                 = ${CONT_NO}
+		   AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+    
+    <method name="doInsertDocument">
+    <![CDATA[
+        INSERT 
+          INTO SCFGL (
+               HOUSE_CODE
+             , COMPANY_CODE
+             , CONT_FORM_NO
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , CONT_FORM_NAME
+             , CONT_FORM_DESC
+             , CONT_METHOD
+             , CONT_TYPE
+             , DEL_FLAG
+             , STATUS
+             , SIGNER_CODE
+             , USE_FLAG
+             , USE_FROM
+             , USE_TO
+             , CATEGORY
+         ) VALUES (
+               ${session.HOUSE_CODE}
+             , ${session.COMPANY_CODE}
+             , ${CONT_NO}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${CONT_FORM_NAME}
+             , ${CONT_FORM_DESC}
+             , ${CONT_METHOD}
+             , ${CONT_TYPE}   
+             , 'N'   
+             , 'T'
+             , ${SIGNER_CODE}
+             , 'Y'
+             , ${USE_FROM}
+             , ${USE_TO}  
+             , ${CATEGORY}
+         )
+    ]]>
+    </method>
+    
+    <method name="doUpdateDocument">
+    <![CDATA[
+        UPDATE SCFGL
+           SET CHANGE_DATE    = ${current.DATE}
+             , CHANGE_TIME    = ${current.TIME}
+             , CHANGE_USER_ID = ${session.ID}
+             , STATUS         = #DB_OWNER#nvl(${STATUS}        , STATUS)
+             , CONT_FORM_NAME = #DB_OWNER#nvl(${CONT_FORM_NAME}, CONT_FORM_NAME)
+             , USE_FROM       = #DB_OWNER#nvl(${USE_FROM}      , USE_FROM)
+             , USE_TO         = #DB_OWNER#nvl(${USE_TO}        , USE_TO)
+             , CATEGORY       = #DB_OWNER#nvl(${CATEGORY}      , CATEGORY)
+             , CONT_TYPE      = #DB_OWNER#nvl(${CONT_TYPE}, CONT_TYPE)
+             , CONT_FORM_DESC = #DB_OWNER#nvl(${CONT_FORM_DESC}, CONT_FORM_DESC)
+             , CONT_METHOD    = #DB_OWNER#nvl(${CONT_METHOD}   , CONT_METHOD)
+             , SIGNER_CODE    = #DB_OWNER#nvl(${SIGNER_CODE}   , SIGNER_CODE)
+             , DEL_FLAG       = #DB_OWNER#nvl(${DEL_FLAG}      , DEL_FLAG)
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_FORM_NO = ${CONT_NO}               
+    ]]>
+    </method>
+</service>

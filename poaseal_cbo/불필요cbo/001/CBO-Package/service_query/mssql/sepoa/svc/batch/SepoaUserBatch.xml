@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryUserData">
+	<![CDATA[
+		SELECT
+				  ComCode
+				, PersonId
+				, DisplayName
+				, DisplayNameEng
+				, DeptCode
+				, RoleCode
+				, Email
+				, MobileTel
+				, UsageState
+				, IsAdmin
+				, UPPER(Language) as LANGUAGE
+		FROM
+			[EumCommon].[dbo].[V_INTERFACE_PERSON]	 
+	]]>
+	</method>
+	
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+				  USER_ID
+				, MENU_PROFILE_CODE
+		FROM
+			SUSMT
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND USER_ID 		= ${PERSONID}		 
+	]]>
+	</method>
+	
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${DISPLAYNAME}
+				, USER_NAME_ENG	 	= ${DISPLAYNAMEENG}
+				, DEPT		      	= ${DEPTCODE}
+				, POSITION		  	= ${ROLECODE}
+				, EMAIL  		    = ${EMAIL}
+				, PHONE           	= ${MOBILETEL}
+				, DEL_FLAG        	= ${DEL_FLAG}
+				, MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+				, LANGUAGE			= ${LANGUAGE}
+		WHERE
+			  HOUSE_CODE        	= ${session.HOUSE_CODE}
+		  AND USER_ID           	= ${PERSONID}
+	]]>
+	</method>
+	
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL				
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, PHONE
+				, LANGUAGE
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${PERSONID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${session.COMPANY_CODE}
+				, ${session.COMPANY_CODE}
+				, ${DISPLAYNAME}
+				, ${DISPLAYNAMEENG}
+				, ${PASSWORD}
+				, ${DEPTCODE}
+				, ${ROLECODE}
+				, ${EMAIL}				
+				, 'KR'
+				, 'A'
+				, 'Z'
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, '0'
+				, 'Y'
+				, ${DEL_FLAG}
+				, '%Y/%m/%d'
+				, ${MOBILETEL}
+				, ${LANGUAGE}
+			)	
+	]]>
+	</method>
+	
+	<method name="doUpdateSADDR">
+	<![CDATA[
+		UPDATE SADDR
+			SET
+				  CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}			  
+				, DEL_FLAG        = ${DEL_FLAG}
+				, PHONE_NO1       = ${MOBILETEL}
+				, EMAIL           = ${EMAIL}
+		WHERE
+              HOUSE_CODE        = ${session.HOUSE_CODE}
+		  AND CODE_NO           = ${PERSONID}
+	]]>
+	</method>
+	
+	<method name="doInsertSADDR">
+	<![CDATA[
+		INSERT INTO SADDR
+			(
+				  HOUSE_CODE
+				, CODE_NO 
+				, CODE_TYPE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, DEL_FLAG
+				, PHONE_NO1
+				, EMAIL				
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${PERSONID}
+				, 'USER'
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, 'N'
+				, ${MOBILETEL}
+				, ${EMAIL}				
+			)	
+	]]>
+	</method>		
+	
+	<method name="doQueryPositionData">
+	<![CDATA[
+		SELECT
+			  ComCode
+			, GradeCode
+			, GradeName
+			, GradeNameEn
+			, '0' AS SORT_SEQ
+		FROM
+			[EumCommon].[dbo].[V_INTERFACE_GRADE]
+		WHERE GradeCode IS NOT NULL 
+		  AND GradeName IS NOT NULL
+		GROUP BY
+			  ComCode, GradeCode, GradeName, GradeNameEn
+	]]>
+	</method>
+
+	<method name="checkExistPositionCode">
+	<![CDATA[
+		SELECT
+			CODE
+		FROM
+			SCODE
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND TYPE 			= 'UX049'
+			AND CODE            = ${GRADECODE}
+			AND LANGUAGE        = 'KO'		 
+	]]>
+	</method>
+	
+	<method name="doUpdatePositionCode">
+	<![CDATA[
+		UPDATE SCODE
+			SET
+				  TEXT1		      = ${GRADENAME}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}	
+				, SORT_SEQ		  = ${SORT_SEQ}		  
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+			AND CODE              = ${GRADECODE}
+			AND LANGUAGE 		  = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="doInsertPositionCode">
+	<![CDATA[
+		INSERT INTO SCODE
+			(
+				  HOUSE_CODE
+				, TYPE 
+				, CODE
+				, LANGUAGE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, SORT_SEQ
+				, USE_FLAG
+				, TEXT1
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, 'UX049'
+				, ${GRADECODE}
+				, ${LANGUAGE}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, ${SORT_SEQ}
+				, 'Y'
+				, ${GRADENAME}
+				, 'N'
+			)	
+	]]>
+	</method>	
+</service>

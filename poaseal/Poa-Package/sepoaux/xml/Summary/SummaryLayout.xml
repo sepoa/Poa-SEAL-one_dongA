@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SUMMARY" header="false" tpl="editor.tpl">
+    <carousel id="carouselObj" div="uLUFpEckTzKLnUDJDl"/>
+    <onloadscript>
+        <![CDATA[
+        	Sepoa.dashBoard = sUtils.workflow.check('DSB');
+            Sepoa.dashBoardUrl = Sepoa.config.get('sepoa.dashboard.url');
+            window.changeCarousel = changeCarousel;
+        ]]>
+        <call name="initCarousel"/>
+    </onloadscript>
+    <userscript>
+        <function name="initCarousel" args="">
+        <![CDATA[
+            if(Sepoa.dashBoard){
+                carouselObj.addCell('dashBoard');
+                carouselObj.cells('dashBoard').attachURL(window.CONTEXT_NAME+"/Summary/DashBoard/SummaryDashBoard.sux");
+                carouselObj.cells('dashBoard').setActive();
+            }
+            carouselObj.addCell('summary');
+            carouselObj.cells('summary').attachURL(window.CONTEXT_NAME+'/Summary/SummaryMenu.sux');
+        ]]>
+        </function>
+        <function name="changeCarousel" args="id">
+        <![CDATA[
+            carouselObj.cells(id).setActive();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsidUxVRnBFY2tUektMblVESkRsIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY2Fyb3VzZWxPYmoiLCJPQkpFQ1RfSUQiOiJ1TFVGcEVja1R6S0xuVURKRGwifSwiaWQiOiJ1TFVGcEVja1R6S0xuVURKRGwiLCJ0eXBlIjoiY2Fyb3VzZWwiLCJjYXJvdXNlbCI6ImNhcm91c2VsIiwiZXZlbnRzIjpudWxsfSwidUxVRnBFY1VRZkVMblVEQUVsIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJW
+        QVIiOiJTVU1NQVJZIn0sImlkIjoidUxVRnBFY1VRZkVMblVEQUVsIiwidHlwZSI6ImJvZHkifX0sInRyZWUiOnsiaWQiOiJ1TFVGcEVjVVFmRUxuVURBRWwiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6InVMVUZwRWNrVHpLTG5VREpEbCIsInR5cGUiOiJjYXJvdXNlbCJ9XX0sImluZm8iOnsiUEFUSCI6Ii9TdW1tYXJ5L1N1bW1hcnlMYXlvdXQueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJTdW1tYXJ5IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiU3VtbWFyeUxheW91dCIsIkNPREUiOiJTVU1NQVJZIiwiUFJFRklYIjoiIiwiU0NSRUVOX0lEIjoiU1VNTUFSWSJ9
+        fSwiaHRtbCI6IjxkaXYgaWQ9XCJ1TFVGcEVjVVFmRUxuVURBRWxcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21w
+        b25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwidUxVRnBFY2tUektMblVESkRsXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9jYXJvdXNlbCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

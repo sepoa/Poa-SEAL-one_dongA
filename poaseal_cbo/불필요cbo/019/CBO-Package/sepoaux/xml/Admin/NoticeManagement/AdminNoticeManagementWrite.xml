@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_201_2" header="false" pageCloseWarn="false" dataStore="false">
+    <link>
+    <![CDATA[
+        <script type="text/javascript" src="<%=CONTEXT_NAME%>/resource/plugin/tinymce/tinymce.min.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/tinymce/webeditor.js" type="text/javascript"></script>
+    ]]>
+    </link>
+    <button id="btnObj">
+        <btn div="YNCHbTbUiWVIEfgHQf" id="new" type="new" text="{BUTTON.new}" onclick="doNew(  )"/>
+        <btn div="YNCHbTbUiWVIEfgHQf" id="update" type="save" text="{BUTTON.update}" onclick="changeMode( 'insert' )"/>
+        <btn div="YNCHbTbUiWVIEfgHQf" id="delete" type="delete" text="{BUTTON.delete}" onclick="doDelete(  )"/>
+        <btn div="YNCHbTbUiWVIEfgHQf" id="cancel" text="{BUTTON.cancel}" onclick="doCancel(  )"/>
+        <btn div="YNCHbTbUiWVIEfgHQf" id="save" type="save" text="{BUTTON.save}" onclick="doSave(  )"/>
+    </button>
+    <form id="formObj" div="YNCHbTbsqMVIEfgmaj" form-id="AD_201">
+        <event type="onUploadFile" callback="attach_callback"/>
+        <event type="onButtonClick" callback="onButtonClick"/>
+    </form>
+    <usercss>
+    <![CDATA[
+        .sepoa-editor-wrapper {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            display: block;
+        }
+        
+        #EDITOR_AREA {
+            height: 100%;
+            width: 100%;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="createEditorArea"/>
+        <call name="initTinyMCE" args="'#EDITOR_AREA', mceloadend, Sepoa.info.LANGAUGE"/>
+        <var name="cnt" value="'0'"/>
+        <var name="text_cnt" value="0"/>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="init" args="">
+        <![CDATA[
+            if (Sepoa.info.MASTER_COMPANY_FLAG != 'Y') {
+                formObj.hideItem("COMPANY_NAME");
+                formObj.hideItem("AFFILIATED_COMPANY");
+                formObj.hideItem("AFFILIATED_COMPANY_LIST");
+            
+            }
+            
+            var parDiv = document.querySelector('.dhx_vault_material');
+            parDiv.style.marginTop = '5px';
+            
+            var label = document.createElement('label');
+            
+            var files = Sepoa.config.get('sepoa.attach.maxsize');
+            
+            label.textContent = '첨부파일은 ' + files + 'MB까지 업로드 가능합니다.';
+            
+            parDiv.parentNode.insertBefore(label, parDiv);
+        ]]>
+        </function>
+        <function name="attach_callback" args="n, e, a, param">
+        <![CDATA[
+            dataOutput.setValue("ATTACH_NO", e.attach_key);
+        ]]>
+        </function>
+        <function name="changeMode" args="mode">
+        <![CDATA[
+            btnObj.showButton(null, false)
+            if (mode == 'view') {
+                tinyMCE.activeEditor.setMode("readonly")
+                formObj.setViewMode(true);
+                formObj.hideItem("COMPANY_NAME");
+                formObj.hideItem("AFFILIATED_COMPANY");
+                formObj.hideItem("AFFILIATED_COMPANY_LIST");
+                formObj.showItem('NOTICE_NUMBER');
+                btnObj.showButton('new,update,delete', true)
+            } else {
+                tinyMCE.activeEditor.setMode("code");
+                formObj.setViewMode(false);
+                if (Sepoa.info.MASTER_COMPANY_FLAG != 'Y') {
+                    formObj.hideItem("COMPANY_NAME");
+                    formObj.hideItem("AFFILIATED_COMPANY");
+                    formObj.hideItem("AFFILIATED_COMPANY_LIST");
+                } else {
+                    formObj.showItem("COMPANY_NAME");
+                    formObj.showItem("AFFILIATED_COMPANY");
+                    formObj.showItem("AFFILIATED_COMPANY_LIST");
+                }
+                formObj.hideItem('NOTICE_NUMBER');
+                btnObj.showButton('save,cancel', true)
+            }
+        ]]>
+        </function>
+        <function name="clearForm" args="">
+        <![CDATA[
+            formObj.clear();
+        ]]>
+        </function>
+        <function name="doNew" args="">
+        <![CDATA[
+            clearForm();
+            tinyMCE.activeEditor.setContent('');
+            changeMode('insert');
+        ]]>
+        </function>
+        <function name="doCancel" args="">
+        <![CDATA[
+            setData();
+            changeMode('view')
+        ]]>
+        </function>
+        <function name="doDelete" args="">
+        <![CDATA[
+            if (!formObj.getValue('NOTICE_NUMBER')) {
+                Alert(Sepoa.cache.text.get('AD_201.MESSAGE0003'));
+                return;
+            }
+            
+            doServiceAjax('sepoa.svc.admin.AD_201', 'TRANSACTION', 'doDelete', null, function(so) {
+                if (so.status == 1) {
+                    clearForm();
+                    tinyMCE.activeEditor.setContent('');
+                    //vaultObj.setAttachKey();
+                    changeMode('view');
+                    callFunction('AD_201_1', 'doQuery', []);
+                } else {
+                    Alert(so.message);
+                }
+            });
+        ]]>
+        </function>
+        <function name="doQuery" args="noticeNumber">
+        <![CDATA[
+            if (Sepoa.info.MASTER_COMPANY_FLAG != 'Y') {
+                formObj.setValue("COMPANY_CODE", Sepoa.info.COMPANY_CODE);
+            }
+            doServiceAjax('sepoa.svc.admin.AD_201', 'CONNECTION', 'doQuery', {
+                NOTICE_NUMBER: noticeNumber
+            }, function(so) {
+                if (so.status == 1) {
+                    changeMode('view');
+                    var sf = new SepoaFormater(so.result[0]);
+                    var sf2 = new SepoaFormater(so.result[1]);
+                    setData(sf, sf2);
+                } else {
+                    Alert(so.message);
+                }
+            });
+        ]]>
+        </function>
+        <function name="doSave" args="flag">
+        <![CDATA[
+            if (!formObj.validate() || tinyMCE.activeEditor.getContent() == '') {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+            }
+            
+            if (Sepoa.info.MASTER_COMPANY_FLAG != 'Y') {
+            
+                dataOutput.getValue(formObj.setValue("COMPANY_CODE", Sepoa.info.COMPANY_CODE));
+            }
+            dataOutput.setValue("CONTENT", tinyMCE.activeEditor.getContent());
+            formObj.setValue("ATTACH_NO", dataOutput.getValue('ATTACH_NO'));
+            
+            doServiceAjax('sepoa.svc.admin.AD_201', 'TRANSACTION', 'doSave', null, function(so) {
+                if (so.status == 1) {
+                    changeMode('view');
+                    formObj.setValue('NOTICE_NUMBER', so.message);
+                    callFunction('AD_201_1', 'doQuery', []);
+                } else {
+                    Alert(so.message);
+                }
+            });
+        ]]>
+        </function>
+        <function name="mceloadend" args="">
+        <![CDATA[
+            tinymceReady = true;
+            if (tinymceContent != '') {
+                tinyMCE.activeEditor.setContent(tinymceContent);
+            }
+            
+            if (formObj.getValue('NOTICE_NUMBER') != '') {
+                changeMode('view');
+            } else {
+                changeMode('insert');
+            }
+            editorResize();
+        ]]>
+        </function>
+        <function name="editorResize">
+        <![CDATA[
+            var f = tinyMCE.activeEditor.iframeElement;
+            tinyMCE.activeEditor.iframeElement.style.height = $('.sepoa-editor-wrapper')[0].offsetHeight - f.offsetTop - 5 + "px"
+        ]]>
+        </function>
+        <function name="setData" args="sf, sf2">
+        <![CDATA[
+            if (!sf) {
+                sf = tempData;
+                sf2 = tempContent;
+            } else {
+                tempData = sf;
+                tempContent = sf2;
+            }
+            if (!sf) return;
+            var c = '';
+            for (var i = 0; i < sf2.getRowCount(); i++) {
+                c += sf2.getValue('CONTENT', i);
+            }
+            c = c.replaceAll("\\\"", "\"");
+            c = sUtils.string.decodeHTML(c);
+            if (!tempData) {
+                clearForm();
+            } else {
+                formObj.dataMapper(sf);
+                if (!tinymceReady) {
+                    tinymceContent = c;
+                } else {
+                    tinyMCE.activeEditor.setContent(c);
+                }
+            }
+        ]]>
+        </function>
+        <function name="createEditorArea" args="">
+        <![CDATA[
+            var target = formObj.getContainer("EDITOR_BOX");
+            if (!formObj._editorInnerBox) {
+                target.style.minHeight = "100%";
+                formObj._editorInnerBox = target.appendChild($('<div class="sepoa-editor-wrapper"><div id="EDITOR_AREA"></div></div>')[0]);
+            }
+            formObj._editorInnerBox.style.width = (formObj._editorInnerBox.offsetWidth - 2) + 'px';
+            formObj._editorInnerBox.style.height = formObj._parent.offsetHeight - sUtils.element.getOffset(formObj._editorInnerBox).top + 'px'
+        ]]>
+        </function>
+        <var name="tempContent" value="null"/>
+        <var name="tempData" value="null"/>
+        <var name="tinymceContent" value="''"/>
+        <var name="tinymceReady" value="false"/>
+        <function name="onButtonClick" args="">
+        <![CDATA[
+            PopupCommonPost('AD201_1', serchCompanyCallback, [Sepoa.info.HOUSE_CODE]);
+        ]]>
+        </function>
+        <function name="serchCompanyCallback" args="companyCode">
+        <![CDATA[
+            formObj.setValue('COMPANY_CODE', companyCode);
+            const code = [];
+            const name = [];
+            
+            for (const item of companyCode) {
+                if (item.length === 2 && typeof item[0] === 'string' && typeof item[1] === 'string') {
+                    code.push(item[0]);
+                    name.push(item[1]);
+                }
+            }
+            
+            
+            
+            dataOutput.getValue(formObj.setValue('AFFILIATED_COMPANY', name));
+            dataOutput.getValue(formObj.setValue('COMPANY_CODE', code));
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWU5DSGJUYm9yQVZJRWZncG1YIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JPTExfViI6IiIsIlZFUlRJQ0FMX1NDUk9MTCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTlRFTlRfTUlOX1dJRFRIIjoiMTIwMCIsIlNDUkVFTl9TQ1JPTEwiOiIxIiwiZGh4SWRfd2tpNnZYaExYSFhhIjoibnVsbCIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJkaHhJZF8xRFlVTWVlVlhleWkiOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfNktFcEhnSUl5OTZ6IjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQi
+        OiIiLCJkaHhJZF9UYnIxcm85SURiR2siOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9qM1BDczRiOFZ1eVciOiJudWxsIiwiZGh4SWRfSnpBUzFoRTNZeVZpIjoibnVsbCIsImRoeElkX0dtb2lYUEZWUWJsUSI6Im51bGwiLCJkaHhJZF9KZEtJc01VTWVRRXoiOiJudWxsIiwiZGh4SWRfOG12cGlwNWRoSE5iIjoibnVsbCIsImRoeElkX253am9SUTdJQmhpRSI6Im51bGwiLCJkaHhJZF9mblI2Rkg1ZVk2UDkiOiJudWxsIiwiZGh4SWRfUENTV1dTaUt3RkxvIjoibnVsbCIsImRoeElkX2ZHT0ZYOVN3b2RVQSI6Im51bGwiLCJkaHhJZF9rNnhleU1EV2g4VWsiOiJudWxsIiwiZGh4SWRfT1dDZXY5ZThDSlRQIjoibnVsbCIsImRoeElkX1Z6Q3RUZ3Z0UGJFVSI6Im51
+        bGwiLCJkaHhJZF9FcXJoOVRwbkpUNzAiOiJudWxsIiwiZGh4SWRfQ2w5cm5NcTdqMndRIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzIwMV8yIiwiT0JKRUNUX0lEIjoiWU5DSGJUYm9yQVZJRWZncG1YIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiWU5DSGJUYm9yQVZJRWZncG1YIiwidHlwZSI6ImJvZHkifSwiWU5DSGJUYnNxTVZJRWZnbWFqIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpP
+        TlRBTCI6ImNlbnRlciIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX3ZCY3N3SGZqZEtRbyI6Im51bGwiLCJkaHhJZF9VZUlZZExqV3pPd3oiOiJudWxsIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9tVXY3bVpKOW5obzkiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF81V242NllkVEVpcGgiOiJudWxsIiwiZGh4SWRfSHF6R1N4c21GVmZTIjoibnVsbCIsImRoeElkX2duM1BiWlIwZnNpSyI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJZTkNIYlRic3FNVklFZmdtYWoiLCJGT1JNX0lEIjoiQURfMjAxIn0sImlkIjoiWU5DSGJUYnNxTVZJRWZnbWFqIiwidHlwZSI6
+        ImZvcm0iLCJmb3JtIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJhdHRhY2hfY2FsbGJhY2siLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvblVwbG9hZEZpbGUifSx7IkNBTExCQUNLIjoib25CdXR0b25DbGljayIsInR5cGUiOiJldmVudCIsIkNBTExCQUNLX1RZUEUiOiJuYW1lIiwiTkFNRSI6Im9uQnV0dG9uQ2xpY2sifV19LCJZTkNIYlRiVWlXVklFZmdIUWYiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoibGVmdCIs
+        IkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIk9CSkVDVF9JRCI6IllOQ0hiVGJVaVdWSUVmZ0hRZiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiSVRFTV8wX0lEIjoibmV3IiwiSVRFTV8wX1RZUEUiOiJuZXciLCJJVEVNXzBfT05DTElDSyI6ImRvTmV3IiwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5uZXciLCJJVEVNXzBfVEVYVCI6IuyLoOq3nCIsIklURU1fMV9JRCI6InVwZGF0ZSIsIklURU1fMV9UWVBFIjoic2F2ZSIsIklURU1fMV9PTkNMSUNLIjoiY2hhbmdlTW9kZSIsIklURU1fMV9TTENPREUiOiJCVVRUT04udXBkYXRlIiwiSVRFTV8xX1BBUkFNIjoiJiMzOTtpbnNlcnQmIzM5OyIsIklU
+        RU1fMV9URVhUIjoi7IiY7KCVIiwiSVRFTV8yX0lEIjoiZGVsZXRlIiwiSVRFTV8yX1RZUEUiOiJkZWxldGUiLCJJVEVNXzJfT05DTElDSyI6ImRvRGVsZXRlIiwiSVRFTV8yX1NMQ09ERSI6IkJVVFRPTi5kZWxldGUiLCJJVEVNXzJfVEVYVCI6IuyCreygnCIsIklURU1fM19JRCI6ImNhbmNlbCIsIklURU1fM19PTkNMSUNLIjoiZG9DYW5jZWwiLCJJVEVNXzNfU0xDT0RFIjoiQlVUVE9OLmNhbmNlbCIsIklURU1fM19URVhUIjoi7Leo7IaMIiwiSVRFTV80X0lEIjoic2F2ZSIsIklURU1fNF9UWVBFIjoic2F2ZSIsIklURU1fNF9PTkNMSUNLIjoiZG9TYXZlIiwiSVRFTV80X1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV80X1RFWFQiOiLsoIDsnqUiLCJJVEVN
+        XzBfU09SVCI6IjEiLCJJVEVNXzFfU09SVCI6IjIiLCJJVEVNXzJfU09SVCI6IjMiLCJJVEVNXzNfU09SVCI6IjQiLCJJVEVNXzRfU09SVCI6IjUifSwiaWQiOiJZTkNIYlRiVWlXVklFZmdIUWYiLCJ0eXBlIjoiYnV0dG9uIiwiYnV0dG9uIjoiYnV0dG9uIn19LCJ0cmVlIjp7ImlkIjoiWU5DSGJUYm9yQVZJRWZncG1YIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJZTkNIYlRiVWlXVklFZmdIUWYiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6IllOQ0hiVGJzcU1WSUVmZ21haiIsInR5cGUiOiJmb3JtIn1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL05vdGljZU1hbmFnZW1lbnQvQWRtaW5Ob3RpY2VNYW5hZ2VtZW50V3JpdGUueG1sIiwiUFJPSkVDVCI6
+        IkNCTyIsIlBBVEhfMiI6Ik5vdGljZU1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbk5vdGljZU1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IldyaXRlIiwiQ09ERSI6IjIwMV8yIiwiUFJFRklYIjoiQUQiLCJTQ1JFRU5fSUQiOiJBRF8yMDFfMiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJZTkNIYlRib3JBVklFZmdwbVhcIiBjbGFzcz1cImNvbnRhaW5lciBzZXBvYXV4X3NjcmVlbl9zY3JvbGxcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIm1pbi13aWR0aDoxMjAwcHg7XCI+XG4gICAgICAgIDxkaXYgY2xh
+        c3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9sZWZ0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIllOQ0hiVGJVaVdWSUVmZ0hRZlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25l
+        bnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJZTkNIYlRic3FNVklFZmdtYWpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9u
+        ZW50ICBzZXBvYXV4X2Zvcm0gbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT Q.*
+			     , NVL((SELECT COUNT(1) FROM SQNAR WHERE HOUSE_CODE = Q.HOUSE_CODE AND QNA_NUMBER = Q.QNA_NUMBER AND NVL(DEL_FLAG, 'N') = 'N'), 0 ) AS REPLY_CNT
+			    
+			 FROM (
+						SELECT	Q.HOUSE_CODE	
+							,	Q.COMPANY_CODE			
+							,	Q.QNA_NUMBER
+							,	Q.SUBJECT					
+							,	Q.ATTACH_NO
+							,	Q.KEYWORDS
+							,	Q.CONTENT
+							,	Q.ADD_USER_ID
+							,	U.USER_NAME_LOC AS ADD_USER_NAME
+							,	Q.ADD_DATE
+							,	Q.DEL_FLAG
+							,	Q.QNA_COMPANY
+							,	Q.ROW_NUM
+							, 	#DB_OWNER#GETDEPTNAME('#session.HOUSE_CODE#', Q.QNA_COMPANY, Q.QNA_USER_DEPT_CODE, '#session.LANGUAGE#') AS QNA_DEPT_NAME
+							,	Q.QNA_TYPE
+							,   Q.CHECK_FLAG
+							,   Q.STATUS
+							, 	GETUSERNAME(Q.HOUSE_CODE, Q.COMPANY_CODE, Q.MANAGER, ${session.LANGUAGE}) as MANAGER
+							,   MANAGER AS MANAGER_ID
+							,   CASE WHEN Q.STATUS IN ('F','A','G','CC') THEN Q.CHANGE_DATE END AS GW_CONFIRM_DATE
+						 FROM	SQNAQ Q
+						 	LEFT OUTER JOIN SUSMT U
+						 	ON Q.HOUSE_CODE = U.HOUSE_CODE
+						 	AND Q.ADD_USER_ID = U.USER_ID
+						WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+						  AND   Q.QNA_SYSTEM = $S{session.SYSTEM_TYPE}
+					]]>
+					<if test="${QNA_FLAG}" operator="ne" value="Y">
+					<![CDATA[
+						  AND 	
+						  (
+						  		Q.QNA_USER_DEPT_CODE = ${session.DEPARTMENT}
+						  	OR
+								Q.ADD_USER_ID = ${session.ID}
+						  )
+					]]>
+					</if>
+					<if test="${session.USER_TYPE}" operator="eq" value="S">
+					<![CDATA[
+						  AND	Q.QNA_COMPANY = ${session.COMPANY_CODE}
+					]]>
+					</if>
+					<if test="${COMPANY_CODE_CONDITION}" operator="eq" value="Y">
+					<![CDATA[
+						  AND	Q.COMPANY_CODE = ${session.COMPANY_CODE}
+					]]>
+					</if>		
+						  AND	NVL(Q.DEL_FLAG, 'N') = 'N'
+						  <choose>
+							  <when test="${CNTR_TYPE}" operator="eq" value="C">
+							  AND   Q.QNA_NUMBER LIKE 'CQNA%'
+							  </when>
+							  <otherwise>
+							  AND   Q.QNA_NUMBER LIKE 'LQNA%'
+							  </otherwise>
+						  </choose>
+				  <![CDATA[
+						  AND	Q.ADD_DATE >= $S{F_WRITE_DATE_FROM}
+						  AND	Q.ADD_DATE <= $S{F_WRITE_DATE_TO}
+						  AND   Q.STATUS = $S{F_STATUS}
+				  		  AND   Q.QNA_USER_DEPT_CODE = ($INS{F_DEPT})
+						  AND	UPPER(Q.KEYWORDS) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' 
+						  AND 	(
+						  			UPPER(Q.KEYWORDS) LIKE '%' || UPPER($S{KEYWORD}) || '%'  OR
+									UPPER(Q.SUBJECT) LIKE '%' || UPPER($S{KEYWORD}) || '%'  OR
+									UPPER(U.USER_NAME_LOC) LIKE '%' || UPPER($S{KEYWORD}) || '%'  AND
+							   		1=1
+							   	)
+						) Q
+			WHERE	(
+			  			UPPER(Q.QNA_COMPANY) LIKE '%' || UPPER($S{F_USER_COMPANY}) || '%'  OR
+			  			UPPER(Q.QNA_COMPANY_NAME) LIKE '%' || UPPER($S{F_USER_COMPANY}) || '%'  AND
+			  			1=1
+			  		)
+			  AND	(
+			  			UPPER(Q.ADD_USER_ID) LIKE '%' || UPPER($S{F_ADD_USER}) || '%'  OR
+			  			UPPER(Q.ADD_USER_NAME) LIKE '%' || UPPER($S{F_ADD_USER}) || '%'  AND
+			  			1=1
+			  		)
+			  AND   (
+			  		1=1
+			  		AND UPPER(Q.MANAGER_ID) LIKE '%' || UPPER($S{F_MANAGER}) || '%'
+		  			OR UPPER(Q.MANAGER) LIKE '%' || UPPER($S{F_MANAGER}) || '%'   
+			  )
+			ORDER BY Q.QNA_NUMBER DESC						
+		]]>
+	</method>
+	
+	<method name="getQnaDetail">
+		<![CDATA[
+			SELECT	Q.QNA_NUMBER
+				,	Q.COMPANY_CODE
+				,	Q.SUBJECT
+				,	Q.ATTACH_NO
+				,	Q.KEYWORDS
+				,	Q.CONTENT
+				,	Q.ADD_USER_ID
+				,	(SELECT USER_NAME_LOC FROM SUSMT WHERE HOUSE_CODE = Q.HOUSE_CODE AND USER_ID = Q.ADD_USER_ID) AS ADD_USER_NAME
+				,	Q.ADD_DATE
+				,   NVL((SELECT COUNT(1) FROM SQNAR WHERE HOUSE_CODE = Q.HOUSE_CODE AND QNA_NUMBER = Q.QNA_NUMBER AND NVL(DEL_FLAG, 'N') = 'N'), 0) AS REPLY_CNT
+				,	Q.QNA_COMPANY
+				,	Q.QNA_TYPE
+				, 	GETDEPTNAME('012', Q.QNA_COMPANY, Q.QNA_USER_DEPT_CODE, 'KO') AS QNA_DEPT_NAME
+				,   Q.STATUS
+				,   Q.CHECK_FLAG
+				,   Q.MANAGER AS MANAGER_ID
+				,   GETUSERNAME(Q.HOUSE_CODE, Q.COMPANY_CODE, Q.MANAGER, ${session.LANGUAGE}) AS MANAGER
+			FROM	SQNAQ Q
+			WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND   QNA_NUMBER = ${QNA_NUMBER}
+			  AND	NVL(Q.DEL_FLAG, 'N') = 'N'
+		]]>
+	</method>
+
+	<!-- ST: GW INTERFACE 세션용 — LANGUAGE 불필요, 첨부키만 조회 -->
+	<method name="getQnaAttachNo">
+		<![CDATA[
+			SELECT	Q.ATTACH_NO
+			FROM	SQNAQ Q
+			WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND   Q.QNA_NUMBER = ${QNA_NUMBER}
+			  AND	NVL(Q.DEL_FLAG, 'N') = 'N'
+		]]>
+	</method>
+	
+	<method name="getQnaDetailRefLink">
+	<![CDATA[
+		SELECT
+			*
+		FROM	SQNAQ 
+			WHERE	HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND	QNA_NUMBER = 'LINK_' || ${QNA_NUMBER}
+			  AND	NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="getQnaReply">
+		<![CDATA[
+			SELECT	R.QNA_NUMBER
+				,	R.QNA_SEQ
+				,	R.ATTACH_NO
+				,	R.CONTENT
+				,	R.ADD_USER_ID
+				,	(SELECT USER_NAME_LOC FROM SUSMT WHERE HOUSE_CODE = R.HOUSE_CODE AND USER_ID = R.ADD_USER_ID) AS ADD_USER_NAME
+				,	R.ADD_DATE
+				,	R.ADD_TIME
+				,	DEL_FLAG
+				,	R.QNA_COMPANY
+			FROM	SQNAR R
+			WHERE	R.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND	R.QNA_NUMBER = ${QNA_NUMBER}
+			  AND	NVL(R.DEL_FLAG, 'N') = 'N'
+			ORDER BY
+					CAST(R.QNA_SEQ AS INT)	
+		]]>
+	</method>
+	
+	<method name="insertQna">
+		<![CDATA[
+			INSERT INTO SQNAQ
+				(
+					HOUSE_CODE
+				,	COMPANY_CODE
+				,	QNA_NUMBER
+				,	SUBJECT
+				,	ATTACH_NO
+				,	KEYWORDS
+				,	CONTENT
+				,	ADD_DATE
+				,	ADD_TIME
+				,	ADD_USER_ID
+				,	CHANGE_DATE
+				,	CHANGE_TIME
+				,	CHANGE_USER_ID
+				,	DEL_FLAG
+				,	QNA_COMPANY
+				,	QNA_TYPE
+				,	QNA_SYSTEM
+				,   QNA_USER_DEPT_CODE
+				,   CHECK_FLAG
+				,	STATUS
+				,	ROW_NUM
+				)
+				VALUES
+				(
+					${session.HOUSE_CODE}
+				,	${session.COMPANY_CODE}
+				,	${QNA_NUMBER}
+				,	${SUBJECT}
+				,	${ATTACH_NO}
+				,	${KEYWORDS}
+				,	${CONTENT}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	'N'
+				,	${session.COMPANY_CODE}
+				,	${QNA_TYPE}
+				,	${session.SYSTEM_TYPE}
+				,   ${session.DEPARTMENT}
+				,   'N'
+				,	${STATUS}
+				,	(
+						SELECT
+							TO_CHAR(MAX(TO_NUMBER(ROW_NUM)) + 1)
+						FROM SQNAQ
+						WHERE
+							HOUSE_CODE = ${session.HOUSE_CODE}
+							AND QNA_NUMBER LIKE ${QNA_DOC_TYPE}
+					) 
+				)
+		]]>
+	</method>
+	
+	<method name="duplicateInsertQna">
+		<![CDATA[
+			INSERT INTO SQNAQ
+				(
+					HOUSE_CODE
+				,	COMPANY_CODE
+				,	QNA_NUMBER
+				,	SUBJECT
+				,	ATTACH_NO
+				,	KEYWORDS
+				,	CONTENT
+				,	ADD_DATE
+				,	ADD_TIME
+				,	ADD_USER_ID
+				,	CHANGE_DATE
+				,	CHANGE_TIME
+				,	CHANGE_USER_ID
+				,	DEL_FLAG
+				,	QNA_COMPANY
+				,	QNA_TYPE
+				,	QNA_SYSTEM
+				,   QNA_USER_DEPT_CODE
+				,   CHECK_FLAG
+				)
+				VALUES
+				(
+					${session.HOUSE_CODE}
+				,	${session.COMPANY_CODE}
+				,	${LINK_QNA_NUMBER}
+				,	${SUBJECT}
+				,	${ATTACH_NO}
+				,	${KEYWORDS}
+				,	${LINK_CONTENT}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	'N'
+				,	${session.COMPANY_CODE}
+				,	${QNA_TYPE}
+				,	${session.SYSTEM_TYPE}
+				,   ${session.DEPARTMENT}
+				,   'N'
+				)
+		]]>
+	</method>
+	
+	<method name="checkReply">
+		<![CDATA[
+			SELECT QNA_SEQ FROM SQNAR 
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+				AND	QNA_NUMBER = ${QNA_NUMBER}
+				AND NVL(DEL_FLAG, 'N') = 'N'
+				AND ROWNUM <= 1
+		]]>
+	</method>
+		
+	<method name="updateQna">
+		<![CDATA[
+			UPDATE  SQNAQ
+			   SET	SUBJECT			= ${SUBJECT}
+			    ,	COMPANY_CODE	= ${session.COMPANY_CODE}
+				,	ATTACH_NO		= ${ATTACH_NO}
+			    ,	KEYWORDS 		= ${KEYWORDS}
+			    ,	CONTENT 		= ${CONTENT}
+			    ,	CHANGE_DATE 	= ${current.DATE}
+				,	CHANGE_TIME 	= ${current.TIME}
+				,	CHANGE_USER_ID 	= ${session.ID}
+				,	QNA_TYPE  		= ${QNA_TYPE}
+				,	STATUS			= ${STATUS}
+			 WHERE	HOUSE_CODE 		= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 		= ${QNA_NUMBER}
+			   AND	ADD_USER_ID		= ${session.ID} 			
+		]]>
+	</method>
+	
+	<method name="updateDuplicateQna">
+		<![CDATA[
+			UPDATE  SQNAQ
+			   SET	SUBJECT 	= ${SUBJECT}
+			    ,	COMPANY_CODE = ${session.COMPANY_CODE}
+				,	ATTACH_NO 	= ${ATTACH_NO}
+			    ,	KEYWORDS 	= ${KEYWORDS}
+			    ,	CONTENT 	= ${LINK_CONTENT}
+			    ,	CHANGE_DATE = ${current.DATE}
+				,	CHANGE_TIME = ${current.TIME}
+				,	CHANGE_USER_ID = ${session.ID}
+				,	QNA_TYPE  = ${QNA_TYPE}
+			 WHERE	HOUSE_CODE 	= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 	= ${LINK_QNA_NUMBER}
+			   AND	ADD_USER_ID	= ${session.ID} 			
+		]]>
+	</method>
+	
+	<method name="insertReply">
+		<![CDATA[
+			INSERT INTO SQNAR
+				(
+					HOUSE_CODE
+				,	QNA_NUMBER
+				,	QNA_SEQ
+				,	ATTACH_NO
+				,	CONTENT
+				,	ADD_DATE
+				,	ADD_TIME
+				,	ADD_USER_ID
+				,	CHANGE_DATE
+				,	CHANGE_TIME
+				,	CHANGE_USER_ID
+				,	DEL_FLAG
+				,	QNA_COMPANY
+				)
+				VALUES
+				(
+					${session.HOUSE_CODE}
+				,	${QNA_NUMBER}
+				,	(SELECT NVL(MAX(CAST(QNAR.QNA_SEQ AS INT)),0) + 1 
+				     FROM   SQNAR QNAR 
+				     WHERE  QNAR.HOUSE_CODE = ${session.HOUSE_CODE} 
+				     AND    QNAR.QNA_NUMBER = ${QNA_NUMBER})
+				,	${ATTACH_NO}
+				,	${CONTENT}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	'N'
+				,	${session.COMPANY_CODE}
+				)
+		]]>
+	</method>
+	
+	<method name="deleteQna">
+		<![CDATA[
+			UPDATE  SQNAQ
+			   SET	DEL_FLAG 	= 'Y'
+			    ,	CHANGE_DATE = ${current.DATE}
+				,	CHANGE_TIME = ${current.TIME}
+				,	CHANGE_USER_ID = ${session.ID}			   
+			 WHERE	HOUSE_CODE 	= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 	= ${QNA_NUMBER}
+		]]>
+		<if test="${ADD_USER_ID_CONDITION}" operator="eq" value="Y">
+		<![CDATA[			   
+			   AND	ADD_USER_ID	= ${session.ID}
+		]]>
+		</if>
+	</method>
+
+	<method name="deleteLinkQna">
+		<![CDATA[
+			DELETE FROM SQNAQ Q
+			   WHERE QNA_NUMBER = 'LINK_' || ${QNA_NUMBER}
+		]]>
+		<if test="${ADD_USER_ID_CONDITION}" operator="eq" value="Y">
+		<![CDATA[			   
+			   AND	ADD_USER_ID	= ${session.ID}
+		]]>
+		</if>
+	</method>
+	
+	<method name="deleteReply">
+		<![CDATA[
+			UPDATE  SQNAR
+			   SET	DEL_FLAG 	= 'Y'
+			    ,	CHANGE_DATE = ${current.DATE}
+				,	CHANGE_TIME = ${current.TIME}
+				,	CHANGE_USER_ID = ${session.ID}			   
+			 WHERE	HOUSE_CODE 	= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 	= ${QNA_NUMBER}
+			   AND	QNA_SEQ = ${QNA_SEQ}
+		]]>
+		<if test="${ADD_USER_ID_CONDITION}" operator="eq" value="Y">
+		<![CDATA[			   
+			   AND	ADD_USER_ID	= ${session.ID}
+		]]>
+		</if>
+	</method>
+	
+	<method name="doCheckFlagUpdate">
+	<![CDATA[
+		UPDATE SQNAQ
+		SET CHECK_FLAG = ${CHECK_FLAG}
+			, STATUS = ${STATUS}
+			, CHANGE_DATE = ${current.DATE}
+			, CHANGE_TIME = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND	QNA_NUMBER = ${QNA_NUMBER}
+			AND NVL(DEL_FLAG, 'N') = 'N'
+			AND NVL(CHECK_FLAG, 'N') <> 'Y'
+			AND STATUS IN ('L', 'A')
+	]]>
+	</method>
+	
+	<!-- ST: 담당자 이견없음(L) / 검토요청(A) 확정 -->
+	<method name="doFinalizeReviewUpdate">
+	<![CDATA[
+		UPDATE SQNAQ
+		   SET STATUS = ${STATUS}
+		     , CHANGE_DATE = ${current.DATE}
+		     , CHANGE_TIME = ${current.TIME}
+		     , CHANGE_USER_ID = ${session.ID}
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND QNA_NUMBER = ${QNA_NUMBER}
+		   AND NVL(DEL_FLAG, 'N') = 'N'
+		   AND STATUS = 'G'
+		   AND MANAGER = ${session.ID}
+	]]>
+	</method>
+	
+	<method name="doCheckWriteInfo">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+			, COMPANY_CODE
+			, QNA_NUMBER
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+		FROM
+			SQNAQ
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND QNA_NUMBER = ${QNA_NUMBER}
+	]]>
+	</method>
+	
+	<method name="getQnaListNumber">
+		<![CDATA[
+			SELECT Q.*
+			     , NVL((SELECT COUNT(1) FROM SQNAR WHERE HOUSE_CODE = Q.HOUSE_CODE AND QNA_NUMBER = Q.QNA_NUMBER AND NVL(DEL_FLAG, 'N') = 'N'), 0 ) AS REPLY_CNT
+			    
+			 FROM (
+						SELECT	Q.HOUSE_CODE	
+							,	Q.COMPANY_CODE			
+							,	Q.QNA_NUMBER
+							,	Q.SUBJECT					
+							,	Q.ATTACH_NO
+							,	Q.KEYWORDS
+							,	Q.ADD_USER_ID
+							,	U.USER_NAME_LOC AS ADD_USER_NAME
+							,	Q.ADD_DATE
+							,	Q.DEL_FLAG
+							,	Q.QNA_COMPANY
+							, 	#DB_OWNER#GETDEPTNAME('#session.HOUSE_CODE#', Q.QNA_COMPANY, Q.QNA_USER_DEPT_CODE, '#session.LANGUAGE#') AS QNA_DEPT_NAME
+							,	Q.QNA_TYPE
+							,   Q.CHECK_FLAG
+                            ,   Q.ROW_NUM
+						 FROM	SQNAQ Q
+						 	LEFT OUTER JOIN SUSMT U
+						 	ON Q.HOUSE_CODE = U.HOUSE_CODE
+						 	AND Q.ADD_USER_ID = U.USER_ID
+						WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+						  AND   Q.QNA_SYSTEM = $S{session.SYSTEM_TYPE}
+					]]>
+					<if test="${QNA_FLAG}" operator="ne" value="Y">
+					<![CDATA[
+						  AND 	(Q.QNA_USER_DEPT_CODE = ${session.DEPARTMENT}
+						  			or
+						  		 Q.ADD_USER_ID = ${session.ID}
+						  		)
+					]]>
+					</if>
+					<if test="${session.USER_TYPE}" operator="eq" value="S">
+					<![CDATA[
+						  AND	Q.QNA_COMPANY = ${session.COMPANY_CODE}
+					]]>
+					</if>
+					<if test="${COMPANY_CODE_CONDITION}" operator="eq" value="Y">
+					<![CDATA[
+						  AND	Q.COMPANY_CODE = ${session.COMPANY_CODE}
+					]]>
+					</if>		
+						  AND	NVL(Q.DEL_FLAG, 'N') = 'N'
+						  <choose>
+							  <when test="${CNTR_TYPE}" operator="eq" value="C">
+							  AND   Q.QNA_NUMBER LIKE 'CQNA%'
+							  </when>
+							  <otherwise>
+							  AND   Q.QNA_NUMBER LIKE 'LQNA%'
+							  </otherwise>
+						  </choose>
+				  <![CDATA[
+						  AND	Q.ADD_DATE >= $S{F_WRITE_DATE_FROM}
+						  AND	Q.ADD_DATE <= $S{F_WRITE_DATE_TO}
+						  AND	UPPER(Q.KEYWORDS) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' 
+						  AND 	(
+						  			UPPER(Q.KEYWORDS) LIKE '%' || UPPER($S{KEYWORD}) || '%'  OR
+									UPPER(Q.SUBJECT) LIKE '%' || UPPER($S{KEYWORD}) || '%'  OR
+									UPPER(U.USER_NAME_LOC) LIKE '%' || UPPER($S{KEYWORD}) || '%'  AND
+							   		1=1
+							   	)
+						) Q
+			WHERE	(
+			  			UPPER(Q.QNA_COMPANY) LIKE '%' || UPPER($S{F_USER_COMPANY}) || '%'  OR
+			  			UPPER(Q.QNA_COMPANY_NAME) LIKE '%' || UPPER($S{F_USER_COMPANY}) || '%'  AND
+			  			1=1
+			  		)
+			  AND	(
+			  			UPPER(Q.ADD_USER_ID) LIKE '%' || UPPER($S{F_ADD_USER}) || '%'  OR
+			  			UPPER(Q.ADD_USER_NAME) LIKE '%' || UPPER($S{F_ADD_USER}) || '%'  AND
+			  			1=1
+			  		)				   	
+			ORDER BY Q.QNA_NUMBER DESC						
+		]]>
+	</method>
+	
+	<method name="doUpdateDocStatus">
+	<![CDATA[
+		UPDATE  SQNAQ
+		   SET	STATUS			= ${STATUS}
+		 WHERE	HOUSE_CODE 		= ${session.HOUSE_CODE}
+		   AND	QNA_NUMBER 		= ${QNA_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doUpdateQnaManager">
+	<![CDATA[
+		UPDATE SQNAQ
+		SET MANAGER = ${MANAGER}
+		WHERE	HOUSE_CODE 		= ${session.HOUSE_CODE}
+		   AND	QNA_NUMBER 		= ${QNA_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doSelectQnaForStartReview">
+	<![CDATA[
+		SELECT
+			Q.QNA_NUMBER
+			, Q.STATUS
+			, Q.MANAGER
+			, NVL(Q.CHECK_FLAG, 'N') AS CHECK_FLAG
+		FROM SQNAQ Q
+		WHERE Q.HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND Q.COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND Q.QNA_NUMBER = ${QNA_NUMBER}
+		  AND NVL(Q.DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doStartReviewUpdate">
+	<![CDATA[
+		UPDATE SQNAQ
+		   SET MANAGER = ${session.ID}
+		     , STATUS = 'G'
+		     , CHANGE_DATE = ${current.DATE}
+		     , CHANGE_TIME = ${current.TIME}
+		     , CHANGE_USER_ID = ${session.ID}
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND QNA_NUMBER = ${QNA_NUMBER}
+		   AND NVL(DEL_FLAG, 'N') = 'N'
+		   AND STATUS = 'F'
+	]]>
+	</method>
+	
+	<!-- ST: 담당자 이견없음(L)/검토완료(A) → 검토진행중(G) 회수 (팀장 CHECK_FLAG=Y 전) -->
+	<method name="doRecallReviewUpdate">
+	<![CDATA[
+		UPDATE SQNAQ
+		   SET STATUS = 'G'
+		     , CHANGE_DATE = ${current.DATE}
+		     , CHANGE_TIME = ${current.TIME}
+		     , CHANGE_USER_ID = ${session.ID}
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND QNA_NUMBER = ${QNA_NUMBER}
+		   AND NVL(DEL_FLAG, 'N') = 'N'
+		   AND STATUS IN ('L', 'A')
+		   AND NVL(CHECK_FLAG, 'N') <> 'Y'
+		   AND MANAGER = ${session.ID}
+	]]>
+	</method>
+	
+	<method name="doSelectSDEPT">
+	<![CDATA[
+		SELECT HOUSE_CODE
+			 , COMPANY_CODE
+			 , DEPT
+			 , DEPT_NAME_LOC
+			 , PARENT_DEPT
+ 		FROM   SDEPT
+		WHERE  HOUSE_CODE   = ${session.HOUSE_CODE}
+		AND	   COMPANY_CODE = ${session.COMPANY_CODE}
+	]]>
+	</method>
+	
+	<method name="doQueryResponsibilityCode">
+	<![CDATA[
+		SELECT RESPONSIBILITY
+ 		FROM   SUSMT
+		WHERE  HOUSE_CODE   = ${session.HOUSE_CODE}
+		AND	   COMPANY_CODE = ${session.COMPANY_CODE}
+		AND    USER_ID 		= ${session.ID}
+	]]>
+	</method>
+	
+	<method name="doSelectSQNAQ">
+	<![CDATA[
+		SELECT Q.*
+			     , NVL((SELECT COUNT(1) FROM SQNAR WHERE HOUSE_CODE = Q.HOUSE_CODE AND QNA_NUMBER = Q.QNA_NUMBER AND NVL(DEL_FLAG, 'N') = 'N'), 0 ) AS REPLY_CNT
+			    
+			 FROM (
+						SELECT	Q.HOUSE_CODE	
+							,	Q.COMPANY_CODE			
+							,	Q.QNA_NUMBER
+							,	Q.SUBJECT					
+							,	Q.ATTACH_NO
+							,	Q.KEYWORDS
+							,	Q.CONTENT
+							,	Q.ADD_USER_ID
+							,	U.USER_NAME_LOC AS ADD_USER_NAME
+							,	Q.ADD_DATE
+							,	Q.DEL_FLAG
+							,	Q.QNA_COMPANY
+							,	Q.ROW_NUM
+							, 	#DB_OWNER#GETDEPTNAME('#session.HOUSE_CODE#', Q.QNA_COMPANY, Q.QNA_USER_DEPT_CODE, '#session.LANGUAGE#') AS QNA_DEPT_NAME
+							,	Q.QNA_TYPE
+							,   Q.CHECK_FLAG
+							,   Q.STATUS
+							,   Q.QNA_USER_DEPT_CODE
+							, 	GETUSERNAME(Q.HOUSE_CODE, Q.COMPANY_CODE, Q.MANAGER, ${session.LANGUAGE}) as MANAGER
+							,   MANAGER AS MANAGER_ID
+							,   CASE WHEN Q.STATUS IN ('F','A','G','CC') THEN Q.CHANGE_DATE ELSE '' END AS GW_CONFIRM_DATE
+						 FROM	SQNAQ Q
+						 	LEFT OUTER JOIN SUSMT U
+						 	ON Q.HOUSE_CODE = U.HOUSE_CODE
+						 	AND Q.ADD_USER_ID = U.USER_ID
+						WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+                          AND   Q.COMPANY_CODE = ${session.COMPANY_CODE}
+						  AND	NVL(Q.DEL_FLAG, 'N') = 'N'
+						  AND   Q.QNA_SYSTEM = $S{session.SYSTEM_TYPE}
+	]]>
+	<choose>
+		<when test="${CNTR_TYPE}" operator="eq" value="C">
+		AND   Q.QNA_NUMBER LIKE 'CQNA%'
+		</when>
+		<otherwise>
+		AND   Q.QNA_NUMBER LIKE 'LQNA%'
+		</otherwise>
+	</choose> 
+	  <![CDATA[
+				  AND	Q.ADD_DATE >= $S{F_WRITE_DATE_FROM}
+				  AND	Q.ADD_DATE <= $S{F_WRITE_DATE_TO}
+				  AND   Q.STATUS = $S{F_STATUS}
+				  AND   Q.QNA_USER_DEPT_CODE = ($INS{F_DEPT})
+				  AND	UPPER(Q.KEYWORDS) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' 
+				  AND 	(
+				  			UPPER(Q.KEYWORDS) LIKE '%' || UPPER($S{KEYWORD}) || '%'  OR
+							UPPER(Q.SUBJECT) LIKE '%' || UPPER($S{KEYWORD}) || '%'  OR
+							UPPER(U.USER_NAME_LOC) LIKE '%' || UPPER($S{KEYWORD}) || '%'  AND
+					   		1=1
+					   	)
+						) Q
+			WHERE	(
+			  			UPPER(Q.QNA_COMPANY) LIKE '%' || UPPER($S{F_USER_COMPANY}) || '%'  OR
+			  			UPPER(Q.QNA_COMPANY_NAME) LIKE '%' || UPPER($S{F_USER_COMPANY}) || '%'  AND
+			  			1=1
+			  		)
+			  AND	(
+			  			UPPER(Q.ADD_USER_ID) LIKE '%' || UPPER($S{F_ADD_USER}) || '%'  OR
+			  			UPPER(Q.ADD_USER_NAME) LIKE '%' || UPPER($S{F_ADD_USER}) || '%'  AND
+			  			1=1
+			  		)
+			  AND   (
+			  		1=1
+			  		AND UPPER(Q.MANAGER_ID) LIKE '%' || UPPER($S{F_MANAGER}) || '%'
+		  			OR UPPER(Q.MANAGER) LIKE '%' || UPPER($S{F_MANAGER}) || '%'   
+			  )
+			ORDER BY Q.QNA_NUMBER DESC						
+		]]>
+	</method>
+	<method name="doQueryExcelHeaderData">
+	<![CDATA[
+		SELECT
+			Q.ROW_NUM
+			, Q.QNA_NUMBER
+			, NVL(
+				(
+					SELECT COUNT(1)
+					FROM SQNAR R
+					WHERE R.HOUSE_CODE = Q.HOUSE_CODE
+					AND R.QNA_NUMBER = Q.QNA_NUMBER
+					AND NVL(R.DEL_FLAG, 'N') = 'N'
+				),
+				0
+			) AS REPLY_CNT
+			, Q.SUBJECT
+			, Q.CONTENT
+			, Q.KEYWORDS
+			, D.DEPT_NAME_LOC AS QNA_USER_DEPT_NAME
+			, U.USER_NAME_LOC AS ADD_USER_NAME_LOC
+			, Q.ADD_DATE
+			, SUBSTR(LPAD(NVL(TO_CHAR(Q.ADD_TIME),'000000'),6,'0'),1,2) || ':' || SUBSTR(LPAD(NVL(TO_CHAR(Q.ADD_TIME),'000000'),6,'0'),3,2) || ':' || SUBSTR(LPAD(NVL(TO_CHAR(Q.ADD_TIME),'000000'),6,'0'),5,2) AS ADD_TIME
+			, SC.TEXT1 AS STATUS
+			, U2.USER_NAME_LOC AS MANAGER
+			, CASE WHEN Q.STATUS IN ('F','A','G','CC') THEN Q.CHANGE_DATE ELSE '' END AS GW_CONFIRM_DATE
+		FROM SQNAQ Q
+		LEFT OUTER JOIN SUSMT U
+			ON Q.HOUSE_CODE = U.HOUSE_CODE
+			AND Q.ADD_USER_ID = U.USER_ID
+		LEFT OUTER JOIN SUSMT U2
+			ON Q.HOUSE_CODE = U2.HOUSE_CODE
+			AND Q.MANAGER = U2.USER_ID
+		LEFT OUTER JOIN SDEPT D
+			ON Q.HOUSE_CODE = D.HOUSE_CODE
+			AND U.DEPT = D.DEPT
+		LEFT OUTER JOIN SCODE SC
+			ON Q.HOUSE_CODE = SC.HOUSE_CODE
+			AND SC.TYPE = 'QA001'
+			AND SC.CODE = Q.STATUS
+			AND SC.LANGUAGE = ${session.LANGUAGE}
+		WHERE Q.HOUSE_CODE   = ${session.HOUSE_CODE}
+			AND Q.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND Q.QNA_NUMBER IN ($INS{SELECTED_QNA_NUMBERS})
+		ORDER BY Q.QNA_NUMBER DESC
+	]]>
+	</method>
+	<method name="doQueryExcelReplyData">
+	<![CDATA[
+		SELECT R.QNA_NUMBER
+			, R.QNA_SEQ
+			, R.CONTENT
+			, D.DEPT_NAME_LOC AS QNA_USER_DEPT_NAME
+			, U.USER_NAME_LOC AS ADD_USER_NAME_LOC
+			, R.ADD_DATE
+			, SUBSTR(LPAD(NVL(TO_CHAR(R.ADD_TIME),'000000'),6,'0'),1,2) || ':' || SUBSTR(LPAD(NVL(TO_CHAR(R.ADD_TIME),'000000'),6,'0'),3,2) || ':' || SUBSTR(LPAD(NVL(TO_CHAR(R.ADD_TIME),'000000'),6,'0'),5,2) AS ADD_TIME
+		FROM SQNAR R
+		LEFT OUTER JOIN SUSMT U
+			ON R.HOUSE_CODE = U.HOUSE_CODE
+			AND R.ADD_USER_ID = U.USER_ID
+		LEFT OUTER JOIN SDEPT D
+			ON R.HOUSE_CODE = D.HOUSE_CODE
+			AND U.DEPT = D.DEPT
+		WHERE R.HOUSE_CODE	= ${session.HOUSE_CODE}
+			AND	R.QNA_NUMBER IN ($INS{SELECTED_QNA_NUMBERS})
+		ORDER BY R.QNA_NUMBER DESC, QNA_SEQ ASC
+	]]>
+	</method>
+	
+	<!-- ST: 날인연동용 QnA 헤더 -->
+	<method name="doSelectQnaForSealLink">
+	<![CDATA[
+		SELECT
+			Q.QNA_NUMBER
+			, Q.SUBJECT
+			, Q.STATUS
+			, Q.CHECK_FLAG
+			, Q.ADD_USER_ID
+			, Q.ATTACH_NO
+			, Q.MANAGER
+		FROM SQNAQ Q
+		WHERE Q.HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND Q.COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND Q.QNA_NUMBER = ${QNA_NUMBER}
+		  AND NVL(Q.DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<!-- ST: 검토요청(A)/검토완료(CC) — 댓글 첨부 중 마지막 건 -->
+	<method name="doSelectLastReplyAttach">
+	<![CDATA[
+		SELECT * FROM (
+			SELECT
+				R.QNA_NUMBER
+				, R.QNA_SEQ
+				, R.ATTACH_NO
+				, R.ADD_DATE
+				, R.ADD_TIME
+			FROM SQNAR R
+			WHERE R.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND R.QNA_NUMBER = ${QNA_NUMBER}
+			  AND NVL(R.DEL_FLAG, 'N') = 'N'
+			  AND NVL(TRIM(R.ATTACH_NO), '0') <> '0'
+			ORDER BY R.ADD_DATE DESC, R.ADD_TIME DESC, TO_NUMBER(R.QNA_SEQ) DESC
+		) WHERE ROWNUM = 1
+	]]>
+	</method>
+	
+	<!-- ST: 첨부파일(SFILE) 목록 -->
+	<method name="doSelectAttachFiles">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+			, DOC_NO
+			, DOC_SEQ
+			, TYPE
+			, DES_FILE_NAME
+			, SRC_FILE_NAME
+			, FILE_SIZE
+			, DEL_FLAG
+			, ROOT_PATH
+		FROM SFILE
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND DOC_NO = ${ATTACH_NO}
+		  AND NVL(DEL_FLAG, 'N') = 'N'
+		ORDER BY TO_NUMBER(DOC_SEQ)
+	]]>
+	</method>
+	
+	<!-- ST: 동일 QnA 날인연동 중복 여부 -->
+	<method name="doSelectSealBySourceNo">
+	<![CDATA[
+		SELECT
+			SMR_NUMBER
+			, SMR_STATUS
+			, SOURCE_NO
+		FROM SSIAD
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND SOURCE_NO = ${SOURCE_NO}
+		  AND NVL(DEL_FLAG, 'N') = 'N'
+		ORDER BY SMR_NUMBER DESC
+	]]>
+	</method>
+</service>

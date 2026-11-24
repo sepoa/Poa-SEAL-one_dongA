@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_025_2" header="false">
+    <button id="btnObj">
+        <btn div="xJJKiudYREGsMjqrFT" id="new" type="new" text="{AD_025.NEW}" toggle="false" reverse="false"/>
+        <btn div="xJJKiudYREGsMjqrFT" id="save" type="save" text="{AD_025.SAVE}" toggle="false" reverse="false"/>
+        <btn div="xJJKiudYREGsMjqrFT" id="deleteButton" type="delete" text="{BUTTON.delete}" toggle="false" reverse="false" onclick="doDelete(  )"/>
+    </button>
+    <usercss>
+    <![CDATA[
+        div.normalButton {
+            display: block;
+            z-index: 1;
+            float: right;
+            padding: 10px;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="formBox" value="$($sObject._vp).find('#kUbDjudDPkDjudhyag')[0]"/>
+        <var name="formContainer" value="$($sObject._vp).find('#kUbDjudDPkDjuddjeG')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+            callFunction("parent", "changeHeaderIcon", ["b", "show", "new,save"]);
+            
+            Sepoa.attachEvent("onButtonClick", function(id) {
+                switch (id) {
+                    case "new":
+                        doNewWrite();
+                        break;
+            
+                    case "save":
+                        doSave();
+                        break;
+            
+                    case "restoreButton":
+                        doRestore();
+                        break;
+            
+                    case "deleteButton":
+                        doDelete();
+                        break;
+                }
+            });
+        ]]>
+        <call name="initForm"/>
+    </onloadscript>
+    <userscript>
+        <var name="g_new_ref" value="{}"/>
+        <var name="formObj"/>
+        <function name="initForm">
+        <![CDATA[
+            var formOption = sUtils.cache.form.load(window.CONTEXT_NAME + '/resource/ux/admin/form/AD_025_2.js');
+            formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(formBox, 'formObj', [formOption], true);
+        ]]>
+        </function>
+        <function name="doNewWrite" args="">
+        <![CDATA[
+            doFormClear();
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            if (!formObj.validate()) {
+            
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+            }
+            
+            if (!doCheckPassword(formObj.getValue("PASSWORD"), formObj.getValue("PASSWORD_CONFIRM"))) {
+                Alert(Sepoa.cache.text.get('AD_025.0003'));
+                return;
+            }
+            
+            Confirm(Sepoa.cache.text.get('AD_025.0001'), function(result) {
+                if (result) {
+                    if (g_new_ref.editForm == true) {
+                        doUpdate();
+                    } else {
+                        doInsert();
+                    }
+                }
+            });
+        ]]>
+        </function>
+        <function name="doInsert" args="">
+        <![CDATA[
+            var house_code = formObj.getValue("HOUSE_CODE");
+            var user_id = formObj.getValue("USER_ID");
+            var is_exist = false;
+            
+            doServiceAjax('sepoa.svc.admin.AD_025', 'CONNECTION', 'doUserCheck', {
+                USER_ID: user_id,
+                HOUSE_CODE: house_code
+            }, function(so) {
+            
+                if (so.status != 1) {
+                    Alert(so.message);
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+            
+                if (sf.getValue("IS_EXIST") === "true") {
+                    is_exist = true;
+                }
+            
+            }, false);
+            
+            if (is_exist) {
+                Alert(Sepoa.cache.text.get('AD_025.0005'));
+                return;
+            }
+            
+            doServiceAjax('sepoa.svc.admin.AD_025', 'TRANSACTION', 'doInsertForm', null, function(so) {
+            
+                if (so.status != 1) {
+                    Alert(so.message);
+                    return;
+                }
+            
+                Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+                callFunction('AD_025_1', 'doQueryList', []);
+            });
+        ]]>
+        </function>
+        <function name="doUpdate" args="">
+        <![CDATA[
+            var house_code = formObj.getValue("HOUSE_CODE");
+            var user_id = formObj.getValue("USER_ID");
+            
+            doServiceAjax('sepoa.svc.admin.AD_025', 'TRANSACTION', 'doUpdateForm', null, function(so) {
+            
+                if (so.status != 1) {
+                    Alert(so.message);
+                    return;
+                }
+            
+                Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+                doQueryForm(house_code, user_id);
+            });
+        ]]>
+        </function>
+        <function name="doRestore" args="">
+        <![CDATA[
+            var house_code = formObj.getValue("HOUSE_CODE");
+            var user_id = formObj.getValue("USER_ID");
+            
+            Confirm(Sepoa.cache.text.get('AD_025.0002'), function(result) {
+                if (result) {
+                    doServiceAjax('sepoa.svc.admin.AD_025', 'TRANSACTION', 'doRestore', {
+                        HOUSE_CODE: house_code,
+                        USER_ID: user_id
+                    }, function(so) {
+                        if (so.status != 1) {
+                            Alert(so.message);
+                            return;
+                        }
+            
+                        Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+                        doQueryForm(house_code, user_id);
+            
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doDelete" args="">
+        <![CDATA[
+            var house_code = formObj.getValue("HOUSE_CODE");
+            var user_id = formObj.getValue("USER_ID");
+            
+            Confirm(Sepoa.cache.text.get('AD_025.0006'), function(result) {
+                if (result) {
+                    doServiceAjax('sepoa.svc.admin.AD_025', 'TRANSACTION', 'doDelete', {
+                        HOUSE_CODE: house_code,
+                        USER_ID: user_id
+                    }, function(so) {
+                        if (so.status != 1) {
+                            Alert(so.message);
+                            return;
+                        }
+            
+                        Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+                        callFunction('AD_025_1', 'doQueryList', []);
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doFormClear" args="">
+        <![CDATA[
+            formObj.clear();
+            g_new_ref.editForm = false;
+            
+            formObj.setValue("COUNTRY", "KR");
+            formObj.setValue("DATE_FORMAT", "%Y/%m/%d");
+            formObj.setValue("HOUSE_CODE", "000");
+            formObj.setReadonly("USER_ID", false);
+            formObj.setReadonly("EMAIL", false);
+            formObj.setReadonly("PASSWORD", true);
+            formObj.setReadonly("PASSWORD_CONFIRM", true);
+            
+            doDisableForm('false');
+            
+            callFunction('AD_025_1', 'doRowUnSelect', []);
+        ]]>
+        </function>
+        <function name="doQueryForm" args="house_code, user_id">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.AD_025', 'CONNECTION', 'doQueryForm', {
+                HOUSE_CODE: house_code,
+                USER_ID: user_id
+            }, function(so) {
+                if (so.status != 1) {
+                    Alert(so.message);
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+            
+                if (sf.getRowCount() > 0) {
+                    formObj.dataMapper(sf);
+            
+                    g_new_ref.editForm = true;
+            
+                    formObj.setReadonly("USER_ID", true);
+                    formObj.setReadonly("EMAIL", true);
+                    formObj.setReadonly("PASSWORD", false);
+                    formObj.setReadonly("PASSWORD_CONFIRM", false);
+                }
+            }, false);
+        ]]>
+        </function>
+        <function name="doDisableForm" args="flag">
+        <![CDATA[
+            var headerSwitch = flag === "true" ? "hide" : "show";
+            
+            callFunction('parent', 'changeHeaderIcon', ['b', headerSwitch, 'new,save']);
+            
+            formObj.setViewMode(flag === "true");
+            btnObj.showButton('restoreButton', flag === "true");
+            btnObj.showButton('deleteButton', flag === "true");
+        ]]>
+        </function>
+        <function name="doCheckPassword" args="password, password_confirm">
+        <![CDATA[
+            if (password != password_confirm) {
+                return false;
+            }
+            
+            return true;
+        ]]>
+        </function>
+        <function name="onBeforeChangeCallback" args="itemName, ev, itemValue">
+        <![CDATA[
+            switch (itemName) {
+            
+                case "USER_ID":
+            
+                    formObj.setValue("EMAIL", itemValue + "@sepoasoft.co.kr");
+                    break;
+                case "EMAIL":
+            
+                    var index = itemValue.indexOf("@");
+            
+                    if (index > 0) {
+                        formObj.setValue("USER_ID", itemValue.substring(0, index));
+                    }
+            
+                    break;
+            }
+            
+            return true;
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsidkpKS2l1ZGtFVnRyTWpxVHdiIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8wemNsaEdqd3BpOUMiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkXzVQV2dVRzRZMUM0biI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX2RmZTVSTXprRzNSRSI6Im51bGwiLCJkaHhJZF94RENuTGRjU3d6c0EiOiJudWxsIiwiZGh4SWRfZ3NqRjJSUkxHRmlsIjoibnVsbCIsImRoeElkXzIyQWZUNVRJSjhMQSI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF8wMjVfMiIs
+        Ik9CSkVDVF9JRCI6InZKSktpdWRrRVZ0ck1qcVR3YiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6InZKSktpdWRrRVZ0ck1qcVR3YiIsInR5cGUiOiJib2R5In0sInhKSktpdWRZUkVHc01qcXJGVCI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMF9TTENPREUiOiJBRF8wMjUuTkVX
+        IiwiSVRFTV8xX1NMQ09ERSI6IkFEXzAyNS5TQVZFIiwiSVRFTV8yX1BBUkFNIjoiIiwiSVRFTV8xX1RFWFQiOiJIYXMgbm90IGZvdW5kIHRleHQgOiBBRF8wMjUuU0FWRSIsIklURU1fMF9TT1JUIjoiMSIsIk9CSkVDVF9JRCI6InhKSktpdWRZUkVHc01qcXJGVCIsIklURU1fMl9TT1JUIjoiMyIsIklURU1fMV9UWVBFIjoic2F2ZSIsIklURU1fMl9JRCI6ImRlbGV0ZUJ1dHRvbiIsIklURU1fMF9JRCI6Im5ldyIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8yX09OQ0xJQ0siOiJkb0RlbGV0ZSIsIklURU1fMF9UWVBFIjoibmV3IiwiSVRFTV8xX1JFVkVSU0UiOmZhbHNlLCJJVEVNXzJfVEVYVCI6IrvowaYiLCJJVEVNXzFfVE9HR0xFIjpmYWxzZSwiSVRF
+        TV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMl9UT0dHTEUiOmZhbHNlLCJJVEVNXzJfVFlQRSI6ImRlbGV0ZSIsIklURU1fMV9TT1JUIjoiMiIsIklURU1fMl9SRVZFUlNFIjpmYWxzZSwiSVRFTV8yX1NMQ09ERSI6IkJVVFRPTi5kZWxldGUiLCJJVEVNXzFfSUQiOiJzYXZlIiwiSVRFTV8wX1RFWFQiOiJIYXMgbm90IGZvdW5kIHRleHQgOiBBRF8wMjUuTkVXIn0sImlkIjoieEpKS2l1ZFlSRUdzTWpxckZUIiwidHlwZSI6ImJ1dHRvbiIsImJ1dHRvbiI6ImJ1dHRvbiJ9LCJrVWJEanVkRFBrRGp1ZGh5YWciOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwi
+        OiIiLCJkaHhJZF9FZ3Y0R29MdXEzdlUiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1Cb3giLCJPQkpFQ1RfSUQiOiJrVWJEanVkRFBrRGp1ZGh5YWcifSwiaWQiOiJrVWJEanVkRFBrRGp1ZGh5YWciLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwia1ViRGp1ZERQa0RqdWRkamVHIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9WRjg2dVlVUGtmNk4iOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElk
+        X3VNY0dvUlRvZ1lYUCI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF94MHRvazJXYVhteG8iOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF93Y0xFZU1zZnVlN3AiOiJudWxsIiwiZGh4SWRfVlFESFBpT2Zza1BYIjoibnVsbCIsImRoeElkX3pGOE1rVG11WW9ldiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJmb3JtQ29udGFpbmVyIiwiT0JKRUNUX0lEIjoia1ViRGp1ZERQa0RqdWRkamVHIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJrVWJEanVkRFBrRGp1ZGRqZUciLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoidkpKS2l1ZGtFVnRyTWpxVHdiIiwi
+        dHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJ4SkpLaXVkWVJFR3NNanFyRlQiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6ImtVYkRqdWREUGtEanVkZGplRyIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJrVWJEanVkRFBrRGp1ZGh5YWciLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vVXNlci9Vc2VyTWFuYWdlbWVudC9Vc2VyTWFuYWdlbWVudFdyaXRlLnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiQWRtaW4vVXNlci9Vc2VyTWFuYWdlbWVudCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlVzZXJNYW5hZ2VtZW50V3Jp
+        dGUiLCJDT0RFIjoiMDI1XzIiLCJQUkVGSVgiOiJBRCIsIlNDUkVFTl9JRCI6IkFEXzAyNV8yIn19LCJodG1sIjoiPGRpdiBpZD1cInZKSktpdWRrRVZ0ck1qcVR3YlwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0
+        ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInhKSktpdWRZUkVHc01qcXJGVFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+
+        XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwia1ViRGp1ZERQa0RqdWRkamVHXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291
+        dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJrVWJEanVkRFBrRGp1ZGh5YWdcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

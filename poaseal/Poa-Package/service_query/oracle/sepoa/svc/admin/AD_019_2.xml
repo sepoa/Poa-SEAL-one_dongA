@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doFormLoad">
+	<![CDATA[
+		SELECT USMT.COMPANY_CODE
+			, USMT.COMPANY_CODE AS SELLER_CODE
+			, USMT.PLANT_CODE
+			, USMT.DEPT
+			, USMT.POSITION
+			, USMT.EMPLOYEE_NO
+			, USMT.USER_ID
+			, USMT.USER_NAME_LOC
+			, USMT.USER_NAME_ENG
+			, USMT.SIGN_STATUS
+			, USMT.USER_TYPE
+			, USMT.WORK_TYPE
+			, USMT.EMAIL
+			, USMT.STATE
+			, USMT.THEME
+			, #DB_OWNER#GETDEPTNAME(USMT.HOUSE_CODE, USMT.COMPANY_CODE, USMT.DEPT, 'KO') AS DEPT_NAME
+			, USMT.COUNTRY
+			, USMT.TIME_ZONE
+			, USMT.LANGUAGE
+			, USMT.DATE_FORMAT
+			, USMT.MENU_PROFILE_CODE
+			, USMT.RESPONSIBILITY
+			, BAGL.CTRL_NAME_LOC
+			, ADDR.PHONE_NO1
+			, ADDR.PHONE_NO2
+			, ADDR.ZIP_CODE
+			, ADDR.ADDRESS_LOC
+			, ADDR.ADDRESS_ENG 
+			, USMT.EMPLOYEE_NO
+			-- , USMT.COSTCETNER_CODE
+		FROM SUSMT USMT 
+		LEFT OUTER JOIN SADDR ADDR ON
+			USMT.HOUSE_CODE = ADDR.HOUSE_CODE 
+			AND USMT.USER_ID = ADDR.CODE_NO 
+			AND ADDR.CODE_TYPE = 'USER' 
+		LEFT OUTER JOIN SBAGL BAGL ON
+			USMT.CTRL_CODE = BAGL.CTRL_CODE 
+			AND USMT.HOUSE_CODE = BAGL.HOUSE_CODE
+			AND USMT.COMPANY_CODE = BAGL.COMPANY_CODE
+		WHERE USMT.USER_ID = ${USER_ID} 
+		    AND USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+		    AND NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+	]]>
+	</method>
+	
+	<method name="doFormSave">
+	<![CDATA[
+		MERGE INTO SUSMT
+			USING DUAL
+			ON (     HOUSE_CODE = ${session.HOUSE_CODE}
+			     AND USER_ID = ${USER_ID}
+			)
+		WHEN MATCHED THEN
+		UPDATE SET
+				  COMPANY_CODE   = #DB_OWNER#NVL(${COMPANY_CODE},COMPANY_CODE)
+				, PLANT_CODE     = ${PLANT_CODE}
+				, CHANGE_DATE    = ${current.DATE}
+				, CHANGE_TIME    = ${current.TIME}
+				, DEPT           = ${DEPT}
+				, USER_NAME_LOC  = ${USER_NAME_LOC}
+				, USER_NAME_ENG  = ${USER_NAME_ENG}
+				, LANGUAGE       = ${LANGUAGE}
+				, TIME_ZONE      = ${TIME_ZONE}
+				, EMAIL          = ${EMAIL}
+				, COUNTRY        = ${COUNTRY}
+				, STATE          = ${STATE}
+				, EMPLOYEE_NO    = #DB_OWNER#NVL(${EMPLOYEE_NO},EMPLOYEE_NO)
+				, SIGN_STATUS    = 'A'
+				, POSITION       = ${POSITION}
+				, WORK_TYPE      = ${WORK_TYPE}
+				, USER_TYPE      = ${USER_TYPE}
+				, THEME          = ${THEME}
+				, CHANGE_USER_ID = ${session.ID}
+				, DATE_FORMAT    = '%Y/%m/%d'
+				, RESPONSIBILITY = ${RESPONSIBILITY}
+				, MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+		]]>
+		<if test="${PASSWORD_1}" operator="ne" value="">
+				, PASSWORD        = ${PASSWORD_1}
+				, PW_RESET_FLAG   = 'Y'
+				, PW_RESET_DATE   = ${current.DATE}  
+		</if>
+	<![CDATA[
+		WHEN NOT MATCHED THEN
+		INSERT (
+				  HOUSE_CODE
+				, USER_ID
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, CHANGE_DATE
+				, CHANGE_TIME
+				, CHANGE_USER_ID
+				, COMPANY_CODE
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, DEPT
+				, POSITION
+				, LANGUAGE
+				, MENU_TYPE
+				, TIME_ZONE
+				, EMAIL
+				, COUNTRY
+				, STATE
+				, EMPLOYEE_NO
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, DEL_FLAG
+				, LAST_LOGIN_DATE
+				, LAST_LOGIN_TIME
+				, LAST_LOGIN_IP
+				, THEME
+				, DATE_FORMAT
+				, CTRL_CODE
+				, RESPONSIBILITY
+		]]>
+		<if test="${PASSWORD_1}" operator="ne" value="">
+				, PASSWORD
+				, PW_RESET_FLAG
+				, PW_RESET_DATE
+		</if>
+		<![CDATA[			
+			) VALUES 
+			(
+				 ${session.HOUSE_CODE}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${USER_ID}
+				, ${COMPANY_CODE}
+				, ${PLANT_CODE}
+				, ${USER_NAME_LOC}
+				, ${USER_NAME_ENG}
+				, ${DEPT}
+				, ${POSITION}
+				, ${LANGUAGE}
+				, ${MENU_TYPE}
+				, ${TIME_ZONE}
+				, ${EMAIL}
+				, ${COUNTRY}
+				, ${STATE}
+				, ${EMPLOYEE_NO}
+				, 'A'
+				, ${WORK_TYPE}
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, '0'
+				, 'N'
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${LAST_LOGIN_IP}
+				, ${THEME}
+				, '%Y/%m/%d'
+				, ${CTRL_CODE}
+				, ${RESPONSIBILITY}
+		]]>
+		<if test="${PASSWORD_1}" operator="ne" value="">
+				, ${PASSWORD_1}
+				, 'Y'
+				, ${current.DATE}
+		</if>
+		<![CDATA[
+			)
+		]]>
+
+	</method>
+	
+	<method name="changeUserInfo">
+	<![CDATA[
+    	UPDATE SUSMT SET
+    		CHANGE_DATE    = ${current.DATE}
+			, CHANGE_TIME    = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+			, USER_NAME_LOC  = ${USER_NAME_LOC}
+			, USER_NAME_ENG  = ${USER_NAME_ENG}
+	]]>
+	<if test="${PASSWORD_1}" operator="ne" value="">
+			, PASSWORD = ${PASSWORD_1}
+			, PW_RESET_FLAG = 'Y'
+			, PW_RESET_DATE = ${current.DATE}  
+	</if>
+	<![CDATA[
+		WHERE USER_ID  = ${session.ID}
+			AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdateSADDR">
+	<![CDATA[
+		MERGE INTO SADDR
+			USING DUAL
+			ON ( HOUSE_CODE = ${session.HOUSE_CODE}
+				 AND CODE_NO = ${USER_ID} 
+				 AND CODE_TYPE = 'USER'
+			)
+		WHEN MATCHED THEN
+			UPDATE SET 
+			  CHANGE_DATE    = ${current.DATE}
+			, CHANGE_TIME    = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+			, EMAIL          = ${EMAIL}
+			, PHONE_NO1      = ${PHONE_NO1}
+			, PHONE_NO2      = ${PHONE_NO2}
+			, FAX_NO         = ${FAX_NO}
+		WHEN NOT MATCHED THEN 
+			INSERT  
+			(
+				  HOUSE_CODE
+				, CODE_NO
+				, CODE_TYPE
+				, ZIP_CODE
+				, PHONE_NO1
+				, FAX_NO
+				, HOMEPAGE
+				, ADDRESS_LOC
+				, ADDRESS_ENG
+				, CEO_NAME_LOC
+				, CEO_NAME_ENG
+				, EMAIL
+				, ZIP_BOX_NO
+				, PHONE_NO2
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, CHANGE_DATE
+				, CHANGE_TIME
+				, CHANGE_USER_ID
+				, DEL_FLAG
+				, ADDRESS_TEXT
+			) 
+			VALUES 
+			(
+				${session.HOUSE_CODE}
+				, ${USER_ID}
+				, 'USER'
+				, ${ZIP_CODE}
+				, ${PHONE_NO1}
+				, ${FAX_NO}
+				, ${HOMEPAGE}
+				, ${ADDRESS_LOC}
+				, ${ADDRESS_ENG}
+				, ${CEO_NAME_LOC}
+				, ${CEO_NAME_ENG}
+				, ${EMAIL}
+				, ${ZIP_BOX_NO}
+				, ${PHONE_NO2}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${USER_ID}
+				, 'N'
+				, ${ADDRESS_TEXT}
+			)
+
+	]]>
+	</method>
+	
+	<method name="doInsert_SADDR">
+	<![CDATA[
+		INSERT INTO SADDR (
+			HOUSE_CODE
+			, CODE_NO
+			, CODE_TYPE
+			, ZIP_CODE
+			, PHONE_NO1
+			, FAX_NO
+			, HOMEPAGE
+			, ADDRESS_LOC
+			, ADDRESS_ENG
+			, CEO_NAME_LOC
+			, CEO_NAME_ENG
+			, EMAIL
+			, ZIP_BOX_NO
+			, PHONE_NO2
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, ADDRESS_TEXT
+		) VALUES (
+			${session.HOUSE_CODE}
+			, ${USER_ID}
+			, 'USER'
+			, ${ZIP_CODE}
+			, ${PHONE_NO1}
+			, ${FAX_NO}
+			, ${HOMEPAGE}
+			, ${ADDRESS_LOC}
+			, ${ADDRESS_ENG}
+			, ${CEO_NAME_LOC}
+			, ${CEO_NAME_ENG}
+			, ${EMAIL}
+			, ${ZIP_BOX_NO}
+			, ${PHONE_NO2}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${USER_ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${USER_ID}
+			, 'N'
+			, ${ADDRESS_TEXT}			    
+		) 
+	]]>
+	</method>			
+	<method name="doDelete">
+    <![CDATA[
+		UPDATE SUSMT SET
+			CHANGE_DATE    = ${current.DATE},
+			CHANGE_TIME    = ${current.TIME},
+			CHANGE_USER_ID = ${session.ID},
+			DEL_FLAG       = 'Y'
+		WHERE USER_ID  = ${USER_ID}
+			AND HOUSE_CODE = ${session.HOUSE_CODE}
+    ]]>
+    </method>
+    <method name="doCheckId">
+    <![CDATA[
+    	SELECT 
+    		COUNT(*) AS CNT
+    	FROM
+    		SUSMT
+    	WHERE 
+    		HOUSE_CODE = ${HOUSE_CODE}
+    	AND COMPANY_CODE =${COMPANY_CODE}
+    	AND USER_ID =${USER_ID} 
+    ]]>
+    </method>
+    <method name="doInsertSUSMT">
+    <![CDATA[
+    	INSERT 
+    	INTO SUSMT (
+				  HOUSE_CODE
+				, USER_ID
+				, PASSWORD
+				, PW_RESET_FLAG
+				, PW_RESET_DATE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, CHANGE_DATE
+				, CHANGE_TIME
+				, CHANGE_USER_ID
+				, COMPANY_CODE
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, DEPT
+				, POSITION
+				, LANGUAGE
+				, MENU_TYPE
+				, TIME_ZONE
+				, EMAIL
+				, COUNTRY
+				, STATE
+				, EMPLOYEE_NO
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, DEL_FLAG
+				, LAST_LOGIN_DATE
+				, LAST_LOGIN_TIME
+				, LAST_LOGIN_IP
+				, THEME
+				, DATE_FORMAT
+				, CTRL_CODE
+				, RESPONSIBILITY
+				)
+			VALUES 
+			(
+				 ${session.HOUSE_CODE}
+				, ${USER_ID}
+				, ${PASSWORD_1}
+				, 'N'
+				, ${current.DATE}  
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${USER_ID}
+				, ${COMPANY_CODE}
+				, ${PLANT_CODE}
+				, ${USER_NAME_LOC}
+				, ${USER_NAME_ENG}
+				, ${DEPT}
+				, ${POSITION}
+				, ${LANGUAGE}
+				, ${MENU_TYPE}
+				, ${TIME_ZONE}
+				, ${EMAIL}
+				, ${COUNTRY}
+				, ${STATE}
+				, ${EMPLOYEE_NO}
+				, 'A'
+				, ${WORK_TYPE}
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, '0'
+				, 'N'
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${LAST_LOGIN_IP}
+				, ${THEME}
+				, '%Y/%m/%d'
+				, ${CTRL_CODE}
+				, ${RESPONSIBILITY}
+			)
+    ]]>
+    </method>
+    <method name="doUpdateSUSMT">
+    <![CDATA[
+    	UPDATE SUSMT SET
+				COMPANY_CODE   = #DB_OWNER#NVL(${COMPANY_CODE},COMPANY_CODE)
+				, PLANT_CODE     = ${PLANT_CODE}
+				, CHANGE_DATE    = ${current.DATE}
+				, CHANGE_TIME    = ${current.TIME}
+				, DEPT           = ${DEPT}
+				, USER_NAME_LOC  = ${USER_NAME_LOC}
+				, USER_NAME_ENG  = ${USER_NAME_ENG}
+				, LANGUAGE       = ${LANGUAGE}
+				, TIME_ZONE      = ${TIME_ZONE}
+				, EMAIL          = ${EMAIL}
+				, COUNTRY        = ${COUNTRY}
+				, STATE          = ${STATE}
+				, EMPLOYEE_NO    = #DB_OWNER#NVL(${EMPLOYEE_NO},EMPLOYEE_NO)
+				, SIGN_STATUS    = 'A'
+				, POSITION       = ${POSITION}
+				, WORK_TYPE      = ${WORK_TYPE}
+				, USER_TYPE      = ${USER_TYPE}
+				, THEME          = ${THEME}
+				, CHANGE_USER_ID = ${session.ID}
+				, DATE_FORMAT    = '%Y/%m/%d'
+				, RESPONSIBILITY = ${RESPONSIBILITY}
+				, MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+		WHERE USER_ID = ${USER_ID}
+		AND HOUSE_CODE = ${session.HOUSE_CODE}
+    ]]>
+    </method>
+    <method name="doSelectSDEPT">
+    <![CDATA[
+		 SELECT DEPT
+			, DEPT_NAME_LOC
+			FROM S0015
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+    ]]>
+    </method>
+</service>

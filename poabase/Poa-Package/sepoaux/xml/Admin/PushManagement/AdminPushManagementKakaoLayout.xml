@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_450_6" header="false">
+    <form id="formObj" div="ywFHaVeoifKaVevrQp" form-id="file:///resource/ux/admin/form/AD_450_6.js">
+    	<event type="onButtonClick" callback="onButtonClick"/>
+    </form>
+    <tabbar id="tabbarObj" div="CuaEiVeCsyEiVeYwwE">
+        <item id="TEMPLATE" name="AD_450_6.TABBAR_TEMPLATE_NAME" selected="true">
+            <attach file="/Admin/PushManagement/AdminPushManagementKakaoWrite.xml"/>
+        </item>
+    </tabbar>
+    <usercss>
+    <![CDATA[
+    	.CodeMirror {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ddd;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+    	<var name="$share" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            callFunction('p', 'childScreenLoad', [{
+                id:"KAKAO",
+                fn:{
+                    onBeforeSave:onBeforeSave,
+                    doClear:doClear,
+                    doRefresh: doRefresh
+                }
+            }])
+        ]]>
+        </function>
+        
+        <function name="onBeforeSave" args="data">
+        <![CDATA[
+            var vendor = formObj.getValue("KAKAO_VENDOR");
+            var templateCode = formObj.getValue("KAKAO_TEMPLATE_CODE");
+            
+            if(!sUtils.string.isBlank(vendor)){
+                data.KAKAO_VENDOR = vendor;
+            }
+            
+            if(!sUtils.string.isBlank(templateCode)){
+                data.KAKAO_TEMPLATE_CODE = templateCode;
+            }
+            
+            $share.children.fn.onBeforeSave(data);
+        ]]>
+        </function>
+        
+        <function name="doClear">
+        <![CDATA[
+            formObj.clear();
+            $share.children.fn.doClear();
+        ]]>
+        </function>
+        
+        <function name="childScreenLoad" args="config">
+        <![CDATA[
+            $share.children = config;
+        ]]>
+        </function>
+        
+        <function name="load" args="data">
+        <![CDATA[
+        	doClear();
+            formObj.setData(data, "json");
+            if(data.KAKAO_TEMPLATE){
+                callFunction('AD_450_7', 'load', [data.KAKAO_TEMPLATE]);
+            }
+        ]]>
+        </function>
+        
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+        	if(id == 'KAKAO_BIZPLUS_MOVE') {
+        		PopupOpenPostReal('https://www.ibizplus.co.kr/main', window.screen.width, window.screen.height, '', '', true);
+        	}
+        ]]>
+        </function>
+        
+        <function name="doRefresh">
+        <![CDATA[
+        	$share.children.fn.doRefresh();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsieXdGSGFWZXl3RkhhVmVnZkFrIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF90QklBaU5ScGFUbzgiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX21lYzY2V3VESVA4SiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQ1MF82IiwiT0JKRUNUX0lEIjoieXdGSGFWZXl3RkhhVmVnZkFrIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoieXdGSGFWZXl3RkhhVmVnZkFrIiwidHlw
+        ZSI6ImJvZHkifSwieXdGSGFWZW9pZkthVmV2clFwIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfTXNFREdHVVlYd0hjIjoibnVsbCIsImRoeElkX3RwY0pDMkdram5QWiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9HWkRVTHowTW5SanoiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9PaWV4M21ESUNDa1oiOiJudWxsIiwiZGh4SWRfdjlKeTlMdE9pWG9E
+        IjoibnVsbCIsImRoeElkXzdIa3hhZEs2aTByeSI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJ5d0ZIYVZlb2lmS2FWZXZyUXAiLCJGT1JNX0lEIjoiZmlsZTovLy9yZXNvdXJjZS91eC9hZG1pbi9mb3JtL0FEXzQ1MF82LmpzIn0sImlkIjoieXdGSGFWZW9pZkthVmV2clFwIiwidHlwZSI6ImZvcm0ifSwiQ3VhRWlWZUNzeUVpVmVZd3dFIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiMTAiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51
+        bGwiLCJkaHhJZF93cVlNS05MUEZka28iOiJudWxsIiwiZGh4SWRfYWVMM1JoOW4ydXY2IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2JVRTJEaG1vRGJqQiI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX09lOG9GTjJUaERXNSI6Im51bGwiLCJkaHhJZF9ScUtpeDQ0TDRjMW4iOiJudWxsIiwiZGh4SWRfbE50cVdHUW9EZlBoIjoibnVsbCIsImRoeElkXzNLS2lQZTQ4bk5vOSI6Im51bGwiLCJkaHhJZF82SjhEc0Y1T0FKTTMiOiJudWxsIiwiZGh4SWRfY25ubTdyeEFLYWVkIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGFiYmFyT2JqIiwiT0JKRUNUX0lEIjoiQ3VhRWlWZUNzeUVpVmVZd3dFIiwi
+        SVRFTV9TSFhJSVZFV1JPQ1lHVU9NVV9JRCI6IlRFTVBMQVRFIiwiSVRFTV9TSFhJSVZFV1JPQ1lHVU9NVV9TT1JUIjoiMSIsIklURU1fU0hYSUlWRVdST0NZR1VPTVVfTkFNRSI6IkhhcyBub3QgZm91bmQgdGV4dCA6IEFEXzQ1MF82LlRBQkJBUl9URU1QTEFURV9OQU1FIiwiSVRFTV9TSFhJSVZFV1JPQ1lHVU9NVV9TRUxFQ1RFRCI6InRydWUiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fU0hYSUlWRVdST0NZR1VPTVVfVFlQRSI6IlUiLCJJVEVNX1NIWElJVkVXUk9DWUdVT01VX1RBUkdFVCI6Ii9BZG1pbi9QdXNoTWFuYWdlbWVudC9BZG1pblB1c2hNYW5hZ2VtZW50S2FrYW9MYXlvdXQueG1sIn0sImlkIjoiQ3VhRWlWZUNzeUVpVmVZd3dFIiwidHlw
+        ZSI6InRhYmJhciIsImV2ZW50cyI6W119LCJTSFhJSVZFV1JPQ1lHVU9NVSI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSUQiOiJURU1QTEFURSIsIml0ZW1JRCI6IlNIWElJVkVXUk9DWUdVT01VIiwiU09SVCI6IjEiLCJOQU1FIjoiSGFzIG5vdCBmb3VuZCB0ZXh0IDogQURfNDUwXzYuVEFCQkFSX1RFTVBMQVRFX05BTUUiLCJTRUxFQ1RFRCI6InRydWUiLCJUWVBFIjoiVSIsIlRBUkdFVCI6Ii9BZG1pbi9QdXNoTWFuYWdlbWVudC9BZG1pblB1c2hNYW5hZ2VtZW50S2FrYW9MYXlvdXQueG1sIn0sImlkIjoiU0hYSUlWRVdST0NZR1VPTVUiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6IlRFTVBMQVRFIn19LCJ0cmVl
+        Ijp7ImlkIjoieXdGSGFWZXl3RkhhVmVnZkFrIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJ5d0ZIYVZlb2lmS2FWZXZyUXAiLCJ0eXBlIjoiZm9ybSJ9LHsiaWQiOiJDdWFFaVZlQ3N5RWlWZVl3d0UiLCJ0eXBlIjoidGFiYmFyIiwiY2VsbHMiOlt7ImlkIjoiU0hYSUlWRVdST0NZR1VPTVUiLCJ0eXBlIjoidGFiYmFyQ2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL1B1c2hNYW5hZ2VtZW50L0FkbWluUHVzaE1hbmFnZW1lbnRLYWthb0xheW91dC54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiI0NTBfNiIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiUHVzaE1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pblB1c2hNYW5hZ2VtZW50Iiwi
+        UEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJLYWthb0xheW91dCIsIlNDUkVFTl9JRCI6IkFEXzQ1MF82In19LCJodG1sIjoiPGRpdiBpZD1cInl3RkhhVmV5d0ZIYVZlZ2ZBa1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBw
+        ZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInl3RkhhVmVvaWZLYVZldnJRcFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXIgXCIgc3R5bGU9XCJcIj5c
+        biAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIm1hcmdpbi10b3A6MTBweDttYXJnaW4tcmlnaHQ6MDttYXJnaW4tYm90dG9tOjA7bWFyZ2luLWxlZnQ6MDtoZWlnaHQ6Y2FsYygxMDAlIC0gMTBweCk7XCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJDdWFFaVZlQ3N5RWlWZVl3d0VcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X3RhYmJhciBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9k
+        aXY+In0=
+    </template>
+</body>

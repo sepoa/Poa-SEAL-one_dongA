@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_202_1" header="false" tpl="editor.tpl">
+    <carousel id="carouselObj" div="GczZxPcwhVsorpOrkL"/>
+    <usercss>
+    <![CDATA[
+        .btnGroup{
+            height:100%;
+            width:100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagingBtn {
+            height: 30px;
+            width: 30px;
+            cursor: pointer;
+            border: 1px solid #DEDEDE;
+            border-radius: 10%;
+            margin-right: 5px;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .pagingBtn:first-child{
+            margin:0px;
+        }
+        .pagingBtn:hover {
+            background-color: #0288D1;
+            color: #ffffff;
+        }
+        .active {
+            background-color: #0288D1;
+            color: #ffffff;
+            border: none;
+            outline: 0;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="pageControllerBox" value="$($sObject._vp).find('#zrLAdvdSFKBdvdjTVu')[0]"/>
+        <var name="zrLAdvdRFKBdvdYEvG" value="$($sObject._vp).find('#zrLAdvdRFKBdvdYEvG')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+        <event obj="SUX" type="onWindowResize" callback="carouselResizeHandler"/>
+    </onloadscript>
+    <userscript>
+        <var name="noticeList" value="Sepoa.request.NOTICELIST.split(',')"/>
+        <function name="init">
+        <![CDATA[
+            carouselResizeHandler();
+            drawPageNav();
+            
+            for (var i = 0; i < noticeList.length; i++) {
+                carouselObj.addCell(noticeList[i]);
+                carouselObj.cells(noticeList[i]).attachURL(window.CONTEXT_NAME + '/Admin/NoticeView/AdminNoticeViewView.sux?NOTICE_NUMBER=' + noticeList[i]);
+            }
+        ]]>
+        </function>
+        <function name="carouselResizeHandler" args="">
+        <![CDATA[
+            carouselObj.cont.parentElement.style.height= $sObject._vp[0].offsetHeight - pageControllerBox.offsetHeight + 'px';
+        ]]>
+        </function>
+        <function name="drawPageNav" args="">
+        <![CDATA[
+            pageControllerBox.innerHTML = "";
+            var group = pageControllerBox.appendChild($('<div class="btnGroup"></div>')[0]);
+            for (var i = 0; i < noticeList.length; i++) {
+                var btn = group.appendChild($('<button class="pagingBtn">' + (i + 1) + '</button>')[0]);
+                btn._noticeNumber = noticeList[i];
+                btn.onclick = function(){
+                    $(pageControllerBox).find('.active').removeClass('active');
+                    this.classList.add('active');
+                    carouselObj.cells(this._noticeNumber).setActive();
+                };
+                if(i == 0){
+                    btn.classList.add('active');
+                }
+            }
+            
+        ]]>
+        </function>
+        <function name="deleteCell" args="id">
+        <![CDATA[
+            carouselObj.cells(id).remove();
+            
+            var obj_length = Object.keys(carouselObj.ind).length;
+            var tempArr = [];
+            
+            for (var i = 0; i < obj_length; i++) {
+                tempArr[i] = carouselObj.ind[i];
+            }
+            
+            noticeList = tempArr;
+            
+            var count = 0;
+            
+            for (var i in carouselObj.cdata) {
+                count++;
+            }
+            
+            if (count) {
+                carouselObj.goFirst();
+            } else {
+                selfObj.close();
+            }
+            
+            $('.btnGroup').empty();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiR2N6WnhQY3d6TXNvcnBPT3hlIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQURfMjAyXzEifSwiaWQiOiJHY3paeFBjd3pNc29ycE9PeGUiLCJ0eXBlIjoiYm9keSJ9LCJHY3paeFBjd2hWc29ycE9ya0wiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9KOWZIc1NwbzhaTGsiOiJudWxsIiwiZGh4SWRfcEo4UjlqQjdCRjVU
+        IjoibnVsbCIsImRoeElkX0ozUnRLMXl1eUFWbSI6Im51bGwiLCJkaHhJZF82aU9BNFNUUUltbDAiOiJudWxsIiwiZGh4SWRfQUMxM250ZjU5TktGIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2VrekRpUHk3aFltTCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY2Fyb3VzZWxPYmoiLCJPQkpFQ1RfSUQiOiJHY3paeFBjd2hWc29ycE9ya0wiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Ikdjelp4UGN3aFZzb3JwT3JrTCIsInR5cGUiOiJjYXJvdXNlbCIsImNhcm91c2VsIjoiY2Fyb3VzZWwiLCJldmVudHMiOltdfSwienJMQWR2ZFNGS0JkdmRqVFZ1Ijp7ImxheW91dCI6
+        eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfMG1Hbk9KV0tBNWVxIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJwYWdlQ29udHJvbGxlckJveCIsIk9CSkVDVF9JRCI6InpyTEFkdmRTRktCZHZkalRWdSJ9LCJpZCI6InpyTEFkdmRTRktCZHZkalRWdSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJ6ckxBZHZkUkZLQmR2ZFlFdkciOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IjUwIiwiZGh4SWRfRkdlR1Z6
+        RnBaRkJYIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF90OWYyZmtDaTI2MGkiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfZzA5bkpRanlUelRUIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoienJMQWR2ZFJGS0JkdmRZRXZHIiwiT0JKRUNUX0lEIjoienJMQWR2ZFJGS0JkdmRZRXZHIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJ6ckxBZHZkUkZLQmR2ZFlFdkciLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiR2N6WnhQY3d6
+        TXNvcnBPT3hlIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJHY3paeFBjd2hWc29ycE9ya0wiLCJ0eXBlIjoiY2Fyb3VzZWwifSx7ImlkIjoienJMQWR2ZFJGS0JkdmRZRXZHIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6InpyTEFkdmRTRktCZHZkalRWdSIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9Ob3RpY2VWaWV3L0FkbWluTm90aWNlVmlld0Nhcm91c2VsLnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6IjIwMl8xIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJOb3RpY2VWaWV3IiwiUEFUSF8zIjoiQWRtaW5Ob3RpY2VWaWV3IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIs
+        Ik5BTUUiOiJDYXJvdXNlbCIsIlNDUkVFTl9JRCI6IkFEXzIwMl8xIn19LCJodG1sIjoiPGRpdiBpZD1cIkdjelp4UGN3ek1zb3JwT094ZVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXIgXCIgc3R5bGU9XCJcIj5c
+        biAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiR2N6WnhQY3doVnNvcnBPcmtMXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9jYXJvdXNlbFwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5l
+        cl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInpyTEFkdmRSRktCZHZkWUV2R1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cImhlaWdodDo1MHB4O1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICA8ZGl2IGlkPVwienJMQWR2ZFNGS0JkdmRqVFZ1XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

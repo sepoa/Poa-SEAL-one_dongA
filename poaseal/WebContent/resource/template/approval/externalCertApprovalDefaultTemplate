@@ -1,0 +1,47 @@
+<style>
+table.sepoa {
+  border-collapse: collapse;
+  text-align: left;
+  line-height: 1.5;
+  border-top: 1px solid #ccc;
+  border-left: 3px solid #369;
+  margin : 20px 10px;
+}
+table.sepoa th {
+  text-align: center;
+  width: 147px;
+  padding: 10px;
+  font-weight: bold;
+  vertical-align: top;
+  color: #153d73;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+
+}
+table.sepoa td {
+  width: 349px;
+  padding: 10px;
+  vertical-align: top;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+</style>
+
+<table class="sepoa">
+  <tr>
+    <th>신청명</th>
+    <td>${SUBJECT}</td>
+  </tr>
+  <tr>
+    <th>제출처</th>
+    <td>${SUBMISSION_PLACE}</td>
+  </tr>
+  <tr>
+    <th>설명</th>
+    <td>${EXPLANATION}</td>
+  </tr>
+  <tr>
+    <th>법인인감 증명서</th>
+    <td>${ATTACH_DOCUMENT_LIST}</td>
+  </tr>
+</table>

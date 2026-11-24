@@ -1,0 +1,141 @@
+@charset "UTF-8";
+.sepoa-button-item{
+	float:left;
+	margin-left:4px;
+	border:1px solid transparent;
+	
+	position:relative;
+	
+	cursor:pointer;
+	
+	display:flex;
+	flex-direction:row;
+}
+.sepoa-button-item:first-child{
+	margin-left:0px;
+}
+.sepoa-button-item > div{
+	display:none;
+}
+.sepoa-button-item > .sepoa-button-item-area-show{
+	display:block;
+}
+
+/* default */
+.sepoa-button-item{
+	background-color:#0f3181;
+	margin-top:16px;
+}
+.sepoa-button-item div.sepoa-button-item-label,
+.sepoa-button-item *:before{
+	color:#ffffff;
+}
+.sepoa-button-item-hide{
+	display:none;
+}
+
+/* icon */
+.sepoa-button-item > .sepoa-button-item-area-left, 
+.sepoa-button-item > .sepoa-button-item-area-right{
+	font-family: xeicon !important;
+	speak: none;
+	font-style: normal;
+	font-weight: 400;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	
+}
+
+/* button size m */
+.sepoa-button-item.sepoa-button-item-size-m{
+	height:30px;
+	padding:0px 19px;
+}
+.sepoa-button-item.sepoa-button-item-size-m > div{
+	height:100%;
+}
+.sepoa-button-item.sepoa-button-item-size-m div.sepoa-button-item-label{
+	height:100%;
+	line-height:30px;
+	font-size:12px;
+	word-break: keep-all;
+}
+.sepoa-button-item.sepoa-button-item-size-m .sepoa-button-item-area-left::before,
+.sepoa-button-item.sepoa-button-item-size-m .sepoa-button-item-area-right::before{
+	line-height:30px;
+	font-size:18px;
+}
+
+/* button size s */
+.sepoa-button-item.sepoa-button-item-size-s{
+	padding:0px 5px;	
+}
+.sepoa-button-item.sepoa-button-item-size-s > div{
+	height:100%;
+}
+.sepoa-button-item.sepoa-button-item-size-s div.sepoa-button-item-label{
+	height:100%;
+	line-height:30px;
+	font-size:12px;
+}
+.sepoa-button-item.sepoa-button-item-size-s .sepoa-button-item-area-left::before,
+.sepoa-button-item.sepoa-button-item-size-s .sepoa-button-item-area-right::before{
+	line-height:30px;
+	font-size:18px;
+}
+
+/* template design */
+.sepoa-button-item.sepoa-button-item-type-template .sepoa-button-item-area-label span.sepoa-button-template-number{
+	font-weight: bold;
+    font-size: 16px;
+    color: #00a8d9;
+}
+.sepoa-button-item.sepoa-button-item-type-template .sepoa-button-item-area-label span.sepoa-button-template-space{
+	padding-left: 5px;
+}
+.sepoa-button-item.sepoa-button-item-type-template .sepoa-button-item-area-label span.sepoa-button-template-label{
+	
+}
+
+/* badge */
+.sepoa-button-item > div.sepoa-button-item-area-badge{
+	position:absolute;
+	top:-9px;
+	right:-5px;
+	height: 21px;
+	line-height: 21px;
+	width: 21px;
+	display: none;
+}
+.sepoa-button-item .sepoa-button-item-area-badge.show{
+	display:block;
+}
+.sepoa-button-item .sepoa-button-item-area-badge > *{
+	width:100%;
+	height:100%;
+	
+	display:flex;
+	justify-content: center;
+	align-items: center;
+}
+.sepoa-button-item .sepoa-button-badge-default{
+	background-color:#f40b0d;
+	border-radius:10px;
+}
+.sepoa-button-item .sepoa-button-badge-default span{
+    height:unset;
+    line-height:unset;
+    font-size:13px;
+    
+    color:#ffffff;
+}
+.sepoa-button-item .sepoa-button-badge-icon{
+	
+}
+.sepoa-button-item .sepoa-button-badge-icon:before{
+	color:#ff6f1d;
+	font-size: 24px;
+}

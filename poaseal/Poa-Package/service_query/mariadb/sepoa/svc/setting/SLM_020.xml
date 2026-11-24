@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT HOUSE_CODE
+		     , COMPANY_CODE
+		     , USE_NUMBER
+		     , SUBJECT
+		     , CONTENT
+		     , SORT_SEQ
+		     , CASE CORP_FLAG WHEN 'Y' THEN '1' ELSE '0' END AS CORP_FLAG
+		     , CASE USE_FLAG WHEN 'Y' THEN '1' ELSE '0' END AS USE_FLAG
+		     , CASE EXTERNAL_FLAG WHEN 'Y' THEN '1' ELSE '0' END AS EXTERNAL_FLAG
+		     , FORM_ID
+		     , YD_NUMBER
+		  FROM SUDGL
+		 WHERE HOUSE_CODE        = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE      = ${session.COMPANY_CODE}
+		   AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N' 
+		ORDER BY SORT_SEQ
+	]]>
+	</method>		
+	
+	<method name="getRowUDGL">
+		<![CDATA[
+			SELECT 
+				SUBJECT ,
+				CONTENT ,
+				SORT_SEQ ,
+				CORP_FLAG ,
+				USE_FLAG ,
+				EXTERNAL_FLAG 
+  			 FROM SUDGL
+			WHERE HOUSE_CODE 	= ${session.HOUSE_CODE}
+   			  AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+   			  AND YD_NUMBER     = ${YD_NUMBER}
+   			  AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N'
+		]]>
+	</method>
+	
+	<method name="doSave">
+	<![CDATA[
+		INSERT INTO SUDGL
+				(HOUSE_CODE
+		       , COMPANY_CODE
+		       , USE_NUMBER
+               , ADD_DATE   
+               , ADD_TIME   
+               , ADD_USER_ID       
+		       , CHANGE_DATE    
+               , CHANGE_TIME    
+               , CHANGE_USER_ID
+               , DEL_FLAG 
+               , SUBJECT
+               , CONTENT
+		       , SORT_SEQ
+		       , CORP_FLAG
+		       , USE_FLAG
+		       , EXTERNAL_FLAG
+		       , FORM_ID      
+		       , YD_NUMBER          
+		)VALUES(
+     	         ${session.HOUSE_CODE}
+     	       , ${session.COMPANY_CODE}
+		       , ${USE_NUMBER}             
+	           , ${current.date}    
+               , ${current.time}
+               , ${session.ID}
+               , ${current.date}    
+               , ${current.time}    
+               , ${session.ID}   
+               , 'N'
+		       , ${SUBJECT}           
+     		   , ${CONTENT}
+     		   , ${SORT_SEQ}
+     		   , CASE ${CORP_FLAG} WHEN '1' THEN 'Y' ELSE 'N' END
+     		   , CASE ${USE_FLAG} WHEN '1' THEN 'Y' ELSE 'N' END
+     		   , CASE ${EXTERNAL_FLAG} WHEN '1' THEN 'Y' ELSE 'N' END
+     		   , ${FORM_ID}
+     		   , ${YD_NUMBER}
+		)
+	]]>
+	</method>	
+					
+	<method name="doUpdate">
+	<![CDATA[
+		UPDATE SUDGL
+      	   SET CHANGE_DATE 	     = ${current.DATE}
+			 , CHANGE_TIME       = ${current.TIME}
+			 , CHANGE_USER_ID    = ${session.ID}
+			 , SUBJECT           = ${SUBJECT}
+			 , CONTENT           = ${CONTENT}
+			 , SORT_SEQ          = ${SORT_SEQ}
+			 , USE_NUMBER		 = ${USE_NUMBER}
+			 , CORP_FLAG         = CASE ${CORP_FLAG} WHEN '1' THEN 'Y' ELSE 'N' END
+			 , USE_FLAG          = CASE ${USE_FLAG} WHEN '1' THEN 'Y' ELSE 'N' END
+			 , EXTERNAL_FLAG     = CASE ${EXTERNAL_FLAG} WHEN '1' THEN 'Y' ELSE 'N' END
+			 , FORM_ID           = ${FORM_ID}			 
+	     WHERE HOUSE_CODE        = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE      = ${session.COMPANY_CODE}
+		   AND YD_NUMBER         = ${YD_NUMBER}	   
+		   AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N'	
+	]]>
+	</method>
+	
+	<method name="doRowDelete">
+	<![CDATA[
+		DELETE FROM SUDGL
+	     WHERE HOUSE_CODE        = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE      = ${session.COMPANY_CODE}
+		   AND YD_NUMBER         = ${YD_NUMBER}	
+	]]>
+	</method>
+	<method name="doSelectSAPUD">
+	<![CDATA[
+		SELECT 
+   			APUD.HOUSE_CODE
+   			,APUD.COMPANY_CODE
+   			,APUD.APP_USER_ID
+   			,APUD.APP_USER_DEPT
+   			,APUD.APP_SORT
+   			,APUD.CHANGE_FLAG
+   			,APUD.DEL_FLAG
+   			,USMT.USER_NAME_LOC AS APP_USER_NAME
+   			,DEPT.DEPT_NAME_LOC AS APP_USER_DEPT_NAME
+   		FROM 
+   			SAPUD APUD
+   		INNER JOIN SUSMT USMT
+   			ON USMT.HOUSE_CODE = APUD.HOUSE_CODE
+   			AND USMT.USER_ID = APUD.APP_USER_ID
+   		INNER JOIN SDEPT DEPT
+   			ON DEPT.HOUSE_CODE = USMT.HOUSE_CODE
+   			AND DEPT.COMPANY_CODE = APUD.COMPANY_CODE
+   			AND DEPT.DEPT = APUD.APP_USER_DEPT
+   		WHERE
+   			APUD.HOUSE_CODE = ${session.HOUSE_CODE} 
+   			AND APUD.COMPANY_CODE = ${session.COMPANY_CODE} 
+   			AND APUD.KEY_NUMBER = ${KEY_NUMBER}
+   			AND #DB_OWNER#NVL(APUD.CHANGE_FLAG, 'N') = 'N'
+   			AND #DB_OWNER#NVL(APUD.DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	<method name="doDeleteSAPUD">
+	<![CDATA[
+	 DELETE
+	   FROM SAPUD
+	  WHERE 
+	 	 	HOUSE_CODE 		= ${session.HOUSE_CODE}  
+	 	AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+	 	AND KEY_NUMBER		= ${KEY_NUMBER}
+	]]>
+	</method>
+	<method name="doInsertSAPUD">
+    <![CDATA[
+    	INSERT
+	   		INTO SAPUD (
+	   			HOUSE_CODE
+	   			,COMPANY_CODE
+	   			,KEY_NUMBER
+	   			,APP_USER_ID
+	   			,APP_USER_DEPT
+	   			,APP_SORT
+	   			,CHANGE_FLAG
+	   			,DEL_FLAG
+	   		)
+		VALUES (
+		  		${session.HOUSE_CODE}
+	   		   ,${session.COMPANY_CODE}
+	   		   ,${KEY_NUMBER}
+	   		   ,${APP_USER_ID}
+	   		   ,${APP_USER_DEPT}
+	   		   ,${APP_SORT}
+	   		   ,'N'
+	   		   ,'N'
+		  	)
+    ]]>
+    </method>
+</service>

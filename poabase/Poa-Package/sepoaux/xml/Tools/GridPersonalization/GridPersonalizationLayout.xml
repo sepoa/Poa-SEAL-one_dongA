@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="GP_001" header="false" pageCloseWarn="false">
+    <link>
+    <![CDATA[
+        <script type="text/javascript">
+            Sepoa.cache.text.load([{
+                url: CONTEXT_NAME + '/resource/ux/grid_personalization/langs/' + Sepoa.info.LANGUAGE + '/grid_personalization.js',
+                def: CONTEXT_NAME + '/resource/ux/grid_personalization/langs/KO/grid_personalization.js'
+            }, {
+                url: CONTEXT_NAME + '/resource/ux/admin/langs/' + Sepoa.info.LANGUAGE + '/POA_BASE.js',
+                def: CONTEXT_NAME + '/resource/ux/admin/langs/KO/POA_BASE.js'
+            }]);
+        </script>
+        
+        <link href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/personalization/css/personalization.css" rel="stylesheet" type="text/css" />
+    ]]>
+    </link>
+    <layout id="layoutObj" div="MjewVNhsuQhrGbFhuG" pattern="3L">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="list"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <width>400</width>
+            <attach file="/Tools/GridPersonalization/GridPersonalizationList.xml"/>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="contents"/>
+            <collapse icon="false" collapsed="false"/>
+            <height>500</height>
+            <attach file="/Tools/GridPersonalization/GridPersonalizationWrite.xml"/>
+        </cell>
+        <cell>
+            <id>c</id>
+            <fix_size>true,true</fix_size>
+            <header view="false" type="contents"/>
+            <collapse icon="false" collapsed="false"/>
+            <height>200</height>
+            <attach file="/Tools/GridPersonalization/GridPersonalizationGridPreview.xml"/>
+        </cell>
+    </layout>
+    <variable>
+        <var name="$share" value="{}" />
+        <var name="callbackFn"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+        <call name="setGridInfo"/>
+        <call name="doQuery"/>
+    </onloadscript>
+    <userscript>
+        <function name="init">
+        <![CDATA[
+            if (Sepoa.params.callback) {
+                callbackFn = Sepoa.params.callback;
+            }
+        ]]>
+        </function>
+        <function name="setGridInfo">
+        <![CDATA[
+            for (var i = 2; i <= 7; i++) {
+                callFunction('GP_00' + i, 'setGridInfo', [Sepoa.params.gridObj]);
+            }
+        ]]>
+        </function>
+        <function name="doQuery">
+        <![CDATA[
+            $share.gridObj = Sepoa.params.gridObj;
+            callFunction('GP_002', 'doQueryList', []);
+        ]]>
+        </function>
+        <function name="doEnd" args="flag, oGridObj">
+        <![CDATA[
+            callbackFn.apply(this, [flag, oGridObj]);
+            selfObj.close();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTWpld1ZOaG50TWhyR2JGQlFhIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF84UWx6Und4SEJ1YWsiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1JJRE1hUHVmVnlCZSI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX05odzJDZWt3dmg5ZCI6Im51bGwiLCJkaHhJZF9kZDZoSkJiZjBSYlYiOiJudWxsIiwiZGh4SWRfTzJkbGN4emxaSnM1IjoibnVsbCIsImRoeElkX0MwQ203SmVxTHpheSI6Im51bGwiLCJkaHhJZF80TzBaQ2xBVlIxb2siOiJudWxsIiwiZGh4SWRfenFiYktwb0Mx
+        bDV4IjoibnVsbCIsImRoeElkXzVZbjh2S0tYZzlRYSI6Im51bGwiLCJkaHhJZF9zZW82STdZRXdhbFoiOiJudWxsIiwiZGh4SWRfbEFmNDBMZlhsR2tPIjoibnVsbCIsImRoeElkX0Q5ZGgyOWN5cWNXVyI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJHUF8wMDEiLCJPQkpFQ1RfSUQiOiJNamV3Vk5obnRNaHJHYkZCUWEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkZVTEwifSwiaWQiOiJNamV3Vk5obnRNaHJHYkZCUWEiLCJ0eXBlIjoiYm9keSJ9LCJNamV3Vk5oc3VRaHJHYkZodUciOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1B
+        UkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF8wbktrbFpRZk5BTkwiOiJudWxsIiwiZGh4SWRfUVhGMlhocGZmSjZYIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX3pjOEMzY1FHYmYxdyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzZVUU5lY2sxZU54RyI6Im51bGwiLCJkaHhJZF9SUUlUNld1MDNNYXMiOiJudWxsIiwiZGh4SWRfQzhzUUpwalNDdWFVIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiUEFUVEVSTiI6IjNMIiwiVkFSIjoibGF5b3V0T2JqIiwiT0JKRUNUX0lEIjoiTWpl
+        d1ZOaHN1UWhyR2JGaHVHIn0sImlkIjoiTWpld1ZOaHN1UWhyR2JGaHVHIiwidHlwZSI6ImxheW91dCIsImV2ZW50cyI6W119LCJNamV3Vk5oTUNWaHJHYmpXSFMiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoidHJ1ZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSIsIkFUVEFDSF9UQVJHRVQiOiIvVG9vbHMvR3JpZFBlcnNvbmFsaXphdGlvbi9HcmlkUGVyc29uYWxpemF0aW9uTGlzdC54bWwiLCJCQVNFX0ZJWF9TSVpFIjoidHJ1ZSx0cnVlIiwiSEVBREVSX1RZUEUiOiJsaXN0IiwiQVRUQUNIX1RZUEUiOiJVIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFs
+        c2UiLCJCQVNFX1dJRFRIIjoiNDAwIn0sImlkIjoiTWpld1ZOaE1DVmhyR2JqV0hTIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sIk1qZXdWTmhPQ1ZockdiT1hkeCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJ0cnVlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkFUVEFDSF9UQVJHRVQiOiIvVG9vbHMvR3JpZFBlcnNvbmFsaXphdGlvbi9HcmlkUGVyc29uYWxpemF0aW9uV3JpdGUueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1ZSIsIkhFQURFUl9UWVBFIjoiY29udGVudHMiLCJBVFRB
+        Q0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSIsIkJBU0VfSEVJR0hUIjoiNTAwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF93bk1yWHN6UkFqemciOiJudWxsIn0sImlkIjoiTWpld1ZOaE9DVmhyR2JPWGR4IiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJiIn0sImZkMjM4YmYxNTA0MTQyNzg4ZmM3ZjZmNTQzNmYyNiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJmYWxzZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoiZmFsc2UiLCJBVFRBQ0hfVEFSR0VUIjoiL1Rvb2xzL0dyaWRQZXJz
+        b25hbGl6YXRpb24vR3JpZFBlcnNvbmFsaXphdGlvbkdyaWRQcmV2aWV3LnhtbCIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJIRUFERVJfVFlQRSI6ImNvbnRlbnRzIiwiQVRUQUNIX1RZUEUiOiJVIiwiQkFTRV9IRUlHSFQiOiIxNTAiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSJ9LCJpZCI6ImZkMjM4YmYxNTA0MTQyNzg4ZmM3ZjZmNTQzNmYyNiIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYyJ9fSwidHJlZSI6eyJpZCI6Ik1qZXdWTmhudE1ockdiRkJRYSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiTWpld1ZOaHN1UWhyR2JGaHVHIiwidHlwZSI6ImxheW91dCIsImNlbGxzIjpbeyJpZCI6Ik1q
+        ZXdWTmhNQ1ZockdialdIUyIsInR5cGUiOiJsYXlvdXRDZWxsIn0seyJpZCI6Ik1qZXdWTmhPQ1ZockdiT1hkeCIsInR5cGUiOiJsYXlvdXRDZWxsIn0seyJpZCI6ImZkMjM4YmYxNTA0MTQyNzg4ZmM3ZjZmNTQzNmYyNiIsInR5cGUiOiJsYXlvdXRDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVG9vbHMvR3JpZFBlcnNvbmFsaXphdGlvbi9HcmlkUGVyc29uYWxpemF0aW9uTGF5b3V0LnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiVG9vbHMvR3JpZFBlcnNvbmFsaXphdGlvbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkdyaWRQZXJzb25hbGl6YXRpb25MYXlvdXQiLCJD
+        T0RFIjoiMDAxIiwiUFJFRklYIjoiR1AiLCJTQ1JFRU5fSUQiOiJHUF8wMDEifX0sImh0bWwiOiI8ZGl2IGlkPVwiTWpld1ZOaG50TWhyR2JGQlFhXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlciBcIiBzdHls
+        ZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk1qZXdWTmhzdVFockdiRmh1R1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

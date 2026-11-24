@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT Q.*
+			     , #DB_OWNER#NVL((SELECT COUNT(1) FROM SQNAR WHERE HOUSE_CODE = Q.HOUSE_CODE AND QNA_NUMBER = Q.QNA_NUMBER AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'), 0) AS REPLY_CNT
+			    
+			 FROM (
+			SELECT	Q.HOUSE_CODE	
+				,	Q.COMPANY_CODE			
+				,	Q.QNA_NUMBER
+				,	Q.SUBJECT					
+				,	Q.ATTACH_NO
+				,	Q.KEYWORDS
+				,	Q.CONTENT
+				,	Q.ADD_USER_ID
+				,	U.USER_NAME_LOC AS ADD_USER_NAME
+				,	Q.ADD_DATE
+				,	Q.DEL_FLAG
+				,	Q.QNA_COMPANY
+				, 	#DB_OWNER#GETDEPTNAME('#session.HOUSE_CODE#', Q.QNA_COMPANY, Q.QNA_USER_DEPT_CODE, '#session.LANGUAGE#') AS QNA_DEPT_NAME
+				,	Q.QNA_TYPE
+			 FROM	SQNAQ Q
+			 	LEFT OUTER JOIN SUSMT U
+			 	ON Q.HOUSE_CODE = U.HOUSE_CODE
+			 	AND Q.ADD_USER_ID = U.USER_ID
+			WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND   Q.QNA_SYSTEM = $S{session.SYSTEM_TYPE}
+		]]>
+		<if test="${session.USER_TYPE}" operator="eq" value="S">
+		<![CDATA[
+			  AND	Q.QNA_COMPANY = ${session.COMPANY_CODE}
+		]]>
+		</if>
+		<if test="${COMPANY_CODE_CONDITION}" operator="eq" value="Y">
+		<![CDATA[
+			  AND	Q.COMPANY_CODE = ${session.COMPANY_CODE}
+		]]>
+		</if>		
+		<![CDATA[
+			  AND	#DB_OWNER#NVL(Q.DEL_FLAG, 'N') = 'N'
+			  AND	Q.ADD_DATE >= $S{F_WRITE_DATE_FROM}
+			  AND	Q.ADD_DATE <= $S{F_WRITE_DATE_TO}
+			  AND	UPPER(Q.KEYWORDS) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+			  AND 	(
+			  			UPPER(Q.KEYWORDS) LIKE CONCAT('%', UPPER($S{KEYWORD}), '%') OR
+						UPPER(Q.SUBJECT) LIKE CONCAT('%', UPPER($S{KEYWORD}), '%') OR
+						UPPER(U.USER_NAME_LOC) LIKE CONCAT('%', UPPER($S{KEYWORD}), '%') AND
+				   		1=1
+				   	)
+			) Q
+			WHERE	(
+			  			UPPER(Q.QNA_COMPANY) LIKE CONCAT('%', UPPER($S{F_USER_COMPANY}), '%') OR
+			  			UPPER(Q.QNA_COMPANY_NAME) LIKE CONCAT('%', UPPER($S{F_USER_COMPANY}), '%') AND
+			  			1=1
+			  		)
+			  AND	(
+			  			UPPER(Q.ADD_USER_ID) LIKE CONCAT('%', UPPER($S{F_ADD_USER}), '%') OR
+			  			UPPER(Q.ADD_USER_NAME) LIKE CONCAT('%', UPPER($S{F_ADD_USER}), '%') AND
+			  			1=1
+			  		)				   	
+			ORDER BY Q.QNA_NUMBER DESC						
+		]]>
+	</method>
+	
+	<method name="getQnaDetail">
+		<![CDATA[
+			SELECT	Q.QNA_NUMBER
+				,	Q.COMPANY_CODE
+				,	Q.SUBJECT
+				,	Q.ATTACH_NO
+				,	Q.KEYWORDS
+				,	Q.CONTENT
+				,	Q.ADD_USER_ID
+				,	(SELECT USER_NAME_LOC FROM SUSMT WHERE HOUSE_CODE = Q.HOUSE_CODE AND USER_ID = Q.ADD_USER_ID) AS ADD_USER_NAME
+				,	Q.ADD_DATE
+				,   #DB_OWNER#NVL((SELECT COUNT(1) FROM SQNAR WHERE HOUSE_CODE = Q.HOUSE_CODE AND QNA_NUMBER = Q.QNA_NUMBER AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'), 0) AS REPLY_CNT
+				,	Q.QNA_COMPANY
+				,	Q.QNA_TYPE
+			FROM	SQNAQ Q
+			WHERE	Q.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND	Q.QNA_NUMBER = ${QNA_NUMBER}
+			  AND	#DB_OWNER#NVL(Q.DEL_FLAG, 'N') = 'N'
+		]]>
+	</method>
+	
+	<method name="getQnaReply">
+		<![CDATA[
+			SELECT	R.QNA_NUMBER
+				,	R.QNA_SEQ
+				,	R.ATTACH_NO
+				,	R.CONTENT
+				,	R.ADD_USER_ID
+				,	(SELECT USER_NAME_LOC FROM SUSMT WHERE HOUSE_CODE = R.HOUSE_CODE AND USER_ID = R.ADD_USER_ID) AS ADD_USER_NAME
+				,	R.ADD_DATE
+				,	R.ADD_TIME
+				,	DEL_FLAG
+				,	R.QNA_COMPANY
+			FROM	SQNAR R
+			WHERE	R.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND	R.QNA_NUMBER = ${QNA_NUMBER}
+			  AND	#DB_OWNER#NVL(R.DEL_FLAG, 'N') = 'N'
+			ORDER BY
+					CAST(R.QNA_SEQ AS INT)	
+		]]>
+	</method>
+	
+	<method name="insertQna">
+		<![CDATA[
+			INSERT INTO SQNAQ
+				(
+					HOUSE_CODE
+				,	COMPANY_CODE
+				,	QNA_NUMBER
+				,	SUBJECT
+				,	ATTACH_NO
+				,	KEYWORDS
+				,	CONTENT
+				,	ADD_DATE
+				,	ADD_TIME
+				,	ADD_USER_ID
+				,	CHANGE_DATE
+				,	CHANGE_TIME
+				,	CHANGE_USER_ID
+				,	DEL_FLAG
+				,	QNA_COMPANY
+				,	QNA_TYPE
+				,	QNA_SYSTEM
+				,   QNA_USER_DEPT_CODE
+				)
+				VALUES
+				(
+					${session.HOUSE_CODE}
+				,	${session.COMPANY_CODE}
+				,	${QNA_NUMBER}
+				,	${SUBJECT}
+				,	${ATTACH_NO}
+				,	${KEYWORDS}
+				,	${CONTENT}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	'N'
+				,	${session.COMPANY_CODE}
+				,	${QNA_TYPE}
+				,	${session.SYSTEM_TYPE}
+				,   ${session.DEPARTMENT}
+				)
+		]]>
+	</method>
+	
+	<method name="checkReply">
+		<![CDATA[
+			SELECT QNA_SEQ FROM SQNAR 
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+				AND	QNA_NUMBER = ${QNA_NUMBER}
+				AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+			LIMIT 1
+		]]>
+	</method>
+		
+	<method name="updateQna">
+		<![CDATA[
+			UPDATE  SQNAQ
+			   SET	SUBJECT 	= ${SUBJECT}
+			    ,	COMPANY_CODE = ${session.COMPANY_CODE}
+				,	ATTACH_NO 	= ${ATTACH_NO}
+			    ,	KEYWORDS 	= ${KEYWORDS}
+			    ,	CONTENT 	= ${CONTENT}
+			    ,	CHANGE_DATE = ${current.DATE}
+				,	CHANGE_TIME = ${current.TIME}
+				,	CHANGE_USER_ID = ${session.ID}
+				,	QNA_TYPE  = ${QNA_TYPE}
+			 WHERE	HOUSE_CODE 	= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 	= ${QNA_NUMBER}
+			   AND	ADD_USER_ID	= ${session.ID} 			
+		]]>
+	</method>
+	
+	<method name="insertReply">
+		<![CDATA[
+			INSERT INTO SQNAR
+				(
+					HOUSE_CODE
+				,	QNA_NUMBER
+				,	QNA_SEQ
+				,	ATTACH_NO
+				,	CONTENT
+				,	ADD_DATE
+				,	ADD_TIME
+				,	ADD_USER_ID
+				,	CHANGE_DATE
+				,	CHANGE_TIME
+				,	CHANGE_USER_ID
+				,	DEL_FLAG
+				,	QNA_COMPANY
+				)
+				VALUES
+				(
+					${session.HOUSE_CODE}
+				,	${QNA_NUMBER}
+				,	(SELECT #DB_OWNER#NVL(MAX(CAST(QNAR.QNA_SEQ AS INT)),0) + 1 FROM SQNAR QNAR WHERE QNAR.HOUSE_CODE = ${session.HOUSE_CODE} 
+				                                                 AND QNAR.QNA_NUMBER = ${QNA_NUMBER})
+				,	${ATTACH_NO}
+				,	${CONTENT}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	${current.DATE}
+				,	${current.TIME}
+				,	${session.ID}
+				,	'N'
+				,	${session.COMPANY_CODE}
+				)
+		]]>
+	</method>
+	
+	<method name="deleteQna">
+		<![CDATA[
+			UPDATE  SQNAQ
+			   SET	DEL_FLAG 	= 'Y'
+			    ,	CHANGE_DATE = ${current.DATE}
+				,	CHANGE_TIME = ${current.TIME}
+				,	CHANGE_USER_ID = ${session.ID}			   
+			 WHERE	HOUSE_CODE 	= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 	= ${QNA_NUMBER}
+		]]>
+		<if test="${ADD_USER_ID_CONDITION}" operator="eq" value="Y">
+		<![CDATA[			   
+			   AND	ADD_USER_ID	= ${session.ID}
+		]]>
+		</if>
+	</method>
+	
+	<method name="deleteReply">
+		<![CDATA[
+			UPDATE  SQNAR
+			   SET	DEL_FLAG 	= 'Y'
+			    ,	CHANGE_DATE = ${current.DATE}
+				,	CHANGE_TIME = ${current.TIME}
+				,	CHANGE_USER_ID = ${session.ID}			   
+			 WHERE	HOUSE_CODE 	= ${session.HOUSE_CODE}
+			   AND	QNA_NUMBER 	= ${QNA_NUMBER}
+			   AND	QNA_SEQ = ${QNA_SEQ}
+		]]>
+		<if test="${ADD_USER_ID_CONDITION}" operator="eq" value="Y">
+		<![CDATA[			   
+			   AND	ADD_USER_ID	= ${session.ID}
+		]]>
+		</if>
+	</method>
+	
+</service>

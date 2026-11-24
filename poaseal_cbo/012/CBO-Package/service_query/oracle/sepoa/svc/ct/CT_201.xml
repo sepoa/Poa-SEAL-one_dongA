@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectSignerInfo">
+	<![CDATA[
+		SELECT
+			 USMT.USER_ID			AS SIGNER_ID
+			,USMT.EMAIL				AS SIGNER_EMAIL
+			,USMT.PHONE				AS SIGNER_PHONE
+			,CMGL.IRS_NO 			AS SIGN_KEY
+			,CMGL.COMPANY_CODE		AS SIGNER_COMPANY_CODE
+			,CMGL.COMPANY_NAME_LOC	AS SIGNER_COMPANY_NAME
+			,USMT.USER_NAME_LOC		AS SIGNER_NAME
+			,CMGL.CEO_NAME_LOC		AS SIGNER_COMPANY_OWNER
+			,CMGL.ADDRESS_LOC		AS SIGNER_COMPANY_ADDR
+			,CMGL.IRS_NO 			AS IRS_NO
+		FROM SUSMT USMT
+			INNER JOIN SCMGL CMGL
+			ON USMT.HOUSE_CODE = CMGL.HOUSE_CODE
+			AND USMT.COMPANY_CODE = CMGL.COMPANY_CODE
+		WHERE
+			USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND USMT.USER_ID = ${session.ID}
+			AND #DB_OWNER#nvl(USMT.DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+
+    <method name="doQuery">
+    <![CDATA[
+     SELECT SIAD.*
+     FROM(SELECT
+              SMR_NUMBER
+            , SMR_STATUS
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , CHANGE_DATE
+            , CHANGE_TIME
+            , CHANGE_USER_ID
+            , APPLY_TYPE
+            , SUBJECT
+            , SUBMISSION_PLACE
+            , REMARK
+            , RCPT_TYPE
+            , RCPT_REMARK
+            , CONFIRM_DATE
+            , CONFIRM_TIME
+            , CONFIRM_USER_ID
+            , SUBMIT_TYPE
+            , SUBMIT_REMARK
+            , RE_FLAG
+            , REQ_SEAL_USE_TYPE
+            , LEGAL_WATERMARK
+            , RE_DETAIL
+            , REJECT_REASON
+            , EXPLANATION
+            , #DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME
+			, CASE WHEN ADD_USER_DEPT IS NULL
+				THEN (SELECT U.DEPT FROM SUSMT U WHERE U.HOUSE_CODE = SSIAD.HOUSE_CODE AND U.COMPANY_CODE = SSIAD.COMPANY_CODE AND U.USER_ID = SSIAD.ADD_USER_ID AND ROWNUM = 1)
+				ELSE ADD_USER_DEPT END AS ADD_USER_DEPT_CD
+			, CASE WHEN ADD_USER_DEPT IS NULL
+				THEN #DB_OWNER#GETUSERDEPTNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, ${session.LANGUAGE})
+				ELSE #DB_OWNER#GETDEPTNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_DEPT, ${session.LANGUAGE}) END AS ADD_USER_DEPT
+            , 'S' AS REQ_TYPE
+            , DEL_FLAG
+        FROM SSIAD
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND COMPANY_CODE = ${session.COMPANY_CODE}
+          )  SIAD
+          WHERE 1=1
+          ]]>
+          
+	<if test="${RESTRICT_OWN_ONLY}" operator="eq" value="Y">
+    <![CDATA[
+       	AND SIAD.ADD_USER_ID = ${session.ID}
+    ]]>
+    </if>
+	<if test="${IS_TEAM_MANAGER}" operator="eq" value="Y">
+    <![CDATA[
+			AND 
+			(
+					SIAD.ADD_USER_DEPT_CD = ${session.DEPARTMENT}
+				OR
+					SIAD.ADD_USER_ID = ${session.ID}
+			)
+    ]]>
+    </if>
+	<![CDATA[
+          AND #DB_OWNER#nvl(SIAD.DEL_FLAG, 'N') = 'N'
+          AND SIAD.SMR_STATUS = ${SMR_STATUS}
+          AND SIAD.REQ_SEAL_USE_TYPE IN ($IN{REQ_SEAL_USE_TYPE})
+          AND SIAD.SMR_NUMBER NOT IN (
+                                    SELECT SOURCE_NO
+                                    FROM SSCGL
+                                    WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+                                      AND COMPANY_CODE = ${session.COMPANY_CODE}
+                                      AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+                                      AND SOURCE_NO IS NOT NULL
+                                )
+    ]]>
+    <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            SIAD.SUBJECT LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SIAD.SMR_NUMBER LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SIAD.SUBMISSION_PLACE LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SIAD.ADD_USER_NAME LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    <![CDATA[
+		  AND SIAD.ADD_DATE >= $S{F_CALENDAR_FROM}
+		  AND SIAD.ADD_DATE <= $S{F_CALENDAR_TO}
+	        ORDER 
+	            BY SIAD.SMR_NUMBER DESC
+    ]]>
+    </method>
+    
+    <method name="doQuery_ExternalSeal">
+    <![CDATA[
+    	SELECT SETL.*
+    	FROM (
+	    	SELECT
+	    		HOUSE_CODE
+				,COMPANY_CODE
+				,SMR_NUMBER
+				,SMR_STATUS
+				,ADD_DATE
+				,ADD_TIME
+				,ADD_USER_ID
+				,CHANGE_DATE
+				,CHANGE_TIME
+				,CHANGE_USER_ID
+				,DEL_FLAG
+				,SIGN_STATUS
+				,SIGN_DATE
+				,SIGN_TIME
+				,SIGN_USER_ID
+				,APPLY_TYPE
+				,SUBJECT
+				,SEAL_USE_TYPE AS REQ_SEAL_USE_TYPE
+				,SUBMISSION_PLACE
+				,ATTACH_NO
+				,REMARK
+				,LEGAL_REVIEW_TYPE
+				,CONFIRM_DATE
+				,CONFIRM_TIME
+				,CONFIRM_USER_ID
+				,SUBMIT_TYPE
+				,SUBMIT_REMARK
+				,EXT_USE_DETAIL
+				,EXT_OUT_EXPECT_DATE
+				,EXT_OUT_EXPECT_TIME
+				,EXT_IN_EXPECT_DATE
+				,EXT_IN_EXPECT_TIME
+				,EXT_USE_PLACE
+				,EXT_USE_USER_ID
+				,EXT_CPNO_USER_ID
+				,EXT_OUT_DATE
+				,EXT_OUT_TIME
+				,EXT_IN_DATE
+				,EXT_IN_TIME
+				,EMERGENCY_FLAG
+				,EMERGENCY_REMARK
+				,ROOT_PATH_TYPE
+				,REJECT_REMARK
+				,APVID
+				,ADD_DEPT_NAME_LOC
+				,ADD_DEPT_NAME_ENG
+				,CONFIRM_USER_DEPT
+				,CONFIRM_DEPT_NAME_LOC
+				,CONFIRM_DEPT_NAME_ENG
+				,EXT_USE_USER_DEPT
+				,EXT_USE_DEPT_NAME_LOC
+				,EXT_USE_DEPT_NAME_ENG
+				, #DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME
+	            , CASE WHEN ADD_USER_DEPT IS NULL 
+					THEN #DB_OWNER#GETUSERDEPTNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, ${session.LANGUAGE}) 
+					ELSE #DB_OWNER#GETDEPTNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_DEPT, ${session.LANGUAGE}) 
+					END AS ADD_USER_DEPT
+				, CASE WHEN ADD_USER_DEPT IS NULL 
+					THEN (SELECT U.DEPT FROM SUSMT U WHERE U.HOUSE_CODE = SSETL.HOUSE_CODE AND U.COMPANY_CODE = SSETL.COMPANY_CODE AND U.USER_ID = SSETL.ADD_USER_ID AND ROWNUM = 1)
+					ELSE ADD_USER_DEPT END AS ADD_USER_DEPT_CD
+				,'E' AS REQ_TYPE
+			FROM
+				SSETL
+			 WHERE 
+			 	HOUSE_CODE = ${session.HOUSE_CODE}
+	          	AND COMPANY_CODE = ${session.COMPANY_CODE}
+	          	) SETL
+		   LEFT OUTER JOIN SUSMT USMT
+		       ON  USMT.HOUSE_CODE = SETL.HOUSE_CODE
+		       AND USMT.USER_ID    = SETL.ADD_USER_ID
+		   LEFT OUTER JOIN SDEPT DEPT
+		       ON  DEPT.HOUSE_CODE   = SETL.HOUSE_CODE
+		       AND DEPT.COMPANY_CODE = SETL.COMPANY_CODE
+			   AND DEPT.DEPT         = USMT.DEPT
+	       WHERE 1=1
+ 	]]>
+          
+	<if test="${RESTRICT_OWN_ONLY}" operator="eq" value="Y">
+    <![CDATA[
+       	AND SETL.ADD_USER_ID = ${session.ID}
+    ]]>
+    </if>
+    <if test="${IS_TEAM_MANAGER}" operator="eq" value="Y">
+    <![CDATA[
+			AND 
+			(	SETL.ADD_USER_DEPT_CD = ${session.DEPARTMENT}
+				OR SETL.ADD_USER_ID = ${session.ID}
+			)
+    ]]>
+    </if>
+	<![CDATA[
+			AND #DB_OWNER#nvl(SETL.DEL_FLAG, 'N') = 'N'
+			AND SETL.SMR_STATUS = ${SMR_STATUS}
+			AND SETL.REQ_SEAL_USE_TYPE IN ($IN{REQ_SEAL_USE_TYPE})
+			AND SETL.SMR_NUMBER NOT IN (
+			                          SELECT SOURCE_NO
+			                          FROM SSCGL
+			                          WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			                            AND COMPANY_CODE = ${session.COMPANY_CODE}
+			                            AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+			                            AND SOURCE_NO IS NOT NULL
+			                      )
+    ]]>
+    <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            SETL.SUBJECT LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SETL.SMR_NUMBER LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SETL.SUBMISSION_PLACE LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SETL.ADD_USER_NAME LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    <![CDATA[
+    	AND SETL.ADD_DATE >= $S{F_CALENDAR_FROM}
+		AND SETL.ADD_DATE <= $S{F_CALENDAR_TO}
+        ORDER 
+            BY SETL.SMR_NUMBER DESC
+    ]]>
+    </method>
+    
+    <method name="doSelectSSIAD">
+    <![CDATA[
+    	SELECT
+	    	 HOUSE_CODE
+			,COMPANY_CODE
+			,SMR_NUMBER
+			,SMR_STATUS
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,APPLY_TYPE
+			,SUBJECT
+			,SUBMISSION_PLACE
+			,REMARK
+			,RCPT_TYPE
+			,RCPT_REMARK
+			,CONFIRM_DATE
+			,CONFIRM_TIME
+			,CONFIRM_USER_ID
+			,SUBMIT_TYPE
+			,SUBMIT_REMARK
+			,RE_FLAG
+			,REQ_SEAL_USE_TYPE
+			,LEGAL_WATERMARK
+			,RE_DETAIL
+			,REJECT_REASON
+			,EXPLANATION
+			,ADD_USER_DEPT
+			,ADD_DEPT_NAME_LOC
+			,ADD_DEPT_NAME_ENG
+			,CONFIRM_USER_DEPT
+			,CONFIRM_DEPT_NAME_LOC
+			,CONFIRM_DEPT_NAME_ENG
+			,SOURCE_NO
+		FROM
+			SSIAD
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+			AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+    ]]>
+    </method>
+    
+    <method name="doSelectSSIPD">
+    <![CDATA[
+    	SELECT
+    		 HOUSE_CODE
+			,COMPANY_CODE
+			,SMR_NUMBER
+			,SMD_NUMBER
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SEAL_TYPE
+			,SEAL_MG_DEPT
+			,SUBJECT
+			,COUNT
+			,PRINT_COUNT
+			,DOWN_COUNT
+			,AUTO_PRINT_FLAG
+			,PUBLISH_NO
+			,REAL_ATTACH_NO
+			,ITEMS_JSON
+			,MARK_COUNT
+			,RE_DETAIL
+			,OTHER_FILE_NO
+			,ACCESS_LINK
+		FROM
+			SSIPD
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+			AND SMD_NUMBER = $S{SMD_NUMBER}
+			AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+    ]]>
+    </method>
+    
+    <method name="doSelectSSETL">
+    <![CDATA[
+    	SELECT
+    		HOUSE_CODE
+			,COMPANY_CODE
+			,SMR_NUMBER
+			,SMR_STATUS
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SIGN_STATUS
+			,SIGN_DATE
+			,SIGN_TIME
+			,SIGN_USER_ID
+			,APPLY_TYPE
+			,SUBJECT
+			,SEAL_USE_TYPE
+			,SUBMISSION_PLACE
+			,ATTACH_NO
+			,REMARK
+			,LEGAL_REVIEW_TYPE
+			,CONFIRM_DATE
+			,CONFIRM_TIME
+			,CONFIRM_USER_ID
+			,SUBMIT_TYPE
+			,SUBMIT_REMARK
+			,EXT_USE_DETAIL
+			,EXT_OUT_EXPECT_DATE
+			,EXT_OUT_EXPECT_TIME
+			,EXT_IN_EXPECT_DATE
+			,EXT_IN_EXPECT_TIME
+			,EXT_USE_PLACE
+			,EXT_USE_USER_ID
+			,EXT_CPNO_USER_ID
+			,EXT_OUT_DATE
+			,EXT_OUT_TIME
+			,EXT_IN_DATE
+			,EXT_IN_TIME
+			,EMERGENCY_FLAG
+			,EMERGENCY_REMARK
+			,ROOT_PATH_TYPE
+			,REJECT_REMARK
+			,APVID
+			,ADD_USER_DEPT
+			,ADD_DEPT_NAME_LOC
+			,ADD_DEPT_NAME_ENG
+			,CONFIRM_USER_DEPT
+			,CONFIRM_DEPT_NAME_LOC
+			,CONFIRM_DEPT_NAME_ENG
+			,EXT_USE_USER_DEPT
+			,EXT_USE_DEPT_NAME_LOC
+			,EXT_USE_DEPT_NAME_ENG
+		FROM
+			SSETL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+			AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+    ]]>
+    </method>
+    
+    <method name="doSelectSSEDC">
+    <![CDATA[
+    	SELECT
+    		HOUSE_CODE
+			,COMPANY_CODE
+			,SMR_NUMBER
+			,SMR_SEQ
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SEAL_TYPE
+			,SEAL_MG_DEPT
+			,SUBJECT
+			,COUNT
+			,ATTACH_NO
+			,MANAGE_NUMBER
+			,SMD_NUMBER
+			,SEAL_MG_USER_ID
+			,SEAL_MG_SUBJECT
+			,ATTACH2_NO
+		FROM
+			SSEDC
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+			AND SMD_NUMBER = $S{SMD_NUMBER}
+			AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+    ]]>
+    </method>
+	<method name="doQueryIsTeamManager">
+	<![CDATA[
+		SELECT
+			USMT.USER_ID
+    	FROM
+    		SUSMT USMT
+		INNER JOIN SCODE CODE
+			ON CODE.HOUSE_CODE = USMT.HOUSE_CODE
+			AND CODE.TYPE = 'UX050'
+			AND CODE.LANGUAGE = ${session.LANGUAGE}
+			AND CODE.CODE = USMT.RESPONSIBILITY
+    	WHERE
+    		USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+    		AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+    		AND USMT.USER_ID = ${session.ID}
+	]]>
+	</method>
+</service>

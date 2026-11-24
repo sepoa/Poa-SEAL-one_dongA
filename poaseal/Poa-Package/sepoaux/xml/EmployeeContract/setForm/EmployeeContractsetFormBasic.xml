@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="ECT_205_A" header="false">
+    <form id="formObj" div="MrlpSicCArpSicJOxQ" form-id="ECT_205_A">
+        <event type="onButtonClick" callback="onButtonClick"/>
+        <event type="onChange" callback="onChange"/>
+    </form>
+    <usercss>
+    <![CDATA[
+        .btn_attach .dhxform_control > .dhxform_image::before {
+            content: "\eb74" !important;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="init" args="">
+        <![CDATA[
+            //    카테고리      :    CATEGORY    :    ECT004 (공통코드)
+            //    서명방식      :    CONT_METHOD    :    ECT003 (공통코드)
+            //    서식        :    SELECT_CFGL    :    ECT_CFGL (공통모듈)
+            
+            onReady();
+        ]]>
+        </function>
+        <function name="initForm" args="">
+        <![CDATA[
+            const alias = Sepoa.request.alias;
+            if(alias == 'B') {
+                formObj.reloadComboBox('CATEGORY', ['SL0001', `${Sepoa.info['HOUSE_CODE']}#${Sepoa.info['LANGUAGE']}#CT004`]);
+                formObj.reloadComboBox('CONT_METHOD', ['SL0001', `${Sepoa.info['HOUSE_CODE']}#${Sepoa.info['LANGUAGE']}#CT003`]);
+            }
+            
+            formObj.hideItem("SELECT_UPLOAD", true);     // 직접 업로드 폼아이템
+            formObj.hideItem("IMG_UPLOAD", true);        // 직접 업로드 우측 IMG 폼아이템
+            formObj.setReadonly("CONT_METHOD", true);    // 서명방식 ReadOnly
+            
+            // 폼 초기화
+            formObj.clear();
+            
+            formObj.checkItem('RADIO_BTN', 'TEMPLATE');
+            onChange('RADIO_BTN', 'TEMPLATE');
+            
+            //formObj.setValue("CONT_METHOD", "D"); // ECT003 (C 인증서, D 디지털사인, S 수기)
+        ]]>
+        </function>
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name:'BASIC',
+                id: $sObject.aliasCode,
+                fn:{
+                    doOpenDocument:doOpenDocument,
+                    doClear:doClear,
+                    doValidate:doValidate,
+                    setViewMode:setViewMode
+                }
+            }])
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+            $share.config = config;
+            const docInfo = structuredClone($share.config.data);
+            
+            initForm();
+            
+            for(const [key, value] of Object.entries(docInfo)) {
+                if(sUtils.object.isString(value)) {
+                    formObj.setValue(key, value);
+                }
+            }
+            
+            if(sUtils.string.isBlank(docInfo['CONT_FORM_NO'])) {
+                const fileNames = config.data['FILES']?.map(e => e['FILE_NAME_CLIENT'])?.join(',');
+                if(sUtils.string.isBlank(fileNames) === false) {
+                    formObj.checkItem('RADIO_BTN', 'UPLOAD');
+                    onChange('RADIO_BTN', 'UPLOAD');
+                    
+                    formObj.setValue('SELECT_UPLOAD', fileNames);
+                    formObj.setValue('CONT_METHOD', docInfo['CONT_METHOD']);
+                }
+            } else {
+                const selectCFGL = [
+                    docInfo['CATEGORY'],
+                    docInfo['CONT_FORM_NO'],
+                    docInfo['CONT_METHOD']
+                ];
+                
+                formObj.checkItem('RADIO_BTN', 'TEMPLATE');
+                onChange('RADIO_BTN', 'TEMPLATE');
+                
+                formObj.setValue('SELECT_CFGL', selectCFGL.join('^'));
+            }
+        ]]>
+        </function>
+        
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+            if(name == 'RADIO_BTN'){
+                onRadioButtonClick(value);
+                callFunction('p', 'setTabbar', [value]); // 정형서식, 비정형서식에 따른 계약자 탭 숨김처리
+            }else if(name == 'CATEGORY') { // 카테고리 선택에 따른 서식콤보 리로드
+                $share.config.data['CONT_FORM_NO'] = '';
+                
+                if(sUtils.string.isBlank(value)){
+                    formObj.setValue('SELECT_CFGL', '');
+                    formObj.reloadComboBox('SELECT_CFGL', ['ECT_CFGL', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE + "#" + "__EMPTY__"]);
+                }else {
+                    formObj.reloadComboBox('SELECT_CFGL', ['ECT_CFGL', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE + "#" + value]);
+                }
+            }else if(name == 'SELECT_CFGL'){ // 템플릿 선택에 따른 서명방식 값 변경
+                if(sUtils.string.isBlank(value) === false){
+                    const [category, contFormNo, contMethod] = value.split('^');
+                    $share.config.data['CATEGORY'] = category;
+                    formObj.setValue('CATEGORY', category, true);
+                    
+                    $share.config.data['CONT_FORM_NO'] = contFormNo;
+                    
+                    $share.config.data['CONT_METHOD'] = contMethod;
+                    formObj.setValue('CONT_METHOD', contMethod, true);
+                }
+            }
+            
+            const formData = formObj.getFormData(true);
+            formData[name] = value;
+            
+            $.extend(true, $share.config.data, formData);
+            
+            callFunction('p', 'onChangeData', ['BASIC', name, value]);
+        ]]>
+        </function>
+        
+        <function name="doClear">
+        <![CDATA[
+            formObj.clear();
+            
+            delete $share.config;
+        ]]>
+        </function>
+        <function name="doValidate">
+        <![CDATA[
+            const validateArr = ['CONT_SUBJECT', 'RADIO_BTN', 'CATEGORY', 'SELECT_CFGL', 'SELECT_UPLOAD', 'CONT_METHOD'];
+            const radioValue = formObj.getCheckedValue('RADIO_BTN');
+            let removeTarget = (radioValue == 'TEMPLATE') ?  'SELECT_UPLOAD' : 'SELECT_CFGL'; // 정형서식일경우 > 직접업로드 벨리데이션 삭제
+            
+            const filtered = validateArr.filter((value, index, arr) => {
+                return value != removeTarget;
+            });
+            
+            const formData = formObj.getFormData();
+            for(let key in formData){
+                if(filtered.indexOf(key) > -1 && sUtils.string.isBlank(formData[key])){ 
+                	
+					switch (key) {
+		                case "CONT_SUBJECT": 	// 계약명
+		                	Alert('[ ' +  Sepoa.cache.text.get('ECT_205_A.' + key) + ' ] ' + Sepoa.cache.text.get('ECT_205_A.MSG1')); // 을(를) 입력해주세요.
+		                    break;
+		                case "CATEGORY":		// 카테고리
+		                    Alert('[ ' +  Sepoa.cache.text.get('ECT_205_A.' + key) + ' ] ' + Sepoa.cache.text.get('ECT_205_A.MSG2')); // 을(를) 선택해주세요.
+		                    break;
+		                case "SELECT_CFGL": 	// 서식
+		                    Alert('[ ' +  Sepoa.cache.text.get('ECT_205_A.' + key) + ' ] ' + Sepoa.cache.text.get('ECT_205_A.MSG2')); // 을(를) 선택해주세요.
+		                    break;
+		                case "SELECT_UPLOAD": 	// 직접업로드
+		                    Alert('[ ' +  Sepoa.cache.text.get('ECT_205_A.' + key) + ' ] ' + Sepoa.cache.text.get('ECT_205_A.MSG3')); // 계약대상 파일을 업로드해주세요. 
+		                    break;
+		                case "CONT_METHOD": 	// 서명방식
+		                    Alert('[ ' +  Sepoa.cache.text.get('ECT_205_A.' + key) + ' ] ' + Sepoa.cache.text.get('ECT_205_A.MSG2')); // 을(를) 선택해주세요.
+		                    break;
+		                default:
+		                    break;
+		            }
+                    
+                    return false;
+                }
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="onRadioButtonClick" args="value">
+        <![CDATA[
+            $share.config.data['EXTRA_FILES'] = [];             // 첨부파일 데이터 초기화
+            $share.config.data['CONT_FORM_NO'] = '';
+            
+            formObj.setValue('SELECT_CFGL', '');         // 서식 콤보값 초기화
+            formObj.setValue('SELECT_UPLOAD', '');       // 파일 직접업로드 폼아이템 초기화
+            formObj.setValue('CONT_METHOD', '');
+            
+            formObj.hideItem("SELECT_UPLOAD", true);            // 직접업로드 숨김
+            formObj.hideItem("IMG_UPLOAD", true);               // (우측) 직접업로드 버튼 숨김
+            
+            formObj.hideItem("SELECT_CFGL", true);              // 서식 숨김
+            formObj.hideItem("IMG_TEMPLATE", true);             // (우측) 서식 검색 숨김
+            
+            formObj.setReadonly("CONT_METHOD", true);           // 서명 방식 수정 차단
+            
+            switch (value) {
+                case "TEMPLATE":
+                    formObj.showItem('SELECT_CFGL', true);
+                    formObj.showItem('IMG_TEMPLATE', true);
+                    
+                    break;
+                case "UPLOAD":
+                    formObj.showItem("SELECT_UPLOAD", true);
+                    formObj.showItem("IMG_UPLOAD", true);
+                    
+                    formObj.setReadonly("CONT_METHOD", false);
+                    
+                    break;
+                default:
+                    break;
+            }
+        ]]>
+        </function>
+        
+        <function name="onButtonClick" args="name">
+        <![CDATA[
+            if(name == "IMG_TEMPLATE"){     // 서식 미리보기
+                if(sUtils.string.isBlank($share.config.data['SELECT_CFGL'])){
+                    Alert(Sepoa.cache.text.get('CT_002.MSG_001')); // 서식을 선택해 주세요.
+                    return ;
+                }
+                sUtils.popup.modal({
+                    url: window.CONTEXT_NAME + '/EmployeeContract/Module/EmployeeContractModuleLayout.sux',
+                    title: sUtils.cache.text.get('POA_CONTRACT.TITLE_PREVIEW'),
+                    params: {
+                        CONT_MODULE: 'TEMPLATE_VIEW',
+                        CONT_TYPE: $share.config.data['CONT_TYPE'],
+                        WORK_TYPE: 'T',
+                        CONT_NO: $share.config.data['CONT_FORM_NO'],
+                        CONT_GL_SEQ: '1'
+                    }
+                })
+            }else if(name == "IMG_UPLOAD"){ // 파일 직접업로드
+                if([undefined, false].includes($share.config.viewFlag)) {
+                   openFileExplorer('C');
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="openFileExplorer" args="type">
+        <![CDATA[
+            const tmpFileInput = document.createElement('input');
+            tmpFileInput.type = 'file';
+            tmpFileInput.id = 'upload_file';
+            tmpFileInput.name = 'upload_file';
+            
+            tmpFileInput.onchange = function(fe) {
+                const files = fe.currentTarget.files;
+                if(files.length > 0) {
+                    if($share.config.data['EXTRA_FILES'] === undefined) {
+                        $share.config.data['EXTRA_FILES'] = [];
+                    }
+                    
+                    $share.config.data['EXTRA_FILES'] = $share.config.data['EXTRA_FILES'].filter(e => e['FILE_TYPE'] != type);
+                    
+                    formObj.setValue('SELECT_UPLOAD', '');
+                    
+                    const fileNames = [];
+                    for(const file of files) {
+                        if(checkFileExtension(file.name) === false) {
+                            return false;
+                        }
+                        
+                        fileNames.push(file.name);
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const [type, base64String] = e.target.result.split(',');
+                            $share.config.data['EXTRA_FILES'].push(
+                                {
+                                    FILE_TYPE : 'C',
+                                    FILE_NAME_CLIENT : file.name,
+                                    BASE64 : base64String
+                                }
+                            );
+                            formObj.setValue('SELECT_UPLOAD', fileNames.join(', '));
+                        };
+                        
+                        reader.readAsDataURL(file); // 파일을 Base64 문자열로 읽음
+                    }
+                }
+            }
+            
+            tmpFileInput.click();
+        ]]>
+        </function>
+        
+        <function name="setViewMode" args="flag">
+        <![CDATA[
+            $share.config.viewFlag = flag;
+            formObj.setViewMode($share.config.viewFlag);
+        ]]>
+        </function>
+        
+        <function name="checkFileExtension" args="name">
+        <![CDATA[
+            let validFlag = false;
+            let ext = '';
+            const allowExt = '<%= CommonUtil.getConfig("sepoa.filemanager.plugin.filetypevalidator.cont_c", "") %>';
+            const match = name.match(/\.([a-zA-Z]{0,})$/);
+            if(match) {
+                ext = match[1].toLowerCase();
+                if(allowExt.split(';').includes(ext)) {
+                    validFlag = true;
+                }
+            }
+            
+            if(validFlag === false) {
+                Alert(sUtils.string.dataReplacer(sUtils.cache.text.get("BASE_FILE.NOT_SUPPORT_EXT"), { EXT : ext }));
+            }
+            
+            return validFlag;
+        ]]>
+        </function>
+        
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTXJscFNpY01ybHBTaWNQYWRCIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8zVXQ0UjNyT3J0dGIiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3p2QjZYTE1wa3dQOSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNUXzIwNV9BIiwiT0JKRUNUX0lEIjoiTXJscFNpY01ybHBTaWNQYWRCIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiTXJscFNpY01ybHBTaWNQYWRCIiwidHlw
+        ZSI6ImJvZHkifSwiTXJscFNpY0NBcnBTaWNKT3hRIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfTms2aXhLanp6TFhSIjoibnVsbCIsImRoeElkX2kxZUo4N09pOUpFViI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiY2VudGVyIiwiQUxJR05fVkVSVElDQUwiOiJtaWRkbGUiLCJkaHhJZF9CWm5JN3ZTYUpndnQiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF96c1JYV1l0aUdxVWwiOiJudWxsIiwiZGh4SWRf
+        TE1zaDU4TW1WNjhXIjoibnVsbCIsImRoeElkX3d0QVQ0cWpiVXNLMyI6Im51bGwiLCJkaHhJZF9pQTNHTDduTnUyWFMiOiJudWxsIiwiZGh4SWRfdnlSWHdoRGV4ZWhIIjoibnVsbCIsImRoeElkXzJEWUVzdDVKYlBPNyI6Im51bGwiLCJkaHhJZF9hS0t0Y0RmS0ZMRFAiOiJudWxsIiwiZGh4SWRfNUlSZXFscm1NaWtKIjoibnVsbCIsImRoeElkX3lnYnYzSmppUnpnSyI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJNcmxwU2ljQ0FycFNpY0pPeFEiLCJGT1JNX0lEIjoiQ1RfMjA1X0EifSwiaWQiOiJNcmxwU2ljQ0FycFNpY0pPeFEiLCJ0eXBlIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvbkNoYW5nZSIs
+        InR5cGUiOiJldmVudCIsIkNBTExCQUNLX1RZUEUiOiJuYW1lIiwiTkFNRSI6Im9uQ2hhbmdlIn0seyJDQUxMQkFDSyI6Im9uRm9jdXMiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvbkZvY3VzIn0seyJDQUxMQkFDSyI6ImRvUXVlcnlFbmQiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvblhMRSJ9XX19LCJ0cmVlIjp7ImlkIjoiTXJscFNpY01ybHBTaWNQYWRCIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJNcmxwU2ljQ0FycFNpY0pPeFEiLCJ0eXBlIjoiZm9ybSJ9XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9zZXRGb3JtL0NvbnRyYWN0c2V0Rm9ybUJhc2ljLnht
+        bCIsIlBST0pFQ1QiOiJTUk0iLCJDT0RFIjoiMjA1X0EiLCJQUkVGSVgiOiJDVCIsIlBBVEhfMiI6InNldEZvcm0iLCJQQVRIXzMiOiJDb250cmFjdHNldEZvcm0iLCJQQVRIXzEiOiJDb250cmFjdCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkJhc2ljIiwiU0NSRUVOX0lEIjoiQ1RfMjA1X0EifX0sImh0bWwiOiI8ZGl2IGlkPVwiTXJscFNpY01ybHBTaWNQYWRCXCIgY2xhc3M9XCJjb250YWluZXIgc2Vwb2F1eF9zY3JlZW5fc2Nyb2xsXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29t
+        cG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2VudGVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV92YWxpZ25fbWlkZGxlXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk1ybHBTaWNDQXJwU2ljSk94UVwiIGNsYXNz
+        PVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

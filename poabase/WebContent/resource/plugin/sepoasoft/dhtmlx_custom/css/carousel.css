@@ -1,0 +1,15 @@
+div.dhx_cell_cont_carousel{
+	overflow:auto;
+	-webkit-overflow-scrolling:touch;
+}
+
+div.dhx_cell_cont_carousel > iframe{
+	height : 100%;
+    /*height : -webkit-calc(100% - 3px); /* for Chrome, Safari */
+    /*height :    -moz-calc(100% - 3px); /* for Firefox */
+    /*height :         calc(100% - 3px); /* for IE */
+}
+
+.dhxcarousel_base_material div.dhxcarousel_cont div.dhxcarousel_area div.dhx_cell_carousel div.dhx_cell_cont_carousel{
+	border:0px;
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT
+				s1.CTRL_NAME_LOC,
+				s.ADD_DATE,
+				CASE WHEN s.REPRESENT_CTRL = 'Y'
+				     THEN 1
+				     ELSE 0
+				      END   AS REPRESENT_CTRL,
+				s.CTRL_CODE,
+        		s.COMPANY_CODE
+			FROM 
+				SBALN s,
+				SBAGL s1
+			WHERE 
+			    s.house_code=s1.house_code
+ 			AND s.company_code=s1.company_code 
+			AND s.CTRL_CODE=s1.CTRL_CODE 
+			AND s.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND s.COMPANY_CODE = ${COMPANY_CODE}
+			AND s.CTRL_PERSON_ID = ${USER_ID}
+			ORDER BY s.CTRL_CODE
+		]]>
+	</method>
+	<method name="doDelete">
+		<![CDATA[
+			DELETE FROM SBALN
+			WHERE CTRL_CODE=${CTRL_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CTRL_PERSON_ID=${USER_ID}
+		]]>
+	</method>
+	<method name="doUpdateSUSMT">
+		<![CDATA[
+			UPDATE SUSMT
+			SET CTRL_CODE = ${CTRL_CODE}
+			WHERE USER_ID = ${USER_ID} 
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND HOUSE_CODE = ${session.HOUSE_CODE}
+		]]>
+	</method>
+	<method name="doUpdateSBALN">
+		<![CDATA[
+			UPDATE SBALN
+			SET REPRESENT_CTRL = (CASE WHEN ${REPRESENT_CTRL} = '1' THEN 'Y' 
+			                           WHEN ${REPRESENT_CTRL} = '0' THEN 'N' END) 
+			WHERE CTRL_CODE=${CTRL_CODE} 
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND CTRL_PERSON_ID=${USER_ID}
+			AND HOUSE_CODE = ${session.HOUSE_CODE}
+		]]>
+	</method>
+</service>

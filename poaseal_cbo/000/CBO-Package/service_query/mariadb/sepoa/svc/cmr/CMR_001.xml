@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQuery">
+    <![CDATA[
+        SELECT
+        	row_number() over () as num -- 번호
+            , POLN.po_number -- 구매오더
+            , BOM.material_number -- 자재코드
+            , BOM.description_loc -- 자재명
+            , BOM.bom_qty -- 수량
+            , BOM.bom_unit_measure -- 단위
+            , BOM.material_number_bom -- 사급자재코드
+            , BOM.description_loc_bom -- 사급자재명
+            , BOM.base_qty -- 기준수량
+        FROM SPOLN POLN, SBOM BOM
+        WHERE 1=1
+            AND POLN.HOUSE_CODE = ${session.HOUSE_CODE}
+            AND POLN.COMPANY_CODE = ${session.BUYER_COMPANY_CODE}
+            AND POLN.SELLER_CODE = ${session.COMPANY_CODE}
+            AND poasrm_std.NVL(POLN.DEL_FLAG, 'N') = 'N'
+            AND POLN.MATERIAL_NUMBER = BOM.MATERIAL_NUMBER
+    ]]>
+    </method>
+    
+    <method name="doRequest">
+    <![CDATA[
+        INSERT INTO SOSLN(
+			house_code,
+			company_code,
+			plant_code,
+			ADD_DATE,
+			ADD_TIME,
+			ADD_USER_ID,
+			CHANGE_DATE,
+			CHANGE_TIME,
+			CHANGE_USER_ID,
+			DEL_FLAG,
+			so_number,
+			so_seq,
+            material_number_bom,
+            description_loc_bom,
+            bom_qty,
+            req_qty,
+            bom_unit_measure,
+            po_number,
+            po_seq,
+            seller_code,
+            seller_name_loc,
+            material_number,
+            description_loc,
+            base_qty   
+     	) VALUES (
+ 	       	${session.HOUSE_CODE},
+			${session.BUYER_COMPANY_CODE},
+			${PLANT_CODE},
+			${current.DATE},
+			${current.TIME},
+			${session.ID},
+			${current.DATE},
+			${current.TIME},
+			${session.ID},
+			'N',
+			${SO_NUMBER},
+			${SO_SEQ},
+            ${MATERIAL_NUMBER_BOM},
+            ${DESCRIPTION_LOC_BOM},
+            ${BOM_QTY},
+            ${REQ_QTY},
+            ${session.COMPANY_CODE},
+            ${session.COMPANY_NAME},
+            ${MATERIAL_NUMBER},
+            ${DESCRIPTION_LOC},
+            ${BASE_QTY}
+		)
+		ON DUPLICATE KEY UPDATE
+            CHANGE_DATE = ${current.DATE},
+            CHANGE_TIME = ${current.TIME},
+            CHANGE_USER_ID = ${session.ID},
+            so_number = ${SO_NUMBER},
+            so_seq = ${SO_SEQ},
+            material_number_bom = ${MATERIAL_NUMBER_BOM},
+            description_loc_bom = ${DESCRIPTION_LOC_BOM},
+            bom_qty = ${BOM_QTY},
+            req_qty = ${REQ_QTY},
+            seller_code = ${session.COMPANY_CODE},
+            seller_name_loc = ${session.COMPANY_NAME},
+            plant_code = ${PLANT_CODE},
+            material_number = ${MATERIAL_NUMBER},
+            description_loc = ${DESCRIPTION_LOC},
+            base_qty = ${BASE_QTY}
+    ]]>
+    </method>
+</service>

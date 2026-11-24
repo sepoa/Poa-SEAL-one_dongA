@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doInsertImbupr">
+	<![CDATA[
+		INSERT INTO BAT_UP_IMBUPR
+		(
+			  INS_TIME
+			, BIZ_CODE
+			, SELLER_NAME_LOC
+			, IRS_NO
+			, PHONE_NO
+			, EMAIL
+			, CEO_NAME_LOC
+			, JOB_DATE
+		)
+	   SELECT TO_CHAR(SYSTIMESTAMP, 'YYYYMMDDHH24MISSFF')
+		    , BIZ_CODE
+			, SELLER_NAME_LOC
+			, IRS_NO
+			, PHONE_NO
+			, EMAIL
+			, CEO_NAME_LOC
+			, JOB_DATE
+		 FROM DUAL
+	]]>
+	</method>
+	<method name="doSelectImbupr">
+	<![CDATA[
+	   SELECT INS_TIME
+			, BIZ_CODE
+			, SELLER_NAME_LOC
+			, IRS_NO
+			, PHONE_NO
+			, EMAIL
+			, CEO_NAME_LOC
+			, JOB_DATE
+			, IF_FLAG
+		 FROM BAT_UP_IMBUPR
+		WHERE IF_FLAG IS NULL
+	]]>
+	</method>
+	<method name="checkExistSBUPR">
+	<![CDATA[
+		SELECT
+			BIZ_CIDE
+		FROM
+			SBUPR
+		WHERE
+				HOUSE_CODE 			= ${HOUSE_CODE}
+			AND COMPANY_CODE 		= ${COMPANY_CODE}	
+			AND BIZ_CODE 			= ${BIZ_CODE}
+			AND #DB_OWNER#nvl(DEL_FLAG, 'N') 	= 'N'	 
+	]]>
+	</method>
+	<method name="doUpdateSBUPR">
+	<![CDATA[
+		UPDATE SBUPR
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, SELLER_NAME_LOC = ${SELLER_NAME_LOC}
+				, IRS_NO = ${IRS_NO}
+				, PHONE_NO = ${PHONE_NO}
+				, EMAIL = ${EMAIL}
+				, CEO_NAME_LOC = ${CEO_NAME_LOC}
+		WHERE
+			  HOUSE_CODE        	= ${HOUSE_CODE}
+		  AND COMPANY_CODE 			= ${COMPANY_CODE}
+		  AND BIZ_CODE           	= ${BIZ_CODE}
+	]]>
+	</method>
+	<method name="doInsertSBUPR">
+	<![CDATA[
+		INSERT INTO SBUPR
+			(
+				  HOUSE_CODE
+				, BIZ_CODE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, DEL_FLAG
+				, SELLER_NAME_LOC
+				, IRS_NO
+				, PHONE_NO
+				, EMAIL
+				, CEO_NAME_LOC
+			)
+			VALUES
+			(
+				  HOUSE_CODE = ${HOUSE_CODE}
+				, BIZ_CODE = ${BIZ_CODE}
+				, ADD_DATE = ${current.DATE}
+				, ADD_TIME = ${current.TIME}
+				, ADD_USER_ID = ${session.ID}
+				, DEL_FLAG = 'N'
+				, SELLER_NAME_LOC = ${SELLER_NAME_LOC}
+				, IRS_NO = ${IRS_NO}
+				, PHONE_NO = ${PHONE_NO}
+				, EMAIL = ${EMAIL}
+				, CEO_NAME_LOC = ${CEO_NAME_LOC}
+			)	
+	]]>
+	</method>
+	<method name="doDeleteSBUPR">
+	<![CDATA[
+		UPDATE SBUPR
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, DEL_FLAG			= 'Y'
+		WHERE
+			  HOUSE_CODE        	= ${HOUSE_CODE}
+		  AND COMPANY_CODE 			= ${COMPANY_CODE}
+		  AND BIZ_CODE           	= ${BIZ_CODE}
+	]]>
+	</method>
+	<method name="doSelectSBUPR">
+	<![CDATA[
+		SELECT
+			BIZ_CODE
+		  FROM
+		  	SBUPR
+		 WHERE
+		 	    HOUSE_CODE = ${HOUSE_CODE}
+		   	AND COMPANY_CODE = $S{COMPANY_CODE}
+		    
+	]]>
+	</method>
+	<method name="doUpdateTmp">
+	<![CDATA[
+		UPDATE BAT_UP_IMBUPR
+		   SET IF_FLAG  	= #{IF_RESULT}
+		 WHERE INS_TIME 	= #{INS_TIME}
+		   AND BIZ_CODE  	= #{BIZ_CODE}
+	]]>
+	</method>
+</service>

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_350_2" header="false">
+    <form id="formObj" div="cTHxLPbgTSoKtuNHFU" form-id="file:///resource/ux/admin/form/AD_350_1.js"/>
+    <button id="btnObj">
+        <btn div="cTHxLPbMllpKtuNbTJ" id="new" type="new" text="{BUTTON.new}" toggle="false" reverse="false" onclick="doNew(  )"/>
+        <btn div="cTHxLPbMllpKtuNbTJ" id="update" type="update" text="{BUTTON.update}" toggle="false" reverse="false" onclick="doUpdate(  )"/>
+        <btn div="cTHxLPbMllpKtuNbTJ" id="cancel" type="cancel" text="{BUTTON.cancel}" toggle="false" reverse="false" onclick="doCancel(  )"/>
+        <btn div="cTHxLPbMllpKtuNbTJ" id="save" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(  )"/>
+        <btn div="cTHxLPbMllpKtuNbTJ" id="delete" type="deleted" text="{BUTTON.delete}" toggle="false" reverse="false" onclick="doDelete(  )"/>
+        <btn div="cTHxLPbkFYoKtuNWyx" id="execute" text="{BUTTON.run}" onclick="doExecute(  )"/>
+        <btn div="cTHxLPbkFYoKtuNWyx" id="addRow" text="{BUTTON.rowadd}" onclick="doAddRow(  )"/>
+        <btn div="cTHxLPbkFYoKtuNWyx" id="deleteRow" text="{BUTTON.rowdelete}" onclick="doDeleteRow(  )"/>
+    </button>
+    <grid id="gridObj" div="cTHxLPbsQbpKtuNUMh" grid-id="file://resource/ux/admin/grid/AD_350.js" drag="true" merge="false" dynamic="false">
+        <event type="onXLE" callback="doQueryEnd"/>
+        <event type="onTXE" callback="doSaveEnd"/>
+        <event type="onDrop" callback="doOnDrop"/>
+        <event type="onDrag" callback="doOnDrag"/>
+    </grid>
+    <variable>
+        <var name="TbBIYPbMdFIYPbawAu" value="$($sObject._vp).find('#TbBIYPbMdFIYPbawAu')[0]"/>
+        <var name="TbBIYPbyhHIYPbwxtQ" value="$($sObject._vp).find('#TbBIYPbyhHIYPbwxtQ')[0]"/>
+        <var name="TbBIYPbMdFIYPbAKYN" value="$($sObject._vp).find('#TbBIYPbMdFIYPbAKYN')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+            gridObj.enableMultiline(true);
+            
+            gridObj.setDragBehavior("complex");
+            
+            gridObj.attachEvent("onEditCell", function(stage, rowId, cellInd, nValue, oValue) {
+                var useYnInd = gridObj.getColIndexById("USE_YN");
+                var treeParentIdIdx = gridObj.getColIndexById("TREE_PARENT_ID");
+                var treeIdIdx = gridObj.getColIndexById("TREE_ID");
+                if (stage == 0) {
+                    if (useYnInd != cellInd && gridObj.isReadOnly) {
+                        return false;
+                    }
+                } else if (stage == 1) {
+                    if (useYnInd == cellInd) {
+                        var useYn = gridObj.cells(rowId, useYnInd).getValue();
+                        var treeParentId = gridObj.cells(rowId, treeParentIdIdx).getValue();
+                        if (treeParentId == "*") {
+                            var treeId = gridObj.cells(rowId, treeIdIdx).getValue();
+                            var rowsNum = gridObj.getRowsNum();
+                            for (var i = 0; i < rowsNum; i++) {
+                                var rowId = gridObj.getRowId(i);
+                                var parentId = gridObj.cells(rowId, treeParentIdIdx).getValue();
+                                if (parentId == treeId) {
+                                    gridObj.cells(rowId, useYnInd).setValue(useYn);
+                                    gridObj.cells(rowId, useYnInd).cell.wasChanged = true;
+                                }
+                            }
+                        } else {
+                            var rowsNum = gridObj.getRowsNum();
+                            var pId = gridObj.cells(rowId, treeParentIdIdx).getValue();
+                            var anyUseY = false;
+                            var allUseN = true;
+                            var parentRowId;
+                            for (var i = 0; i < rowsNum; i++) {
+                                var cRowId = gridObj.getRowId(i);
+                                var treeParentId = gridObj.cells(cRowId, treeParentIdIdx).getValue();
+                                if (treeParentId == pId) {
+                                    var useYn = gridObj.cells(cRowId, useYnInd).getValue();
+                                    if (useYn == '1') {
+                                        anyUseY = true;
+                                        allUseN = false;
+                                    }
+                                }
+                                if (gridObj.cells(cRowId, treeIdIdx).getValue() == pId) {
+                                    parentRowId = cRowId;
+                                }
+                            }
+            
+                            if (anyUseY) {
+                                gridObj.cells(parentRowId, useYnInd).setValue('1');
+                                gridObj.cells(parentRowId, useYnInd).cell.wasChanged = true;
+                            }
+                            if (allUseN) {
+                                gridObj.cells(parentRowId, useYnInd).setValue('0');
+                                gridObj.cells(parentRowId, useYnInd).cell.wasChanged = true;
+                            }
+                        }
+                    }
+                }
+                return true;
+            });
+            gridObj.setReadOnly = function(b) {
+                gridObj.isReadOnly = b;
+            }
+        ]]>
+        <call name="changeMode" args="'VIEW'"/>
+        <![CDATA[
+            //버튼이벤트
+        ]]>
+        <event obj="Sepoa" type="onButtonClick">
+            <function args="id">
+            <![CDATA[
+                switch (id) {
+                    case "new":
+                        doNew();
+                        break;
+                    case "update":
+                        doUpdate();
+                        break;
+                    case "cancel":
+                        doCancel();
+                        break;
+                    case "delete":
+                        doDelete();
+                        break;
+                    case "save":
+                        doSave();
+                        break;
+                    case "addRow":
+                        doAddRow();
+                        break;
+                    case "deleteRow":
+                        doDeleteRow();
+                        break;
+                    case "execute":
+                        doExecute();
+                        break;
+                    default:
+                        break;
+                }
+            ]]>
+            </function>
+        </event>
+    </onloadscript>
+    <userscript>
+        <function name="doQuery" args="deployId">
+        <![CDATA[
+            if (deployId) formObj.setValue('DEPLOY_ID', deployId);
+            gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doTreeGridQuery',
+                /* 'TREE_COLUMN=TREE_ID', 'TREE_PARENT_COLUMN=TREE_PARENT_ID', */
+                'TREE_VALUE_COLUMN=MODULE_NAME', 'PROCESS_ID=sepoa.svc.admin.AD_350'
+            ]);
+            formObj.clear();
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCnt">
+        <![CDATA[
+            var msg = obj.getUserData("", "message");
+            var status = obj.getUserData("", "status");
+            if (status != "true") {
+                Alert(msg);
+            } else {
+                var sf = new SepoaFormater(obj.getUserData("", "headerData"));
+                if (sf.getRowCount() > 0) {
+                    formObj.dataMapper(sf);
+                    changeMode('VIEW');
+                } else {
+                    changeMode('CLEAR');
+                }
+                gridObj.expandAll();
+                order();
+            }
+        ]]>
+        </function>
+        <function name="changeMode" args="mode">
+        <![CDATA[
+            if (mode == 'VIEW') {
+                changeMode('CLEAR');
+                btnObj.showButton('update', true);
+                btnObj.showButton('delete', true);
+                btnObj.showButton('new', true);
+            
+                formObj.setViewMode(true);
+                gridObj.setReadOnly(true);
+            } else if (mode == 'INSERT') {
+                changeMode('CLEAR');
+                btnObj.showButton('save', true);
+                btnObj.showButton('cancel', true);
+                btnObj.showButton('execute', false);
+                btnObj.showButton('addRow', true);
+                btnObj.showButton('deleteRow', true);
+                formObj.setViewMode(false);
+                gridObj.setReadOnly(false);
+            } else if (mode == 'CLEAR') {
+                btnObj.showButton('update', false);
+                btnObj.showButton('delete', false);
+                btnObj.showButton('new', false);
+                btnObj.showButton('save', false);
+                btnObj.showButton('cancel', false);
+            
+                btnObj.showButton('execute', true);
+                btnObj.showButton('addRow', false);
+                btnObj.showButton('deleteRow', false);
+                formObj.setViewMode(false);
+                gridObj.setReadOnly(false);
+            }
+            SUX.callEvent('onWindowResize', [])
+        ]]>
+        </function>
+        <function name="doNew" args="">
+        <![CDATA[
+            dataOutput.setValue('beforeDoc', formObj.getValue("DEPLOY_ID"));
+            formObj.clear();
+            gridObj.clearAll();
+            dataOutput.setValue('SAVE_MODE', 'INSERT');
+            changeMode('INSERT');
+        ]]>
+        </function>
+        <function name="doCancel" args="">
+        <![CDATA[
+            formObj.setValue('DEPLOY_ID', dataOutput.getValue('beforeDoc'));
+            dataOutput.setValue('SAVE_MODE', '');
+            doQuery();
+        ]]>
+        </function>
+        <function name="doUpdate" args="">
+        <![CDATA[
+            dataOutput.setValue('beforeDoc', formObj.getValue("DEPLOY_ID"));
+            dataOutput.setValue('SAVE_MODE', 'UPDATE');
+            changeMode('INSERT');
+        ]]>
+        </function>
+        <function name="doDelete" args="">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('MESSAGE.1015'), function(result) {
+                if (result) {
+                    doServiceAjax('sepoa.svc.admin.AD_350', 'TRANSACTION', 'doDelete', null, function(so) {
+                        if (so.status != '1') {
+                            Alert(so.message);
+                        } else {
+                            callFunction('AD_350_1', 'doQuery');
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doAddRow" args="">
+        <![CDATA[
+            var maxRowId = new Date().getTime() + '' + dhx4.newId();
+            gridObj.addRow(maxRowId, '', gridObj.getRowsNum());
+            gridObj.cells(maxRowId, gridObj.getColIndexById('SELECTED')).setValue("1");
+            gridObj.cells(maxRowId, gridObj.getColIndexById('USE_YN')).setValue("1");
+            gridObj.cells(maxRowId, gridObj.getColIndexById('TREE_ID')).setValue("");
+            gridObj.cells(maxRowId, gridObj.getColIndexById('TREE_PARENT_ID')).setValue("*");
+            gridObj.showRow(maxRowId);
+            order();
+        ]]>
+        </function>
+        <function name="doDeleteRow" args="">
+        <![CDATA[
+            var grid_array = gridObj.getGridChangedRows("SELECTED");
+            if (grid_array.length < 1) {
+                Alert(Sepoa.cache.text.get('MESSAGE.MSG_1001'));
+            } else {
+                Confirm(Sepoa.cache.text.get('MESSAGE.1015'), function(result) {
+                    if (result) {
+                        for (var i in grid_array) {
+                            //var flag = gridObj.cells(grid_array[i], gridObj.getColIndexById('SAVED')).getValue();
+                            //if(flag != 'Y'){
+                            gridObj.deleteRow(grid_array[i]);
+                            //}
+                        }
+                        //grid_array = gridObj.getGridChangedRows("SELECTED");
+                        //if(grid_array.length > 0) {
+                        //    gridObj.editStop();
+                        //    gridObj.postTransaction('/SepoaGrid.sux',['mode=doDelete','PROCESS_ID=sepoa.svc.admin.AD_350','METHOD=doDelete'],'SELECTED');
+                        //}
+                    }
+                });
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            gridObj.editStop();
+            if (!formObj.validate()) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+            }
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(result) {
+                if (result) {
+                    gridObj.editStop();
+                    gridObj.allRowsChecked('SELECTED', true);
+                    gridObj.postTransaction(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doSave', 'PROCESS_ID=sepoa.svc.admin.AD_350', 'METHOD=doSave'], 'SELECTED');
+                }
+            });
+        ]]>
+        </function>
+        <function name="doSaveEnd" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            if (status == "true") {
+                doQuery();
+                callFunction('AD_300_1', 'doQuery', [true]);
+            } else {
+                Alert(message);
+            }
+        ]]>
+        </function>
+        <function name="doExecute" args="obj">
+        <![CDATA[
+            gridObj.editStop();
+            if (!gridObj.validate('USE_YN')) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+            }
+            Confirm(Sepoa.cache.text.get('MESSAGE.1038'), function(result) {
+                if (result) {
+                    gridObj.editStop();
+                    gridObj.postTransaction(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doSave', 'PROCESS_ID=sepoa.svc.admin.AD_350', 'METHOD=doExecute'], 'USE_YN');
+                }
+            });
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+            gridObj._doOnCellEdit = function(stage, rowId, cellInd, nValue, oValue) {
+                console.log(stage + ":" + rId + "," + cInd);
+            }
+        ]]>
+        </function>
+        <function name="order" args="">
+        <![CDATA[
+            var pOrder = 0;
+            var cOrder = 0;
+            var treeParentIdIdx = gridObj.getColIndexById("TREE_PARENT_ID");
+            var orderIdx = gridObj.getColIndexById("ORDER");
+            var seqIdx = gridObj.getColIndexById("SEQ");
+            var rowsNum = gridObj.getRowsNum();
+            for (var i = 0; i < rowsNum; i++) {
+                var cRowId = gridObj.getRowId(i);
+                var treeParentId = gridObj.cells(cRowId, treeParentIdIdx).getValue();
+                if (treeParentId == "*") {
+                    gridObj.cells(cRowId, orderIdx).setValue("" + (++pOrder));
+                    gridObj.cells(cRowId, seqIdx).setValue("0");
+                    cOrder = 0;
+                } else {
+                    gridObj.cells(cRowId, orderIdx).setValue("" + pOrder);
+                    gridObj.cells(cRowId, seqIdx).setValue("" + (++cOrder));
+                }
+            }
+        ]]>
+        </function>
+        <function name="doOnDrag" args="sId, tId">
+        <![CDATA[
+            var tpId = gridObj.cells(tId, gridObj.getColIndexById("TREE_PARENT_ID")).getValue();
+            console.log(tId + "," + tpId);
+            if (tpId != '*') {
+                Alert("It can not be attached to 2nd-depth.<br>Attach parent node.");
+                return false;
+            } else {
+                return true;
+            }
+        ]]>
+        </function>
+        <function name="doOnDrop" args="sId, tId, dId, sObj, tObj, sCol, tCol">
+        <![CDATA[
+            var pId = gridObj.getParentId(dId)
+            var treeParentId;
+            if (pId != '') {
+                treeParentId = gridObj.cells(pId, gridObj.getColIndexById("MODULE_NAME_TMP")).getValue();
+                gridObj.cells(dId, gridObj.getColIndexById("TREE_PARENT_ID")).setValue(treeParentId);
+                gridObj.cells(dId, gridObj.getColIndexById("MODULE_NAME_TMP")).setValue(treeParentId);
+            } else {
+                gridObj.cells(dId, gridObj.getColIndexById("TREE_PARENT_ID")).setValue("*");
+            }
+            order();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiY1RIeExQYmtGWW9LdHVOV3l4Ijp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnRuT2JqIiwiT0JKRUNUX0lEIjoiY1RIeExQYmtGWW9LdHVOV3l4IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJJVEVNXzVfSUQiOiJleGVjdXRlIiwiSVRFTV81X09OQ0xJQ0siOiJkb0V4ZWN1dGUiLCJJVEVNXzVfU0xDT0RFIjoiQlVUVE9O
+        LnJ1biIsIklURU1fNV9URVhUIjoivcfH4CIsIklURU1fNl9JRCI6ImFkZFJvdyIsIklURU1fNl9PTkNMSUNLIjoiZG9BZGRSb3ciLCJJVEVNXzZfU0xDT0RFIjoiQlVUVE9OLnJvd2FkZCIsIklURU1fNl9URVhUIjoix+DD37ChIiwiSVRFTV83X0lEIjoiZGVsZXRlUm93IiwiSVRFTV83X09OQ0xJQ0siOiJkb0RlbGV0ZVJvdyIsIklURU1fN19TTENPREUiOiJCVVRUT04ucm93ZGVsZXRlIiwiSVRFTV83X1RFWFQiOiLH4LvowaYiLCJJVEVNXzVfU09SVCI6IjEiLCJJVEVNXzZfU09SVCI6IjIiLCJJVEVNXzdfU09SVCI6IjMifSwiaWQiOiJjVEh4TFBia0ZZb0t0dU5XeXgiLCJ0eXBlIjoiYnV0dG9uIiwiYnV0dG9uIjoiYnV0dG9uIn0sImNUSHhMUGJnVFNvS3R1
+        TkhGVSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6ImNUSHhMUGJnVFNvS3R1TkhGVSIsIkZPUk1fSUQiOiJmaWxlOi8vL3Jlc291cmNlL3V4L2FkbWluL2Zvcm0vQURfMzUwXzEuanMifSwiaWQiOiJjVEh4TFBiZ1RTb0t0dU5IRlUiLCJ0eXBlIjoiZm9ybSIsImZvcm0iOiJmb3JtIiwiZXZlbnRzIjpudWxsfSwiY1RIeExQYk1sbHBLdHVOYlRKIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIi
+        LCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0In0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLm5ldyIsIklURU1fMV9TTENPREUiOiJCVVRUT04udXBkYXRlIiwiSVRFTV8wX1BBUkFNIjoiIiwiSVRFTV8zX1NPUlQiOiI0IiwiSVRFTV8yX1BBUkFNIjoiIiwiSVRFTV8xX1RFWFQiOiK89sGkIiwiSVRFTV80X1RFWFQiOiK76MGmIiwiSVRFTV8wX1NPUlQiOiIxIiwiT0JKRUNUX0lEIjoiY1RIeExQYk1sbHBLdHVOYlRKIiwiSVRFTV8zX1BBUkFNIjoiIiwiSVRFTV8yX1NPUlQiOiIzIiwiSVRFTV8x
+        X1RZUEUiOiJ1cGRhdGUiLCJJVEVNXzJfSUQiOiJjYW5jZWwiLCJJVEVNXzRfVFlQRSI6ImRlbGV0ZWQiLCJJVEVNXzBfSUQiOiJuZXciLCJJVEVNXzRfSUQiOiJkZWxldGUiLCJJVEVNXzBfUkVWRVJTRSI6ZmFsc2UsIklURU1fMl9PTkNMSUNLIjoiZG9DYW5jZWwiLCJJVEVNXzBfVFlQRSI6Im5ldyIsIklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX09OQ0xJQ0siOiJkb1VwZGF0ZSIsIklURU1fMV9QQVJBTSI6IiIsIklURU1fM19PTkNMSUNLIjoiZG9TYXZlIiwiSVRFTV8yX1RFWFQiOiLD67zSIiwiSVRFTV8zX1RZUEUiOiJzYXZlIiwiSVRFTV8wX09OQ0xJQ0siOiJkb05ldyIsIklURU1fM19UT0dHTEUiOmZhbHNlLCJJVEVNXzRfT05DTElDSyI6ImRv
+        RGVsZXRlIiwiSVRFTV8xX1RPR0dMRSI6ZmFsc2UsIklURU1fNF9UT0dHTEUiOmZhbHNlLCJJVEVNXzBfVE9HR0xFIjpmYWxzZSwiSVRFTV8yX1RPR0dMRSI6ZmFsc2UsIklURU1fM19URVhUIjoiwPrA5SIsIklURU1fMl9UWVBFIjoiY2FuY2VsIiwiSVRFTV80X1JFVkVSU0UiOmZhbHNlLCJJVEVNXzFfU09SVCI6IjIiLCJJVEVNXzRfU0xDT0RFIjoiQlVUVE9OLmRlbGV0ZSIsIklURU1fMl9SRVZFUlNFIjpmYWxzZSwiSVRFTV8zX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV8yX1NMQ09ERSI6IkJVVFRPTi5jYW5jZWwiLCJJVEVNXzFfSUQiOiJ1cGRhdGUiLCJJVEVNXzNfUkVWRVJTRSI6ZmFsc2UsIklURU1fMF9URVhUIjoivcWx1CIsIklURU1fM19JRCI6
+        InNhdmUiLCJJVEVNXzRfUEFSQU0iOiIiLCJJVEVNXzRfU09SVCI6IjUifSwiaWQiOiJjVEh4TFBiTWxscEt0dU5iVEoiLCJ0eXBlIjoiYnV0dG9uIiwiYnV0dG9uIjoiYnV0dG9uIn0sImNUSHhMUGJFQkpvS3R1TnlyRSI6eyJsYXlvdXQiOnsiU0NST0xMIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiQURfMzUwXzIifSwiaWQiOiJjVEh4TFBiRUJKb0t0dU55ckUiLCJ0eXBlIjoiYm9keSJ9LCJjVEh4TFBic1FicEt0dU5VTWgiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpF
+        X0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJ0cnVlIiwiRFlOQU1JQyI6ImZhbHNlIiwiT0JKRUNUX0lEIjoiY1RIeExQYnNRYnBLdHVOVU1oIiwiR1JJRF9JRCI6ImZpbGU6Ly9yZXNvdXJjZS91eC9hZG1pbi9ncmlkL0FEXzM1MC5qcyJ9LCJpZCI6ImNUSHhMUGJzUWJwS3R1TlVNaCIsInR5cGUiOiJncmlkIiwiZ3JpZCI6ImdyaWQifSwiVGJCSVlQYk1kRklZUGJhd0F1Ijp7ImxheW91dCI6eyJBTElHTl9IT1JJWk9OVEFMIjoibGVmdCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiVGJCSVlQYk1kRklZUGJhd0F1IiwiT0JKRUNUX0lEIjoiVGJCSVlQYk1kRklZUGJhd0F1In0sImlkIjoi
+        VGJCSVlQYk1kRklZUGJhd0F1IiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIlRiQklZUGJNZEZJWVBiQUtZTiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMiIsIlZBUiI6IlRiQklZUGJNZEZJWVBiQUtZTiIsIk9CSkVDVF9JRCI6IlRiQklZUGJNZEZJWVBiQUtZTiIsIkNPTFVNTl9JVEVNXzAiOiIxIiwiQ09MVU1OX0lURU1fMSI6IjEifSwiaWQiOiJUYkJJWVBiTWRGSVlQYkFLWU4iLCJ0eXBlIjoiY29udGFpbmVyIn0sIlRiQklZUGJ5aEhJWVBid3h0USI6eyJsYXlvdXQiOnsiQUxJR05fVkVSVElDQUwiOiJ0b3AifSwiY29tcG9uZW50Ijp7IlZBUiI6IlRiQklZUGJ5aEhJWVBid3h0USIsIk9CSkVDVF9JRCI6IlRiQklZUGJ5aEhJ
+        WVBid3h0USJ9LCJpZCI6IlRiQklZUGJ5aEhJWVBid3h0USIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYiJ9fSwidHJlZSI6eyJpZCI6ImNUSHhMUGJFQkpvS3R1TnlyRSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiVGJCSVlQYk1kRklZUGJBS1lOIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IlRiQklZUGJNZEZJWVBiYXdBdSIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJjVEh4TFBiZ1RTb0t0dU5IRlUiLCJ0eXBlIjoiZm9ybSJ9XX0seyJpZCI6IlRiQklZUGJ5aEhJWVBid3h0USIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJjVEh4TFBiTWxscEt0dU5iVEoiLCJ0eXBlIjoiYnV0dG9uIn1dfV19LHsi
+        aWQiOiJjVEh4TFBia0ZZb0t0dU5XeXgiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6ImNUSHhMUGJzUWJwS3R1TlVNaCIsInR5cGUiOiJncmlkIn1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL0RlcGxveU1hbmFnZW1lbnQvQWRtaW5EZXBsb3lNYW5hZ2VtZW50TW9kaWZ5V3JpdGUueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiMzUwXzIiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6IkRlcGxveU1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbkRlcGxveU1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6Ik1vZGlmeVdyaXRlIiwiU0NSRUVOX0lEIjoiQURfMzUwXzIifX0sImh0bWwiOiI8ZGl2IGlkPVwiY1RIeExQ
+        YkVCSm9LdHVOeXJFXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAg
+        ICAgICAgICAgIDxkaXYgaWQ9XCJUYkJJWVBiTWRGSVlQYkFLWU5cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlRiQklZUGJNZEZJWVBiYXdBdVwiIGNsYXNzPVwic2Vwb2F1eF9j
+        b21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2xlZnRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2
+        IGlkPVwiY1RIeExQYmdUU29LdHVOSEZVXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9mb3JtXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO1wiPlxuICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlRiQklZUGJ5aEhJWVBid3h0UVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfdmFsaWduX3RvcFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9v
+        dXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJjVEh4TFBiTWxscEt0dU5iVEpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9u
+        X2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiY1RIeExQYmtGWW9LdHVOV3l4XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRf
+        aW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiY1RIeExQYnNRYnBLdHVOVU1oXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryUserDelivery">
+		/*DeliveryAddress.doQueryUserDelivery*/
+		<![CDATA[
+			SELECT
+				  'DEFAULT_DA' AS DA_NUMBER
+				, USMT.USER_NAME_LOC AS REC_USER_NAME
+				, #DB_OWNER#GETDEPTNAME(USMT.HOUSE_CODE, USMT.COMPANY_CODE, USMT.DEPT, ${session.LANGUAGE}) DEPT_NAME
+				, PLNT.ZIP_CODE
+				, PLNT.ADDRESS_LOC
+				, PLNT.ADDRESS_LOC_TEXT
+				, ADDR.PHONE_NO1
+				, ADDR.PHONE_NO2
+				, 'true' AS SELECT_USER_ADDR
+				, 'false' AS SELECT_NEW_ADDR
+			FROM SUSMT USMT
+			JOIN SPLNT PLNT
+			ON (USMT.HOUSE_CODE = PLNT.HOUSE_CODE
+				AND USMT.COMPANY_CODE = PLNT.COMPANY_CODE
+				AND USMT.PLANT_CODE = PLNT.PLANT_CODE)
+			JOIN SADDR ADDR
+			ON (USMT.HOUSE_CODE = ADDR.HOUSE_CODE
+				AND USMT.USER_ID = ADDR.CODE_NO
+				AND ADDR.CODE_TYPE = 'USER')
+			WHERE USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND USMT.USER_ID = ${session.ID}		
+		]]>
+	</method>
+	<method name="doQueryDeliveryAddress">
+		/*DeliveryAddress.doQueryDeliveryAddress*/
+		<![CDATA[
+			SELECT
+				  DA_NUMBER			
+				, REC_USER_NAME
+				, DEPT_NAME
+				, ZIP_CODE
+				, ADDRESS_LOC
+				, ADDRESS_LOC_TEXT
+				, PHONE_NO1
+				, PHONE_NO2
+			FROM SDLAD
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}	
+			AND DA_NUMBER = ${DA_NUMBER}
+			AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N'			
+		]]>
+	</method>
+	<method name="doQuery">
+		/*DeliveryAddress.doQuery*/
+		<![CDATA[
+			SELECT
+				  DA_NUMBER			
+				, REC_USER_NAME
+				, DEPT_NAME
+				, ZIP_CODE
+				, ADDRESS_LOC
+				, ADDRESS_LOC_TEXT
+				, PHONE_NO1
+				, PHONE_NO2
+			FROM SDLAD
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USER_ID = ${session.ID}		
+			AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N'		
+			ORDER BY CHANGE_DATE DESC, CHANGE_TIME DESC
+		]]>
+	</method>
+	<method name="getDaNumber">
+		/*DeliveryAddress.doQueryDeliveryAddress*/
+		<![CDATA[
+			SELECT
+				  DA_NUMBER
+			FROM SDLAD
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USER_ID = ${session.ID}		
+			AND USER_ADDR_FLAG = 'Y'
+			AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N'			
+		]]>
+	</method>
+	
+	<method name="doSave">
+		/*DeliveryAddress.doSave*/
+		<![CDATA[
+			INSERT INTO SDLAD(
+				  HOUSE_CODE
+				, DA_NUMBER
+				, USER_ID
+				, REC_USER_NAME
+				, DEPT_NAME
+				, ZIP_CODE
+				, ADDRESS_LOC
+				, ADDRESS_LOC_TEXT
+				, PHONE_NO1
+				, PHONE_NO2
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, CHANGE_DATE
+				, CHANGE_TIME
+				, CHANGE_USER_ID
+				, DEL_FLAG
+			)VALUES(
+				  ${session.HOUSE_CODE}
+				, ${DA_NUMBER}
+				, ${session.ID}
+				, ${REC_USER_NAME}
+				, ${DEPT_NAME}
+				, ${ZIP_CODE}
+				, ${ADDRESS_LOC}
+				, ${ADDRESS_LOC_TEXT}
+				, ${PHONE_NO1}
+				, ${PHONE_NO2}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, 'N'
+			)
+		]]>
+	</method>
+	
+	<method name="doUpdate">
+		/*DeliveryAddress.doUpdate*/
+		<![CDATA[
+			UPDATE SDLAD SET
+				  REC_USER_NAME      = ${REC_USER_NAME}
+				, DEPT_NAME          = ${DEPT_NAME}
+				, ZIP_CODE           = ${ZIP_CODE}
+				, ADDRESS_LOC        = ${ADDRESS_LOC}
+				, ADDRESS_LOC_TEXT   = ${ADDRESS_LOC_TEXT}
+				, PHONE_NO1          = ${PHONE_NO1}
+				, PHONE_NO2          = ${PHONE_NO2}
+				, CHANGE_DATE        = ${current.DATE}
+				, CHANGE_TIME        = ${current.TIME}
+				, CHANGE_USER_ID     = ${session.ID}
+			WHERE HOUSE_CODE	   = ${session.HOUSE_CODE}
+			  AND DA_NUMBER		   = ${DA_NUMBER}
+			  AND USER_ID		   = ${session.ID}
+		]]>
+	</method>
+</service>

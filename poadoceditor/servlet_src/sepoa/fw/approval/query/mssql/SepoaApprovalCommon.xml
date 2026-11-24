@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doGetAppNo">
+	<![CDATA[
+		SELECT GWGL.HOUSE_CODE
+		     , GWGL.COMPANY_CODE
+		     , GWGL.APP_NO
+		     , GWGL.APP_NO_SEQ
+		  FROM SGWGL GWGL with(nolock)
+		 WHERE GWGL.HOUSE_CODE       = ${session.HOUSE_CODE} 
+		       AND GWGL.COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+		       AND GWGL.SUX_WKEY1    = $S{SUX_WKEY1} 
+		       AND GWGL.SUX_WKEY2    = $S{SUX_WKEY2} 
+		       AND GWGL.SUX_WKEY3    = $S{SUX_WKEY3} 
+		       AND GWGL.SUX_WKEY4    = $S{SUX_WKEY4} 
+		       AND GWGL.SUX_WKEY5    = $S{SUX_WKEY5} 
+		       AND GWGL.SUX_WKEY6    = $S{SUX_WKEY6} 
+		       AND GWGL.SUX_WKEY7    = $S{SUX_WKEY7} 
+		       AND GWGL.SUX_WKEY8    = $S{SUX_WKEY8} 
+		       AND GWGL.SUX_WKEY9    = $S{SUX_WKEY9} 
+		       AND GWGL.SUX_WKEY10   = $S{SUX_WKEY10}
+		 ORDER BY GWGL.APP_NO DESC
+		 , CONVERT(INT, #DB_OWNER#NVL(GWGL.APP_NO_SEQ,'999')) DESC
+	]]>
+	</method>
+</service>

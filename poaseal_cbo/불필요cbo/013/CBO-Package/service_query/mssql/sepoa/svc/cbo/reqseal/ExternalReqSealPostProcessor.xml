@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doInsertSBUPI">
+	<![CDATA[
+		INSERT INTO SBUPI (
+			 HOUSE_CODE
+			,BIZ_CODE
+			,SEQ
+			,USER_ID
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,USER_NAME
+			,EMAIL
+			,IF_FLAG
+		) VALUES (
+			 ${session.HOUSE_CODE}
+			,${BIZ_CODE}
+			,(
+				SELECT 
+					#DB_OWNER#NVL(MAX(convert(numeric, SEQ)+1),0) MAX_SEQ
+			  	FROM 
+			  		SBUPI
+			 	WHERE 
+			 		1=1 
+			   		AND BIZ_CODE = 'BITEST2'
+			 )
+			,${TMP_ID}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,'N'
+			,${SIGNER_NAME_LOC}
+			,${EMAIL}
+			,'N'
+		)
+	]]>
+	</method>
+	
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, USER_NAME_LOC
+				, PASSWORD
+				, EMAIL		
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, LANGUAGE
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${TMP_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${BIZ_CODE}
+				, ${SIGNER_NAME_LOC}
+				, ${PASSWORD}
+				, ${EMAIL}		
+				, 'KR'
+				, 'A'
+				, 'G'
+				, 'MUP23071800000'
+				, 'S_USER'
+				, '0'
+				, 'N'
+				, 'N'
+				, '%Y/%m/%d'
+				, 'KO'
+			)	
+	]]>
+	</method>
+	
+	
+</service>

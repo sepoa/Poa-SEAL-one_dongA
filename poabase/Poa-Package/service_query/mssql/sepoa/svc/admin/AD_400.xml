@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doCheckDuplicate">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+		FROM
+			USERVICE
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE}
+	]]>
+	</method>
+</service>

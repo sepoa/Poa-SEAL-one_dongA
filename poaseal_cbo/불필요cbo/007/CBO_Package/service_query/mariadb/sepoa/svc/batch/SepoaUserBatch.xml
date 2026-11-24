@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryUser">
+	<![CDATA[
+		SELECT
+			USER_ID
+		FROM
+			SUSMT
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND USER_ID = ${USERID}
+	]]>
+	</method>
+	
+	<method name="doUpdateUser">
+	<![CDATA[
+		UPDATE SUSMT
+		SET
+			 USER_ID = ${USERID}
+			,USER_NAME_LOC = ${CN}
+			,USER_NAME_ENG = ${EPENCN}
+			,DEPT = ${DEPT}
+			,POSITION = ${JIKGUB}
+			,DEL_FLAG = #DB_OWNER#NVL(${RETGBN},'N')
+			,EMPLOYEE_NO = ${EPID}
+			,POSITION_NAME = ${JIKGUBNM}
+			,CHANGE_DATE = ${current.DATE}
+			,CHANGE_TIME = ${current.TIME}
+			,CHANGE_USER_ID = ${session.ID}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND USER_ID = ${USERID}
+	]]>
+	</method>
+	
+	<method name="doInsertUser">
+	<![CDATA[
+		INSERT INTO SUSMT(
+			HOUSE_CODE
+			, USER_ID 
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, COMPANY_CODE
+			, USER_NAME_LOC
+			, USER_NAME_ENG
+			, PASSWORD
+			, DEPT
+			, POSITION
+			, POSITION_NAME
+			, EMAIL				
+			, COUNTRY
+			, SIGN_STATUS
+			, WORK_TYPE
+			, MENU_PROFILE_CODE
+			, USER_TYPE
+			, PASS_CHECK_CNT
+			, PW_RESET_FLAG
+			, DEL_FLAG
+			, DATE_FORMAT
+			, LANGUAGE
+			, EMPLOYEE_NO
+		) VALUES (
+			  ${session.HOUSE_CODE}
+			, ${USERID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${session.COMPANY_CODE}
+			, ${CN}
+			, ${EPENCN}
+			, ${PASSWORD}
+			, ${DEPT}
+			, ${JIKGUB}
+			, ${JIKGUBNM}
+			, ''			
+			, 'KR'
+			, 'A'
+			, 'G'
+			, ${MENU_PROFILE_CODE}
+			, ${USER_TYPE}
+			, '0'
+			, 'N'
+			, 'N'
+			, ${DATE_FORMAT}
+			, 'KO'
+			, ${EPID}
+		)
+	]]>
+	</method>
+	
+	<method name="doQueryPosition">
+	<![CDATA[
+		SELECT
+			CODE
+		FROM
+			SCODE
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND TYPE = 'UX049' 
+		AND CODE = ${JIKGUB}
+		AND LANGUAGE = 'KO'
+	]]>
+	</method>
+	
+	<method name="doUpdatePosition">
+	<![CDATA[
+		UPDATE SCODE
+		SET
+			  TEXT1		      = ${JIKGUBNM}
+			, CHANGE_DATE     = ${current.DATE}
+			, CHANGE_TIME     = ${current.TIME}
+			, CHANGE_USER_ID  = ${session.ID}	
+		WHERE
+			HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+			AND CODE              = ${JIKGUB}
+			AND LANGUAGE 		  = 'KO'
+	]]>
+	</method>
+	
+	<method name="doInsertPosition">
+	<![CDATA[
+		INSERT INTO SCODE (
+			  HOUSE_CODE
+			, TYPE 
+			, CODE
+			, LANGUAGE
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, USE_FLAG
+			, TEXT1
+			, DEL_FLAG
+		) VALUES (
+			  ${session.HOUSE_CODE}
+			, 'UX049'
+			, ${JIKGUB}
+			, 'KO'
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}				
+			, 'Y'
+			, ${JIKGUBNM}
+			, 'N'
+		)
+	]]>
+	</method>
+</service>

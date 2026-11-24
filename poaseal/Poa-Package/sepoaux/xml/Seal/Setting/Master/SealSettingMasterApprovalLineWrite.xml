@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_023" header="false">
+    <onloadscript>
+        <event obj="Sepoa" type="onButtonClick" callback="onButtonClick"/>
+    </onloadscript>
+    <userscript>
+        <function name="onRowSelect" args="id, ind">
+        <![CDATA[
+            var header = this.getColumId();
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+            var header = this.getColumId();
+            if (stage == 0) {
+                return true;
+            } else if (stage == 1) {
+                return true;
+            } else if (stage == 2) {
+                return true;
+            }
+            return false;
+        ]]>
+        </function>
+        <function name="onXLE" args="obj, count">
+        <![CDATA[
+            var msg = obj.getUserData("", "message");
+            var status = obj.getUserData("", "status");
+            if (status != "true") {
+                Alert(msg);
+            }
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+        	
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZHNDdnltZUJBQnpOTWN0WWNzIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJTTE1fMDIzIn0sImlkIjoiZHNDdnltZUJBQnpOTWN0WWNzIiwidHlwZSI6ImJvZHkifX0sInRyZWUiOnsiaWQiOiJkc0N2eW1lQkFCek5NY3RZY3MiLCJ0eXBlIjoiYm9keSJ9LCJpbmZvIjp7IlBBVEhfMSI6IlNlYWwiLCJQQVRIXzIiOiJTZXR0aW5nIiwiUEFUSF8zIjoiU2VhbFNldHRpbmciLCJOQU1FIjoiV3JpdGUiLCJQUkVGSVgiOiJTTE0iLCJDT0RFIjoiMDIzIiwiU0NSRUVOX0lEIjoiU0xNXzAyMyIsIlBST0pFQ1QiOiJTRUFMIiwiUEFUSCI6Ii9TZWFsL1NldHRpbmcvU2VhbFNl
+        dHRpbmdXcml0ZS54bWwiLCJOT05TVERfUEFUSCI6IiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJkc0N2eW1lQkFCek5NY3RZY3NcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

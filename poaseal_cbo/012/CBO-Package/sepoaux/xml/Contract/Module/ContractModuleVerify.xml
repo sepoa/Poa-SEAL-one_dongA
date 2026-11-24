@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_401" header="false" pageCloseWarn="false">
+    <link>
+    <![CDATA[
+        <script type="text/javascript" src="/resource/plugin/sepoasoft/contract/sepoa.contract.toolkit.js" ></script>
+    ]]>
+    </link>
+    <variable>
+        <var name="container" value="$($sObject._vp).find('#NJdjrVdUzejrVdWVIX')[0]"/>
+        <var name="NJdjrVdUzejrVdkNCA" value="$($sObject._vp).find('#NJdjrVdUzejrVdkNCA')[0]"/>
+        <var name="appLine"/>
+        <var name="$share" value="{}"/>
+    </variable>
+    <usercss>
+    <![CDATA[
+		div.i_v_outer_wrapper {
+			position: absolute;
+		    left: 0px;
+		    top: 0px;
+		    width: 100%;
+		    height: 100%;
+		    display: flex;
+		    justify-content: center;
+		    align-items: center;
+		    background-color: #c2c2c2;
+		}
+		
+		div.i_v_inner_wrapper {
+			color: #444;
+			width: 300px;
+			height: 150px;
+			background-color: white;
+			box-shadow: 0 28px 80px -6px rgba(0, 0, 0, 0.4);
+		}
+		
+		input.auth_input {
+			height: 20px;
+    		width: 200px;
+    		padding: 10px;
+		}
+		
+		div.i_v_inner_wrapper_button {
+			width: 50px;
+		    height: 25px;
+		    padding: 5px;
+		    text-align: center;
+		    color: white;
+		    background: #39c;
+		}
+		
+		div.i_v_inner_wrapper_input_container {
+			display: flex;
+		    justify-content: center;
+		    padding: 25px;
+		}
+		
+		div.i_v_inner_wrapper_button_container {
+			display: flex;
+		    width: 100%;
+		    justify-content: center;
+		}
+		
+		div.i_v_inner_wrapper_button  {
+			margin: 5px;
+			cursor: pointer;
+		}
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+    	<var name="$docNumber" value=""/>
+    	<var name="$authContainer"/>
+        <function name="init" args="">
+        <![CDATA[
+        	const docInfo = getContractData(Sepoa.params.CONT_NO, Sepoa.params.CONT_GL_SEQ);
+        	
+			if(docInfo === false) {
+				return false;
+			}
+			
+			const contType = docInfo.DOC_INFO_DATA.CONT_TYPE;
+			
+			if (docInfo.DOC_INFO_DATA.STATUS != 'A') {
+				if (contType === "E") {
+					const signModule = '<%=CommonUtil.getConfig("sepoa.sign.module", "nx")%>'.toLowerCase();;
+					if(!$share.toolkit) {
+							$share.toolkit = {};
+					}
+				
+					sUtils.object.extend(true, $share, docInfo);
+					let target;
+					switch(signModule) {
+						case 'one' : {
+							target = $share.toolkit.one = new SepoaCertSign({
+								module: 'certModuleOne',
+								methodOrder : ['samsung-pass', 'pass', 'kakao', 'naver']
+							});
+							
+							$share.toolkit.one.attachEvent('onModuleReady', (secukit) => {
+								doClientSign(Sepoa.params.CONT_NO, Sepoa.params.CONT_GL_SEQ, 'ONE');
+							});
+							
+							$share.toolkit.one.attachEvent('onSignPass', (data) => {
+								const params = sUtils.object.extend(true, {}, 
+									data,
+									Sepoa.params
+								);
+								
+								const targetInfo = $share.SIGNER.find(e => e.SIGNER_ID == Sepoa.info.ID);
+								if(targetInfo) {
+									params.TARGET = targetInfo;
+								}
+								
+								doSignEndEmployee(params);
+							});
+							
+							break;
+						}
+						case 'nx' : 
+						default :
+							Alert('not supported module : ' + signModule);
+							break;
+					}
+					
+					if(target) {
+						Confirm('계약서를 확인하기 위해서는 본인인증이 필요합니다.<br>본인인증을 진행하시겠습니까?', (flag) => {
+							if(flag) {
+								target.init();
+							}
+						})
+					}
+					
+				} else if (contType === 'B') {
+					Alert("계약서를 확인하기 위해서는 본인인증이 필요합니다.<br>본인인증을 진행하시겠습니까?", (flag) => {
+						if(flag) {
+							let contNo = Sepoa.request.CONT_NO;
+							let contGlSeq = Sepoa.request.CONT_GL_SEQ;
+							
+							const authCellObj = {
+								CONT_NO : contNo,
+								CONT_GL_SEQ : contGlSeq
+							};
+							
+							doRequestAuthCall(authCellObj)
+						}
+					})
+				}
+			} else {
+				let docUrl;
+				
+				if (contType === "E") { // 임직원일 때
+					docUrl = '/EmployeeContract/Module/EmployeeContractModuleLayout.sux';
+				} else if (contType === 'B') { // 거래처일 때
+					docUrl = '/Contract/Module/ContractModuleLayout.sux';
+				}
+				
+				const addHidden = function(form, name, value) {
+                     const input = document.createElement('input');
+                     input.type = 'hidden';
+                     input.name = name;
+                     input.value = value;
+                     form.insertBefore(input, null);
+                 }
+                 
+                 const form = document.body.appendChild($('<form target="sepoa-link-frame" style="display:none"></form>')[0]);
+                 const target = Sepoa.request;
+                 if(target) {
+                     target['parameterId'] = 'LINK_' + new Date().getTime();
+                     target['isPopup'] = true;
+                     target['onLink'] = true;
+                     target['isRealPopup'] = true;
+                 }
+                 
+                 for(let entry of Object.entries(target)) {
+                     const [key, value] = entry;
+                     addHidden(form, key, value);
+                 }
+                 
+                 if(!SUX.root.modalPopupInfo){
+                     SUX.root.modalPopupInfo = {};
+                 }
+                 SUX.root.modalPopupInfo[target['parameterId']] = {
+                     params: target
+                 };
+                 
+                 form.target = window.name;
+                 form.action = window.CONTEXT_NAME + docUrl;
+                 form.method = 'post';
+                 form.submit();
+			}
+        ]]>
+        </function>
+        
+        <function name="doRequestAuthCall" args="data">
+        <![CDATA[
+           	$docNumber = sUtils.string.randomUUID();
+        	if($authContainer) {
+        		$authContainer.remove();
+        	}
+        	
+        	data["DOC_NUMBER"] = $docNumber;
+        	
+        	let outerWrapper = $authContainer = document.createElement("div");
+        	outerWrapper.className = "i_v_outer_wrapper";
+        	
+        	let innerWrapper = document.createElement("div");
+        	innerWrapper.className = "i_v_inner_wrapper";
+        	
+        	let inputContainer = document.createElement("div");
+        	inputContainer.className = "i_v_inner_wrapper_input_container";
+        	
+        	let authInput = document.createElement("input");
+        	authInput.className = "auth_input"
+        	authInput.id = "auth_input_value"
+        	authInput.type = "input"
+        	authInput.placeholder = "-를 제외한 사업자번호를 입력해주세요";
+        	
+        	let buttonContainer = document.createElement("div");
+        	buttonContainer.className = "i_v_inner_wrapper_button_container"
+        	
+        	let confirmButton = document.createElement("div");
+        	confirmButton.className = "i_v_inner_wrapper_button i_v_inner_wrapper_button_confirm";
+        	confirmButton.onclick = function(e) {
+        		let authInputValue = container.getElementsByClassName("auth_input")[0].value
+        		doRequestCheckAuth(authInputValue); 
+        	}
+        	
+        	confirmButton.innerHTML = "확인";
+        	
+        	inputContainer.appendChild(authInput);
+        	buttonContainer.appendChild(confirmButton);
+        	
+        	innerWrapper.appendChild(inputContainer);
+			innerWrapper.appendChild(buttonContainer);
+			
+			outerWrapper.appendChild(innerWrapper);
+			container.appendChild(outerWrapper);
+        ]]>
+        </function>
+        
+        <function name="getContractData" args="contNo, contGlSeq">
+        <![CDATA[
+            if(sUtils.string.isBlank(contNo,) && sUtils.string.isBlank(contGlSeq)) {
+                return false;
+            }
+            
+            const config = {
+                url : window.CONTEXT_NAME+'/SepoaActionController.sux',
+                async : false,
+                contentType : 'json'
+            };
+            
+            const params = {
+                module : 'contract',
+                action : 'doDocumentDetail',
+                CONNECTION : 'CONNECTION',
+                CONT_NO: contNo,
+                CONT_GL_SEQ: contGlSeq
+            };
+            
+            const so = sUtils.multipart.send(config, params);
+            if(so.flag === false) {
+                Alert(so.message);
+                return false;
+            }
+            
+            return so.result[0];
+        ]]>
+        </function>
+        
+        <function name="doClientSign" args="contNo, contGlSeq, signModule">
+        <![CDATA[
+            const config = {
+                url : window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback : function(res, config, params) {
+                        if(res.status == 1){
+                            $share.toolkit[config._SIGN_TYPE.toLowerCase()].doSign({
+                                SIGN_ORG_VALUE : res.result[0].SIGN_HASH,
+                                SIGN_KEY : res.result[0].SIGN_KEY
+                            });
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                },
+                _SIGN_TYPE : signModule
+            }
+            
+            const params = {
+                module : 'contract',
+                action : 'doSelectClientSignInfo',
+                CONNECTION : 'CONNECTION',
+                CONT_NO : contNo,
+                CONT_GL_SEQ : contGlSeq,
+                CHECK_CURRENT_SIGNER : false
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doRequestCheckAuth" args="authNumber">
+        <![CDATA[
+        	const checkObj = {
+        		AUTH_NUMBER: authNumber,
+        		DOC_NUMBER: $docNumber,
+        		CONT_NO: Sepoa.request.CONT_NO,
+        		CONT_GL_SEQ: Sepoa.request.CONT_GL_SEQ
+        	}
+        	
+   			doServiceAjax('sepoa.svc.otp.SepoaContractOtpService', 'CONNECTION', 'checkAuthNumber' , checkObj, function(so) {
+				let status = so.status;
+				switch(status) {
+					case "1":
+							const addHidden = function(form, name, value) {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = name;
+                                input.value = value;
+                                form.insertBefore(input, null);
+                            }
+                            
+                            const form = document.body.appendChild($('<form target="sepoa-link-frame" style="display:none"></form>')[0]);
+                            
+                            const target = Sepoa.request;
+                            if(target) {
+                                target['parameterId'] = 'LINK_' + new Date().getTime();
+                                target['isPopup'] = true;
+                                target['onLink'] = true;
+                                target['isRealPopup'] = true;
+                            }
+                            
+                            for(let entry of Object.entries(target)) {
+                                const [key, value] = entry;
+                                addHidden(form, key, value);
+                            }
+                            
+                            if(!SUX.root.modalPopupInfo){
+                                SUX.root.modalPopupInfo = {};
+                            }
+                            SUX.root.modalPopupInfo[target['parameterId']] = {
+                                params: target
+                            };
+                            
+                            form.target = window.name;
+                            form.action = window.CONTEXT_NAME + '/Contract/Module/ContractModuleLayout.sux';
+                            form.method = 'post';
+                            form.submit();
+						break;
+					case "2":
+						Alert(Sepoa.cache.text.get("POA_CONTRACT.CHECK_IRS_NO_FORMAT")); // -를 제외한 11자리 번호를 입력해주세요
+						document.getElementById("auth_input_value").value = '';
+						break;
+					case "3":
+						Alert(Sepoa.cache.text.get("POA_CONTRACT.SIGNNER_NOT_EXIST")); // 해당 번호의 서명자 데이터가 존재하지 않습니다.
+						document.getElementById("auth_input_value").value = '';
+						break;
+					case "4":
+						Alert(Sepoa.cache.text.get("POA_CONTRACT.OTP_DATA_NOT_FOUND")); // 인증정보를 찾을 수 없습니다.
+						document.getElementById("auth_input_value").value = '';
+						break;
+					default:
+						Alert(Sepoa.cache.text.get("MESSAGE.1002")); // 처리 중 오류가 발생하였습니다.
+						break;
+				}
+			}, false);
+        ]]>
+        </function>
+        
+        <function name="doSignEndEmployee" args="data">
+        <![CDATA[
+            const config = {
+                url : window.CONTEXT_NAME + '/SepoaSignOne.sux?type=verify',
+                contentType : 'json',
+                on : {
+                    callback : (res) => {
+                        if(res.flag) {
+                            const addHidden = function(form, name, value) {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = name;
+                                input.value = value;
+                                form.insertBefore(input, null);
+                            }
+                            
+                            const form = document.body.appendChild($('<form target="sepoa-link-frame" style="display:none"></form>')[0]);
+                            
+                            const target = res;
+                            if(target) {
+                                target['parameterId'] = 'LINK_' + new Date().getTime();
+                                target['isPopup'] = true;
+                                target['onLink'] = true;
+                                target['isRealPopup'] = true;
+                            }
+                            
+                            for(let entry of Object.entries(target)) {
+                                const [key, value] = entry;
+                                addHidden(form, key, value);
+                            }
+                            
+                            if(!SUX.root.modalPopupInfo){
+                                SUX.root.modalPopupInfo = {};
+                            }
+                            SUX.root.modalPopupInfo[target['parameterId']] = {
+                                params: target
+                            };
+                            
+                            form.target = window.name;
+                            form.action = window.CONTEXT_NAME + '/EmployeeContract/Module/EmployeeContractModuleLayout.sux';
+                            form.method = 'post';
+                            form.submit();
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            };
+            
+            const params = sUtils.object.extend(true, {}, data);
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTkpkanJWZE9KZGpyVmRGanFxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUFBST1ZBTExJTkVfUE9QVVAifSwiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSJ9LCJOSmRqclZkVXplanJWZFdWSVgiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiMTAwJSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVktOTHlQMnRSS2d6IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJjb250YWluZXIiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJW
+        ZFdWSVgifSwiaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiTkpkanJWZFV6ZWpyVmRrTkNBIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9vQ1ZxRXo4Tk1jVFIiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3hNeDVoSFhlSUxEayI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9SdkxrUWFBZ216aTkiOiJudWxsIiwiQ0xBU1Mi
+        OiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVXhEZWZhdWx0L0FwcHJvdmFsTGluZS9Qb3B1cC54bWwiLCJQ
+        Uk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlV4RGVmYXVsdC9BcHByb3ZhbExpbmUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJQb3B1cCIsIkNPREUiOiJQT1BVUCIsIlBSRUZJWCI6IkFQUFJPVkFMTElORSIsIlNDUkVFTl9JRCI6IkFQUFJPVkFMTElORV9QT1BVUCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJOSmRqclZkT0pkanJWZEZqcXFcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOSmRqclZkVXplanJWZGtOQ0FcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIGxvd2VyRGl2XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2Nv
+        bXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk5KZGpyVmRVemVqclZkV1ZJWFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiaGVpZ2h0OjEwMCU7XCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

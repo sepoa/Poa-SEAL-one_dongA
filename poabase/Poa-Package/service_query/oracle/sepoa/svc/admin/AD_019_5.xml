@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT CMGL.COMPANY_NAME_LOC
+			     , BAGL.CTRL_NAME_LOC
+			     , BAGL.COMPANY_CODE
+			     , BAGL.CTRL_CODE 
+			  FROM SBAGL BAGL 
+			   INNER JOIN SCMGL CMGL 
+			       ON CMGL.COMPANY_CODE = BAGL.COMPANY_CODE 
+			   INNER JOIN SBALN BALN 
+			       ON BALN.HOUSE_CODE = BAGL.HOUSE_CODE 
+			       AND BALN.COMPANY_CODE = BAGL.COMPANY_CODE 
+			       AND BALN.CTRL_CODE   <> BAGL.CTRL_CODE 
+			       AND BALN.CTRL_PERSON_ID = ${USER_ID}
+			 WHERE BAGL.HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND BAGL.COMPANY_CODE = ${COMPANY_CODE} 
+			ORDER BY BAGL.CTRL_CODE
+		]]>
+	</method>
+	<method name="doInsert">
+		<![CDATA[
+			INSERT INTO SBALN
+			(
+				HOUSE_CODE,
+				CTRL_PERSON_ID,
+				ADD_DATE,
+				ADD_TIME,
+				ADD_USER_ID,
+				CHANGE_DATE,
+				CHANGE_TIME,
+				CHANGE_USER_ID,
+				DEL_FLAG,
+				CTRL_CODE,
+				COMPANY_CODE
+			)
+			VALUES
+			(
+				${session.HOUSE_CODE},
+				${USER_ID},
+				${current.DATE},
+				${current.TIME},
+				${session.ID},
+				${current.DATE},
+				${current.TIME},
+				${session.ID},
+				'N',
+				${CTRL_CODE},
+				${COMPANY_CODE}				
+			)
+		]]>
+	</method>
+</service>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SSEDC ADD ACCESS_LINK varchar(1000) DEFAULT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SSEDC ADD ACCESS_LINK varchar(1000) DEFAULT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SSEDC ADD ACCESS_LINK VARCHAR2(1000) DEFAULT NULL
+		]]>
+		</query>
+	</item>
+</body>

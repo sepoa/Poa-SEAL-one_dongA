@@ -1,0 +1,5 @@
+.contract-item.contract-item-box.contract-item-type-text,
+.contract-item.contract-item-box.contract-item-type-number,
+.contract-item.contract-item-box.contract-item-type-calendar {
+	width: 100% !important;
+}

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+
+	<method name="doQueryList">
+	<![CDATA[
+		SELECT HOUSE_CODE
+		     , COMPANY_CODE
+		     , USE_NUMBER
+		     , SUBJECT
+		     , CASE WHEN (CORP_FLAG = 'Y') THEN 'S01' ELSE 'S02' END AS APP_TYPE
+		     , CASE WHEN (CORP_FLAG = 'Y') THEN '법인인감' ELSE '사용인감/영문서명인' END AS APP_TYPE_LOC
+		  FROM SUDGL
+		 WHERE HOUSE_CODE        = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE      = ${session.COMPANY_CODE}
+		   AND #DB_OWNER#NVL(DEL_FLAG,'N') = 'N' 
+		ORDER BY SORT_SEQ
+	]]>
+	</method>
+	
+	<method name="doQuery">
+	<![CDATA[
+		SELECT GWAD.HOUSE_CODE 
+		     , GWAD.COMPANY_CODE 
+		     , GWAD.LINE_TYPE 
+		     , GWAD.APP_TYPE 
+		     , GWAD.CODE
+		     , GWAD.LINE_SEQ 
+		     , GWAD.USER_ID 
+		     , USMT.USER_NAME_LOC
+		     , DEPT.DEPT_NAME_LOC
+		     , GWAD.APP_METHOD
+             , CASE WHEN(#DB_OWNER#NVL(GWAD.ADD_DATE, '')='') THEN '' ELSE (CONCAT(SUBSTR(GWAD.ADD_DATE,1,4) , '/' , SUBSTR(GWAD.ADD_DATE,5,2) , '/' , SUBSTR(GWAD.ADD_DATE, 7, 2),' ',SUBSTR(GWAD.ADD_TIME,1,2) , ':' , SUBSTR(GWAD.ADD_TIME,3,2) , ':' , SUBSTR(GWAD.ADD_TIME, 5, 2))) END AS ADD_DATETIME
+		     , USMT_A.USER_NAME_LOC AS ADD_USER_NAME_LOC
+		     , DEPT_A.DEPT_NAME_LOC AS ADD_DEPT_NAME_LOC
+		  FROM SGWAD GWAD
+		  LEFT OUTER JOIN SUSMT USMT
+		    ON USMT.HOUSE_CODE   = GWAD.HOUSE_CODE
+		   AND USMT.USER_ID      = GWAD.USER_ID      
+ 		  LEFT OUTER JOIN SDEPT DEPT 
+		    ON DEPT.HOUSE_CODE   = GWAD.HOUSE_CODE 
+		   AND DEPT.COMPANY_CODE = GWAD.COMPANY_CODE 
+		   AND DEPT.DEPT = USMT.DEPT
+		  LEFT OUTER JOIN SUSMT USMT_A
+		    ON USMT_A.HOUSE_CODE   = GWAD.HOUSE_CODE
+		   AND USMT_A.USER_ID      = GWAD.ADD_USER_ID      
+ 		  LEFT OUTER JOIN SDEPT DEPT_A
+		    ON DEPT_A.HOUSE_CODE   = GWAD.HOUSE_CODE 
+		   AND DEPT_A.COMPANY_CODE = GWAD.COMPANY_CODE 
+		   AND DEPT_A.DEPT = USMT_A.DEPT		   
+		 WHERE GWAD.HOUSE_CODE   = ${HOUSE_CODE} 
+           AND GWAD.COMPANY_CODE = ${COMPANY_CODE}
+           AND LINE_TYPE    = ${LINE_TYPE}
+           AND APP_TYPE     = ${APP_TYPE}
+           AND CODE         = ${CODE}
+		ORDER BY CAST(GWAD.LINE_SEQ AS INT) DESC
+	]]>
+	</method>
+
+	<method name="doSave">
+	<![CDATA[
+		INSERT INTO SGWAH 
+			( 
+			    HOUSE_CODE 
+			  , COMPANY_CODE 
+			  , LINE_TYPE 
+			  , APP_TYPE 
+			  , CODE 
+			  , LINE_TYPE_NAME 
+			  , ADD_DATE 
+			  , ADD_TIME 
+			  , ADD_USER_ID 
+			  , CHANGE_DATE 
+			  , CHANGE_TIME 
+			  , CHANGE_USER_ID  
+			) 
+		VALUES 
+			( 
+			    ${HOUSE_CODE} 
+			  , ${COMPANY_CODE} 
+			  , ${LINE_TYPE} 
+			  , ${APP_TYPE} 
+			  , ${CODE} 
+			  , ${LINE_TYPE_NAME} 
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID} 
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID}  
+			)  
+	]]>
+	</method>
+	
+	<method name="doSave_GWAD">
+	<![CDATA[
+		INSERT INTO SGWAD 
+			( 
+			    HOUSE_CODE
+			  , COMPANY_CODE
+			  , LINE_TYPE
+			  , APP_TYPE
+			  , CODE
+			  , LINE_SEQ
+			  , USER_ID
+			  , APP_USER_AMT
+			  , ADD_DATE
+			  , ADD_TIME
+			  , ADD_USER_ID
+			  , CHANGE_DATE
+			  , CHANGE_TIME
+			  , CHANGE_USER_ID
+			  , APP_METHOD
+			) 
+		VALUES 
+			( 
+			    ${HOUSE_CODE} 
+			  , ${COMPANY_CODE} 
+			  , ${LINE_TYPE}
+			  , ${APP_TYPE}
+			  , ${CODE}
+			  , ${LINE_SEQ}
+			  , ${USER_ID}
+			  , '0'
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID} 
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID} 
+			  , ${APP_METHOD}
+			)  
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE FROM SGWAH 
+		 WHERE HOUSE_CODE = ${HOUSE_CODE} 
+		   AND COMPANY_CODE = ${COMPANY_CODE} 
+		   AND LINE_TYPE = ${LINE_TYPE} 
+		   AND APP_TYPE = ${APP_TYPE} 
+		   AND CODE = ${CODE}
+	]]>
+	</method>
+	
+	<method name="doDelete_GWAD">
+	<![CDATA[
+		DELETE FROM SGWAD 
+		 WHERE HOUSE_CODE = ${HOUSE_CODE} 
+		   AND COMPANY_CODE = ${COMPANY_CODE} 
+		   AND LINE_TYPE = ${LINE_TYPE} 
+		   AND APP_TYPE = ${APP_TYPE} 
+		   AND CODE = ${CODE}
+	]]>
+	</method>	
+</service>

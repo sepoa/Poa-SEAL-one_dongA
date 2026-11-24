@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_100809"/>
+					<entry key="CONTENTS" val="서명대상자와 인증서의 소유자가 맞지 않습니다."/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

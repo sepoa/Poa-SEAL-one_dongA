@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="getCodeColumn">
+	<![CDATA[
+		SELECT TEXT3
+		  FROM SCODE
+		 WHERE TYPE     = 'S000' 
+		   AND CODE     = ${CODE}
+		   AND LANGUAGE = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="getCodeFlag">
+	<![CDATA[
+		SELECT FLAG
+		     , TEXT5
+		  FROM SCODE
+		 WHERE TYPE     = 'S000' 
+		   AND CODE     = ${CODE}
+		   AND LANGUAGE = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="getCodeQuery">
+	<![CDATA[
+		SELECT TEXT4        
+		  FROM SCODE                                                                        
+		 WHERE TYPE        = 'S000'
+		   AND CODE        = ${CODE} 
+		   AND LANGUAGE    = ${LANGUAGE}    
+		   AND HOUSE_CODE IN ($IN{HOUSE_CODE})
+		 ORDER 
+		    BY HOUSE_CODE DESC                                          
+	]]>
+	</method>
+	
+	<method name="getCodeData">
+	<![CDATA[
+		SELECT TEXT4,TEXT3  
+		FROM SCODE
+		WHERE HOUSE_CODE = ${HOUSE_CODE}
+		  AND TYPE = ${TYPE}
+		  AND CODE = ${CODE}
+		  AND LANGUAGE = ${LANGUAGE}
+	]]>
+	</method>
+	
+</service>

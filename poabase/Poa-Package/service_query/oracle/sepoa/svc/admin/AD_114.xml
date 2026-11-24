@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doListCode">
+	<![CDATA[
+	    SELECT HOUSE_CODE
+	          ,TYPE
+	          ,CODE
+	          ,TEXT1
+	          ,TEXT2
+          FROM (SELECT HOUSE_CODE
+	        	     , TYPE
+	        	     , CODE
+	        	     , TEXT1
+	        	     , TEXT2
+	        	     , RANK() OVER(ORDER BY CASE WHEN LANGUAGE = ${session.LANGUAGE} THEN 1 
+	        	                                 ELSE 2 END, 
+	        	                                 LANGUAGE) RANK 
+	        	  FROM SCODE 
+	        	 WHERE TYPE = 'M000'
+	        	   AND ( UPPER( CODE )  LIKE '%' || UPPER( $S{F_KEYWORD} ) || '%' 
+	           	      OR UPPER( TEXT1 ) LIKE '%' || UPPER( $S{F_KEYWORD} ) || '%' 
+	           	      OR UPPER( TEXT2 ) LIKE '%' || UPPER( $S{F_KEYWORD} ) || '%' 
+	           	      OR UPPER( TEXT3 ) LIKE '%' || UPPER( $S{F_KEYWORD} ) || '%' ) 
+	           	   AND #DB_OWNER#NVL( DEL_FLAG, 'N' ) = 'N'
+	           	   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	        	   AND #DB_OWNER#NVL( CLIENT_CUSTOM_FLAG, 'N' ) = 'Y'
+	           ) CODE
+	       WHERE RANK = 1 
+	       ORDER BY CODE
+	]]>
+	</method>
+</service>

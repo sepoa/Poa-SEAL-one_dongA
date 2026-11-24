@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="NEW_PROJECT_OPTION" header="false" tpl="editor.tpl">
+    <button id="btnObj">
+    	<btn div="AFYrKPczhmrKPcwNmw" id="NEW_TEMPLATE" text="템플릿 작성" onclick="createNewTemplate(  )"/>
+        <btn div="AFYrKPczhmrKPcwNmw" id="CANCEL" type="cancel" text="{BUTTON.cancel}" onclick="onButtonClick( 'cancel' )"/>
+        <btn div="AFYrKPczhmrKPcwNmw" id="UPDATE" type="update" text="{BUTTON.update}" onclick="onButtonClick( 'update' )"/>
+        <btn div="AFYrKPczhmrKPcwNmw" id="SAVE" type="save" text="{BUTTON.save}" onclick="onButtonClick( 'save' )"/>
+    </button>
+    <variable>
+        <var name="formBox" value="$($sObject._vp).find('#tNSCLPcgPUCLPcSPPP')[0]"/>
+        <var name="tNSCLPcfPUCLPcvrHt" value="$($sObject._vp).find('#tNSCLPcfPUCLPcvrHt')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <usercss>
+    	<![CDATA[
+    	div.AREA_DIVISION {
+        	content: " ";
+        	width: 1000%;
+        	border-bottom: 1px solid #dfdfdf;
+        	position: relative;
+        	left: -100px;
+        	margin-top: 20px;
+        }
+        ]]>
+    </usercss>
+    <userscript>
+    	<var name="formObj"/>
+    	<function name="init" args="">
+        <![CDATA[
+            $sObject._vp[0].parentElement.classList.add("sepoa_form_label_top");
+            drawForm({name:'NEW'});
+            
+            btnObj.showButton('UPDATE',false);
+            btnObj.showButton('NEW_TEMPLATE',false);
+        ]]>
+        </function>
+        <function name="doCancel" args="">
+        <![CDATA[
+            selfObj.close();
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            if(!formObj.validate()){
+                return
+            }
+            
+            var resultData = null;
+            if(templateData){
+                var convert52digits = function(i){
+                    var x52 = function(n){
+                        if(n > 25){
+                            n += 6;
+                        }
+                        return String.fromCharCode(65+n);
+                    }
+                    
+                    var a = i % 52
+                    var b = (i - a) / 52
+                    if(b > 51){
+                        return x52(a) + convert52digits(b);
+                    }else{
+                        return x52(a);
+                    }
+                }
+                
+                templateData = templateData.replaceAll("%REPLACEID%", convert52digits(new Date().getTime()));
+                templateData = templateData.replaceAll("%PREFIX%", formObj.getValue("PREFIX"));
+                templateData = templateData.replaceAll("%PATH_1%", formObj.getValue("PATH_1"));
+                templateData = templateData.replaceAll("%PATH_2%", formObj.getValue("PATH_2"));
+                for(var i in templateCodes){
+                    templateData = templateData.replaceAll("%CODE_"+templateCodes[i]+"%", formObj.getValue("CODE_"+templateCodes[i]));
+                }
+                
+                resultData = JSON.parse(templateData)
+                var project = formObj.getValue('PROJECT');
+                for(var i in resultData){
+                    resultData[i].info.PROJECT = project
+                }
+            }else{
+                resultData = [{info:formObj.getFormData()}]
+            }
+            
+            var ro = Sepoa.params.callback.apply( Sepoa.params.callObj,[resultData]);
+            if(ro.status){
+                selfObj.close();
+            }else{
+                Alert(ro.message);
+            }
+        ]]>
+        </function>
+        <function name="doUpdate" args="">
+        <![CDATA[
+            var resultData = null;
+            if(templateData){
+                var convert52digits = function(i){
+                    var x52 = function(n){
+                        if(n > 25){
+                            n += 6;
+                        }
+                        return String.fromCharCode(65+n);
+                    }
+                    
+                    var a = i % 52
+                    var b = (i - a) / 52
+                    if(b > 51){
+                        return x52(a) + convert52digits(b);
+                    }else{
+                        return x52(a);
+                    }
+                }
+                
+                resultData = JSON.parse(templateData)
+                var project = formObj.getValue('PROJECT');
+                for(var i in resultData){
+                    resultData[i].info.PROJECT = project
+                }
+            }else{
+                resultData = [{info:formObj.getFormData()}]
+            }
+            
+            var ro = Sepoa.params.callback.apply( Sepoa.params.callObj,[resultData,"TEMPLATE"]);
+            
+            if(ro.status){
+                selfObj.close();
+            }else{
+                Alert(ro.message);
+            }
+        ]]>
+        </function>
+        <function name="drawForm" args="item">
+        <![CDATA[
+        	var data = item.data;
+        	var id = item.name;
+        	templateData = data;
+            templateCodes = [];
+            if(formObj && formObj.unload){
+                formObj.unload();
+            }
+            var formOptions = null;
+            changeMode(id);
+            if(id == 'NEW'){
+                formOptions = [
+                	{type: "block", width: "auto", blockOffset: "0", offsetLeft: 45, offsetTop: 5, list: [
+						{type: "select", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PROJECT'), name: "PROJECT", options:Sepoa.params.formModuleOption},
+						{type: "select", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_DIR_NONSTD'), name: "NONSTD_PATH", options:[
+							{text:"", value:""},
+							{text:"Y", value:"Y"}
+						]},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH_1'), name: "PATH_1"},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH_2'), name: "PATH_2"},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH_3'), name: "PATH_3", disabled:true},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_NAME'), name: "NAME"},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH'), name: "PATH", offsetTop:"8", disabled: true}
+                	]},
+                	{type: "container", width: "auto", className: "AREA_DIVISION", blockOffset: "0", name: "AREA_DIVISION", offsetTop: 20},
+                	{type: "block", width: "auto", blockOffset: "0", offsetLeft: 45, offsetTop: 5, list: [
+						{type: "input", width:"140", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PREFIX'), name: "PREFIX", required:true},
+						{type: "newcolumn"},
+						{type: "input", width:"140", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_CODE'), name: "CODE", required:true}
+                	]}
+                ]
+            }else{
+                var p = JSON.parse(data);
+                for(const m of data.matchAll(/%CODE_([0-9]{0,})%/g)){
+                    if(templateCodes.indexOf(m[1]) < 0){
+                        templateCodes.push(m[1]);
+                    }
+                }
+                var formCodeList = [];
+                for(var i in templateCodes){
+                    var n = p["%PREFIX%_%CODE_"+templateCodes[i]+"%"].info.NAME;
+                    if(formCodeList.length == 0){
+                        formCodeList.push(
+                        {type: "block", width: "auto", blockOffset: "0", list: [
+                            {type: "input", width:"140", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PREFIX'), name: "PREFIX", required:true, className:"rightAlign"},
+                            {type: "newcolumn"},
+                            {type: "label", labelWidth:"7", label:"_", className: "none_label_top"},
+                            {type: "newcolumn"},
+                            {type: "input", width:"140", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_CODE') + " ( "+n+" )", name: "CODE_"+templateCodes[i], required:true}
+                        ]}
+                        )
+                        
+                    }else{
+                        formCodeList.push(
+                        {type: "block", width: "auto", blockOffset: "0", offsetTop: 5, list: [
+                            {type: "label", labelWidth:"152", label:"", name: "PREFIX_"+templateCodes[i], className: "none_label_top rightAlign"},
+                            {type: "newcolumn"},
+                            {type: "input", width:"140",label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_CODE') + " ( "+n+" )", name: "CODE_"+templateCodes[i], required:true}
+                        ]}
+                        )
+                    }
+                }
+                formOptions = [
+					{type: "block", width: "auto", blockOffset: "0", offsetLeft: 45, offsetTop: 5, list: [
+						{type: "select", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PROJECT'), name: "PROJECT", options:Sepoa.params.formModuleOption},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH_1'), name: "PATH_1"},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH_2'), name: "PATH_2"},
+						{type: "input", width:"300", value: "", label:Sepoa.cache.text.get('SCREEN_BUILDER.INFO_FORM_PATH_3'), name: "PATH_3", disabled:true}
+					]},
+					{type: "container", width: "auto", className: "AREA_DIVISION", blockOffset: "0", name: "AREA_DIVISION", offsetTop: 20},
+					{type: "block", width: "auto", blockOffset: "0", offsetLeft: 45, offsetTop: 5, list: formCodeList}
+                ]
+            }
+            if(formOptions != null){
+                formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(formBox, 'formObj', [formOptions]);
+                formObj.attachEvent("onChange", onChange)
+                if(id != "NEW"){
+                    formObj.attachEvent("onBeforeChange", onBeforeChange)
+                    formObj.attachEvent("onChange", onChange2)
+                }
+            }
+            if(Sepoa.params.ext){
+            	formObj.setData(Sepoa.params.ext, "json");
+            	formObj.callEvent("onChange", ["PREFIX", Sepoa.params.ext.PREFIX])
+            	if(id != 'NEW'){
+            		formObj.setValue("CODE_1", Sepoa.params.ext.CODE);
+            	}
+            }
+        ]]>
+        </function>
+        <function name="changeMode" args="mode">
+        <![CDATA[
+        	if(mode == 'NEW'){
+        		btnObj.showButton('UPDATE',false);
+        		btnObj.showButton('NEW_TEMPLATE',true);
+        	}else{
+        		btnObj.showButton('UPDATE',true);
+        		btnObj.showButton('NEW_TEMPLATE',false);
+        	}
+        ]]>
+        </function>
+        <function name="onBeforeChange" args="name, oValue, nValue">
+        <![CDATA[
+            if(name == "PREFIX"){
+                this.setItemValue('PREFIX', nValue.toUpperCase())
+                return false;
+            }
+            return true;
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            switch(id){
+            case "cancel":
+                doCancel();
+                break;
+            case "save":
+                doSave();
+                break;
+            case "update":
+                doUpdate();
+                break;
+            default:
+                break;
+            }
+        ]]>
+        </function>
+        <function name="onChange" args="name, value">
+        <![CDATA[
+            if(name == "NONSTD_PATH"){
+                if(value == 'Y'){
+                    this.enableItem('PATH_3');
+                    this.hideItem('PATH_2')
+                    this.setItemWidth('PATH_1', '274')
+                    this.setItemValue('PATH_2', '', true)
+                    this.setItemValue('PATH_3', '')
+                }else{
+                    this.setItemWidth('PATH_1', '129')
+                    this.disableItem('PATH_3');
+                    this.showItem('PATH_2')
+                    this.setItemValue('PATH_1', '', true)
+                    this.setItemValue('PATH_2', '')
+                }
+            }else if(["PATH_1","PATH_2", "PATH_3", "NAME"].indexOf(name) + 1){
+                var PATH_1 = formObj.getValue("PATH_1").trim();
+                var PATH_2 = formObj.getValue("PATH_2").trim();
+                var PATH_3 = formObj.getValue("PATH_3").trim();
+                var NAME = formObj.getValue("NAME").trim();
+                var NONSTD_PATH = formObj.getValue('NONSTD_PATH').trim();
+                
+                var pathArray = [];
+                if(PATH_1 && PATH_2 && name != "PATH_3"){
+                    PATH_3 = PATH_1+""+PATH_2;
+                    formObj.setValue("PATH_3", PATH_3)
+                    
+                    if(NAME){
+                        pathArray.push(PATH_1, PATH_2, PATH_3+NAME);
+                    }
+                }else if(PATH_1 && NONSTD_PATH == 'Y' && (PATH_3+NAME)){
+                    pathArray.push(PATH_1, PATH_3+NAME);
+                }
+                
+                if(NAME){
+                    formObj.setValue("PATH", "/"+pathArray.join("/")+".xml", true);
+                }
+            }
+        ]]>
+        </function>
+        <function name="onChange2" args="name, value">
+        <![CDATA[
+            if(name.indexOf("PREFIX") == "0"){
+                formObj.forEachItem(function(obj, id){
+                    if(id.indexOf("PREFIX") == "0" && obj.getItemType(id) == "label"){
+                        obj.setItemLabel(id, value+"_");
+                    }
+                })
+            }
+        ]]>
+        </function>
+        <function name="createNewTemplate" args="">
+        <![CDATA[
+            var ro = Sepoa.params.callback.apply( Sepoa.params.callObj,[
+            	[{
+            		info:{
+            			PATH_1:"%PATH_1%",
+		            	PATH_2:"%PATH_2%",
+		            	PATH_3:"%PATH_1%%PATH_2%",
+		            	NAME:"",
+		            	PREFIX:"%PREFIX%",
+		            	CODE:"%CODE_1%"
+            		}
+            	}],
+            	"TEMPLATE"
+            ]);
+            if(ro.status){
+                selfObj.close();
+            }else{
+                Alert(ro.message);
+            }
+        ]]>
+        </function>
+        <var name="templateCodes"/>
+        <var name="templateData"/>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQUZZcktQY0FGWXJLUGNHUU1MIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJORVdfUFJPSkVDVF9PUFRJT04ifSwiaWQiOiJBRllyS1BjQUZZcktQY0dRTUwiLCJ0eXBlIjoiYm9keSJ9LCJBRllyS1BjemhtcktQY3dObXciOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJDTEFTUyI6Im1hcmdpblJpZ2h0MjAifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMl9PTkNMSUNLIjoib25CdXR0
+        b25DbGljayIsIklURU1fMF9TTENPREUiOiJCVVRUT04uY2FuY2VsIiwiSVRFTV8xX1NMQ09ERSI6IkJVVFRPTi51cGRhdGUiLCJJVEVNXzBfVFlQRSI6ImNhbmNlbCIsIklURU1fMF9QQVJBTSI6IiYjMzk7Y2FuY2VsJiMzOTsiLCJJVEVNXzFfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzFfUEFSQU0iOiImIzM5O3VwZGF0ZSYjMzk7IiwiSVRFTV8yX1RFWFQiOiLsoIDsnqUiLCJJVEVNXzBfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzJfUEFSQU0iOiImIzM5O3NhdmUmIzM5OyIsIklURU1fMV9URVhUIjoi7IiY7KCVIiwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8yX1RZUEUiOiJzYXZlIiwiSVRFTV8xX1NPUlQiOiIyIiwiT0JKRUNUX0lE
+        IjoiQUZZcktQY3pobXJLUGN3Tm13IiwiSVRFTV8yX1NPUlQiOiIzIiwiSVRFTV8xX1RZUEUiOiJ1cGRhdGUiLCJJVEVNXzJfSUQiOiJTQVZFIiwiSVRFTV8yX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV8wX0lEIjoiQ0FOQ0VMIiwiSVRFTV8xX0lEIjoiVVBEQVRFIiwiSVRFTV8wX1RFWFQiOiLsnbTsoIQifSwiaWQiOiJBRllyS1BjemhtcktQY3dObXciLCJ0eXBlIjoiYnV0dG9uIn0sInROU0NMUGNnUFVDTFBjU1BQUCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybUJveCIsIk9CSkVDVF9JRCI6InROU0NMUGNnUFVDTFBjU1BQUCJ9LCJpZCI6InROU0NMUGNnUFVDTFBjU1BQUCIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJ0
+        TlNDTFBjZlBVQ0xQY3ZySHQiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoidE5TQ0xQY2ZQVUNMUGN2ckh0In0sImlkIjoidE5TQ0xQY2ZQVUNMUGN2ckh0IiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IkFGWXJLUGNBRllyS1BjR1FNTCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiQUZZcktQY3pobXJLUGN3Tm13IiwidHlwZSI6ImJ1dHRvbiJ9LHsiaWQiOiJ0TlNDTFBjZlBVQ0xQY3ZySHQiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoidE5TQ0xQY2dQVUNMUGNTUFBQIiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL1Rvb2xzL1NjcmVlbkJ1aWxkZXIvUG9w
+        dXAvTmV3UHJvamVjdDJPcHRpb24ueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiUFJPSkVDVF9PUFRJT04iLCJQUkVGSVgiOiJORVciLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJUb29scy9TY3JlZW5CdWlsZGVyL1BvcHVwIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiTmV3UHJvamVjdDJPcHRpb24iLCJTQ1JFRU5fSUQiOiJORVdfUFJPSkVDVF9PUFRJT04ifX0sImh0bWwiOiI8ZGl2IGlkPVwiQUZZcktQY0FGWXJLUGNHUU1MXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwi
+        IHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIG1hcmdpblJpZ2h0MjBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwi
+        QUZZcktQY3pobXJLUGN3Tm13XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInROU0NMUGNmUFVDTFBjdnJIdFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwi
+        PlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJ0TlNDTFBjZ1BVQ0xQY1NQUFBcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

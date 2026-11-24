@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryADMIN">
+	<![CDATA[
+		SELECT
+			  MODULE AS TREE_ID
+			, MODULE
+			, PARENT AS TREE_PARENT_ID
+			, PARENT
+			, DESCRIPTION AS TREE_VALUE
+			, DESCRIPTION
+			, OPTIONS
+			, SORT
+			, TYPE
+			, NODE
+			, REMARK
+			, ALIAS
+			, DEFAULT_OPTION_VALUE
+		FROM
+			SBMMA
+		ORDER BY
+			PARENT, SORT
+	]]>
+	</method>
+    
+    <method name="doQuery">
+    <![CDATA[
+        WITH LINKED
+           AS (
+              SELECT HOUSE_CODE
+                    ,MODULE
+                    ,CAST(PARENT AS VARCHAR) AS TREE_PARENT_ID
+                    ,PARENT
+                    ,COMBO
+                    ,CAST(PARENT  + '_' + CAST(SORT AS VARCHAR) AS VARCHAR) AS TREE_ID
+                    ,DESCRIPTION
+                    ,SORT
+                    ,NODE
+                    ,TYPE
+                    ,OPTIONS
+                    ,ALIAS
+                FROM SBMMA
+               WHERE HOUSE_CODE = '000' 
+                 AND PARENT     = '*'
+               UNION ALL
+              SELECT BMMA.HOUSE_CODE
+                    ,BMMA.MODULE
+                    ,CAST(L.TREE_ID AS VARCHAR)
+                    ,BMMA.PARENT
+                    ,BMMA.COMBO
+                    ,CAST(L.TREE_ID  + '_' + CAST(BMMA.SORT AS VARCHAR) AS VARCHAR)
+                    ,BMMA.DESCRIPTION
+                    ,BMMA.SORT
+                    ,BMMA.NODE
+                    ,BMMA.TYPE
+                    ,BMMA.OPTIONS
+                    ,BMMA.ALIAS
+                FROM SBMMA BMMA
+                JOIN LINKED L
+                  ON L.HOUSE_CODE = BMMA.HOUSE_CODE 
+                 AND L.MODULE     = BMMA.PARENT
+               )
+       SELECT L.TREE_ID         AS TREE_ID
+             ,L.TREE_PARENT_ID  AS TREE_PARENT_ID
+             ,LANG.CONTENTS     AS TREE_VALUE
+             ,L.MODULE
+             ,L.PARENT
+             ,L.COMBO
+             ,LANG.CONTENTS     AS MODULE_NAME
+             ,LANG2.CONTENTS    AS DESCRIPTION
+             ,CASE WHEN dbo.NVL(CMAM.MODULE, '_NOT_SELECTED_') = '_NOT_SELECTED_' 
+                   THEN 0 
+                   ELSE 1 
+               END              AS USE_FLAG 
+             ,CMAM."OPTION" 
+         FROM LINKED L
+         JOIN SLANG LANG
+           ON L.HOUSE_CODE   = LANG.HOUSE_CODE
+          AND LANG.SCREEN_ID = 'BUSINESS_MODULE'
+          AND LANG.LANGUAGE  = 'KO'
+          AND LANG.CODE      = L.MODULE
+         LEFT OUTER
+         JOIN SLANG LANG2
+           ON L.HOUSE_CODE    = LANG2.HOUSE_CODE
+          AND LANG2.SCREEN_ID = 'BUSINESS_MODULE_DES'
+          AND LANG2.LANGUAGE  = 'KO'
+          AND LANG2.CODE      = L.MODULE
+         LEFT OUTER
+         JOIN SCMAM CMAM
+           ON CMAM.MODULE       = L.MODULE
+          AND CMAM.HOUSE_CODE = ${HOUSE_CODE} 
+          AND CMAM.COMPANY_CODE = ${COMPANY_CODE}
+        ORDER 
+           BY TREE_ID
+    ]]>
+    </method>
+
+	<method name="doDelete">
+	<![CDATA[
+		DELETE FROM
+			SBMMA
+		WHERE
+			MODULE = ${MODULE}
+	]]>
+	</method>
+	
+	<method name="doInsert">
+	<![CDATA[
+		INSERT INTO SBMMA
+		(
+			  MODULE
+			, DESCRIPTION
+			, PARENT
+			, SORT
+			, NODE
+			, TYPE
+			, OPTIONS
+			, REMARK
+			, ALIAS
+			, DEFAULT_OPTION_VALUE
+		)
+		VALUES
+		(
+			  ${MODULE}
+			, ${DESCRIPTION}
+			, ${PARENT}
+			, ${SORT}
+			, ${NODE}
+			, ${TYPE}
+			, ${OPTIONS}
+			, ${REMARK}
+			, ${ALIAS}
+			, ${DEFAULT_OPTION_VALUE}
+		)
+	]]>
+	</method>
+	
+	<method name="getActiveModule">
+	<![CDATA[
+		SELECT MODULE 
+		      ,OPTIONS
+		  FROM SCMAM
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+	]]>
+	</method>
+</service>

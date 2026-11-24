@@ -1,0 +1,59 @@
+<style>
+table.sepoa {
+  border-collapse: collapse;
+  text-align: left;
+  line-height: 1.5;
+  border-top: 1px solid #ccc;
+  border-left: 3px solid #369;
+  margin : 20px 10px;
+}
+table.sepoa th {
+  text-align: center;
+  width: 147px;
+  padding: 10px;
+  font-weight: bold;
+  vertical-align: top;
+  color: #153d73;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+
+}
+table.sepoa td {
+  width: 400px;
+  padding: 10px;
+  vertical-align: top;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+</style>
+
+<table class="sepoa">
+  <tr>
+    <th>인장번호</th>
+    <td>${SEAL_INFO}</td>
+  </tr>
+  <tr>
+    <th>관리번호</th>
+    <td>${EXT_REQ_NUMBER}</td>
+  </tr>
+  <tr>
+    <th>구분</th>
+    <td>${SEAL_USE_TYPE} (인감반출)</td>
+  </tr>
+  <tr>
+    <th>반출/반입 일시</th>
+    <td>${OUT_IN_TIME}</td>
+  </tr>
+  <tr>
+    <th>사용처</th>
+    <td>${SUBMISSION_PLACE}</td>
+  </tr>
+  <tr>
+    <th>사외반출 필요사유</th>
+    <td>${REMARK}</td>
+  </tr>
+  <tr>
+    <th>첨부서류</th>
+    <td>${ATTACH_DOC_INFO}</td>
+  </tr>
+</table>

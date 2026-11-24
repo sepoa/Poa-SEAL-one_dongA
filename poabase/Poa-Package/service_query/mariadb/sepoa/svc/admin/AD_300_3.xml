@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQueryClient">
+    <![CDATA[
+        SELECT
+              HOUSE_CODE
+            , COMPANY_CODE
+            , COMPANY_NAME
+        FROM
+            USERVICE
+        WHERE
+            1=1
+        AND COMPANY_CODE = '1000'
+        AND HOUSE_CODE = $S{HOUSE_CODE}
+        AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+        AND ( 	
+        		1=1
+        		AND UPPER(HOUSE_CODE)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+              	OR  UPPER(COMPANY_NAME) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+       		) 
+    ]]>
+    </method>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT
+			  	  MODULE,
+				  LAST_EXECUTE_DATE,
+				  LAST_EXECUTE_TIME,
+				  MODULE_NAME,
+				  RFC_NAME,
+				  DEL_FLAG,
+				  PROCESS_ID,
+				  METHOD_NAME,
+                  HOUSE_CODE
+	  		 FROM SIFLH
+	  		WHERE 1 = 1
+	  		  	AND #DB_OWNER#NVL( DEL_FLAG, 'N' ) = 'N'
+              	AND HOUSE_CODE = ${HOUSE_CODE}
+              	AND (
+              			1=1
+              			AND UPPER(MODULE)		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+              			OR  UPPER(MODULE_NAME) 	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+              			OR  UPPER(PROCESS_ID)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+              			OR  UPPER(METHOD_NAME)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+              		)
+	  		ORDER BY MODULE
+		]]>
+	</method>
+	<method name="doDelete">
+		<![CDATA[
+			DELETE FROM SIFLH 
+			 WHERE 1 = 1 
+			   AND MODULE = ${MODULE}
+               AND HOUSE_CODE = ${HOUSE_CODE}
+		]]>
+	</method>
+	<method name="doQueryExistRow">
+		<![CDATA[
+			SELECT COUNT(*)
+			  FROM SIFLH
+			 WHERE 1 = 1
+			   AND MODULE = ${MODULE}
+               AND HOUSE_CODE = ${HOUSE_CODE}
+		]]>
+	</method>
+	<method name="doUpdateData">
+		<![CDATA[
+			UPDATE  SIFLH
+			   SET  LAST_EXECUTE_DATE = ${current.DATE}
+				   ,LAST_EXECUTE_TIME = ${current.TIME}
+				   ,MODULE_NAME       = ${MODULE_NAME}
+				   ,RFC_NAME          = ${RFC_NAME}
+				   ,DEL_FLAG          = ${DEL_FLAG}
+				   ,PROCESS_ID        = ${PROCESS_ID}
+				   ,METHOD_NAME       = ${METHOD_NAME}
+                   ,HOUSE_CODE        = ${HOUSE_CODE}
+			 WHERE  MODULE            = ${MODULE}
+		]]>
+	</method>
+	<method name="doInsertData">
+		<![CDATA[
+			INSERT INTO SIFLH
+			(
+				MODULE,
+				LAST_EXECUTE_DATE,
+				LAST_EXECUTE_TIME,
+				MODULE_NAME,
+				RFC_NAME,
+				DEL_FLAG,
+				PROCESS_ID,
+				METHOD_NAME,
+                HOUSE_CODE
+			) VALUES (
+				${MODULE},
+				${current.DATE},
+				${current.TIME},
+				${MODULE_NAME},
+				${RFC_NAME},
+				'N',
+				${PROCESS_ID},
+				${METHOD_NAME},
+                ${HOUSE_CODE}
+			)
+		]]>
+	</method>
+	<method name="doRunData">
+		<![CDATA[
+			UPDATE  SIFLH
+			   SET  LAST_EXECUTE_DATE = ${current.DATE}
+				   ,LAST_EXECUTE_TIME = ${current.TIME}
+			 WHERE  PROCESS_ID        = ${PROCESS_ID}
+             AND    HOUSE_CODE        = ${HOUSE_CODE}
+		]]>
+	</method>
+</service>

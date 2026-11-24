@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+	<method name="AD_202">
+	<![CDATA[
+		SELECT count(*)
+          FROM SNOTE
+         WHERE nvl(DEL_FLAG, 'N') = 'N'
+           AND NOTE_TYPE              = 'N'
+           AND PUBLISH_FLAG           = 'Y'
+           AND GONGJI_GUBUN in ('A', ${session.USER_TYPE})
+           AND PUBLISH_FROM_DATE <= ${current.DATE}
+           AND PUBLISH_TO_DATE   >= ${current.DATE}
+	]]>
+	</method>
+	
+	<method name="PR_008">
+	<![CDATA[
+		SELECT count(*)
+		  FROM SPRLN PRLN
+		  JOIN SPRGL PRGL
+		    ON PRLN.HOUSE_CODE   = PRGL.HOUSE_CODE
+		   AND PRLN.COMPANY_CODE = PRGL.COMPANY_CODE
+		   AND PRLN.PR_NUMBER    = PRGL.PR_NUMBER
+		  LEFT JOIN SPLNT PLNT
+            ON PRLN.HOUSE_CODE   = PLNT.HOUSE_CODE
+           AND PRLN.COMPANY_CODE = PLNT.COMPANY_CODE
+           AND PRLN.PLANT_CODE   = PLNT.PLANT_CODE
+		 WHERE NVL(PRLN.DEL_FLAG, 'N') = 'N'
+		   AND NVL(PRGL.DEL_FLAG, 'N') = 'N'
+		   AND NVL(PRLN.PR_CLOSE_FLAG, 'N') = 'N'
+           AND PRGL.PR_STATUS = 'E'
+           AND PRLN.PR_STATUS IN ('S','P')
+	]]>
+	</method>
+	
+</service>

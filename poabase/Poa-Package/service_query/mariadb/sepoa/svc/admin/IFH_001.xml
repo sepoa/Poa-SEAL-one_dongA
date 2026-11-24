@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT 
+				TRANSACTION_CODE
+				,ADD_USER_ID
+				,FUNCTION_NAME
+				,START_DATE
+				,START_TIME
+				,END_DATE
+				,END_TIME
+				,STATUS
+				,MESSAGE
+				,DOC_TYPE
+				,DOC_NUMBER
+				,DOC_SEQ
+		FROM	SIF_LOG
+		WHERE  
+			  1=1
+          AND START_DATE	>= $S{F_CALENDAR_FROM}
+		  AND START_DATE	<= $S{F_CALENDAR_TO}
+		  AND STATUS		IN($INS{F_STATUS})
+		  AND (
+		   		     1=1	
+		    	 AND TRANSACTION_CODE		LIKE CONCAT('%', $S{F_KEYWORD}, '%') 
+		    	  OR FUNCTION_NAME			LIKE CONCAT('%', $S{F_KEYWORD}, '%')		    	   
+		    	  OR MESSAGE 				LIKE CONCAT('%', $S{F_KEYWORD}, '%')
+		    	  OR DOC_TYPE				LIKE CONCAT('%', $S{F_KEYWORD}, '%')
+		    	  OR DOC_NUMBER				LIKE CONCAT('%', $S{F_KEYWORD}, '%')
+		       )		  
+		ORDER BY START_DATE DESC, START_TIME DESC	
+	]]>
+	</method>
+	
+	<method name="doFindTable">
+	<![CDATA[
+		SELECT 
+			   TABLE_NAME
+		FROM   INFORMATION_SCHEMA.TABLES
+		WHERE  TABLE_SCHEMA		= ${DBO}	
+		 AND   TABLE_NAME 		LIKE CONCAT(${TABLE_NAME}, '%')			
+	]]>
+	</method>
+	
+	<method name="doQueryData">
+	<![CDATA[
+		SELECT *
+		FROM   #TABLE_NAME#
+		WHERE  TRANSACTION_CODE		= ${TRANSACTION_CODE}	
+	]]>
+	</method>				
+</service>

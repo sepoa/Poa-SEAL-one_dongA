@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SAMPLE_010_1" header="false" tpl="editor.tpl">
+	<variable>
+        <var name="calendarBox" value="$($sObject._vp).find('#QTeLhkcXtkLhkcpqRT')[0]"/>
+        <var name="QTeLhkcWtkLhkcBlMe" value="$($sObject._vp).find('#QTeLhkcWtkLhkcBlMe')[0]"/>
+    </variable>
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+    	<var name="calObj"/>
+    	<function name="init">
+    	<![CDATA[
+    		calObj = $sObject.calObj = new SepoaBigCalendar({
+    			viewport:calendarBox
+    		});
+    		calObj.attachEvent('onDateClick', function(date, list){
+    			console.log("선택 : "+date)
+    			console.log(list)
+    		})
+    		
+    		calObj.attachEvent('onCalendarChange', function(date){
+    			//date 값으로 서버조회 후
+    			this.addEvent([{DATE:'20200723', ID:"3", TITLE:"asdffasldkjflsadkjflasdkjflkasdfjlfjasdklfj"}])
+    		})
+    	]]>
+    	</function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiUVRlTGhrY1FUZUxoa2N6bnhoIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiU0FNUExFXzAxMF8xIn0sImlkIjoiUVRlTGhrY1FUZUxoa2N6bnhoIiwidHlwZSI6ImJvZHkifSwiUVRlTGhrY1h0a0xoa2NwcVJUIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfbnZXdTBJbUJTRWsxIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJjYWxlbmRhckJveCIsIk9CSkVDVF9JRCI6IlFUZUxoa2NYdGtMaGtjcHFSVCJ9LCJp
+        ZCI6IlFUZUxoa2NYdGtMaGtjcHFSVCIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJRVGVMaGtjV3RrTGhrY0JsTWUiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX1ViWURaZnJ1dHVheCI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfUUJmMnFZQmw1cUxEIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX1ZBQ1hqbXk5SUtuTCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21w
+        b25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6IlFUZUxoa2NXdGtMaGtjQmxNZSIsIk9CSkVDVF9JRCI6IlFUZUxoa2NXdGtMaGtjQmxNZSIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiUVRlTGhrY1d0a0xoa2NCbE1lIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IlFUZUxoa2NRVGVMaGtjem54aCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiUVRlTGhrY1d0a0xoa2NCbE1lIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IlFUZUxoa2NYdGtMaGtjcHFSVCIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUFJPSkVDVCI6IkZSV0siLCJQQVRIXzEiOiJTYW1wbGUiLCJQQVRIXzMiOiJTYW1wbGUwMTAi
+        LCJQQVRIXzIiOiIwMTAiLCJOQU1FIjoiV3JpdGUiLCJQQVRIIjoiL1NhbXBsZS8wMTAvU2FtcGxlMDEwV3JpdGUueG1sIiwiUFJFRklYIjoiU0FNUExFIiwiQ09ERSI6IjAxMF8xIiwiU0NSRUVOX0lEIjoiU0FNUExFXzAxMF8xIn19LCJodG1sIjoiPGRpdiBpZD1cIlFUZUxoa2NRVGVMaGtjem54aFwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4g
+        ICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlFUZUxoa2NXdGtMaGtjQmxNZVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiUVRlTGhrY1h0a0xoa2NwcVJUXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rp
+        dj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

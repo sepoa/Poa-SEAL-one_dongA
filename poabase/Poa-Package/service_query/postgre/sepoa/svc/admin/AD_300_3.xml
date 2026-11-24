@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT
+			  	  MODULE,
+				  LAST_EXECUTE_DATE,
+				  LAST_EXECUTE_TIME,
+				  MODULE_NAME,
+				  RFC_NAME,
+				  DEL_FLAG,
+				  PROCESS_ID,
+				  METHOD_NAME
+	  		 FROM SIFLH
+	  		WHERE 1 = 1
+	  		  AND #DB_OWNER#nvl( DEL_FLAG, 'N' ) = 'N'
+	  		ORDER BY MODULE
+		]]>
+	</method>
+	<method name="doDelete">
+		<![CDATA[
+			DELETE FROM SIFLH 
+			 WHERE 1 = 1 
+			   AND MODULE = ${MODULE}
+		]]>
+	</method>
+	<method name="doQueryExistRow">
+		<![CDATA[
+			SELECT COUNT(*)
+			  FROM SIFLH
+			 WHERE 1 = 1
+			   AND MODULE = ${MODULE}
+		]]>
+	</method>
+	<method name="doUpdateData">
+		<![CDATA[
+			UPDATE  SIFLH
+			   SET  LAST_EXECUTE_DATE = ${current.DATE}
+				   ,LAST_EXECUTE_TIME = ${current.TIME}
+				   ,MODULE_NAME       = ${MODULE_NAME}
+				   ,RFC_NAME          = ${RFC_NAME}
+				   ,DEL_FLAG          = ${DEL_FLAG}
+				   ,PROCESS_ID        = ${PROCESS_ID}
+				   ,METHOD_NAME       = ${METHOD_NAME}
+			 WHERE  MODULE            = ${MODULE}
+		]]>
+	</method>
+	<method name="doInsertData">
+		<![CDATA[
+			INSERT INTO SIFLH
+			(
+				MODULE,
+				LAST_EXECUTE_DATE,
+				LAST_EXECUTE_TIME,
+				MODULE_NAME,
+				RFC_NAME,
+				DEL_FLAG,
+				PROCESS_ID,
+				METHOD_NAME
+			) VALUES (
+				${MODULE},
+				${current.DATE},
+				${current.TIME},
+				${MODULE_NAME},
+				${RFC_NAME},
+				'N',
+				${PROCESS_ID},
+				${METHOD_NAME}
+			)
+		]]>
+	</method>
+	<method name="doRunData">
+		<![CDATA[
+			UPDATE  SIFLH
+			   SET  LAST_EXECUTE_DATE = ${current.DATE}
+				   ,LAST_EXECUTE_TIME = ${current.TIME}
+			 WHERE  PROCESS_ID        = ${PROCESS_ID}
+		]]>
+	</method>
+</service>

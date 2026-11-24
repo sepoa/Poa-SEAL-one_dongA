@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE "UPSPS" (	
+				"HOUSE_CODE" 	VARCHAR2(10)	not null,
+				"USER_ID" 		VARCHAR2(50)	not null,
+				"CLASS" 		VARCHAR2(100)	not null,
+				"CODE" 			VARCHAR2(100)	not null,
+				"NAME" 			VARCHAR2(100), 
+				"DESCRIPTION" 	VARCHAR2(300), 
+				"DATA" 			CLOB, 
+				"USE_FLAG" 		VARCHAR2(1) DEFAULT 'N', 
+	 			CONSTRAINT "UPSPS_PK" PRIMARY KEY ("HOUSE_CODE", "USER_ID", "CLASS", "CODE")
+	 		)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON TABLE UPSPS IS '개인화 관리'  ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.HOUSE_CODE    	IS '하우스코드' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.USER_ID    		IS '사용자 아이디' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.CLASS    		IS 'TYPE + 컴포넌트 아이디' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.CODE    			IS '프리셋 아이디' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.NAME    			IS '프리셋 명' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.DESCRIPTION    	IS '프리셋 설명' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.DATA    			IS '프리셋 데이터' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UPSPS.USE_FLAG    		IS '프리셋 사용여부' ]]></query></item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE `UPSPS` (
+			  `HOUSE_CODE` 		varchar(10) 	NOT NULL 		COMMENT '하우스코드',
+			  `USER_ID` 		varchar(50) 	NOT NULL 		COMMENT '사용자 아이디',
+			  `CLASS` 			varchar(100) 	NOT NULL 		COMMENT 'TYPE + 컴포넌트 아이디',
+			  `CODE` 			varchar(100) 	NOT NULL 		COMMENT '프리셋 아이디',
+			  `NAME` 			varchar(100) 	DEFAULT NULL 	COMMENT '프리셋 명',
+			  `DESCRIPTION` 	varchar(300) 	DEFAULT NULL 	COMMENT '프리셋 설명',
+			  `DATA` 			text 			DEFAULT NULL 	COMMENT '프리셋 데이터',
+			  `USE_FLAG` 		varchar(1) 		DEFAULT 'N' 	COMMENT '프리셋 사용 여부',
+			  PRIMARY KEY (`HOUSE_CODE`,`USER_ID`,`CLASS`,`CODE`)
+			) COMMENT='개인화 관리'
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE [UPSPS] (
+				[HOUSE_CODE] 		nvarchar(10) NOT NULL,
+				[USER_ID] 			nvarchar(50) NOT NULL,
+				[CLASS] 			nvarchar(100) NOT NULL,
+				[CODE] 				nvarchar(100) NOT NULL,
+				[NAME] 				nvarchar(100) NULL,
+				[DESCRIPTION] 		nvarchar(300) NULL,
+				[DATA] 				text NULL,
+				[USE_FLAG] 			nvarchar(1) NULL,
+				CONSTRAINT UPSPS_PK PRIMARY KEY (HOUSE_CODE,USER_ID,CLASS,CODE)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '개인화 관리'     		, 'USER', dbo, 'TABLE', UPSPS  ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '하우스코드'            , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', HOUSE_CODE]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '사용자 아이디'         , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', USER_ID]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', 'TYPE + 컴포넌트 아이디', 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', CLASS]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '프리셋 아이디'         , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', CODE]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '프리셋 명'             , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', NAME]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '프리셋 설명'           , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', DESCRIPTION]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '프리셋 데이터'         , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', DATA]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '프리셋 사용여부'       , 'USER', dbo, 'TABLE', UPSPS, 'COLUMN', USE_FLAG]]></query></item>
+</body>

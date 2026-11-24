@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+	<method name="PR_012">
+	<![CDATA[
+		SELECT count(*)
+		  FROM SPRGL
+		 WHERE NVL(DEL_FLAG, 'N') = 'N'
+		   AND HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND REQ_TYPE     IN ('MROPR', 'MROSR', 'PR')
+		   AND SIGN_STATUS  = 'P'
+		   AND SIGN_PERSON_ID = ${session.ID}
+	]]>
+	</method>
+	
+	
+	<method name="AD_202">
+	<![CDATA[
+		SELECT count(*)
+          FROM SNOTE
+         WHERE NVL(DEL_FLAG, 'N') = 'N'
+           AND NOTE_TYPE              = 'N'
+           AND PUBLISH_FLAG           = 'Y'
+           AND GONGJI_GUBUN in ('A', ${session.USER_TYPE})
+           AND PUBLISH_FROM_DATE <= ${current.DATE}
+           AND PUBLISH_TO_DATE   >= ${current.DATE}
+	]]>
+	</method>
+</service>

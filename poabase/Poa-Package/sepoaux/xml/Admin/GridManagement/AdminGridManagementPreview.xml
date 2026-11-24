@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_022_5" header="false">
+    <variable>
+        <var name="gridbox" value="$($sObject._vp).find('#yMZddQbFheddQbawHG')[0]"/>
+        <var name="yMZddQbFheddQbaiGy" value="$($sObject._vp).find('#yMZddQbFheddQbaiGy')[0]"/>
+    </variable>
+    <onloadscript/>
+    <userscript>
+        <var name="events" value="{}"/>
+        <var name="gridObj"/>
+        <function name="showPreview" args="obj">
+        <![CDATA[
+            if (gridObj && gridObj.destructor) {
+                Sepoa.detachEvent('onLoad', events.onLoad);
+                SUX.detachEvent('onWindowResize', events.resize);
+                events = {};
+                gridObj.destructor();
+            }
+            
+            gridObj = $sObject.gridObj = new SepoaDhtmlXGridObject(gridbox, 'gridObj', obj);
+            gridObj._onDnDFlag = false;
+            gridObj.setGridDraw();
+            gridObj.setSizes();
+            gridObj.setEditable(false);
+            gridObj.setDataOutput(dataOutput);
+            gridObj.attachEvent('onMouseOver', parentGridEditStop);
+            events.onLoad = Sepoa.attachEvent('onLoad', function() {
+                gridObj.setSizes();
+            });
+            events.resize = SUX.attachEvent('onWindowResize', function() {
+                gridObj.setSizes();
+            });
+            
+            createDummyRow(obj);
+        ]]>
+        </function>
+        <function name="realTimePreview" args="obj">
+        <![CDATA[
+            if (gridObj && gridObj.destructor) {
+                Sepoa.detachEvent('onLoad', events.onLoad);
+                SUX.detachEvent('onWindowResize', events.resize);
+                events = {};
+                gridObj.destructor();
+            }
+            
+            gridObj = $sObject.gridObj = new SepoaDhtmlXGridObject(gridbox, 'gridObj');
+            gridObj._onDnDFlag = false;
+            gridObj.setGridDraw();
+            gridObj.setSizes();
+            gridObj.setEditable(false);
+            gridObj.attachEvent('onMouseOver', parentGridEditStop);
+            
+            var cin = 0;
+            
+            for (var i = 0; i < obj.length; i++) {
+            
+                if (obj[i].COL_VISIBLE == 'false') continue;
+            
+                var header = obj[i].CONTENTS_KO;
+                var type = obj[i].COL_TYPE;
+                var width = obj[i].COL_WIDTH_KO;
+                var align = obj[i].COL_ALIGN;
+            
+                cin++;
+            
+                if (['tree', 'grid', 'template', 'comboro', 'comboro2'].indexOf(type) + 1) {
+                    type = 'edtxt';
+                }
+            
+                gridObj.insertColumn(cin, header, type, width, null, align, null, null, null);
+            }
+            
+            createDummyRow(obj);
+        ]]>
+        </function>
+        <function name="createDummyRow" args="obj">
+        <![CDATA[
+            var rId = dhx.newId();
+            var columnIndexer = 0;
+            gridObj.addRow(rId, '', 0);
+            
+            for (var i in obj) {
+                var item = integerParser(i);
+                var type = obj[item].COL_TYPE;
+            
+                if (obj[item].COL_VISIBLE == 'false') continue;
+            
+                var cId = columnIndexParser(gridObj.getColIndexById(obj[item].CODE), columnIndexer);
+            
+                if (['ch'].indexOf(type) + 1) {
+                    gridObj.cells(rId, cId).setValue('0');
+                } else if (['dhxCalendar', 'dhxCalendarA', 'dhxCalendarR'].indexOf(type) + 1) {
+                    gridObj.cells(rId, cId).setValue(sUtils.date.getToday());
+                } else if (['dhxCalendarYM', 'dhxCalendarYMR'].indexOf(type) + 1) {
+                    gridObj.cells(rId, cId).setValue(Sepoa.calendar.YM);
+                } else if (['edn', 'ron'].indexOf(type) + 1) {
+                    gridObj.cells(rId, cId).setValue('12345.6789');
+                } else if (['edtxt', 'txttxt', 'ro', 'rotxt', 'tree', 'template'].indexOf(type) + 1) {
+                    gridObj.cells(rId, cId).setValue(type.toUpperCase());
+                }
+            
+                columnIndexer++;
+            }
+        ]]>
+        </function>
+        <function name="integerParser" args="x">
+        <![CDATA[
+            var parsed = parseInt(x);
+            if (isNaN(parsed)) {
+                return x;
+            }
+            return parsed;
+        ]]>
+        </function>
+        <function name="columnIndexParser" args="col, index">
+        <![CDATA[
+            var retValue = col;
+            if (col === undefined) {
+                return parseInt(index);
+            }
+            return col;
+        ]]>
+        </function>
+        <function name="parentGridEditStop" args="">
+        <![CDATA[
+            callFunction('AD_022_3', 'parentGridEditStop', []);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiT0lraFlQYkVkZ1l1dU1BaE9SIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9Rbmh3dVVCS1hBQVYiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1VRb0hIWVl6dUdCNiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzAyMl81IiwiT0JKRUNUX0lEIjoiT0lraFlQYkVkZ1l1dU1BaE9SIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiT0lraFlQYkVkZ1l1dU1BaE9SIiwidHlw
+        ZSI6ImJvZHkifSwieU1aZGRRYkZoZWRkUWJhd0hHIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkYm94IiwiT0JKRUNUX0lEIjoieU1aZGRRYkZoZWRkUWJhd0hHIn0sImlkIjoieU1aZGRRYkZoZWRkUWJhd0hHIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sInlNWmRkUWJGaGVkZFFiYWlHeSI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMSJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6InlNWmRkUWJGaGVkZFFiYWlHeSIsIk9CSkVDVF9JRCI6InlNWmRkUWJGaGVkZFFiYWlHeSJ9LCJpZCI6InlNWmRkUWJGaGVkZFFiYWlHeSIsInR5cGUiOiJjb250YWluZXIifX0sInRy
+        ZWUiOnsiaWQiOiJPSWtoWVBiRWRnWXV1TUFoT1IiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6InlNWmRkUWJGaGVkZFFiYWlHeSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJ5TVpkZFFiRmhlZGRRYmF3SEciLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vR3JpZE1hbmFnZW1lbnQvQWRtaW5HcmlkTWFuYWdlbWVudFByZXZpZXcueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiMDIyXzUiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6IkdyaWRNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5HcmlkTWFuYWdlbWVudCIsIlBBVEhfMSI6IkFkbWluIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiUHJl
+        dmlldyIsIlNDUkVFTl9JRCI6IkFEXzAyMl81In19LCJodG1sIjoiPGRpdiBpZD1cIk9Ja2hZUGJFZGdZdXVNQWhPUlwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJz
+        ZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInlNWmRkUWJGaGVkZFFiYWlHeVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJ5TVpkZFFiRmhlZGRRYmF3SEdcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

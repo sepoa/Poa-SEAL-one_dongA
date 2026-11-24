@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_102_C_C" header="false" tpl="editor.tpl" pageCloseWarn="true">
+    <button id="btnObj">
+        <btn div="nLNZltdPiTZltdGGMc" id="NEW" text="{BUTTON.new}" onclick="btnEvent( 'NEW' )"/>
+        <btn div="nLNZltdPiTZltdGGMc" id="SAVE" text="{BUTTON.save}" onclick="btnEvent( 'SAVE' )"/>
+    	<btn div="nLNZltdPiTZltdGGMc" id="UPDATE" text="{BUTTON.modify}" onclick="btnEvent( 'UPDATE' )"/>
+        <btn div="nLNZltdPiTZltdGGMc" id="DELETE" text="{BUTTON.delete}" onclick="btnEvent( 'DELETE' )"/>
+        <btn div="nLNZltdPiTZltdGGMc" id="CANCEL" text="{BUTTON.cancel}" onclick="btnEvent( 'CANCEL' )"/>
+        <btn div="nLNZltdPiTZltdGGMc" id="BACK" text="{BUTTON.back}" onclick="btnEvent( 'BACK' )"/>
+    </button>
+    <form id="formObj" div="rNphYUcxpthYUcgMAb" form-id="AD_102_C">
+    	<event type="onButtonClick" callback="onButtonClick"/>
+    </form>
+    <onloadscript>
+        <!-- <call name="init"/> -->
+    </onloadscript>
+    <userscript>
+    	<function name="onButtonClick" args="id">
+    	<![CDATA[
+    		var ckCpnNo = dataOutput.getValue("CHECK_COMPANY");
+            if(id == 'CHECK_COMPANY' ){
+                var companyCode = formObj.getValue("COMPANY_CODE");
+                if(companyCode  == ''){
+                    Alert(Sepoa.cache.text.get('AD_102_C_C.MSG01')); // 회사코드를 입력해주세요
+                }else{
+	                var so = doServiceAjax('sepoa.svc.admin.SepoaOrgManagementService', 'CONNECTION', 'doDuplicateCompany', {COMPANY_CODE:companyCode}, function( so ){
+	                    if(so.status != 1){
+	                        Alert(Sepoa.cache.text.get("MESSAGE.1049"));
+	                        dataOutput.setValue("CHECK_COMPANY","N");
+	                        return;
+	                    }else{
+	                        Alert(Sepoa.cache.text.get("MESSAGE.1050"));
+	                        dataOutput.setValue("CHECK_COMPANY","Y");
+	                    }
+	                });
+                }
+			}
+    	]]>
+    	</function>
+    	<function name="addNewItem" args="data">
+        <![CDATA[
+            var title = Sepoa.cache.text.get('AD_102.COMPANY')+' : '+Sepoa.cache.text.get("AD_102.ADD_NEW");
+            callFunction(['p','p'],'changeHeaderIcon', ['b','show','save']);
+            callFunction(['p','p'],'changeHeaderIcon', ['b','hide','update,delete']);
+            callFunction(['p','p'],'changeHeaderText', ['b',title]);
+            formObj.clear(false);
+            formObj.setViewMode(false);
+            dataOutput.setValue("CHECK_COMPANY","N");
+            formObj.setReadOnly("COMPANY_CODE",false);
+            btnObj.showButton('NEW,UPDATE,CANCEL,DELETE', false);
+            btnObj.showButton('SAVE', true); 
+            if(data == true){
+            	formObj.setdisable('CHECK_COMPANY', false);
+            	formObj.showItem('CHECK_COMPANY', true);
+            }
+        ]]>
+        </function>
+        <function name="btnEvent" args="id">
+        <![CDATA[
+		    btnObj.showButton('NEW,SAVE,UPDATE,CANCEL,DELETE', false);
+		    
+        	switch(id){
+                case "SAVE":
+                	formObj.setViewMode( true );
+                    btnObj.showButton('UPDATE', true);
+                    doSave();
+                    break;
+                case "UPDATE":
+                	formObj.setViewMode( false );
+                	formObj.setReadOnly('COMPANY_CODE', true);
+					btnObj.showButton('SAVE,CANCEL', true); 
+                    break;
+                 case "DELETE":
+                	formObj.setViewMode( false );
+                	btnObj.showButton('SAVE,DELETE,CANCEL', true);
+                	doDelete();
+                    break;
+                case "CANCEL":
+                	formObj.setViewMode( true );
+                	btnObj.showButton('UPDATE', true);
+					btnObj.showButton('SAVE,DELETE,CANCEL', false);                	
+                    break;
+                case "BACK":
+                	doBack();
+                	break;        
+                default:
+                    break;        
+            }
+        ]]>
+        </function>
+        <function name="doBack">
+        <![CDATA[
+        	callFunction(['p','p'],'changeHeaderText', ['b',Sepoa.cache.text.get('AD_102_C_G.companyinfo')]);
+        	callFunction('p', 'carouselControl', ['companyGrid']);
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+        	if(!formObj.validate()){
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+            }
+            
+            if(formObj.getValue('COMPANY_NAME_LOC').length >= 75){
+        		Alert("회사명은 75자 이상 넘길 수 없습니다."); 
+        		return;
+        	}else if(checkPass(formObj.getValue('COMPANY_NAME_ENG'))==false){
+        		Alert("회사명(영문)은 영문으로 기입해주세요.");
+				return;
+        	}else if(checkDate(formObj.getValue('FOUNDATION_DATE'))==false){
+        		Alert("설립일은 오늘 이전날짜로 선택해주세요."); 
+        		return;
+        	}
+        	
+        	if(dataOutput.getValue('CHECK_COMPANY') =="Y"){
+				doServiceAjax('sepoa.svc.admin.SepoaOrgManagementService','TRANSACTION','doSaveCompany', null, function( so ){
+	                if(so.status == 1){
+	                    Alert(Sepoa.cache.text.get("MESSAGE.0001"));
+	                    doBack();
+	                    callFunction('AD_102_C_G', 'doQuery',[]);
+	                }else{
+	                    Alert(so.message);
+	                }
+	            });
+            }else{
+                Alert("회사코드 중복체크를 해주십시오")
+            }
+        ]]>
+        </function>
+        <function name="checkPass" args="str">
+        <![CDATA[
+        	var reg = /^[a-zA-Z0-9\s+]*$/; 
+			return reg.test(str);
+        ]]>
+		</function>
+		<function name="checkDate" args="date">
+        <![CDATA[
+        	var current_date = new Date();
+		    var year = current_date.getFullYear();
+		    var month = ("0" + (1 + current_date.getMonth())).slice(-2);
+		    var day = ("0" + current_date.getDate()).slice(-2);
+        	
+        	var toDay = year + month + day;
+        	
+        	if (date >= toDay) {
+                return false;
+            }
+        ]]>
+		</function>
+		<function name="doDelete" args="str">
+        <![CDATA[
+	        Confirm(Sepoa.cache.text.get('MESSAGE.1015'), function(result){
+	            	if (result) {
+		                doServiceAjax('sepoa.svc.admin.SepoaOrgManagementService','TRANSACTION','doDeleteCompany', null, function( so ){
+		                    if(so.status == 1){
+		                        Alert(Sepoa.cache.text.get("MESSAGE.0001"));
+		                        formObj.clear(false);
+					            callFunction(['p','p'], 'reloadCells', []); 
+		                    }else{
+	                        	Alert(so.message);
+	                        	return;
+	                    	}
+	                	});
+	                }
+	            });
+        ]]>
+		</function>
+        <function name="doQuery" args="companyCode">
+        <![CDATA[
+        	formObj.setdisable('CHECK_COMPANY', true);
+        	formObj.setViewMode( true );
+        	
+            doServiceAjax('sepoa.svc.admin.SepoaOrgManagementService','CONNECTION','doQueryCompany',{COMPANY_CODE : companyCode} ,function( so ){
+                if(so.status != 1){
+                    Alert(so.message);
+                    return;
+                }
+                
+                var sf = new SepoaFormater(so.result[0]);
+                if(sf.getRowCount() > 0){ 
+                    formObj.dataMapper(sf);
+                    dataOutput.setValue("CHECK_COMPANY","Y");
+                }else{
+                	Alert('조회된회사정보없음') 
+                }
+               	doQueryEnd();
+               	callFunction(['p','p'],'changeHeaderText', ['b',"회사정보"]);
+            });
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="">
+        <![CDATA[
+        	// 폼데이터가 있는지 없는지 체크하기위해
+        	var formData = formObj.getFormData();
+        	var companyCode = formData.COMPANY_CODE;
+        	
+        	// 버튼초기화
+        	btnObj.showButton('NEW,SAVE,UPDATE,CANCEL,DELETE', false);
+        	
+        	if(companyCode){ // 조회데이터 있을경우
+				btnObj.showButton('UPDATE', true);
+        	}else {	// 없을경우
+        		formObj.setViewMode( true );
+	            btnObj.showButton('NEW', true);
+        	}        	
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsib09BZVlVY2N0SXlIVEVHUWRUIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JPTExfViI6IiIsIlZFUlRJQ0FMX1NDUk9MTCI6IjEiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEsIlZBUiI6IkFEXzEwMl9DX0MiLCJPQkpFQ1RfSUQiOiJvT0FlWVVjY3RJeUhURUdRZFQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Im9PQWVZVWNjdEl5SFRFR1FkVCIsInR5cGUiOiJib2R5In0sInJOcGhZVWN4cHRoWVVjZ01BYiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFS
+        R0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfZmJpNDI0ZmdMWlIyIjoibnVsbCIsImRoeElkX1NIZ1FHd3kzVVhMNyI6Im51bGwiLCJkaHhJZF9iZWQzTW5wOWE2Rk0iOiJudWxsIiwiZGh4SWRfdWlSbnJYR1JvS3RhIjoibnVsbCIsImRoeElkX05yTTdrb1NsaXVBaCI6Im51bGwiLCJkaHhJZF9kdUR2N3l0M1AyTWMiOiJudWxsIiwiZGh4SWRfMHUwcVFFbTJHd2RtIjoibnVsbCIsImRoeElkX3ZRcE8yUkZnOEpJSyI6Im51bGwiLCJkaHhJZF9GZThaMmtUc21GWEoiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmb3JtT2JqIiwiT0JKRUNUX0lEIjoick5waFlVY3hwdGhZ
+        VWNnTUFiIiwiRk9STV9JRCI6IkFEXzEwMl9DIn0sImlkIjoick5waFlVY3hwdGhZVWNnTUFiIiwidHlwZSI6ImZvcm0iLCJldmVudHMiOm51bGx9LCJuTE5abHRkUGlUWmx0ZEdHTWMiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJPQkpFQ1RfSUQiOiJuTE5abHRkUGlUWmx0ZEdHTWMiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fMF9U
+        WVBFIjoic2F2ZSIsIklURU1fMF9JRCI6IlNBVkUiLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLnNhdmUiLCJJVEVNXzBfVEVYVCI6IsD6wOUiLCJJVEVNXzFfVFlQRSI6ImRlbGV0ZSIsIklURU1fMV9JRCI6IkRFTEVURSIsIklURU1fMV9TTENPREUiOiJCVVRUT04uZGVsZXRlIiwiSVRFTV8xX1RFWFQiOiK76MGmIiwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIn0sImlkIjoibkxOWmx0ZFBpVFpsdGRHR01jIiwidHlwZSI6ImJ1dHRvbiJ9fSwidHJlZSI6eyJpZCI6Im9PQWVZVWNjdEl5SFRFR1FkVCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoibkxOWmx0ZFBpVFpsdGRHR01jIiwidHlwZSI6ImJ1dHRvbiJ9LHsiaWQiOiJyTnBoWVVj
+        eHB0aFlVY2dNQWIiLCJ0eXBlIjoiZm9ybSJ9XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9Pcmdhbml6YXRpb25NYW5hZ2VtZW50L0FkbWluT3JnYW5pemF0aW9uTWFuYWdlbWVudENvbXBhbnlXcml0ZS54bWwiLCJQUk9KRUNUIjoiU1JNIiwiQ09ERSI6IjEwMl9DX0MiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6Ik9yZ2FuaXphdGlvbk1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbk9yZ2FuaXphdGlvbk1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkNvbXBhbnlXcml0ZSIsIlNDUkVFTl9JRCI6IkFEXzEwMl9DX0MifX0sImh0bWwiOiI8ZGl2IGlkPVwib09BZVlVY2N0SXlIVEVHUWRUXCIgY2xhc3M9XCJjb250
+        YWluZXIgc2Vwb2F1eF9zY3JlZW5fc2Nyb2xsXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhf
+        YnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwibkxOWmx0ZFBpVFpsdGRHR01jXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4
+        X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwick5waFlVY3hwdGhZVWNnTUFiXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9mb3JtXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

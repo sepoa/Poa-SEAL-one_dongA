@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="EMPLOYEE-CONTRACT-TEMPLATE-HISOTRY" header="false" pageCloseWarn="false" delegate="true">
+    <grid id="gridObj" div="a39b3dc28f67478c8fb0be79c89ad7" grid-id="CONTRACT-TEMPLATE-HISTORY-GRID" drag="false" merge="false" dynamic="false" exceldownload="true"/>
+    <usercss>
+    <![CDATA[
+        
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            sUtils.object.extend(true, $share, {
+                config: {
+                    default: {
+                        page: {
+                            READY: false,
+                            PURPOSE: 'VIEW'
+                        }
+                    },
+                    ui: {
+                    }
+                },
+                apps: {},
+                controller: {}
+            });
+            
+            initDataStore();
+            initComponent();
+            initPage();
+        ]]>
+        </function>
+        <function name="initDataStore">
+        <![CDATA[
+            const store = $share.apps.dataStore = appDelegate.getDataStore()
+            if (store) {
+                
+                store.addPlugin('reducer', 'data.items', (storeApi) => {
+                    const state = storeApi.getState('data.items');
+                    const changed = storeApi.getChanged('data.items');
+                    
+                    const dispatch = [];
+                    for(let [i, row] of changed.entries()) {
+                        if(row['ACTION_TEXT'] === undefined) {
+                            dispatch.push(storeApi.action.updateRow({
+                                path : 'data.items',
+                                id : row[store.STR.ROW_ID],
+                                data : {
+                                    ...row,
+                                    ACTION_TEXT : sUtils.cache.text.get(`POA_CONTRACT.AUDIT_TRAIL_ACTION_${row['ACTION']}`)
+                                }
+                            }));
+                        }
+                        
+                    }
+                    
+                    return dispatch;
+                });
+                
+            } else {
+                console.error('layout : DataStore is undefined');
+            }
+        ]]>
+        </function>
+        <function name="initComponent">
+        <![CDATA[
+            const store = $share.apps.dataStore;
+            
+            gridObj.linkDataStore(store, 'data.items');
+        ]]>
+        </function>
+        <function name="initPage">
+        <![CDATA[
+            const store = $share.apps.dataStore;
+            
+            // 기본 뷰모드로 화면 로드, 페이지 준비상태로 상태변경
+            store.dispatch(store.action.update({
+                path: 'page',
+                data: {
+                    ...store.getState('page'),
+                    PURPOSE: $share.config.default.page.PURPOSE,
+                    READY: true
+                }
+            }));
+            
+            if (Sepoa.params?.isPopup) {
+                // 화면 모드 설정
+                if (Sepoa.params['PURPOSE']) {
+                    store.dispatch(store.action.update({
+                        path: 'page',
+                        data: {
+                            ...store.getState('page'),
+                            PURPOSE: Sepoa.params['PURPOSE']
+                        }
+                    }));
+                }
+                
+                // 이력 조회 서비스 호출용 파라미터 세팅
+                const params = {
+                    target: {
+                        name : 'sepoa.svc.contract.SepoaContractTemplateService',
+                        action : 'doSelectHistory'
+                    },
+                    data: {
+                        ...Sepoa.params
+                    }
+                };
+                
+                // 조회 서비스 호출 및 콜백
+                sUtils.connector.api('service', params).then(so => {
+                    if (so.flag) {
+                        const data = so.result[0];
+                        if (data) {
+                            store.dispatch(store.action.addRow({
+                                path : 'data.items',
+                                data : [
+                                    ...data
+                                ]
+                            }));
+                        }
+                    } else {
+                        Alert(so.message);
+                    }
+                });
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYU9GYk5VY2t3SWx2R3VsbkNxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JPTExfViI6IiIsIlNDUkVFTl9TQ1JPTEwiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDT05URU5UX01JTl9XSURUSCI6IiIsImRoeElkX0xIWUM1bVRSV00wMiI6Im51bGwiLCJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiZGh4SWRfV3Y1UUxhbUdacUdzIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfNWZjeEY4Rkd2WFVEIjoibnVsbCIsImRoeElkX1VRaUlmeVZFekVWcCI6Im51bGwiLCJkaHhJZF9GVW91M0NpZndNeEUiOiJudWxsIiwiZGh4SWRfbzdYZThhWkpvMlFyIjoibnVsbCIsImRoeElkX3JlU1E4WExxQW5rayI6Im51bGwiLCJk
+        aHhJZF9ZaW1UcXZZRHNnUkYiOiJudWxsIiwiZGh4SWRfbnFYZXpmOVBLT0Z4IjoibnVsbCIsImRoeElkX3ZlcjhzdUdVdWozSCI6Im51bGwiLCJkaHhJZF9ESEVuZ1pLUDVpMVYiOiJudWxsIiwiZGh4SWRfcVN4aWNHZE5vWFFXIjoibnVsbCIsImRoeElkXzlvTWlGOU5uMmFISSI6Im51bGwiLCJkaHhJZF9UNmFabVFuQWJ6dDYiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiQ09OVFJBQ1QtVEVNUExBVEUtSElTT1RSWSIsIk9CSkVDVF9JRCI6ImFPRmJOVWNrd0lsdkd1bG5DcSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCIsIkRBVEFTVE9SRV9VU0VfWU4iOiJ0cnVlIiwiREVMRUdBVEVfVE9Q
+        X1lOIjoidHJ1ZSJ9LCJpZCI6ImFPRmJOVWNrd0lsdkd1bG5DcSIsInR5cGUiOiJib2R5In0sImEzOWIzZGMyOGY2NzQ3OGM4ZmIwYmU3OWM4OWFkNyI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEifSwiY29tcG9uZW50Ijp7IlZBUiI6ImEzOWIzZGMyOGY2NzQ3OGM4ZmIwYmU3OWM4OWFkNyIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJFWENFTERPV05MT0FEIjoidHJ1ZSJ9LCJpZCI6ImEzOWIzZGMyOGY2NzQ3OGM4ZmIw
+        YmU3OWM4OWFkNyIsInR5cGUiOiJncmlkIn19LCJ0cmVlIjp7ImlkIjoiYU9GYk5VY2t3SWx2R3VsbkNxIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJhMzliM2RjMjhmNjc0NzhjOGZiMGJlNzljODlhZDciLCJ0eXBlIjoiZ3JpZCJ9XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9UZW1wbGF0ZS9MaXN0L1BvcHVwL2xheW91dC54bWwiLCJQUk9KRUNUIjoiQ09OVFJBQ1QiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJDb250cmFjdC9UZW1wbGF0ZS9MaXN0L1BvcHVwIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoibGF5b3V0IiwiQ09ERSI6IkNPTlRSQUNULVRFTVBMQVRFLUhJU09UUlkiLCJQUkVG
+        SVgiOiIiLCJTQ1JFRU5fSUQiOiJDT05UUkFDVC1URU1QTEFURS1ISVNPVFJZIn19LCJodG1sIjoiPGRpdiBpZD1cImFPRmJOVWNrd0lsdkd1bG5DcVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyXCIgc3R5bGU9
+        XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYTM5YjNkYzI4ZjY3NDc4YzhmYjBiZTc5Yzg5YWQ3XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

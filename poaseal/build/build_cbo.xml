@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+<project name="Poa-BASE-one" default="deploy">
+-->
+<project name="Poa-BASE-one" default="zip">
+
+    <!-- Set properties -->
+    <property file="build.properties" />
+    <property name="workspace">${jenkins.home}/workspace/${jenkins.job.name}</property>
+
+    <property name="poa.package.src.dir">${workspace}/poasrm/Poa-Package</property>
+    <property name="webcontent.src.dir">${workspace}/poasrm/WebContent</property>
+    <property name="servlet.src.dir">${workspace}/poasrm/servlet_src</property>
+    <property name="service.src.dir">${workspace}/poasrm/serviceclasses_src</property>
+
+    <property name="build.dir">${workspace}/build</property>
+    <property name="poa.package.build.dir">${build.dir}/poasrm/Poa-Package</property>
+    <property name="webcontent.build.dir">${build.dir}/WebContent</property>
+    <property name="servlet.build.dir">${build.dir}/WebContent/WEB-INF/classes</property>
+    <property name="service.build.dir">${poa.package.build.dir}/sepoaserviceclasses</property>
+
+    <!-- Set Class Path -->
+    <path id="classpath">
+        <pathelement location="${servlet.build.dir}" />
+        <fileset dir="${workspace}/poabase/WebContent/WEB-INF/lib" includes="*.jar"/>
+        <fileset dir="${workspace}/poasrm/WebContent/WEB-INF/lib" includes="*.jar"/>
+        <fileset dir="${workspace}/ext/lib" includes="*.jar"/>
+    </path>
+
+    <target name="makedir" >
+        <mkdir dir="${poa.package.build.dir}/sepoaserviceclasses"/>
+        <mkdir dir="${poa.package.build.dir}/sepoaux"/>
+        <mkdir dir="${poa.package.build.dir}/service_query"/>
+        <mkdir dir="${poa.package.build.dir}/template"/>
+    </target>
+
+    
+    <!-- Make Dir -->
+    <!-- Copy & Compile -->
+    <target name="compile" depends="makedir">
+        <copy todir="${poa.package.build.dir}/resource" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/resource"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/sepoaux" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/sepoaux"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/service_query" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/service_query"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/template" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/template"/>
+    	</copy>
+        <copy todir="${webcontent.build.dir}" overwrite="true">
+        	<fileset dir="${webcontent.src.dir}"/>
+    	</copy>
+        <javac srcdir="${servlet.src.dir}" destdir="${servlet.build.dir}" encoding="UTF-8">
+            <classpath refid="classpath" />
+        </javac>
+		<copy todir="${servlet.build.dir}">
+			<fileset dir="${servlet.src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+        <javac srcdir="${service.src.dir}" destdir="${service.build.dir}" encoding="UTF-8">
+            <classpath refid="classpath" />
+        </javac>
+		<copy todir="${service.build.dir}">
+			<fileset dir="${service.src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+    </target>
+
+    <target name="build-poasrm_cbo" depends="compile">
+        <ant antfile="${workspace}/poasrm_cbo/build/build.xml" target="compile" inheritAll="false">
+            <property name="jenkins.job.name" value="${jenkins.job.name}"/>
+            <property name="source.dir" value="${workspace}/poasrm_cbo"/>
+            <property name="build.dir" value="${build.dir}"/>
+            <property name="house.code" value="${house.code}"/>
+            <property file="${workspace}/poasrm/build/build.properties"/>
+        </ant>
+    </target>
+	
+    <target name="zip" depends="build-poasrm_cbo">
+		<zip destfile="${build.dir}/poabaseone.zip">
+			<fileset dir="${build.dir}">
+				<include name="**/*"/>
+<!--
+				<exclude name="sepoabatch/config/crontab.xml"/>
+				<exclude name="sepoabatch/config/sepoa_batch.properties"/>
+-->
+			</fileset>
+		</zip>
+	</target>
+
+    <!-- Deploy -->
+    <target name="deploy" depends="compile">
+        <copy todir="${service.was.dir}" overwrite="true">
+        	<fileset dir="${service.build.dir}"/>
+    	</copy>
+        <copy todir="${poa-package.dir}/sepoaux" overwrite="true">
+        	<fileset dir="${workspace}/poasrm/Poa-Package/sepoaux"/>
+    	</copy>
+        <copy todir="${poa-package.dir}/service_query" overwrite="true">
+        	<fileset dir="${workspace}/posrm/Poa-Package/service_query"/>
+    	</copy>
+    </target>
+
+    <target name="init" depends="deploy" />
+     
+</project>
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SAMPLE_006" header="false">
+    <template>
+    <![CDATA[
+        <div class="container" id="container" style="overflow:hidden;">
+        	<div id="layoutBox" class="lowerDiv" style="width:100%;height:100%"></div>
+        </div>
+    ]]>
+    </template>
+    <layout div="layoutBox" id="containerLayout" pattern="1C">
+        <cell>
+            <id>a</id>
+            <header type="contents"/>
+            <button>false</button>
+            <fix_size>true,true</fix_size>
+            <attach file="/Sample/006/Sample006Contents.xml"/>
+        </cell>
+    </layout>
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+    	<function name="init" args="">
+    	<![CDATA[
+    		changeHeaderText('a', '지도 샘플')
+    	]]>
+    	</function>
+    </userscript>
+</body>

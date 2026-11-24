@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryUserData">
+	<![CDATA[
+		SELECT
+			  COM_CD 	AS COMCODE
+			, USER_ID 	AS PERSONID
+			, USER_ID 	AS EMPLOYEE_NO
+			, USER_NM 	AS DISPLAYNAME
+			, USER_E_NM AS DISPLAYNAMEENG
+			, DEPT_CD 	AS DEPTCODE
+			, TITLE_CD 	AS POSITION
+			, MAIL 		AS EMAIL
+			, USE_FG 	AS USAGESTATE
+		FROM
+			[#GW_DATABASE#].[dbo].[DZZV_BASE_USER_INT]
+		WHERE COM_CD  IS NOT NULL
+		  AND USER_ID IS NOT NULL
+		  AND USER_NM IS NOT NULL
+		  AND DEPT_CD IS NOT NULL
+		  AND USE_FG  IS NOT NULL  
+				 
+	]]>
+	</method>
+	
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+			  USER_ID
+			, MENU_PROFILE_CODE
+		FROM
+			SUSMT
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND USER_ID 		= ${PERSONID}		 
+	]]>
+	</method>
+	
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${DISPLAYNAME}
+				, EMPLOYEE_NO		= ${EMPLOYEE_NO}
+				, USER_NAME_ENG	 	= ${DISPLAYNAMEENG}
+				, DEPT		      	= ${DEPTCODE}
+				, POSITION		  	= ${POSITION}
+				, EMAIL  		    = ${EMAIL}
+				, DEL_FLAG        	= ${DEL_FLAG}
+				, DATE_FORMAT		= ${DATE_FORMAT}
+				, MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+				, LANGUAGE			= 'KO'
+				, WORK_TYPE			= 'G'
+		WHERE
+			  HOUSE_CODE        	= ${session.HOUSE_CODE}
+		  AND USER_ID           	= ${PERSONID}
+	]]>
+	</method>
+	
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, EMPLOYEE_NO
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL				
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, LANGUAGE
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${PERSONID}
+				, ${EMPLOYEE_NO}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${session.COMPANY_CODE}
+				, ${DISPLAYNAME}
+				, ${DISPLAYNAMEENG}
+				, ${PASSWORD}
+				, ${DEPTCODE}
+				, ${POSITION}
+				, ${EMAIL}				
+				, 'KR'
+				, 'A'
+				, 'G'
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, '0'
+				, 'Y'
+				, ${DEL_FLAG}
+				, ${DATE_FORMAT}
+				, 'KO'
+			)	
+	]]>
+	</method>
+	
+	<method name="doUpdateSADDR">
+	<![CDATA[
+		UPDATE SADDR
+			SET
+				  CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}			  
+				, DEL_FLAG        = ${DEL_FLAG}
+				, EMAIL           = ${EMAIL}
+		WHERE
+              HOUSE_CODE        = ${session.HOUSE_CODE}
+		  AND CODE_NO           = ${PERSONID}
+	]]>
+	</method>
+	
+	<method name="doInsertSADDR">
+	<![CDATA[
+		INSERT INTO SADDR
+			(
+				  HOUSE_CODE
+				, CODE_NO 
+				, CODE_TYPE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, DEL_FLAG
+				, EMAIL				
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${PERSONID}
+				, 'USER'
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, 'N'
+				, ${EMAIL}				
+			)	
+	]]>
+	</method>
+	
+	<method name="DEL_FLAG_Y">
+	<![CDATA[
+		UPDATE SUSMT
+			SET
+				  DEL_FLAG	      = 'Y'
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}			  
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND USER_ID			  NOT IN ($IN{EXCEPT_IDS})
+	]]>
+	</method>		
+</service>

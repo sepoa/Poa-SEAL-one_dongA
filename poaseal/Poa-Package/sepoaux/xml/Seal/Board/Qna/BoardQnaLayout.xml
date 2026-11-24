@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="QA_002" header="false">
+    <layout id="containerLayout" div="JlUVDRcswIomsShxWp" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,false</fix_size>
+            <header view="true" type="contents" text="QA_002.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <attach file="/Seal/Board/Qna/BoardQnaList.xml"/>
+        </cell>
+    </layout>
+    <onloadscript/>
+    <userscript>
+        <function name="changeFrame" args="mode, qnaNumber">
+        <![CDATA[
+            switch (mode) {
+                case "list":
+                    containerLayout.cells('a').attachURL(window.CONTEXT_NAME + "/Seal/Board/Qna/BoardQnaList.sux", null, {});
+                    break;
+                case "write":
+                    containerLayout.cells('a').attachURL(window.CONTEXT_NAME + '/Seal/Board/Qna/BoardQnaWrite.sux', null, {});
+                    break;
+                case "view":
+                    containerLayout.cells('a').attachURL(window.CONTEXT_NAME + "/Seal/Board/Qna/BoardQnaView.sux", null, {QNA_NUMBER: qnaNumber});
+                    break;
+                case "update":
+                    containerLayout.cells('a').attachURL(window.CONTEXT_NAME + "/Seal/Board/Qna/BoardQnaWrite.sux", null, {QNA_NUMBER: qnaNumber});
+                    break;
+                default:
+                    break;
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiSmxVVkRSY3N3SW9tc1NoeFdwIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSJ9LCJjb21wb25lbnQiOnsiUEFUVEVSTiI6IjFDIiwiVkFSIjoiY29udGFpbmVyTGF5b3V0IiwiT0JKRUNUX0lEIjoiSmxVVkRSY3N3SW9tc1NoeFdwIn0sImlkIjoiSmxVVkRSY3N3SW9tc1NoeFdwIiwidHlwZSI6ImxheW91dCJ9LCJGbFVWRFJjQUdQUG1zU2hSbEEiOnsibGF5b3V0Ijp7IlNDUk9MTCI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjox
+        LjAsIlZBUiI6IlFBXzAwMiJ9LCJpZCI6IkZsVVZEUmNBR1BQbXNTaFJsQSIsInR5cGUiOiJib2R5In0sInRsVVZEUmNvb1dtcnNTaHRUQyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJ0cnVlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJ0cnVlIiwiSEVBREVSX1RFWFQiOiJRJkEg6rKM7Iuc7YyQIiwiQVRUQUNIX1RBUkdFVCI6Ii9TZWFsL0JvYXJkL1FuYS9Cb2FyZFFuYUxpc3QueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsZmFsc2UiLCJIRUFERVJfVFlQRSI6ImNvbnRlbnRzIiwiQVRUQUNIX1RZUEUiOiJVIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFs
+        c2UifSwiaWQiOiJ0bFVWRFJjb29XbXJzU2h0VEMiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImEiLCJsYXlvdXRDZWxsIjoibGF5b3V0Q2VsbCJ9fSwidHJlZSI6eyJpZCI6IkZsVVZEUmNBR1BQbXNTaFJsQSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiSmxVVkRSY3N3SW9tc1NoeFdwIiwidHlwZSI6ImxheW91dCIsImNlbGxzIjpbeyJpZCI6InRsVVZEUmNvb1dtcnNTaHRUQyIsInR5cGUiOiJsYXlvdXRDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvU2VhbC9Cb2FyZC9RbmEvQm9hcmRRbmFMYXlvdXQueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJDT0RFIjoiMDAyIiwiUFJFRklYIjoiUUEiLCJQQVRIXzIi
+        OiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJTZWFsL0JvYXJkL1FuYSIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkJvYXJkUW5hTGF5b3V0IiwiU0NSRUVOX0lEIjoiUUFfMDAyIn19LCJodG1sIjoiPGRpdiBpZD1cIkZsVVZEUmNBR1BQbXNTaFJsQVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAg
+        ICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiSmxVVkRSY3N3SW9tc1NoeFdwXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9sYXlvdXQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2
+        PiJ9
+    </template>
+</body>

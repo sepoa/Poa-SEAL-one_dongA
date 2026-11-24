@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style type="text/css">
+        .sepoa_email_top {
+            background-color: #48555C;
+            color: #FFFFFF;
+            height: 50px;
+            text-align: left;
+            font-size: 16px;
+            font-family: 'Malgun Gothic' !important;
+            line-height: 50px;
+        }
+        
+        .sepoa_email_center {
+            background-color: #FFFFFF;
+            color: #48555C;
+            border: 1px solid #48555C;
+            height: 300px;
+            font-size: 12px;
+            font-family: 'Malgun Gothic' !important;
+            overflow: auto;
+            padding: 10px;
+        }
+        
+        .sepoa_email_center_remark {
+            font-size: 12px;
+            font-family: 'Malgun Gothic' !important;
+        }
+        
+        .sepoa_email_bottom {
+            background-color: #48555C;
+            color: #FFFFFF;
+            height: 50px;
+            font-size: 13px;
+            text-align: center;
+            font-family: 'Malgun Gothic' !important;
+            line-height: 50px;
+        }
+        
+        .sepoa_email_button {
+            height: 50px;
+            background-color: #48555C;
+            color: #FFFFFF;
+            font-size: 13px;
+            text-align: center;
+            font-family: 'Malgun Gothic' !important;
+            line-height: 50px;
+        }
+        
+        .sepoa_email_button:hover {
+            background-color: #37444B;
+            color: #FFFFFF;
+            cursor: pointer;
+        }
+        
+        a {
+            text-decoration: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sepoa_email_top">
+        &nbsp;<b>$SUBJECT$</b>
+    </div>
+    <br>
+    <div class="sepoa_email_center">
+        $CONTENTS$
+    </div>
+    <br>
+    <div class="sepoa_email_center_remark"><b>* 본 메일은 발신 전용으로 회신되지 않습니다.</b></div>
+    <br>
+    <div class="sepoa_email_bottom">
+        <b>COPYRIGHT(C) 2017 Sepoa Soft ALL RIGHTS RESERVED</b>
+    </div>
+    <br>
+    <a href="$URL_NAME$$CONTEXT_NAME$" target="_blank">
+        <div class="sepoa_email_button">
+            <b>Sepoa Purchase System 접속</b>
+        </div>
+    </a>
+</body>
+
+</html>

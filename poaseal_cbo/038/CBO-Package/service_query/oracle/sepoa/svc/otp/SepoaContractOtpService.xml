@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectAuthUserIrsNo">
+	<![CDATA[
+		SELECT SIGN_KEY
+		FROM   SSIGN
+		WHERE  HOUSE_CODE	= ${HOUSE_CODE}
+		AND	CONT_NO 		= ${CONT_NO}
+		AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+		AND SIGNER_ID 	= ${SIGNER_ID} 
+	]]>
+	</method>
+</service>

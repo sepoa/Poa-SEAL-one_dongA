@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryList">
+	<![CDATA[
+		SELECT
+			  COMPANY_CODE
+			, COMPANY_NAME
+			, HOUSE_CODE AS SERVICE_CODE
+		FROM
+			USERVICE
+		WHERE
+			HOUSE_CODE = ${SERVICE_CODE}
+		AND (COMPANY_CODE LIKE '%' + UPPER($S{F_KEYWORD}) + '%'
+		OR	COMPANY_NAME LIKE '%' + UPPER($S{F_KEYWORD}) + '%')
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		ORDER BY
+			COMPANY_CODE ASC
+	]]>
+	</method>
+</service>

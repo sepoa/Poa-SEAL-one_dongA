@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectUserInfo">
+	<![CDATA[
+		SELECT
+			CASE WHEN VUSER.CMP_ID = '12' THEN '1000' END AS COMPANY_CODE,
+			UPPER(VUSER.USER_ID) AS USER_ID,
+			VUSER.POS_CD AS POSITION,
+			VUSER.USER_NAME AS USER_NAME_LOC,
+			VUSER.EMP_NO AS EMPLOYEE_NO,
+			CASE WHEN VUSER.EMP_STATUS = 'W' THEN 'N' WHEN VUSER.EMP_STATUS = 'R' THEN 'Y' END AS DEL_FLAG,
+			VUSER.CMP_EMAIL,
+			VUSER.REPRESENT_EMAIL AS EMAIL,
+			VUSER.PROFILE_URL,
+			VUSER.UPDATE_DATE,
+			VUSER.USER_NAME_EN,
+			VUSER.USER_NAME_CN,
+			VUSER.CELL_PHONE AS PHONE,
+			VUSER.FAX_NO,
+			VUSER.CMP_PHONE,
+			VUSER.LXTN_NO,
+			VUSER.CHRG_WORK,
+			VUSER.LOCATION,
+			VUSER.RETIRE_DATE,
+			VUSER.JOB_NAME,
+			VJOB.DEPT_ID AS DEPT,
+			VJOB.OFC_CD AS RESPONSIBILITY
+		FROM
+			V_MP_ORG_USER VUSER
+		INNER JOIN V_MP_MY_JOB VJOB ON
+			VUSER.CMP_ID = VJOB.CMP_ID
+			AND VUSER.EMP_NO = VJOB.EMP_NO
+	    WHERE VUSER.CMP_ID = '12'
+	]]>
+	</method>
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+				  USER_ID
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+		FROM
+			SUSMT
+		WHERE
+				HOUSE_CODE 		= ${HOUSE_CODE}
+			AND COMPANY_CODE 	= ${COMPANY_CODE}	
+			AND USER_ID 		= ${USER_ID}		 
+	]]>
+	</method>
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${USER_NAME_LOC}
+				, DEPT		      	= ${DEPT}
+				, POSITION		  	= ${POSITION}
+				, EMAIL  		    = ${EMAIL}
+				, PHONE           	= ${PHONE}
+				, employee_no       = ${EMPLOYEE_NO}
+				, DEL_FLAG        	= ${DEL_FLAG}
+				, LANGUAGE			= 'KO'
+				, USER_TYPE			= #DB_OWNER#nvl($S{USER_TYPE}, USER_TYPE)
+				, RESPONSIBILITY    = ${RESPONSIBILITY}
+		WHERE
+			  HOUSE_CODE        	= ${HOUSE_CODE}
+		  AND COMPANY_CODE 			= ${COMPANY_CODE}
+		  AND USER_ID           	= ${USER_ID}
+	]]>
+	</method>
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL		
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, PHONE
+				, LANGUAGE
+				, EMPLOYEE_NO
+				, RESPONSIBILITY
+			)
+			VALUES
+			(
+				  ${HOUSE_CODE}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${COMPANY_CODE}
+				, ${COMPANY_CODE}
+				, ${USER_NAME_LOC}
+				, ${PASSWORD}
+				, ${DEPT}
+				, ${POSITION}
+				, ${EMAIL}				
+				, 'KR'
+				, 'A'
+				, 'G'
+				, ${MENU_PROFILE_CODE}
+				, 'A'
+				, '0'
+				, 'N'
+				, ${DEL_FLAG}
+				, '%Y/%m/%d'
+				, ${PHONE}
+				, 'KO'
+				, ${EMPLOYEE_NO}
+				, ${RESPONSIBILITY}
+			)	
+	]]>
+	</method>
+    
+    <method name="doSelect_SBUPI">
+    <![CDATA[
+        SELECT HOUSE_CODE
+             , BIZ_CODE
+             , SEQ
+             , USER_ID
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , DEL_FLAG
+             , USER_NAME
+             , EMAIL
+             , PHONE_NO
+             , IF_FLAG
+        FROM SBUPI
+        WHERE HOUSE_CODE    = ${session.HOUSE_CODE}
+          AND BIZ_CODE      = ${session.COMPANY_CODE}
+    ]]>
+    </method>
+    
+    <method name="doInsert_SBUPI">
+    <![CDATA[
+        INSERT INTO SBUPI (
+             HOUSE_CODE
+            ,BIZ_CODE
+            ,SEQ
+            ,USER_ID
+            ,ADD_DATE
+            ,ADD_TIME
+            ,ADD_USER_ID
+            ,CHANGE_DATE
+            ,CHANGE_TIME
+            ,CHANGE_USER_ID
+            ,DEL_FLAG
+            ,USER_NAME
+            ,EMAIL
+            ,PHONE_NO
+            ,IF_FLAG
+        ) VALUES (
+             ${session.HOUSE_CODE}
+            ,${COMPANY_CODE}
+            ,'0'
+            ,${USER_ID}
+            ,${current.DATE}
+            ,${current.TIME}
+            ,${session.ID}
+            ,${current.DATE}
+            ,${current.TIME}
+            ,${session.ID}
+            ,'N'
+            ,${USER_NAME_LOC}
+            ,${EMAIL}
+            ,${PHONE}
+            ,'Y'
+        )
+    ]]>
+    </method>
+    
+    <method name="doUpdate_SBUPI">
+    <![CDATA[
+        UPDATE SBUPI
+        SET  
+             USER_NAME          = ${USER_NAME_LOC}
+            ,EMAIL              = ${EMAIL}
+            ,PHONE_NO           = ${PHONE}
+            ,DEL_FLAG           = ${DEL_FLAG}
+            ,CHANGE_DATE        = ${current.DATE}
+            ,CHANGE_TIME        = ${current.TIME}
+            ,CHANGE_USER_ID     = ${session.ID}
+        WHERE
+            HOUSE_CODE = ${session.HOUSE_CODE}
+            AND BIZ_CODE = ${COMPANY_CODE}
+            AND USER_ID = ${USER_ID}
+    ]]>
+    </method>
+	
+</service>

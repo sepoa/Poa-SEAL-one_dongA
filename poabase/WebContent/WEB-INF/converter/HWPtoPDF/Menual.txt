@@ -1,0 +1,8 @@
+초기 셋팅 메뉴얼
+
+1. HWPtoPDF.reg 파일을 연다
+2. FilePathCheckerModule = 뒤의 경로를 실제 파일 경로와 일치시킨다
+  > 경로의 \ 는 \\로 작성해야한다
+3. 저장후 HWPtoPDF.reg 파일을 더블클릭하여 등록한다.
+4. regedit 를 실행하여 입력한 값이 정상적으로 적용되었나 확인한다.
+  > HKEY_CURRENT_USER\SOFTWARE\HNC\HwpAutomation\Modules

@@ -1,0 +1,11 @@
+{
+	"MAINFRAME":{
+		"SUMMARY_TITLE":"SUMMARY",
+		"LOGOUT_CONFIRM":"您确定要退出吗?",
+		"LOGOUT":"登出",
+		"CHANGE_USER_INFO":"编辑会员信息",
+		"CANCEL":"取消",
+		"GO_TO_MAIN":"進入主頁",
+		"OPEN_SIDE_MENU":"開放式菜單"
+	}
+}

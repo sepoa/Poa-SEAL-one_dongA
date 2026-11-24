@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE "UUSPW" (	
+				"HOUSE_CODE" 	 VARCHAR2(10)	not null,
+				"USER_ID" 		 VARCHAR2(50)	not null,
+				"CHANGE_DATE" 	 VARCHAR2(100)	not null,
+				"CHANGE_TIME"	 VARCHAR2(100)	not null,
+				"CHANGE_USER_ID" VARCHAR2(100)	not null,
+				"PASSWORD" 		 VARCHAR2(300)	not null,
+				CONSTRAINT "UUSPW_PK" PRIMARY KEY ("HOUSE_CODE", "USER_ID", "CHANGE_DATE", "CHANGE_TIME")
+	 		)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE INDEX UUSPW_HUP_IDX ON UUSPW(HOUSE_CODE, USER_ID, PASSWORD)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON TABLE  UUSPW 					IS '비밀번호 변경이력' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UUSPW.HOUSE_CODE    	IS '하우스코드' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UUSPW.USER_ID    		IS '사용자 ID'  ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UUSPW.CHANGE_DATE		IS '변경일'     ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UUSPW.CHANGE_TIME    	IS '변경시간'   ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UUSPW.CHANGE_USER_ID   IS '변경자'     ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UUSPW.PASSWORD			IS '비밀번호'   ]]></query></item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE `UUSPW` (
+			  `HOUSE_CODE` 				varchar(10) 	NOT NULL 	COMMENT '하우스코드',
+			  `USER_ID` 				varchar(50) 	NOT NULL 	COMMENT '사용자 ID' ,
+			  `CHANGE_DATE` 			varchar(100) 	NOT NULL 	COMMENT '변경일'    ,
+			  `CHANGE_TIME` 			varchar(100) 	NOT NULL 	COMMENT '변경시간'  ,
+			  `CHANGE_USER_ID` 			varchar(100) 	NOT NULL 	COMMENT '변경자'    ,
+			  `PASSWORD` 				varchar(300) 	NOT NULL 	COMMENT '비밀번호'  ,
+			  PRIMARY KEY (`HOUSE_CODE`, `USER_ID`, `CHANGE_DATE`, `CHANGE_TIME`)
+			) COMMENT='비밀번호 변경이력'
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE INDEX UUSPW_HUP_IDX ON UUSPW(HOUSE_CODE, USER_ID, PASSWORD)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE [UUSPW] (
+				[HOUSE_CODE] 		nvarchar(10)  NOT NULL,
+				[USER_ID] 			nvarchar(50)  NOT NULL,
+				[CHANGE_DATE] 		nvarchar(100) NOT NULL,
+				[CHANGE_TIME] 		nvarchar(100) NOT NULL,
+				[CHANGE_USER_ID] 	nvarchar(100) NOT NULL,
+				[PASSWORD] 			nvarchar(300) NOT NULL,
+				CONSTRAINT UUSPW_PK PRIMARY KEY (HOUSE_CODE, USER_ID, CHANGE_DATE, CHANGE_TIME)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE INDEX UUSPW_HUP_IDX ON UUSPW(HOUSE_CODE, USER_ID, PASSWORD)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '비밀번호 변경이력', 'USER', dbo, 'TABLE', UUSPW  ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '하우스코드', 'USER', dbo, 'TABLE', UUSPW, 'COLUMN', HOUSE_CODE]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '사용자 ID' , 'USER', dbo, 'TABLE', UUSPW, 'COLUMN', USER_ID]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '변경일'    , 'USER', dbo, 'TABLE', UUSPW, 'COLUMN', CHANGE_DATE]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '변경시간'  , 'USER', dbo, 'TABLE', UUSPW, 'COLUMN', CHANGE_TIME]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '변경자'    , 'USER', dbo, 'TABLE', UUSPW, 'COLUMN', CHANGE_USER_ID]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '비밀번호'  , 'USER', dbo, 'TABLE', UUSPW, 'COLUMN', PASSWORD]]></query></item>
+</body>

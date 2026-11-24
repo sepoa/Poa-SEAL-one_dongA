@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SCREEN_BUILDER" header="false" tpl="editor.tpl">
+    <link>
+    <![CDATA[
+    	<script type="text/javascript">
+            Sepoa.cache.text.load({
+                url:CONTEXT_NAME+'/resource/plugin/sepoasoft/screenbuilder/langs/'+Sepoa.info.LANGUAGE+'.js',
+                def:CONTEXT_NAME+'/resource/plugin/sepoasoft/screenbuilder/langs/KO.js'
+            });
+		</script>
+    
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/screenbuilder/screenbuilder.js" type="text/javascript"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/screenbuilder/sepoauxmockup.js" type="text/javascript"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/history/history.js" type="text/javascript"></script>
+        <link href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/screenbuilder/css/screenbuilder.css" rel="stylesheet" type="text/css" />
+        
+        <script type="text/javascript">
+        (function(){
+            var a = [];
+			var p = "<%= CommonUtil.getConfig("sepoa.module.priority","FRWK") %>".split(",");
+            for(var i in p){
+                a.push({text:p[i], value:p[i]})
+            }
+            window.formModuleOption = a;
+        })()
+        </script>
+    ]]>
+    </link>
+    <variable>
+        <var name="builderBox" value="$($sObject._vp).find('#SsOneEcjpPneEcdRGj')[0]"/>
+        <var name="SsOneEcjpPneEcUVeF" value="$($sObject._vp).find('#SsOneEcjpPneEcUVeF')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+        	$sObject._vp[0].parentElement.classList.add("sepoa_form_label_top");
+        	
+            builder = $sObject.builder = new SepoaScreenBuilder(builderBox);
+            builder.drawEditor();
+            
+            if(Sepoa.request.page && Sepoa.request.__SID__){
+            	var info = {};
+            
+            	var page = Sepoa.request.page;
+            	if(page.indexOf('/') == 0){
+            		page = page.substring(1);
+            	}
+            	if(page.indexOf('sux') == page.length - 3){
+            		page = page.substring(0, page.length - 3)+"xml";
+            	}
+            	var sPage = page.split('/');
+            	
+            	if(sPage.length == 3 && (sPage[2].indexOf(sPage[0] + sPage[1]) == 0)){
+            		info = {
+            			NONSTD_PATH:"",
+            			PATH:"/"+page,
+            			PATH_1:sPage[0],
+            			PATH_2:sPage[1],
+            			PATH_3:sPage[0]+sPage[1],
+            			NAME:sPage[2].substring((sPage[0]+sPage[1]).length,sPage[2].length-4),
+            			PROJECT:"FRWK"
+            		}
+            	}else{
+            		//미작성
+            	}
+            	
+            	var sid = Sepoa.request.__SID__;
+            	
+            	info.PREFIX = sid.substring(0, sid.indexOf("_"));
+            	info.CODE = sid.substring(sid.indexOf("_") + 1);
+            	
+            	//builder.initProject([{info:info}]);
+            	builder.popupAction("MENU_NEW",info);
+            }else if(Sepoa.request.page){
+            	builder.load(Sepoa.request.page);
+            }
+        ]]>
+	</onloadscript>
+    <userscript>
+        <var name="builder"/>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVnFPbmVFY2tDbkN2Y3BoZlpnIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJTQ1JFRU5fQlVJTERFUiJ9LCJpZCI6IlZxT25lRWNrQ25DdmNwaGZaZyIsInR5cGUiOiJib2R5In0sIlNzT25lRWNqcFBuZUVjZFJHaiI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMSJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnVpbGRlckJveCIsIk9CSkVDVF9JRCI6IlNzT25lRWNqcFBuZUVjZFJHaiJ9LCJpZCI6IlNzT25lRWNqcFBuZUVjZFJHaiIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJTc09uZUVjanBQbmVFY1VWZUYiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiU3NP
+        bmVFY2pwUG5lRWNVVmVGIn0sImlkIjoiU3NPbmVFY2pwUG5lRWNVVmVGIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IlZxT25lRWNrQ25DdmNwaGZaZyIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiU3NPbmVFY2pwUG5lRWNVVmVGIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IlNzT25lRWNqcFBuZUVjZFJHaiIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9Ub29scy9TY3JlZW5CdWlsZGVyL1Rvb2xzU2NyZWVuQnVpbGRlci54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiJCVUlMREVSIiwiUFJFRklYIjoiU0NSRUVOIiwiUEFUSF8yIjoiU2NyZWVuQnVpbGRlciIsIlBBVEhfMyI6IlRv
+        b2xzU2NyZWVuQnVpbGRlciIsIlBBVEhfMSI6IlRvb2xzIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiIiwiU0NSRUVOX0lEIjoiU0NSRUVOX0JVSUxERVIifX0sImh0bWwiOiI8ZGl2IGlkPVwiVnFPbmVFY2tDbkN2Y3BoZlpnXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVu
+        dF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJTc09uZUVjanBQbmVFY1VWZUZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291
+        dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiU3NPbmVFY2pwUG5lRWNkUkdqXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

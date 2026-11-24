@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+    <method name="doSaveSIFLOG">
+	<![CDATA[
+	INSERT INTO SIFLOG
+		(
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, IF_NAME
+			, IF_NO
+			, STATUS
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+		) VALUES 
+		(
+			  ${session.HOUSE_CODE}
+			, ${session.COMPANY_CODE}
+			, ${IF_NAME}
+			, ${IF_NO}
+			, ${STATUS}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+		)
+	]]>
+	</method>
+	
+	<method name="doUpdateSIFLOG">
+	<![CDATA[
+		UPDATE 
+			SIFLOG
+		SET
+			IF_NAME = ${IF_NAME}
+			,ACTION_TYPE = ${ACTION_TYPE}
+			,COUNT = ${COUNT}
+			,STATUS = ${STATUS}
+			,MESSAGE = ${MESSAGE}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND IF_NO = ${IF_NO}
+	]]>
+	</method>
+</service>

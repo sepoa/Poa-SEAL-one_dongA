@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+
+	<method name="doHeaderDuplicateCheck">
+		<![CDATA[
+			SELECT COUNT(*) AS CNT
+			  FROM SGWGL with(nolock)    
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="doInsertHeader">
+		<![CDATA[
+			INSERT INTO SGWGL
+			( 
+			    HOUSE_CODE
+			  , COMPANY_CODE
+			  , APP_NO
+			  , APP_NO_SEQ
+			  , APP_TYPE
+			  , APP_SUBJECT
+			  , APP_CONTENTS
+			  , APP_STATUS
+			  , CURRENT_STAGE
+			  , CUST_GW_ID
+			  , CUST_GW_SUBJECT
+			  , DEL_FLAG
+			  , SUX_WKEY1
+			  , SUX_WKEY2
+			  , SUX_WKEY3
+			  , SUX_WKEY4
+			  , SUX_WKEY5
+			  , SUX_WKEY6
+			  , SUX_WKEY7
+			  , SUX_WKEY8
+			  , SUX_WKEY9
+			  , SUX_WKEY10
+			  , APP_USER_DATE
+			  , APP_USER_TIME
+			  , APP_USER_ID
+			  , APP_USER_AMT
+			  , ADD_DATE
+			  , ADD_TIME
+			  , ADD_USER_ID
+			  , CHANGE_DATE
+			  , CHANGE_TIME
+			  , CHANGE_USER_ID
+			) 
+			VALUES
+			( 
+			    ${session.HOUSE_CODE}             
+			  , ${SEPOA_APPROVAL_S_COMPANY_CODE}  
+			  , ${APP_NO}                
+			  , ${APP_NO_SEQ}            
+			  , ${APP_TYPE}              
+			  , ${APP_SUBJECT}           
+			  , ${APP_CONTENTS}          
+			  , ${APP_STATUS}            
+			  , '1'                      
+			  , ${CUST_GW_ID}            
+			  , ${CUST_GW_SUBJECT}       
+			  , 'N'                      
+			  , ${SUX_WKEY1}             
+			  , ${SUX_WKEY2}             
+			  , ${SUX_WKEY3}             
+			  , ${SUX_WKEY4}             
+			  , ${SUX_WKEY5}             
+			  , ${SUX_WKEY6}             
+			  , ${SUX_WKEY7}             
+			  , ${SUX_WKEY8}             
+			  , ${SUX_WKEY9}             
+			  , ${SUX_WKEY10}            
+			  , ${current.DATE}          
+			  , ${current.TIME}          
+			  , ${session.ID  }          
+			  , ${APP_USER_AMT }         
+			  , ${current.DATE}          
+			  , ${current.TIME}          
+			  , ${session.ID}            
+			  , ${current.DATE}          
+			  , ${current.TIME}          
+			  , ${session.ID}            
+			) 
+		]]>
+	</method>
+	
+	<method name="doUpdateHeader">
+		<![CDATA[
+			UPDATE SGWGL SET
+			    APP_TYPE        = ${APP_TYPE}        
+			  , APP_SUBJECT     = ${APP_SUBJECT}     
+			  , APP_CONTENTS    = ${APP_CONTENTS}                 
+			  , CUST_GW_ID      = ${CUST_GW_ID}
+			  , CUST_GW_SUBJECT = ${CUST_GW_SUBJECT} 
+			  , DEL_FLAG        = 'N'                
+			  , SUX_WKEY1       = ${SUX_WKEY1}       
+			  , SUX_WKEY2       = ${SUX_WKEY2}       
+			  , SUX_WKEY3       = ${SUX_WKEY3}       
+			  , SUX_WKEY4       = ${SUX_WKEY4}       
+			  , SUX_WKEY5       = ${SUX_WKEY5}       
+			  , SUX_WKEY6       = ${SUX_WKEY6}       
+			  , SUX_WKEY7       = ${SUX_WKEY7}       
+			  , SUX_WKEY8       = ${SUX_WKEY8}       
+			  , SUX_WKEY9       = ${SUX_WKEY9}       
+			  , SUX_WKEY10      = ${SUX_WKEY10}      
+			  , APP_USER_DATE   = ${current.DATE}    
+			  , APP_USER_TIME   = ${current.TIME}    
+			  , APP_USER_ID     = ${session.ID  }    
+			  , APP_USER_AMT    = ${APP_USER_AMT }   
+			  , CHANGE_DATE     = ${current.DATE}    
+			  , CHANGE_TIME     = ${current.TIME}    
+			  , CHANGE_USER_ID  = ${session.ID}      
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="doDetailDuplicateCheck">
+		<![CDATA[
+			SELECT COUNT(*) AS CNT
+			  FROM SGWLN 
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE}
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE}
+			       AND APP_NO       = ${APP_NO}
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ}
+			       AND APP_LINE_SEQ = ${APP_LINE_SEQ}
+		]]>
+	</method>
+	
+	<method name="doInsertDetail">
+		<![CDATA[
+			INSERT INTO SGWLN 
+	        ( 
+	            HOUSE_CODE 
+	          , COMPANY_CODE 
+	          , APP_NO 
+	          , APP_NO_SEQ 
+	          , APP_LINE_SEQ 
+	          , APP_STAGE 
+	          , APP_TYPE 
+	          , APP_METHOD 
+	          , APP_LINE_STATUS 
+	          , APP_USER_ID 
+	          , ACCEPT_USER_ID 
+	          , APP_DEVICE 
+	          , ACCEPT_DATE 
+	          , ACCEPT_TIME 
+	          , ACCEPT_REASON 
+	          , ADD_DATE 
+	          , ADD_TIME 
+	          , ADD_USER_ID 
+	          , CHANGE_DATE 
+	          , CHANGE_TIME 
+	          , CHANGE_USER_ID   
+	        ) 
+	        VALUES 
+	        ( 
+	            ${session.HOUSE_CODE}           
+	          , ${SEPOA_APPROVAL_S_COMPANY_CODE}       
+	          , ${APP_NO}                 
+	          , ${APP_NO_SEQ}             
+	          , ${APP_LINE_SEQ}           
+	          , ${APP_STAGE}              
+	          , ${APP_TYPE}               
+	          , ${APP_METHOD}             
+	          , ''                            
+	          , ${APP_USER_ID}            
+	          , ''                        
+	          , ''                        
+	          , ''                        
+	          , ''                        
+	          , ${ACCEPT_REASON}          
+	          , ${current.DATE}           
+	          , ${current.TIME}           
+	          , ${session.ID}             
+	          , ${current.DATE}           
+	          , ${current.TIME}           
+	          , ${session.ID}             
+	        )  
+		]]>
+	</method>
+	
+	<method name="doUpdateDetail">
+		<![CDATA[
+			UPDATE SGWLN SET
+	            APP_STAGE       = ${APP_STAGE}      
+	          , APP_TYPE        = ${APP_TYPE}       
+	          , APP_METHOD      = ${APP_METHOD}     
+	          , APP_USER_ID     = ${APP_USER_ID}  
+	          , CHANGE_DATE     = ${current.DATE}   
+	          , CHANGE_TIME     = ${current.TIME}   
+	          , CHANGE_USER_ID  = ${session.ID}     
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE}
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE}
+			       AND APP_NO       = ${APP_NO}
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ}
+			       AND APP_LINE_SEQ = ${APP_LINE_SEQ}
+	        
+		]]>
+	</method>
+	
+	<method name="doApprovalStatusCheck">
+		<![CDATA[
+			SELECT COUNT( * ) AS CNT
+			  FROM SGWGL with(nolock)
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+			       AND APP_STATUS   = 'R'
+		]]>
+	</method>
+	
+	<method name="doApprovalMaxSeq">
+		<![CDATA[
+			SELECT MAX(APP_NO_SEQ) AS APP_NO_SEQ
+			  FROM SGWGL with(nolock)
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+		]]>
+	</method>
+	
+	<method name="doNowStage">
+		<![CDATA[
+			SELECT CURRENT_STAGE
+			  FROM SGWGL with(nolock)
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="doStageSignUserId">
+		<![CDATA[
+			SELECT APP_USER_ID
+			  FROM SGWLN with(nolock)
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE}
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE}
+			       AND APP_NO       = ${APP_NO}
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ}
+			       AND APP_LINE_SEQ = ${APP_LINE_SEQ}
+			       AND APP_STAGE    = ${APP_STAGE}
+		]]>
+	</method>
+	
+	<method name="doDeleteDetail">
+		<![CDATA[
+			DELETE FROM SGWLN 
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+			       AND (    CONVERT(INT, ISNULL(APP_LINE_SEQ,'999')) > CONVERT(INT, ISNULL(${DELETE_APP_LINE_SEQ},'999'))
+			       		 OR APP_TYPE = ${APP_TYPE}
+			           )
+		]]>
+	</method>
+	
+	<method name="doManagementDeleteDetail">
+		<![CDATA[
+			DELETE FROM SGWLN 
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+			       AND CONVERT(INT, ISNULL(APP_LINE_SEQ,'999')) > CONVERT(INT, ISNULL(${DELETE_APP_LINE_SEQ},'999'))
+		]]>
+	</method>
+	
+	<method name="doGarbageDataCheck">
+		<![CDATA[
+			SELECT APP_NO
+				  ,APP_NO_SEQ 
+			  FROM SGWGL with(nolock)
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND SUX_WKEY1    = $S{SUX_WKEY1 } 
+			       AND SUX_WKEY2    = $S{SUX_WKEY2 }  
+			       AND SUX_WKEY3    = $S{SUX_WKEY3 }  
+			       AND SUX_WKEY4    = $S{SUX_WKEY4 }  
+			       AND SUX_WKEY5    = $S{SUX_WKEY5 }  
+			       AND SUX_WKEY6    = $S{SUX_WKEY6 }  
+			       AND SUX_WKEY7    = $S{SUX_WKEY7 }  
+			       AND SUX_WKEY8    = $S{SUX_WKEY8 }  
+			       AND SUX_WKEY9    = $S{SUX_WKEY9 }  
+			       AND SUX_WKEY10   = $S{SUX_WKEY10}
+		]]>
+	</method>
+	
+	<method name="doGarbageDataDeleteHeader">
+		<![CDATA[
+			DELETE FROM SGWLN 
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="doGarbageDataDeleteDetail">
+		<![CDATA[
+			DELETE FROM SGWLN 
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	
+	<method name="setApprovalManagementLineUseFlag">
+		<![CDATA[
+			SELECT HOUSE_CODE 
+		     , COMPANY_CODE 
+		     , LINE_TYPE
+		     , APP_TYPE 
+		     , CODE 
+		     , APP_TYPE 
+		     , LINE_SEQ
+		     , APP_USER_AMT
+		     , USER_ID AS APP_USER_ID
+		     , USE_FLAG 
+		  FROM SGWAD with(nolock)
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+		       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+		       AND LINE_TYPE = ${MANAGEMENT_LINE_TYPE} 
+		       AND APP_TYPE = ${MANAGEMENT_APP_TYPE} 
+		       AND CODE = ${MANAGEMENT_CODE} 
+		ORDER BY CONVERT(INT, ISNULL(LINE_SEQ,'999')) 
+		]]>
+	</method>
+	
+	<method name="setApprovalManagementLine">
+		<![CDATA[
+			SELECT HOUSE_CODE 
+		     , COMPANY_CODE 
+		     , LINE_TYPE
+		     , APP_TYPE 
+		     , CODE 
+		     , APP_TYPE 
+		     , LINE_SEQ
+		     , APP_USER_AMT
+		     , USER_ID AS APP_USER_ID
+		     , 'Y' AS USE_FLAG
+		  FROM SGWAD with(nolock)
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+		       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+		       AND LINE_TYPE = ${MANAGEMENT_LINE_TYPE} 
+		       AND APP_TYPE = ${MANAGEMENT_APP_TYPE} 
+		       AND CODE = ${MANAGEMENT_CODE} 
+		ORDER BY CONVERT(INT, ISNULL(LINE_SEQ,'999'))  
+		]]>
+	</method>
+	
+	
+	<method name="doApprovalManagementList">
+		<![CDATA[
+			SELECT
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, APP_NO
+				, APP_NO_SEQ
+				, APP_LINE_SEQ
+				, APP_STAGE
+				, APP_TYPE
+				, APP_METHOD
+				, APP_LINE_STATUS
+				, APP_USER_ID 
+			 FROM SGWLN with(nolock)
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ}
+			       AND APP_TYPE     = '02' 
+			ORDER BY CONVERT(INT, ISNULL(APP_LINE_SEQ ,'999'))
+		]]>
+	</method>
+	
+</service>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_410_NEW" header="false" tpl="editor.tpl">
+	<link>
+	<![CDATA[
+		<script type="text/javascript">
+			Sepoa.cache.text.load(CONTEXT_NAME+'/resource/ux/langs/'+Sepoa.info.LANGUAGE+'/AD_410.js', false);
+		</script>
+	]]>
+	</link>
+    <variable>
+        <var name="formbox" value="$($sObject._vp).find('#yEcVIsdJYxVIsdgFTU')[0]"/>
+        <var name="yEcVIsdJYxVIsdxzpH" value="$($sObject._vp).find('#yEcVIsdJYxVIsdxzpH')[0]"/>
+    </variable>
+    <onloadscript>
+    	<call name="pageInit" />
+    </onloadscript>
+    <userscript>
+    	<var name="formObj"/>
+    	<var name="createFlag" value="false"/>
+    	<function name="pageInit" args="">
+    	<![CDATA[
+    		var formOption = [{
+			        type: "settings",
+			        position: "label-top"
+			    },
+			    {
+			        type: "block",
+			        width: "auto",
+			        offsetLeft: "30",
+			        offsetTop: "0",
+			        blockOffset: "0",
+			        list: [{
+			                type: "select",
+			                name: "CLIENT_CODE",
+			                inputWidth: "80",
+			                required: true,
+			                label: Sepoa.cache.text.get('AD_410_NEW.CLIENT_CODE'),
+			                userdata: {
+			                	combo: "UX0001,N"
+			                }
+			            },
+			            {
+			                type: "newcolumn"
+			            },
+			            {
+			                type: "input",
+			                value: "",
+			                name: "COMPANY_CODE",
+			                inputWidth: "100",
+			                offsetLeft: "20",
+			                label: Sepoa.cache.text.get('AD_410_NEW.COMPANY_CODE'),
+			                required: true
+			            },
+			            {
+			                type: "newcolumn"
+			            },
+			            {
+			                type: "button",
+			                name: "CHECK_DUPLICATE",
+			                inputWidth: "80",
+			                offsetTop: "30",
+			                value: Sepoa.cache.text.get('AD_410_NEW.CHECK_DUPLICATE')
+			            }
+			        ]
+			    },
+			    {
+			        type: "block",
+			        width: "auto",
+			        offsetLeft: "95",
+			        offsetTop: "25",
+			        blockOffset: "0",
+			        list: [{
+			                type: "button",
+			                name: "CANCEL",
+			                inputWidth: "50",
+			                value: Sepoa.cache.text.get('AD_410_NEW.CANCEL')
+			            },
+			            {
+			                type: "newcolumn"
+			            },
+			            {
+			                type: "button",
+			                value: "",
+			                name: "SAVE",
+			                inputWidth: "50",
+			                offsetLeft: "20",
+			                value: Sepoa.cache.text.get('AD_410_NEW.CREATE')
+			            }
+			        ]
+			    }
+			];
+			
+			formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(formbox, 'formObj', [formOption], true);
+			
+			formObj.attachEvent('onButtonClick', onButtonClick);
+    	]]>
+    	</function>
+    	
+    	<function name="onButtonClick" args="id">
+    	<![CDATA[
+    		if('CHECK_DUPLICATE' == id) {
+    			doCheckDuplicate();
+    		} else if('SAVE' == id) {
+    			doSave();
+   			} else if('CANCEL' == id) {
+   				selfObj.close();
+   			}
+    	]]>
+    	</function>
+    	
+    	<function name="doCheckDuplicate" args="">
+    	<![CDATA[
+    		if(!formObj.validate()) {
+    			Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+    			return;
+    		}
+    	
+    		doServiceAjax('sepoa.svc.admin.AD_410', 'CONNECTION', 'doCheckDuplicateCompany', null, function(so) {
+    			if(so.status != 1) {
+    				Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+    				return;
+    			}
+    			
+    			var sf = new SepoaFormater(so.result[0]);
+    			
+    			if(sf.getArrayMap().length == 0) {
+    				createFlag = true;
+    				Alert(Sepoa.cache.text.get('AD_410_NEW.DO_NOT_OVERLAP'));
+    			} else {
+    				createFlag = false;
+    				Alert(Sepoa.cache.text.get('AD_410_NEW.OVERLAP'));
+    			}
+    		});
+    	]]>
+    	</function>
+    	
+    	<function name="doSave" args="">
+    	<![CDATA[
+    		if(!formObj.validate()) {
+	    		Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+    			return;
+    		}
+    	
+    		if(createFlag == false) {
+    			Alert(Sepoa.cache.text.get('AD_410_NEW.DUPLICATE_CHECK_AGAIN'));
+    			return;
+    		}
+    		
+    		if(Sepoa.params.callback) {
+				Sepoa.params.callback.apply(this, [formObj.getFormData()]);
+				selfObj.close();
+			}
+    	]]>
+    	</function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsieUVjVklzZHlFY1ZJc2RwSmhXIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQURfNDEwX05FVyJ9LCJpZCI6InlFY1ZJc2R5RWNWSXNkcEpoVyIsInR5cGUiOiJib2R5In0sInlFY1ZJc2RKWXhWSXNkZ0ZUVSI6eyJsYXlvdXQiOnsiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX0RIQlAyUDkwbFh5eiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybWJveCIsIk9CSkVDVF9JRCI6InlFY1ZJc2RKWXhWSXNkZ0ZUVSJ9LCJpZCI6InlF
+        Y1ZJc2RKWXhWSXNkZ0ZUVSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJ5RWNWSXNkSll4VklzZHh6cEgiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoieUVjVklzZEpZeFZJc2R4enBIIn0sImlkIjoieUVjVklzZEpZeFZJc2R4enBIIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6InlFY1ZJc2R5RWNWSXNkcEpoVyIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoieUVjVklzZEpZeFZJc2R4enBIIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6InlFY1ZJc2RKWXhWSXNkZ0ZUVSIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUFJPSkVDVCI6IkZSV0siLCJQQVRIXzEiOiJB
+        ZG1pbiIsIlBBVEhfMyI6IkFkbWluU3lzdGVtQ29tcGFueU1hbmFnZW1lbnQiLCJQQVRIXzIiOiJTeXN0ZW1Db21wYW55TWFuYWdlbWVudCIsIk5BTUUiOiJDcmVhdGVOZXciLCJQQVRIIjoiL0FkbWluL1N5c3RlbUNvbXBhbnlNYW5hZ2VtZW50L0FkbWluU3lzdGVtQ29tcGFueU1hbmFnZW1lbnRDcmVhdGVOZXcueG1sIiwiUFJFRklYIjoiQUQiLCJDT0RFIjoiNDEwX05FVyIsIlNDUkVFTl9JRCI6IkFEXzQxMF9ORVcifX0sImh0bWwiOiI8ZGl2IGlkPVwieUVjVklzZHlFY1ZJc2RwSmhXXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwi
+        IHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJ5RWNWSXNkSll4VklzZHh6cEhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAg
+        ICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInlFY1ZJc2RKWXhWSXNkZ0ZUVVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAg
+        ICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

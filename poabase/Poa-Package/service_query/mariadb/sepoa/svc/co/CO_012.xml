@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="getCodeColumn">
+	<![CDATA[
+		SELECT TEXT3
+		  FROM SCODE
+		 WHERE TYPE     = 'S000' 
+		   AND CODE     = ${CODE}
+		   AND LANGUAGE = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="getCodeFlag">
+	<![CDATA[
+		SELECT FLAG
+		     , TEXT5
+		  FROM SCODE
+		 WHERE TYPE     = 'S000' 
+		   AND CODE     = ${CODE}
+		   AND LANGUAGE = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="getCodeQuery">
+	<![CDATA[
+		SELECT TEXT4
+		  FROM SCODE                                                                        
+		 WHERE TYPE        = 'S000'
+		   AND CODE        = ${CODE} 
+		   AND LANGUAGE   IN ($IN{LANGUAGE})    
+		   AND HOUSE_CODE IN ($IN{HOUSE_CODE})
+		 ORDER 
+		    BY CASE WHEN HOUSE_CODE = ${DEFAULT_HOUSE_CODE} THEN 0
+		            ELSE 1
+		       		END
+		      ,CASE WHEN LANGUAGE = ${DEFAULT_LANG} THEN 0
+		            ELSE 1
+		       		END                                       
+	]]>
+	</method>
+	
+	<method name="getCodeInfo">
+	<![CDATA[
+		SELECT #DB_OWNER#nvl(TEXT1, ' ') AS TEXT1
+			  ,#DB_OWNER#nvl(TEXT2, ' ') AS TEXT2
+			  ,TEXT3
+			  ,TEXT5
+			  ,FLAG
+		  FROM SCODE                                                                        
+		 WHERE TYPE        = 'S000'
+		   AND CODE        = ${CODE} 
+		   AND LANGUAGE   IN ($IN{LANGUAGE})    
+		   AND HOUSE_CODE IN ($IN{HOUSE_CODE})
+		 ORDER 
+		    BY CASE WHEN HOUSE_CODE = ${DEFAULT_HOUSE_CODE} THEN 0
+		            ELSE 1
+		      		END
+		      ,CASE WHEN LANGUAGE = ${DEFAULT_LANG} THEN 0
+		            ELSE 1
+		       		END                            
+	]]>
+	</method>
+</service>

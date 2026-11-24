@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_202_2" header="false">
+    <form id="formObj" div="dSgNbTbwAIBItZhVrC" form-id="file:///resource/ux/admin/form/AD_202_2.js">
+        <event type="onChange" callback="onChange"/>
+        <event type="onUploadFile" callback="changeVaultView"/>
+    </form>
+    <usercss>
+    <![CDATA[
+        #EDITOR_AREA {
+            height: calc(100% - 10px);
+            width: calc(100% - 10px);
+            padding: 5px;
+            overflow: auto;
+            border: 1px solid #f0f0f0;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+        <event obj="Sepoa" type="onWindowResize" callback="editorResizeHandler"/>
+    </onloadscript>
+    <userscript>
+        <var name="$data" value="{}"/>
+        <var name="isNoticePopup" />
+        <function name="init">
+        <![CDATA[
+            var target = formObj.getContainer("EDITOR_BOX");
+            target.innerHTML = '<div id="EDITOR_AREA"></div>'
+            editorResizeHandler();
+            
+            isNoticePopup = SUX.getModuleTop().Sepoa.request.isPopup;
+            
+            formObj.getForm('formObj_0').getVault('ATTACH_NO').changeMode('VI');
+            
+            checkIsNoticePopup();
+            
+            if (request.NOTICE_NUMBER) {
+                doQuery(request.NOTICE_NUMBER);
+            }
+        ]]>
+        </function>
+        <function name="changeVaultView" args="">
+        <![CDATA[
+            if(typeof(isNoticePopup) != 'undefined' && isNoticePopup == 'true'){
+                var fileCount = arguments[1].fileCount;
+                if(fileCount == 0){
+                    formObj.hideItem("ATTACH_NO");
+                } else {
+                    formObj.showItem("ATTACH_NO");
+                }
+            }
+        ]]>
+        </function>
+        <function name="checkIsNoticePopup" args="data">
+        <![CDATA[
+            if(!isNoticePopup){
+                formObj.hideItem("FLAG");
+            }
+        ]]>
+        </function>
+        <function name="doQuery" args="noticeNumber">
+        <![CDATA[
+            if (noticeNumber) {
+                $data.NOTICE_NUMBER = noticeNumber;
+            }
+            doServiceAjax('sepoa.svc.admin.AD_202_3', 'CONNECTION', 'doQuery', {
+                NOTICE_NUMBER: noticeNumber
+            }, function(so) {
+                if (so.status == 1) {
+                    var sf = new SepoaFormater(so.result[0]);
+                    renderData(sf, new SepoaFormater(so.result[1]))
+                } else {
+                    Alert(so.message);
+                }
+            });
+        ]]>
+        </function>
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+            if (state == 1) {
+                if (name == 'FLAG') {
+                    var before = SUX.root.getCookie("sepoa.notice.ignore");
+            
+                    if (before) {
+                        before = before.split(",");
+                    } else {
+                        before = [];
+                    }
+                    var noticeNumber = $data.NOTICE_NUMBER;
+                    if (state) {
+                        if (before.indexOf(noticeNumber) < 0) {
+                            before.push(noticeNumber);
+                            sUtils.cookie.set("sepoa.notice.ignore", before.join(','), 1);
+                        }
+                        if (SUX.pools.AD_202_1) {
+                            callFunction('AD_202_1', 'deleteCell', [Sepoa.request.NOTICE_NUMBER]);
+                        }
+                    } else {
+                        if (before.indexOf(noticeNumber) >= 0) {
+                            before.splice(before.indexOf(noticeNumber), 1);
+                            sUtils.cookie.set("sepoa.notice.ignore", before.join(','), 1);
+                        }
+                    }
+                }
+            }
+        ]]>
+        </function>
+        <function name="clearForm" args="">
+        <![CDATA[
+            formObj.clear();
+        ]]>
+        </function>
+        <function name="renderData" args="sf, sf2">
+        <![CDATA[
+            if (!sf) {
+                sf = tempData;
+                sf2 = tempContent;
+            } else {
+                tempData = sf;
+                tempContent = sf2;
+            }
+            if (!sf) return;
+            var c = '';
+            for (var i = 0; i < sf2.getRowCount(); i++) {
+                c += sf2.getValue('CONTENT', i);
+            }
+            c = c.replaceAll("\\\"", "\"");
+            c = sUtils.string.decodeHTML(c);
+            if (!tempData) {
+                clearForm();
+            } else {
+                formObj.dataMapper(sf);
+                formObj.getForm('formObj_0').getVault('ATTACH_NO').changeMode('VI');
+                $('#EDITOR_AREA').html(c);
+            }
+            
+            var cookieData = sUtils.cookie.get("sepoa.notice.ignore");
+            if (cookieData) {
+                cookieData = cookieData.split(",");
+            } else {
+                cookieData = [];
+            }
+            if (cookieData.indexOf(sf.getValue('NOTICE_NUMBER', 0)) >= 0) {
+                formObj.setValue('FLAG', 1)
+            }
+        ]]>
+        </function>
+        <function name="editorResizeHandler" args="">
+        <![CDATA[
+            var target = formObj.getContainer("EDITOR_BOX");
+            var height = document.body.offsetHeight - dhx.absTop(formObj.getContainer("EDITOR_BOX")) - 10;
+            target.style.height = height + 'px';
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZFNnTmJUYlRpeUFJdFpoY1FGIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9yd0kwaVNhUGJiOEQiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX0FOZFRvS0o2ZTBZaSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzIwMl8yIiwiT0JKRUNUX0lEIjoiZFNnTmJUYlRpeUFJdFpoY1FGIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiZFNnTmJUYlRpeUFJdFpoY1FGIiwidHlw
+        ZSI6ImJvZHkifSwiZFNnTmJUYndBSUJJdFpoVnJDIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6ImRTZ05iVGJ3QUlCSXRaaFZyQyIsIkZPUk1fSUQiOiJBRF8yMDJfMiJ9LCJpZCI6ImRTZ05iVGJ3QUlCSXRaaFZyQyIsInR5cGUiOiJmb3JtIiwiZm9ybSI6ImZvcm0iLCJldmVudHMiOlt7IkNBTExCQUNLIjoib25DaGFuZ2UiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBF
+        IjoibmFtZSIsIk5BTUUiOiJvbkNoYW5nZSJ9XX19LCJ0cmVlIjp7ImlkIjoiZFNnTmJUYlRpeUFJdFpoY1FGIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJkU2dOYlRid0FJQkl0WmhWckMiLCJ0eXBlIjoiZm9ybSJ9XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9Ob3RpY2VWaWV3L0FkbWluTm90aWNlVmlld1ZpZXcueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiMjAyXzIiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6Ik5vdGljZVZpZXciLCJQQVRIXzMiOiJBZG1pbk5vdGljZVZpZXciLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlZpZXciLCJTQ1JFRU5fSUQiOiJBRF8yMDJfMiJ9fSwiaHRtbCI6IjxkaXYgaWQ9
+        XCJkU2dOYlRiVGl5QUl0WmhjUUZcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBw
+        ZXIgc2Vwb2F1eF9mb3JtX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2VudGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImRTZ05iVGJ3QUlCSXRaaFZyQ1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

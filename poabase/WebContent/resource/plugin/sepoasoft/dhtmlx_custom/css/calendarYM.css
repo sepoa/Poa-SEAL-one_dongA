@@ -1,0 +1,14 @@
+.dhtmlxcalendar_material.dhtmlxcalendarYM div.dhtmlxcalendar_dates_cont,
+.dhtmlxcalendar_material.dhtmlxcalendarYM div.dhtmlxcalendar_days_cont{
+	display:none;
+}
+.dhtmlxcalendar_material.dhtmlxcalendarYM div.dhtmlxcalendar_month_cont{
+	width:211px;
+}
+.dhtmlxcalendar_material.dhtmlxcalendarYM ul.dhtmlxcalendar_line{
+	width:211px;
+	margin-left: 4px;
+}
+.dhtmlxcalendar_material.dhtmlxcalendarYM div.dhtmlxcalendar_month_cont ul.dhtmlxcalendar_line li.dhtmlxcalendar_cell.dhtmlxcalendar_month_hdr{
+	width:204px;
+}

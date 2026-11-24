@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="IFH_004" header="false">
+    <grid id="gridObj" div="ivOmdAfRnRmdAfCIda" grid-id="IF_004" drag="false" merge="false" dynamic="false"/>
+    <onloadscript>
+        <![CDATA[
+        	if(Sepoa.request){
+	            var tableName = Sepoa.request.TABLE_NAME;
+    	        var transactionCode = Sepoa.request.TRANSACTION_CODE;
+        	    doQuery(tableName, transactionCode);
+        	}
+        ]]></onloadscript>
+    <userscript>
+        <function name="doQuery" args="tableName, transactionCode">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.IFH_001', 'CONNECTION', 'doQueryData', {
+                TABLE_NAME: tableName,
+                TRANSACTION_CODE: transactionCode
+            }, function(so) {
+                if (so.status == 1) {
+                    var soResult = new SepoaFormater(so.result[0]);
+
+                    if (soResult.getArrayMap().length < 1) {
+                        Alert(Sepoa.cache.text.get('MESSAGE.1001')+'</br>'+tableName);
+                        return;
+                    }
+            
+                    var idx = 0;
+                    var columnIdxMap = {};
+                    var colArr = [];
+                    for (var x in soResult.getArrayMap()[0]) {
+                        if (x == "") continue;
+                        gridObj.insertColumn(idx, x, 'rotxt', 150, null, 'center', null, null, null);
+                        columnIdxMap[x] = idx;
+                        idx++;
+                    }
+
+                    for (var i = 0; i < soResult.getArrayMap().length; i++) {
+                        var maxRowId = new Date().getTime() + '' + dhx4.newId();
+                        gridObj.addRow(maxRowId, '', gridObj.getRowsNum());
+            
+                        for (var column in soResult.getArrayMap()[i]) {
+                        	if(column == "") continue;
+                            gridObj.cells(maxRowId, columnIdxMap[column]).setValue(soResult.getArrayMap()[i][column]);
+                        }
+                    }
+            
+                } else {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    return false;
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiaXZPbWRBZml2T21kQWZ2alN5Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9ibzRkaG9LN2o5bmYiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3RCMXo1Y1hESFJ4dCI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX0U2b3RkQlNtZGU3aCI6Im51bGwiLCJkaHhJZF80RkVkNVUxZEV6V2ciOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiSUZIXzAwNCIsIk9CSkVDVF9JRCI6Iml2T21kQWZpdk9tZEFmdmpTeSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwi
+        RlJBTUVfUFJFU0VUIjoiRlVMTCJ9LCJpZCI6Iml2T21kQWZpdk9tZEFmdmpTeSIsInR5cGUiOiJib2R5In0sIml2T21kQWZSblJtZEFmQ0lkYSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX2Q5ZlE4YnBIUXFjciI6Im51bGwiLCJkaHhJZF9sckttSEZYNkQ5d2IiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfNWMxTkFZWVhUcEkxIjoibnVsbCIsIkNMQVNT
+        IjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIk9CSkVDVF9JRCI6Iml2T21kQWZSblJtZEFmQ0lkYSIsIkdSSURfSUQiOiJJRl8wMDQifSwiaWQiOiJpdk9tZEFmUm5SbWRBZkNJZGEiLCJ0eXBlIjoiZ3JpZCJ9fSwidHJlZSI6eyJpZCI6Iml2T21kQWZpdk9tZEFmdmpTeSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiaXZPbWRBZlJuUm1kQWZDSWRhIiwidHlwZSI6ImdyaWQifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vSW50ZXJmYWNlSGlzdG9yeS9JbnRlcmZhY2VIaXN0b3J5VGFiR3JpZC54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiIw
+        MDQiLCJQUkVGSVgiOiJJRkgiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJBZG1pbi9JbnRlcmZhY2VIaXN0b3J5IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiSW50ZXJmYWNlSGlzdG9yeVRhYkdyaWQiLCJTQ1JFRU5fSUQiOiJJRkhfMDA0In19LCJodG1sIjoiPGRpdiBpZD1cIml2T21kQWZpdk9tZEFmdmpTeVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vw
+        b2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIml2T21kQWZSblJtZEFmQ0lkYVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZ3JpZCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

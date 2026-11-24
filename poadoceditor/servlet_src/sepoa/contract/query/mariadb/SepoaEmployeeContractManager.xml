@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doSelectDocument">
+	<![CDATA[
+		SELECT CTGL.HOUSE_CODE
+             , CTGL.COMPANY_CODE
+             , CTGL.CONT_NO
+             , CTGL.CONT_GL_SEQ
+             , CTGL.ADD_DATE
+             , CTGL.ADD_TIME
+             , CTGL.ADD_USER_ID
+             , CTGL.CHANGE_DATE
+             , CTGL.CHANGE_TIME
+             , CTGL.CHANGE_USER_ID
+             , CTGL.CONT_TYPE
+             , CTGL.CONT_SUBJECT  
+             , CTGL.DEL_FLAG
+             , CTGL.STATUS  
+             , CTGL.CATEGORY
+             , CTGL.CREATOR
+             , USMT.USER_NAME_LOC  AS CREATOR_NAME
+             , USMT.EMAIL          AS CREATOR_EMAIL
+             , CTGL.CONT_METHOD
+             , CTGL.CONT_FORM_NO
+             , CTGL.CONT_EXT_FORM_NO
+             , CTGL.CONT_DATE
+             , CTGL.CONT_FROM
+             , CTGL.CONT_TO
+             , CTGL.EXPIRED_ALARM
+             , CTGL.SUMMARY
+             , CTGL.PRE_CONT_NUMBER
+             , CTGL.GL_SEQ_REASON
+             , CTGL.CONT_AMT 
+             , CTGL.SIGN_ORDER
+             , CTGL.DATA_SOURCE
+             , CTGL.PUSH_SEND_DATE
+             , CTGL.AP_STATUS
+             , CTGL.AP_MESSAGE
+		  FROM SCTGL CTGL
+          LEFT OUTER
+          JOIN SUSMT USMT
+            ON CTGL.HOUSE_CODE   = USMT.HOUSE_CODE
+           AND CTGL.COMPANY_CODE = USMT.COMPANY_CODE
+           AND CTGL.CREATOR      = USMT.USER_ID
+		 WHERE CTGL.HOUSE_CODE                   = ${session.HOUSE_CODE}
+		   AND CTGL.CONT_NO                      = ${CONT_NO}
+           AND CTGL.CONT_GL_SEQ                  = ${CONT_GL_SEQ}
+	]]>
+	</method>
+    
+    <method name="doInsertDocument">
+    <![CDATA[
+        INSERT 
+          INTO SCTGL (
+               HOUSE_CODE
+             , COMPANY_CODE
+             , CONT_NO
+             , CONT_GL_SEQ
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , CONT_TYPE
+             , CONT_SUBJECT  
+             , DEL_FLAG
+             , STATUS  
+             , CATEGORY
+             , CREATOR
+             , CONT_METHOD
+             , CONT_FORM_NO
+             , CONT_EXT_FORM_NO
+             , CONT_DATE
+             , CONT_FROM
+             , CONT_TO
+             , EXPIRED_ALARM
+             , SUMMARY
+             , PRE_CONT_NUMBER
+             , GL_SEQ_REASON
+             , CONT_AMT
+             , SIGN_ORDER
+             , DATA_SOURCE
+             , PUSH_SEND_DATE
+            ) 
+      VALUES (
+               ${session.HOUSE_CODE}
+             , ${session.COMPANY_CODE}
+             , ${CONT_NO}
+             , ${CONT_GL_SEQ}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${CONT_TYPE}
+             , ${CONT_SUBJECT}
+             , 'N'
+             , 'T'
+             , ${CATEGORY}
+             , ${session.ID}
+             , ${CONT_METHOD}
+             , ${CONT_FORM_NO}
+             , ${CONT_EXT_FORM_NO}
+             , ${CONT_DATE}
+             , ${CONT_FROM}
+             , ${CONT_TO}
+             , ${EXPIRED_ALARM}
+             , ${SUMMARY}
+             , ${PRE_CONT_NUMBER}
+             , ${GL_SEQ_REASON}
+             , ${CONT_AMT}
+             , ${SIGN_ORDER}
+             , ${DATA_SOURCE}
+             , ${PUSH_SEND_DATE}
+         )
+    ]]>
+    </method>
+    
+    <method name="doUpdateDocument">
+    <![CDATA[
+        UPDATE SCTGL
+           SET CHANGE_DATE         = ${current.DATE}
+             , CHANGE_TIME         = ${current.TIME}
+             , CHANGE_USER_ID      = ${session.ID}
+             , CONT_TYPE           = #DB_OWNER#nvl(${CONT_TYPE          }        , CONT_TYPE          )
+             , CONT_SUBJECT        = #DB_OWNER#nvl(${CONT_SUBJECT       }        , CONT_SUBJECT       )
+             , DEL_FLAG            = #DB_OWNER#nvl(${DEL_FLAG           }        , DEL_FLAG           )
+             , STATUS              = #DB_OWNER#nvl(${STATUS             }        , STATUS             )
+             , CATEGORY            = #DB_OWNER#nvl(${CATEGORY           }        , CATEGORY           )
+             , CREATOR             = #DB_OWNER#nvl(${CREATOR            }        , CREATOR            )
+             , CONT_METHOD         = #DB_OWNER#nvl(${CONT_METHOD        }        , CONT_METHOD        )
+             , CONT_FORM_NO        = #DB_OWNER#nvl(${CONT_FORM_NO       }        , CONT_FORM_NO       )
+             , CONT_EXT_FORM_NO    = CASE WHEN ${CONT_EXT_FORM_NO} = '_CLEAR_'
+                                          THEN ''
+                                          ELSE #DB_OWNER#nvl(${CONT_EXT_FORM_NO} , CONT_EXT_FORM_NO   )
+                                           END
+             , CONT_DATE           = #DB_OWNER#nvl(${CONT_DATE          }        , CONT_DATE          )
+             , CONT_FROM           = #DB_OWNER#nvl(${CONT_FROM          }        , CONT_FROM          )
+             , CONT_TO             = #DB_OWNER#nvl(${CONT_TO            }        , CONT_TO            )
+             , EXPIRED_ALARM       = #DB_OWNER#nvl(${EXPIRED_ALARM      }        , EXPIRED_ALARM      )
+             , SUMMARY             = #DB_OWNER#nvl(${SUMMARY            }        , SUMMARY            )
+             , PRE_CONT_NUMBER     = #DB_OWNER#nvl(${PRE_CONT_NUMBER    }        , PRE_CONT_NUMBER    )
+             , GL_SEQ_REASON       = #DB_OWNER#nvl(${GL_SEQ_REASON      }        , GL_SEQ_REASON      )
+             , CONT_AMT            = #DB_OWNER#nvl(${CONT_AMT           }        , CONT_AMT           )
+             , SIGN_ORDER          = #DB_OWNER#nvl(${SIGN_ORDER         }        , SIGN_ORDER         )
+             , DATA_SOURCE         = #DB_OWNER#nvl(${DATA_SOURCE        }        , DATA_SOURCE        )
+             , INNER_MANAGER_NAME  = #DB_OWNER#nvl(${INNER_MANAGER_NAME }        , INNER_MANAGER_NAME )
+             , INNER_MANAGER_ID    = #DB_OWNER#nvl(${INNER_MANAGER_ID   }        , INNER_MANAGER_ID   )
+             , OUTER_COMPANY_NAME  = #DB_OWNER#nvl(${OUTER_COMPANY_NAME }        , OUTER_COMPANY_NAME )
+             , OUTER_COMPANY_CODE  = #DB_OWNER#nvl(${OUTER_COMPANY_CODE }        , OUTER_COMPANY_CODE )
+             , OUTER_MANAGER_NAME  = #DB_OWNER#nvl(${OUTER_MANAGER_NAME }        , OUTER_MANAGER_NAME )
+             , OUTER_MANAGER_ID    = #DB_OWNER#nvl(${OUTER_MANAGER_ID   }        , OUTER_MANAGER_ID   )
+             , PUSH_SEND_DATE      = #DB_OWNER#nvl(${PUSH_SEND_DATE     }        , PUSH_SEND_DATE     )
+             , AP_STATUS           = #DB_OWNER#nvl(${AP_STATUS          }        , AP_STATUS          )
+             , AP_MESSAGE          = #DB_OWNER#nvl(${AP_MESSAGE         }        , AP_MESSAGE         )
+             , T_ID                = #DB_OWNER#nvl(${T_ID               }        , T_ID               )
+             , T_NAME              = #DB_OWNER#nvl(${T_NAME             }        , T_NAME             )
+             , T_IP                = #DB_OWNER#nvl(${T_IP               }        , T_IP               )
+             , T_MESSAGE           = #DB_OWNER#nvl(${T_MESSAGE          }        , T_MESSAGE          )
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND CONT_NO      = ${CONT_NO}               
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doDeleteDocument">
+    <![CDATA[
+        DELETE
+          FROM SCTGL
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND CONT_NO      = ${CONT_NO}               
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doSelectSCTMD">
+    <![CDATA[
+        SELECT ITEM_CODE
+             , ITEM_VALUE
+          FROM SCTMD
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doInsertSCTMD">
+    <![CDATA[
+        INSERT 
+          INTO SCTMD
+             ( HOUSE_CODE
+             , COMPANY_CODE
+             , CONT_NO
+             , CONT_GL_SEQ
+             , ITEM_CODE
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , ITEM_VALUE
+          )
+        VALUES 
+             ( ${session.HOUSE_CODE}
+             , ${COMPANY_CODE}
+             , ${CONT_NO}
+             , ${CONT_GL_SEQ}
+             , ${ITEM_CODE}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${ITEM_VALUE}
+          )
+    ]]>
+    </method>
+    
+    <method name="doDeleteSCTMD">
+    <![CDATA[
+        DELETE
+          FROM SCTMD
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doSelectSSIGN">
+    <![CDATA[
+        SELECT HOUSE_CODE
+             , CONT_NO
+             , CONT_GL_SEQ
+             , SIGNER_NO
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , SEQ
+             , SIGNER_ID
+             , SIGNER_NAME
+             , SIGNER_EMAIL
+             , SIGNER_PHONE
+             , SIGNER_COMPANY_CODE
+             , SIGNER_COMPANY_NAME
+             , SIGNER_COMPANY_OWNER
+             , SIGNER_COMPANY_ADDR
+             , SIGN_FLAG
+             , SIGN_TYPE
+             , SIGN_KEY
+             , SIGN_FIX_HTML
+             , SIGN_COMMENT
+    ]]>
+    <if test="${CERT_INFO_FLAG}" operator="eq" value="true">
+    <![CDATA[
+             , SIGN_VALUE
+             , SIGN_ORG_VALUE
+             , CERT_INFO
+    ]]>
+    </if>
+    <![CDATA[
+             , LINK
+          FROM SSIGN
+         WHERE HOUSE_CODE          = ${session.HOUSE_CODE}
+           AND CONT_NO             = ${CONT_NO}
+           AND CONT_GL_SEQ         = ${CONT_GL_SEQ}
+           AND SIGNER_NO           = $S{SIGNER_NO}     
+           AND SEQ                 = $S{SEQ}
+           AND SIGNER_ID           = $S{SIGNER_ID}
+           AND SIGNER_COMPANY_CODE = $S{SIGNER_COMPANY_CODE}
+           AND SIGN_FLAG           = $S{SIGN_FLAG}
+         ORDER 
+            BY SEQ
+    ]]>
+    </method>
+    
+    <method name="doInsertSSIGN">
+    <![CDATA[
+        INSERT
+          INTO SSIGN
+             ( HOUSE_CODE
+             , CONT_NO
+             , CONT_GL_SEQ
+             , SIGNER_NO
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , SEQ
+             , SIGNER_ID
+             , SIGNER_NAME
+             , SIGNER_EMAIL
+             , SIGNER_PHONE
+             , SIGNER_COMPANY_CODE
+             , SIGNER_COMPANY_NAME
+             , SIGNER_COMPANY_OWNER
+             , SIGNER_COMPANY_ADDR
+             , DEL_FLAG
+             , SIGN_FLAG
+             , SIGN_TYPE
+             , SIGN_KEY
+             , SIGN_VALUE
+             , SIGN_ORG_VALUE
+             , CERT_INFO
+             , SIGN_COMMENT
+             , SIGN_FIX_HTML
+             , LINK
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}
+             , ${CONT_NO}
+             , ${CONT_GL_SEQ}
+             , ${SIGNER_NO}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${SEQ}
+             , ${SIGNER_ID}
+             , ${SIGNER_NAME}
+             , ${SIGNER_EMAIL}
+             , ${SIGNER_PHONE}
+             , ${SIGNER_COMPANY_CODE}
+             , ${SIGNER_COMPANY_NAME}
+             , ${SIGNER_COMPANY_OWNER}
+             , ${SIGNER_COMPANY_ADDR}
+             , 'N'
+             , 'W'
+             , ${SIGN_TYPE}
+             , ${SIGN_KEY}
+             , ${SIGN_VALUE}
+             , ${SIGN_ORG_VALUE}
+             , ${CERT_INFO}
+             , ${SIGN_COMMENT}
+             , ${SIGN_FIX_HTML}
+             , ${LINK}
+             )
+    ]]>
+    </method>
+    
+    <method name="doUpdateSSIGN">
+    <![CDATA[
+        UPDATE SSIGN
+           SET CHANGE_DATE          = ${current.DATE}
+             , CHANGE_TIME          = ${current.TIME}
+             , CHANGE_USER_ID       = ${session.ID}
+             , SEQ                  = #DB_OWNER#nvl(${SEQ}                 , SEQ)
+             , SIGNER_ID            = #DB_OWNER#nvl(${SIGNER_ID}           , SIGNER_ID)
+             , SIGNER_NAME          = #DB_OWNER#nvl(${SIGNER_NAME}         , SIGNER_NAME)
+             , SIGNER_EMAIL         = #DB_OWNER#nvl(${SIGNER_EMAIL}        , SIGNER_EMAIL)
+             , SIGNER_PHONE         = #DB_OWNER#nvl(${SIGNER_PHONE}        , SIGNER_PHONE)
+             , SIGNER_COMPANY_CODE  = #DB_OWNER#nvl(${SIGNER_COMPANY_CODE} , SIGNER_COMPANY_CODE)
+             , SIGNER_COMPANY_NAME  = #DB_OWNER#nvl(${SIGNER_COMPANY_NAME} , SIGNER_COMPANY_NAME)
+             , SIGNER_COMPANY_OWNER = #DB_OWNER#nvl(${SIGNER_COMPANY_OWNER}, SIGNER_COMPANY_OWNER)
+             , SIGNER_COMPANY_ADDR  = #DB_OWNER#nvl(${SIGNER_COMPANY_ADDR} , SIGNER_COMPANY_ADDR)
+             , SIGN_FLAG            = #DB_OWNER#nvl(${SIGN_FLAG}           , SIGN_FLAG)
+             , SIGN_TYPE            = #DB_OWNER#nvl(${SIGN_TYPE}           , SIGN_TYPE)
+             , SIGN_KEY             = #DB_OWNER#nvl(${SIGN_KEY}            , SIGN_KEY)
+             , SIGN_VALUE           = #DB_OWNER#nvl(${SIGN_VALUE}          , SIGN_VALUE)
+             , SIGN_ORG_VALUE       = #DB_OWNER#nvl(${SIGN_ORG_VALUE}      , SIGN_ORG_VALUE)
+             , CERT_INFO            = #DB_OWNER#nvl(${CERT_INFO}           , CERT_INFO)
+             , SIGN_COMMENT         = #DB_OWNER#nvl(${SIGN_COMMENT}        , SIGN_COMMENT)
+             , SIGN_FIX_HTML        = #DB_OWNER#nvl(${SIGN_FIX_HTML}       , SIGN_FIX_HTML)
+             , LINK                 = #DB_OWNER#nvl(${LINK}                , LINK)
+         WHERE HOUSE_CODE  = ${session.HOUSE_CODE}
+           AND CONT_NO     = ${CONT_NO}
+           AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+           AND SIGNER_NO   = ${SIGNER_NO}
+    ]]>
+    </method>
+    
+    <method name="doDeleteSSIGN">
+    <![CDATA[
+        DELETE
+          FROM SSIGN
+         WHERE HOUSE_CODE  = ${session.HOUSE_CODE}
+           AND CONT_NO     = ${CONT_NO}
+           AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doSelectSPMGT">
+    <![CDATA[
+        SELECT DISTINCT PMGT.COMPANY_CODE     
+              ,PMGT.CONT_NO          
+              ,PMGT.CONT_GL_SEQ      
+              ,PMGT.SEQ              
+              ,PMGT.ADD_DATE         
+              ,PMGT.ADD_TIME         
+              ,PMGT.USER_COMPANY_CODE
+              ,BUPR.SELLER_NAME_LOC AS USER_COMPANY_NAME
+              ,PMGT.USER_ID          
+              ,SUMT.USER_NAME_LOC AS USER_NAME
+              ,PMGT.`ACTION`      
+              ,PMGT.IP
+          FROM SPMGT PMGT
+         INNER JOIN SUSMT SUMT
+            ON SUMT.HOUSE_CODE   = PMGT.HOUSE_CODE
+           AND SUMT.USER_ID      = PMGT.USER_ID
+         INNER JOIN SBUPR BUPR
+            ON BUPR.HOUSE_CODE   = PMGT.HOUSE_CODE
+           AND BUPR.BIZ_CODE     = PMGT.USER_COMPANY_CODE
+         WHERE PMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND PMGT.COMPANY_CODE = ${COMPANY_CODE}
+           AND PMGT.CONT_NO      = ${CONT_NO}
+           AND PMGT.CONT_GL_SEQ  = ${CONT_GL_SEQ}
+         ORDER
+            BY PMGT.SEQ
+    ]]>
+    </method>
+    
+    <method name="doInsertSPMGT">
+    <![CDATA[
+        INSERT
+          INTO SPMGT
+             ( HOUSE_CODE       
+              ,COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,`ACTION`           
+              ,IP
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}       
+              ,${COMPANY_CODE}     
+              ,${CONT_NO}          
+              ,${CONT_GL_SEQ}      
+              ,(SELECT COUNT(*) + 1
+                  FROM SPMGT InPMGT
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${CONT_NO}
+                   AND InPMGT.CONT_GL_SEQ  = ${CONT_GL_SEQ}
+               )
+              ,${current.DATE}         
+              ,${current.TIME}         
+              ,${session.COMPANY_CODE}
+              ,${session.ID}
+              ,${ACTION}           
+              ,${IP}
+             )
+    ]]>
+    </method>
+    
+    <method name="doDeleteSPMGT">
+    <![CDATA[
+        DELETE
+          FROM SPMGT
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doSelectSCTDS">
+    <![CDATA[
+        SELECT SIGNER_NO
+              ,SEQ
+              ,SIGNER_ID
+              ,SIGNER_NAME
+              ,SIGNER_EMAIL
+              ,SIGNER_PHONE
+              ,SIGNER_COMPANY_CODE
+              ,SIGNER_COMPANY_NAME
+              ,SIGNER_COMPANY_OWNER
+              ,SIGNER_COMPANY_ADDR
+              ,TERMINATION_STATUS
+          FROM SCTDS
+         WHERE HOUSE_CODE          = ${session.HOUSE_CODE}
+           AND CONT_NO             = ${CONT_NO}
+           AND CONT_GL_SEQ         = ${CONT_GL_SEQ}
+           AND TERMINATION_STATUS  = $S{TERMINATION_STATUS}
+           AND SIGNER_ID           = $S{SIGNER_ID}
+           AND SIGNER_COMPNAY_CODE = $S{SIGNER_COMPNAY_CODE}
+         ORDER 
+            BY SEQ
+    ]]>
+    </method>
+    
+    <method name="doInsertSCTDS">
+    <![CDATA[
+        INSERT
+          INTO SCTDS 
+             ( HOUSE_CODE
+              ,CONT_NO
+              ,CONT_GL_SEQ
+              ,SIGNER_NO
+              ,ADD_DATE
+              ,ADD_TIME
+              ,ADD_USER_ID
+              ,CHANGE_DATE
+              ,CHANGE_TIME
+              ,CHANGE_USER_ID
+              ,SEQ
+              ,SIGNER_ID
+              ,SIGNER_NAME
+              ,SIGNER_EMAIL
+              ,SIGNER_PHONE
+              ,SIGNER_COMPANY_CODE
+              ,SIGNER_COMPANY_NAME
+              ,SIGNER_COMPANY_OWNER
+              ,SIGNER_COMPANY_ADDR
+              ,TERMINATION_STATUS
+              ,LINK
+              ,SIGN_COMMENT
+             )
+       VALUES( ${session.HOUSE_CODE}
+              ,${CONT_NO}
+              ,${CONT_GL_SEQ}
+              ,${SIGNER_NO}
+              ,${current.DATE}
+              ,${current.TIME}
+              ,${session.ID}
+              ,${current.DATE}
+              ,${current.TIME}
+              ,${session.ID}
+              ,${SEQ}
+              ,${SIGNER_ID}
+              ,${SIGNER_NAME}
+              ,${SIGNER_EMAIL}
+              ,${SIGNER_PHONE}
+              ,${SIGNER_COMPANY_CODE}
+              ,${SIGNER_COMPANY_NAME}
+              ,${SIGNER_COMPANY_OWNER}
+              ,${SIGNER_COMPANY_ADDR}
+              ,${TERMINATION_STATUS}
+              ,${LINK}
+              ,${SIGN_COMMENT}
+             )
+    ]]>
+    </method>
+    
+    <method name="doUpdateSCTDS">
+    <![CDATA[
+        UPDATE SCTDS
+           SET CHANGE_DATE          = ${current.DATE}      
+             , CHANGE_TIME          = ${current.TIME}      
+             , CHANGE_USER_ID       = ${session.ID}
+             , SEQ                  = #DB_OWNER#nvl(${SEQ}                 , SEQ)                 
+             , SIGNER_ID            = #DB_OWNER#nvl(${SIGNER_ID}           , SIGNER_ID)              
+             , SIGNER_NAME          = #DB_OWNER#nvl(${SIGNER_NAME}         , SIGNER_NAME)         
+             , SIGNER_EMAIL         = #DB_OWNER#nvl(${SIGNER_EMAIL}        , SIGNER_EMAIL)        
+             , SIGNER_PHONE         = #DB_OWNER#nvl(${SIGNER_PHONE}        , SIGNER_PHONE)       
+             , SIGNER_COMPANY_CODE  = #DB_OWNER#nvl(${SIGNER_COMPANY_CODE} , SIGNER_COMPANY_CODE) 
+             , SIGNER_COMPANY_NAME  = #DB_OWNER#nvl(${SIGNER_COMPANY_NAME} , SIGNER_COMPANY_NAME)
+             , SIGNER_COMPANY_OWNER = #DB_OWNER#nvl(${SIGNER_COMPANY_OWNER}, SIGNER_COMPANY_OWNER)
+             , SIGNER_COMPANY_ADDR  = #DB_OWNER#nvl(${SIGNER_COMPANY_ADDR} , SIGNER_COMPANY_ADDR)
+             , TERMINATION_STATUS   = #DB_OWNER#nvl(${TERMINATION_STATUS}  , TERMINATION_STATUS)
+             , SIGN_COMMENT         = #DB_OWNER#nvl(${SIGN_COMMENT}        , SIGN_COMMENT)
+         WHERE HOUSE_CODE  = ${session.HOUSE_CODE}
+           AND CONT_NO     = ${CONT_NO}
+           AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+           AND SIGNER_NO   = ${SIGNER_NO}
+    ]]>
+    </method>
+    
+    <method name="doDeleteSCTDS">
+    <![CDATA[
+        DELETE
+          FROM SCTDS
+         WHERE HOUSE_CODE        = ${session.HOUSE_CODE}
+           AND CONT_NO     = ${CONT_NO}
+           AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+           AND SIGNER_NO   = ${SIGNER_NO}
+    ]]>
+    </method>
+    
+    <method name="doSelectSCTRV">
+    <![CDATA[
+        SELECT HOUSE_CODE
+             , CONT_NO
+             , CONT_GL_SEQ
+             , SEQ
+             , REVIEWER_NO
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , REVIEW_SEQ
+             , REVIEWER_ID
+             , REVIEWER_NAME
+             , REVIEWER_EMAIL
+             , REVIEWER_PHONE
+             , REVIEWER_COMPANY_CODE
+             , REVIEWER_COMPANY_NAME
+             , REVIEWER_COMPANY_OWNER
+             , REVIEWER_COMPANY_ADDR
+             , REVIEW_FLAG
+             , REVIEW_COMMENT
+             , LINK
+          FROM SCTRV
+         WHERE HOUSE_CODE            = ${session.HOUSE_CODE}
+           AND CONT_NO               = ${CONT_NO}
+           AND CONT_GL_SEQ           = ${CONT_GL_SEQ}
+           AND SEQ                   = $S{SEQ}
+           AND REVIEWER_NO           = $S{REVIEWER_NO}
+           AND REVIEW_SEQ            = $S{REVIEW_SEQ}
+           AND REVIEWER_ID           = $S{REVIEWER_ID}
+           AND REVIEWER_COMPANY_CODE = $S{REVIEWER_COMPANY_CODE}
+           AND REVIEW_FLAG           = $S{REVIEW_FLAG}
+         ORDER 
+            BY SEQ
+    ]]>
+    </method>
+    
+    <method name="doInsertSCTRV">
+    <![CDATA[
+        INSERT
+          INTO SCTRV
+             ( HOUSE_CODE
+             , CONT_NO
+             , CONT_GL_SEQ
+             , SEQ
+             , REVIEWER_NO
+             , ADD_DATE
+             , ADD_TIME
+             , ADD_USER_ID
+             , CHANGE_DATE
+             , CHANGE_TIME
+             , CHANGE_USER_ID
+             , REVIEW_SEQ
+             , REVIEWER_ID
+             , REVIEWER_NAME
+             , REVIEWER_EMAIL
+             , REVIEWER_PHONE
+             , REVIEWER_COMPANY_CODE
+             , REVIEWER_COMPANY_NAME
+             , REVIEWER_COMPANY_OWNER
+             , REVIEWER_COMPANY_ADDR
+             , DEL_FLAG
+             , REVIEW_FLAG
+             , REVIEW_COMMENT
+             , LINK
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}
+             , ${CONT_NO}
+             , ${CONT_GL_SEQ}
+             , ${SEQ}
+             , ${REVIEWER_NO}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${current.DATE}
+             , ${current.TIME}
+             , ${session.ID}
+             , ${REVIEW_SEQ}
+             , ${REVIEWER_ID}
+             , ${REVIEWER_NAME}
+             , ${REVIEWER_EMAIL}
+             , ${REVIEWER_PHONE}
+             , ${REVIEWER_COMPANY_CODE}
+             , ${REVIEWER_COMPANY_NAME}
+             , ${REVIEWER_COMPANY_OWNER}
+             , ${REVIEWER_COMPANY_ADDR}
+             , 'N'
+             , 'RW'
+             , ${REVIEW_COMMENT}
+             , ${LINK}
+             )
+    ]]>
+    </method>
+    
+    <method name="doUpdateSCTRV">
+    <![CDATA[
+        UPDATE SCTRV
+           SET CHANGE_DATE            = ${current.DATE}
+             , CHANGE_TIME            = ${current.TIME}
+             , CHANGE_USER_ID         = ${session.ID}
+             , REVIEW_SEQ             = #DB_OWNER#nvl(${REVIEW_SEQ}            , REVIEW_SEQ)
+             , REVIEWER_ID            = #DB_OWNER#nvl(${REVIEWER_ID}           , REVIEWER_ID)
+             , REVIEWER_NAME          = #DB_OWNER#nvl(${REVIEWER_NAME}         , REVIEWER_NAME)
+             , REVIEWER_EMAIL         = #DB_OWNER#nvl(${REVIEWER_EMAIL}        , REVIEWER_EMAIL)
+             , REVIEWER_PHONE         = #DB_OWNER#nvl(${REVIEWER_PHONE}        , REVIEWER_PHONE)
+             , REVIEWER_COMPANY_CODE  = #DB_OWNER#nvl(${REVIEWER_COMPANY_CODE} , REVIEWER_COMPANY_CODE)
+             , REVIEWER_COMPANY_NAME  = #DB_OWNER#nvl(${REVIEWER_COMPANY_NAME} , REVIEWER_COMPANY_NAME)
+             , REVIEWER_COMPANY_OWNER = #DB_OWNER#nvl(${REVIEWER_COMPANY_OWNER}, REVIEWER_COMPANY_OWNER)
+             , REVIEWER_COMPANY_ADDR  = #DB_OWNER#nvl(${REVIEWER_COMPANY_ADDR} , REVIEWER_COMPANY_ADDR)
+             , REVIEW_FLAG            = #DB_OWNER#nvl(${REVIEW_FLAG}           , REVIEW_FLAG)
+             , REVIEW_COMMENT         = #DB_OWNER#nvl(${REVIEW_COMMENT}        , REVIEW_COMMENT)
+         WHERE HOUSE_CODE  = ${session.HOUSE_CODE}
+           AND CONT_NO     = ${CONT_NO}
+           AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+           AND SEQ         = ${SEQ}
+           AND REVIEWER_ID = ${REVIEWER_ID}
+    ]]>
+    </method>
+    
+    <method name="doDeleteSCTRV">
+    <![CDATA[
+        DELETE
+          FROM SCTRV
+         WHERE HOUSE_CODE  = ${session.HOUSE_CODE}
+           AND CONT_NO     = ${CONT_NO}
+           AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+</service>

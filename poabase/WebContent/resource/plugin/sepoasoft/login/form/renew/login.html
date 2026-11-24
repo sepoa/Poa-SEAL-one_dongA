@@ -1,0 +1,428 @@
+<style>
+	body *{
+		box-sizing: border-box;
+	}
+	.sepoa-index-top-wrapper{
+	    width: 100%;	
+		height: 100%;
+    	min-height: 900px;
+    	min-width: 1200px;
+/*     	overflow-y: auto; */
+/*     	overflow-x: auto; */
+    	position: absolute;
+    }
+	.sepoa-index-outer-wrapper{
+		height:100%;
+		width:100%;
+		position: relative;
+	}
+	.sepoa-index-inner-wrapper{
+		height:100%;
+		min-width: 1200px;
+		display:flex;
+	}
+	.sepoa-index-bottom{
+		height:70px;
+		width:100%;
+		display: flex;
+		position:absolute;
+		bottom:0;
+	}
+	.sepoa-index-bottom > div{
+		flex:1;
+		min-width: 600px;
+	}	
+	.sepoa-index-container {
+		min-width: 600px;
+		flex:1;
+		display:flex;
+		align-items: center;
+		flex-direction: column;
+		position:relative;
+	} 
+	.sepoa-index-container iframe{
+		width:100%;
+		height:100%;
+		border: none;
+		margin:none;
+	}
+	.sepoa-index-logo-wrapper{
+		display:flex;
+	}
+	.sepoa-index-logo{
+		margin:0px 0px 23px 0px;
+	}
+	.sepoa-index-logo.sepoa-index-logo-error{
+		display:none;
+	}
+	.sepoa-index-login-wrapper{
+		min-height:900px;
+		position:relative;
+		display:flex;
+	}
+	.sepoa-index-login-image{
+		object-fit:cover;
+	}
+	.sepoa-index-login-remark-title-wrapper{
+		margin-top:150px;
+		width:500px;
+		padding-left: 15px;
+	}
+	.sepoa-index-login-remark-title{
+		font-size: 40px;
+		font-weight: bold;
+		line-height: 60px;
+		letter-spacing: -0.8px;
+		cursor: default;
+	}
+	.sepoa-index-login-remark-sub-title{
+		font-size: 20px;
+		line-height: 36px;
+		cursor: default;
+	}
+	
+	.sepoa-index-login-container-wrapper{
+		margin-top:50px;
+		width: 460px;
+		height: 420px;
+		border-radius: 4px;
+		box-shadow: 0 0 50px 0 rgba(0, 0, 0, 0.1);
+		display: flex;
+	}
+	.sepoa-index-login-container-wrapper > div {
+		width: 100%;
+		height: 100%;
+		border-radius: inherit;
+	}
+	.sepoa-index-login-container{
+		width:100%;
+		height: 100%;
+		display:flex;
+		flex-direction:column;
+		justify-content: center;
+		align-items: center;
+	}
+	.sepoa-index-login-title > span{
+		color:#252529;
+		font-size: 20px;
+		font-weight:500;
+	}
+	.sepoa-index-login-input-container{
+	    display: flex;
+    	flex-direction: column;
+    	width: 300px;
+	}
+	.sepoa-index-login-input-label{
+		font-size: 14px;
+		font-weight: normal;
+		font-stretch: normal;
+		font-style: normal;
+		line-height: 1.43;
+		letter-spacing: normal;
+		text-align: left;
+		color: #252529;
+		cursor: default;
+	}
+	.sepoa-index-login-input-container > input{
+		width: 300px;
+	  	height: 50px;
+	  	border-radius: 8px;
+	  	border: solid 1px #e0e3e5;
+		margin: 3px 0 7px 0;
+		padding: 12px;
+    	box-sizing: border-box;
+	}
+	.sepoa-index-login-input-container > input::placeholder{
+		color:#fff;
+	}
+	.sepoa-index-login-input-container .sepoa-index-capslock-warning{
+		width:100%;
+		height:30px;
+		line-height:30px;
+		text-align:center;
+		font-size:14px;
+	}
+	.sepoa-index-login-input-container .sepoa-index-capslock-warning > span{
+		color:#252529;
+		display:none;
+	}
+	.sepoa-index-login-input-container .sepoa-index-capslock-warning.active > span{
+		display:inherit;
+	}
+	.sepoa-index-login-input-container .sepoa-index-login-input-button{
+		width:100%;
+		background-color:#fff;
+		color:#0f81a9;
+		margin-top:5px;
+		font-size:14px;
+		font-weight:500;
+		text-indent:0px;
+		cursor:pointer;
+	}
+	.sepoa-index-login-message{
+		width:100%;
+		height:27px;
+		color:#252529;
+		word-break: keep-all;
+		white-space: nowrap;
+		display: flex;
+    	align-items: center;
+    	justify-content: center;
+    	font-size:14px;
+	}
+	.sepoa-index-login-submenu-container{
+		display:flex;
+		align-items: center;
+    	flex-direction:column;
+	}
+	.sepoa-index-login-submenu-item{
+		display:none;
+	}
+	.sepoa-index-login-submenu-item:first-child{
+		border:0px;
+	}
+	.sepoa-index-login-submenu-item.show{
+		display:flex;
+		align-items: center;
+    	justify-content: center;
+	}
+	.sepoa-index-login-submenu-item span{
+		color:#252529;
+		font-size:14px;
+		margin:0px 10px;
+		cursor:pointer;
+	}
+	.sepoa-index-bottom-wrapper{
+		width:100%;
+		display:flex;
+		color: #4C4C4C;
+	}
+	.sepoa-index-bottom-wrapper > div{
+		display:none;
+		flex:none;
+		max-width:300px;
+	}
+	.sepoa-index-bottom-wrapper > div:last-child{
+		margin-right: 0px;
+	}
+	.sepoa-index-bottom-wrapper > div.show{
+		margin-top:23px;
+		display:flex;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-notice{
+		flex-direction:column;
+		margin-right: 50px;
+		min-width:300px;
+	}
+	.sepoa-index-bottom-item-notice-header{
+		font-size: 16px;
+    	font-weight: 500;
+    	
+    	color:#333333;
+	}
+	.sepoa-index-bottom-item-notice-contents{
+		font-size: 12px;
+    	font-weight: normal;
+    	color: #444444;
+    	
+    	line-height:18px;
+    	list-style-type: none;
+    	
+	    padding: 0px;
+	    margin: 12px 0px 0px;
+	}
+	.sepoa-index-bottom-item-notice-contents > li{
+		cursor:pointer;
+		
+		overflow: hidden;
+    	text-overflow: ellipsis;
+    	white-space: nowrap;
+    	
+    	margin-top:8px;
+	}
+	.sepoa-index-bottom-item-notice-contents > li:first-child{
+		margin-top:0px;
+	}
+	.sepoa-index-bottom-item.show{
+		display:block;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-menu{
+		flex:1;
+		justify-content: space-evenly;
+		max-width:none;
+	}
+	.sepoa-index-bottom-item-menu-item{
+		height:100%;
+		display:none;
+		
+		cursor:pointer;
+	}
+	.sepoa-index-bottom-item-menu-item.show{
+		/* width:200px; */
+		display:flex;
+		flex-direction: column;
+	}
+	.sepoa-index-bottom-item-menu-item .sepoa-index-bottom-item-menu-item-icon-wrapper{
+		width:100%;
+		
+		display:flex;
+		align-items: center;
+    	justify-content: center;
+	}
+	.sepoa-index-bottom-item-menu-item .sepoa-index-bottom-item-menu-item-label{
+		height:25px;
+	    margin-top:20px;
+	    
+	    text-align:center;
+	    font-size: 14px;
+	    font-weight:500;
+	    
+	    display:none;
+	    
+	    color:#333333;
+	}
+	.sepoa-index-bottom-item-menu-item .sepoa-index-bottom-item-menu-item-label.show{
+		display:block;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-contact{
+		flex-direction:column;
+		max-width:400px;
+		margin-left: 50px;
+	}
+	
+	.sepoa-index-bottom-item{
+		display: none;
+		width: 100%;
+		position: relative;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-contact.show{
+	    align-items: flex-end;
+	}
+	.sepoa-index-bottom-item-contact-wrapper{
+		display:flex;
+		flex-direction: column;
+	}
+	.sepoa-index-bottom-item-contact-inner-wrapper:not(:first-child){
+		margin-top:23px;
+	}
+	.sepoa-index-bottom-item-contact-header{
+		font-size: 16px;
+    	font-weight: 500;
+    	color: #333333;
+	}
+	.sepoa-index-bottom-item-contact-contents{
+		font-size: 16px;
+    	font-weight: 500;
+    	color: #666666;
+    	
+    	line-height:1.5;
+    	
+    	margin-top:10px;
+	}
+	.sepoa-index-footer{
+		width:100%;
+		height:70px;
+		display:flex;
+		align-items: center;
+    	justify-content: center;
+		color: #343b3f;
+    	font-size: 12px;
+	    position: absolute;
+	    bottom: 0;    	
+	}
+	.sepoa-index-custom_iframe{
+		width: 100%;
+		height: 100%;
+	}		
+	
+	/* popup mode */
+	.sepoa-index-type-popup .sepoa-index-top-wrapper{
+		height: 430px;
+		min-height: unset;
+		overflow: hidden;
+		position: unset;
+	}
+	.sepoa-index-type-popup .sepoa-index-outer-wrapper{
+		height:100%;
+		overflow: hidden;
+		
+	}
+	.sepoa-index-type-popup .sepoa-index-inner-wrapper{
+		width:fit-content;
+		overflow: hidden;
+		min-width: unset;
+	}
+	.sepoa-index-type-popup .sepoa-index-login-wrapper{
+		overflow:hidden;
+		height: 400px;
+	}
+	
+	.sepoa-index-type-popup .sepoa-index-container{
+		min-width:420px;
+	}
+    .sepoa-index-type-popup .sepoa-index-login-image,
+    .sepoa-index-type-popup .sepoa-index-logo-wrapper,
+	.sepoa-index-type-popup .sepoa-index-login-remark-title-wrapper,
+	.sepoa-index-type-popup .sepoa-index-login-submenu-container-wrapper,
+	.sepoa-index-type-popup .sepoa-index-bottom-wrapper,
+	.sepoa-index-type-popup .sepoa-index-footer{
+		display:none;
+	}
+	.sepoa-index-type-popup .sepoa-index-login-container-wrapper{
+		margin: 0;
+	}
+
+	.sepoa-index-login-input-container .sepoa-index-login-input-button {
+		background-color: $.{LOGIN_FORM_LABEL_COLOR};
+		border-color: $.{LOGIN_FORM_LABEL_COLOR};
+	}
+	
+	/* IE double scroll issue*/
+	@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+			.sepoa-index-top-wrapper{
+	    	overflow-y: hidden;
+	    	overflow-x: hidden;
+	    }
+	}	
+	
+</style>
+<div class="sepoa-index-top-wrapper">
+	<div class="sepoa-index-outer-wrapper">
+		<div class="sepoa-index-inner-wrapper">
+			<div class="sepoa-index-container">	
+				<div class="sepoa-index-login-remark-title-wrapper">
+					<div class="sepoa-index-module-target sepoa-index-module-var-MAIN_REMARK_TITLE sepoa-index-module-type-remark_title sepoa-index-login-remark-title"></div>
+					<div class="sepoa-index-module-target sepoa-index-module-var-MAIN_REMARK_SUB_TITLE sepoa-index-module-type-remark_sub sepoa-index-login-remark-sub-title"></div>
+				</div>
+				<div class="sepoa-index-login-container-wrapper">
+					<div class="sepoa-index-module-target sepoa-index-module-var-LOGIN_FORM_COLOR sepoa-index-module-type-back_color sepoa-index-login-back-color">
+						<div class="sepoa-index-login-container">
+							<div class="sepoa-index-login-input-container">
+								<div class="sepoa-index-login-input-label">$LANG{LOGIN.ID}</div>
+								<input class="sepoa-index-module-target sepoa-index-module-type-login_input sepoa-index-login-input" type="text" id="id" style="margin-bottom:20px;" />
+								<div class="sepoa-index-login-input-label">$LANG{LOGIN.PASSWORD}</div>
+								<input class="sepoa-index-module-target sepoa-index-module-type-login_input sepoa-index-login-input" type="password" id="password" />
+								<div class="sepoa-index-module-target sepoa-index-module-type-login_capslock_warning sepoa-index-capslock-warning"></div>
+								<input class="sepoa-index-module-target sepoa-index-module-var-LOGIN_FORM_COLOR sepoa-index-module-type-login_button sepoa-index-login-input-button" type="button" value="LOGIN"></input>
+							</div>
+							<div class="sepoa-index-module-target sepoa-index-module-type-login_message sepoa-index-login-message"></div>
+							<div class="sepoa-index-login-submenu-container-wrapper">
+								<div class="sepoa-index-login-submenu-container">
+									<div class="sepoa-index-module-target sepoa-index-module-var-FIND_ID_PW sepoa-index-module-type-login_submenu sepoa-index-login-submenu-item show"></div>
+									<div class="sepoa-index-module-target sepoa-index-module-var-LOGIN_FORM_SUB_BUTTON sepoa-index-module-type-login_submenu sepoa-index-login-submenu-item"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="sepoa-index-module-target sepoa-index-module-var-COPYRIGHT_CONTENTS sepoa-index-module-type-footer sepoa-index-footer"></div>					
+			</div>
+			<div class="sepoa-index-container">
+				<div class="sepoa-index-module-target sepoa-index-module-type-custom_iframe sepoa-index-custom_iframe"></div>
+				<div class="sepoa-index-bottom-item sepoa-index-bottom-item-contact">
+					<div class="sepoa-index-module-target sepoa-index-module-type-contact_contents sepoa-index-footer"></div>
+				</div>	
+			</div>		
+		</div>
+	</div>
+</div>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQuery">
+    <![CDATA[
+        SELECT
+              SMR_NUMBER
+            , SMR_STATUS
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , CHANGE_DATE
+            , CHANGE_TIME
+            , CHANGE_USER_ID
+            , APPLY_TYPE
+            , SUBJECT
+            , SUBMISSION_PLACE
+            , REMARK
+            , RCPT_TYPE
+            , RCPT_REMARK
+            , CONFIRM_DATE
+            , CONFIRM_TIME
+            , CONFIRM_USER_ID
+            , SUBMIT_TYPE
+            , SUBMIT_REMARK
+            , RE_FLAG
+            , REQ_SEAL_USE_TYPE
+            , LEGAL_WATERMARK
+            , RE_DETAIL
+            , REJECT_REASON
+            , EXPLANATION
+            , #DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME
+            , #DB_OWNER#GETUSERDEPTNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_DEPT
+        FROM SSIAD
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND COMPANY_CODE = ${session.COMPANY_CODE}
+          AND ADD_USER_ID = ${session.ID}
+          AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+          AND SMR_STATUS = ${SMR_STATUS}
+          AND RE_FLAG = ${RE_FLAG}
+          AND REQ_SEAL_USE_TYPE IN ($IN{REQ_SEAL_USE_TYPE})
+          AND SMR_NUMBER NOT IN (
+                                    SELECT SOURCE_NO
+                                    FROM SSCGL
+                                    WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+                                      AND COMPANY_CODE = ${session.COMPANY_CODE}
+                                      AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+                                      AND SOURCE_NO IS NOT NULL
+                                )
+    ]]>
+     <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            SUBJECT LIKE '%' || $S{F_KEYWORD} || '%'
+            OR SMR_NUMBER LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    <if test="${F_CALENDAR_TARGET}" operator="eq" value="ADD_DATE">
+    <![CDATA[
+          AND ADD_DATE BETWEEN $S{F_CALENDAR_FROM} AND $S{F_CALENDAR_TO}
+    ]]>
+    </if>
+    <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONFIRM_DATE">
+    <![CDATA[
+          AND CONFIRM_DATE BETWEEN $S{F_CALENDAR_FROM} AND $S{F_CALENDAR_TO}
+    ]]>
+    </if>
+    <![CDATA[
+        ORDER 
+            BY SMR_NUMBER DESC
+    ]]>
+    </method>
+</service>

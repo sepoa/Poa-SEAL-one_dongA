@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+	<method name="getPwResetFlag">
+		/*ContactInfo.getPwResetFlag*/
+		<![CDATA[
+			SELECT NVL(PW_RESET_FLAG,'N') AS PW_RESET_FLAG
+			FROM SUSMT
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USER_ID = ${session.ID}
+		]]>
+	</method>
+	<method name="doQuery">
+		/*ContactInfo.doQuery*/
+		<![CDATA[
+			SELECT
+				  USMT.USER_NAME_LOC
+				, DEPT.DEPT_NAME_LOC AS DEPT_NAME
+				, ADDR.PHONE_NO1 AS CONTACT_NO
+				, ADDR.PHONE_NO2 AS MOBILE_NO
+			FROM SUSMT USMT
+			JOIN SDEPT DEPT
+			  ON (USMT.HOUSE_CODE = DEPT.HOUSE_CODE
+			  	  AND USMT.COMPANY_CODE = DEPT.COMPANY_CODE
+			  	  AND USMT.PLANT_CODE = DEPT.PLANT_CODE
+			  	  AND USMT.DEPT = DEPT.DEPT)
+			JOIN SADDR ADDR
+			  ON (USMT.HOUSE_CODE = ADDR.HOUSE_CODE
+			  	  AND USMT.USER_ID = ADDR.CODE_NO
+				  AND ADDR.CODE_TYPE = 'USER')
+			WHERE USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+			  AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+			  AND USMT.USER_ID = ${session.ID}
+			  AND NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+			  AND NVL( DEPT.DEL_FLAG, 'N' ) = 'N'
+			  AND NVL( ADDR.DEL_FLAG, 'N' ) = 'N'		
+		]]>
+	</method>
+	<method name="doSave">
+		/*ContactInfo.doSave*/
+		<![CDATA[
+			UPDATE SADDR
+			   SET PHONE_NO1 = ${CONTACT_NO},
+			       PHONE_NO2 = ${MOBILE_NO},
+			       CHANGE_DATE = ${current.DATE},
+			       CHANGE_TIME = ${current.TIME},
+			       CHANGE_USER_ID = ${session.ID}
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			   AND CODE_TYPE = 'USER'
+			   AND CODE_NO = ${session.ID}
+			   AND NVL( DEL_FLAG , 'N' ) = 'N'		
+		]]>
+	</method>
+	<method name="updatePwResetFlag">
+		/*ContactInfo.updatePwResetFlag*/
+		<![CDATA[
+			UPDATE SUSMT
+			   SET PW_RESET_FLAG = 'Y',
+			       CHANGE_DATE = ${current.DATE},
+			       CHANGE_TIME = ${current.TIME},
+			       CHANGE_USER_ID = ${session.ID}
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			   AND USER_ID = ${session.ID}
+			   AND NVL( DEL_FLAG , 'N' ) = 'N'		
+		]]>
+	</method>
+</service>

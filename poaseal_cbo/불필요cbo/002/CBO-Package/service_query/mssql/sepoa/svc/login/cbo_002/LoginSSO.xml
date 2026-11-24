@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="updateDept">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET DEPT = ${SSO_GW_DEPT}
+		 WHERE HOUSE_CODE = '002'
+		   AND USER_ID = ${ID}
+	]]>
+	</method>
+	
+</service>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SMUPD ADD (MENU_IMG VARCHAR2(20)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SMUPD ADD MENU_IMG VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			ALTER TABLE SMUPD ADD MENU_IMG VARCHAR(20)
+		]]>
+		</query>
+	</item>
+</body>

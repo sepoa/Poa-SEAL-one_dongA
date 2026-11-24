@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_051" header="false" pageCloseWarn="true">
+    <button id="layoutBtnObj">
+        <btn div="oEtAYXcLRYBwtdxnpt" id="SAVE" type="default" text="{BASE_BUTTON.SAVE}" toggle="false" reverse="false" onclick="doSave(  )"/>
+        <btn div="oEtAYXcLRYBwtdxnpt" id="CANCEL" type="delete" text="{BASE_BUTTON.CANCEL}" toggle="false" reverse="false" onclick="doCancel(  )"/>
+    </button>
+    <form id="formObj" div="jEtAYXckUHOvtdxtsn" form-id="file:///resource/ux/admin/form/AD_051.js">
+        <event type="onFocus" callback="onFocus"/>
+    </form>
+    <tabbar id="tabbarObj" div="mEtAYXcDDJovtdxjat">
+        <item id="BASIC" name="AD_051.TABBAR_BASIC_NAME" selected="true"/>
+        <item id="CHANGE_PASS" name="AD_051.TABBAR_CHANGE_PASS_NAME"/>
+    </tabbar>
+    <usercss>
+    <![CDATA[
+        div#formbox {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        div.dhx_cell_cont_tabbar div.form_area {
+            display: flex;
+            justify-content: center;
+        }
+        
+        div.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_left {
+            display: flex;
+            width: 100% !important;
+            justify-content: center;
+        }
+        
+        .dhxtabbar_tabs_top .dhxtabbar_tab {
+            width: 176px !important;
+        }
+        
+        .sepoa-user-info-seal-view .dhxform_container{
+            text-align: center;
+        }
+        .sepoa-user-info-seal-view img{
+            max-width:100%;
+            max-height:100%;
+        }
+        
+        .policy-msg-box span:not(.title){
+            color:red;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="zvlHQIezkOJQIefnpb" value="$($sObject._vp).find('#zvlHQIezkOJQIefnpb')[0]"/>
+        <var name="conObj" value="$($sObject._vp).find('#zvlHQIeykOJQIeWDgK')[0]"/>
+    </variable>
+    <onloadscript>
+		<call name="initPolicy" />
+        <call name="initTabbar"/>
+        <call name="doQuery"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}" />
+        <var name="loadEmail"/>
+        <var name="loadP1"/>
+        <var name="loadP2"/>
+        <var name="loadATTACH"/>
+        
+        <function name="initPolicy">
+        <![CDATA[
+            sUtils.connector.api('service',{
+                target:{
+                    name:"sepoa.svc.admin.AD_050",
+                    action:"getPasswordPolicy"
+                }
+            }).then((res)=>{
+                if(res.status == 1){
+                    $share.policy = res.result[0]; 
+                }
+            })
+        ]]>
+        </function>
+        <function name="initTabbar" args="">
+        <![CDATA[
+            $share.form = {};
+            
+            $share.form.basic = tabbarObj.tabs('BASIC').attachForm(void 0, 'basicFormObj', [sUtils.cache.form.load('/resource/ux/admin/form/AD_051_1.js')]);
+            $share.sealVaultObj = $share.form.basic._apiConnector('getVault', ['ATTACH_NO_SEAL']);
+            $share.sealVaultObj.f.removeAttribute('multiple');
+            $share.sealVaultObj.f.setAttribute('accept', 'image/*');
+            $share.sealVaultObj.conf.param = 'ATTACH_NO_SEAL';
+            
+            $share.sealVaultObj.attachEvent('onUploadFile', onUploadFile);
+            $share.sealVaultObj.attachEvent('onBeforeFileAdd', onBeforeFileAdd);
+            
+            $share.form2 = {};
+            $share.form2.pass = tabbarObj.tabs('CHANGE_PASS').attachForm(void 0, 'passFormObj', [sUtils.cache.form.load('/resource/ux/admin/form/AD_051_2.js')]);
+        ]]>
+        </function>
+        <function name="doQuery" args="">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.AD_050', 'CONNECTION', 'doQuery', null, function(obj) {
+                if (obj.status != 1) {
+                    Alert(obj.message);
+                    return;
+                }
+                sf = new SepoaFormater(obj.result[0]);
+                if (sf.getRowCount() > 0) {
+                    formObj.dataMapper(sf);
+            
+                    for (var i in tabbarObj.t) {
+                        if (tabbarObj.t[i].cell.dataObj && tabbarObj.t[i].cell.dataObj.dataMapper) {
+                            tabbarObj.t[i].cell.dataObj.dataMapper(sf);
+                        }
+                    }
+                    
+                    $share.form.basic.setValue('ATTACH_NO_SEAL', 'USER_'+sf.getValue('USER_ID', 0)+'_SEAL_IMG');
+                    
+                    loadEmail = $share.form.basic.getValue('EMAIL')
+                    loadP1 = $share.form.basic.getValue('PHONE_NO1')
+                    loadP2 = $share.form.basic.getValue('PHONE_NO2')
+                    loadATTACH = $share.form.basic.getValue('ATTACH_NO_SEAL')
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="onUploadFile" args="e, a, p">
+        <![CDATA[
+            var cont = $share.form.basic.getContainer(p+"_VIEW");
+            cont.innerHTML = '';
+            
+            if(e.fileCount > 0){
+				cont.appendChild($(sUtils.string.dataReplacer('<img src="' + (window.CONTEXT_NAME ? window.CONTEXT_NAME : '') + '/SepoaPathToImage.sux?attach_key=$.{attach_key}&attach_seq=$.{serverName}&random=$CURRENT{TIME_STRING}"></img>', {attach_key:e.attach_key, serverName: this.getData()[0].serverName}))[0]);
+            }
+        ]]>
+        </function>
+        
+        <function name="onBeforeFileAdd">
+        <![CDATA[
+            if(this.getData().length > 0){
+                Alert(sUtils.cache.text.get('AD_050.0007'));
+                return false;
+            }
+            return true;
+        ]]>
+        </function>
+        
+        <function name="doCancel" args="">
+        <![CDATA[
+            SUX.root.location.href = window.CONTEXT_NAME + "/Main.sux";
+        ]]>
+        </function>
+        <function name="onKeyUp" args="inp, ev, name, value">
+        <![CDATA[
+            if(name.startsWith("NEW_PASSWORD_")){
+                checkPassPolicy();   
+            }
+        ]]>
+        </function>
+        <function name="checkPassPolicy">
+        <![CDATA[
+            const passOrg    = $share.form.pass.getValue("NEW_PASSWORD_1");
+            const passRepeat = $share.form.pass.getValue("NEW_PASSWORD_2");
+            
+            const msgStack = [];
+            if(passOrg != passRepeat){
+                msgStack.push(`<span>${sUtils.cache.text.get('AD_051_2.MESSAGE_SAME_INPUT')}</span>`);
+            }
+            if($share.policy.lengthMin > passOrg.length){
+                msgStack.push(`<span>${sUtils.string.dataReplacer(sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_LENGTH_MIN'), $share.policy)}</span>`);
+            }
+            
+            if($share.policy.lengthMax < passOrg.length){
+                msgStack.push(`<span>${sUtils.string.dataReplacer(sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_LENGTH_MAX'), $share.policy)}</span>`);
+            }
+            
+            if($share.policy.inSpecial && passOrg.match(/^[0-9|a-z|A-Z]*$/g)){
+                msgStack.push(`<span>${sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_SPECIAL')}</span>`);
+            }
+            
+            if($share.policy.inUpper && !passOrg.match(/^.*[A-Z].*$/g)){
+                msgStack.push(`<span>${sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_UPPER')}</span>`);
+            }
+            
+            if($share.policy.inLower && !passOrg.match(/^.*[a-z].*$/g)){
+                msgStack.push(`<span>${sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_LOWER')}</span>`);
+            }
+            
+            if($share.policy.inNumber && !passOrg.match(/^.*[0-9].*$/g)){
+                msgStack.push(`<span>${sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_NUMBER')}</span>`);
+            }
+            
+            if(msgStack.length > 0){
+                if(!$share.policyMessageArea){
+                    $share.policyMessageArea = $share.form.pass._parent.children[0].appendChild(sUtils.element.create(`<div class="policy-msg-box"></div>`));
+                }
+                msgStack.splice(0, 0, `<span class="title">${sUtils.cache.text.get('AD_051_2.MESSAGE_POLICY_FAIL')}</span>`);
+                $share.policyMessageArea.innerHTML = msgStack.join('</br>')
+                $share.policyPass = false;  
+            }else if($share.policyMessageArea){
+                $share.policyMessageArea.innerHTML = '';
+                $share.policyPass = true;
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+        	if(tabbarObj._isTabActive('CHANGE_PASS')){
+        		if($share.form2.pass.getValue('PASS_WORD') == ''){
+	        		Alert("기존 비밀번호를 기입하세요.");
+	        		return;
+	        	}else if(!checkPwExist($share.form2.pass.getValue('PASS_WORD'))){
+	        		Alert("기존 비밀번호와 일치하지 않습니다.");
+	        		return;
+	        	}else if($share.form2.pass.getValue('NEW_PASSWORD_1') == ''){
+	        		Alert("새 비밀번호를 기입하세요.");
+	        		return;
+	        	}else if (checkPass($share.form2.pass.getValue('NEW_PASSWORD_1')) == false) {
+	                Alert("비밀번호는 대문자 , 소문자 , 숫자  , 특수문자(!@#$%^*+=-) 를  <br>1개 이상씩 포함해서 10자 이상 20자 미만으로 조합해주세요.");
+	                return;
+	            }else if($share.form2.pass.getValue('NEW_PASSWORD_2') == ''){
+	        		Alert("새 비밀번호 확인을 기입하세요.");
+	        		return;
+	        	}else if (!checkPassword()) {
+	                Alert(Sepoa.cache.text.get('AD_051.MESSAGE_0001')); //새로운 비밀번호가 서로 같지 않습니다.
+	                return;
+	            }	
+        	}else if(tabbarObj._isTabActive('BASIC')){
+        		if(loadEmail == $share.form.basic.getValue('EMAIL') && loadP1 == $share.form.basic.getValue('PHONE_NO1') &&
+        			loadP2 == $share.form.basic.getValue('PHONE_NO2') && loadATTACH == $share.form.basic.getValue('ATTACH_NO_SEAL')){
+        			Alert("변경 사항이 없습니다.");
+        			return;
+        		}
+        	}
+        	
+            Confirm(Sepoa.cache.text.get("MESSAGE.1018"), function(result) {
+                if (result) {
+                    doServiceAjax('sepoa.svc.admin.AD_050', 'TRANSACTION', 'doSave', undefined, function(obj) {
+                        if (obj.status != 1) {
+                            Alert(sUtils.cache.text.get("AD_051.MESSAGE_" + obj.status));
+                            return;
+                        } else {
+                            Alert(Sepoa.cache.text.get("MESSAGE.0001"), function() {
+                                SUX.root.location.href = window.CONTEXT_NAME + "/Main.sux";
+                            });
+                        }
+                    });
+                }
+            }, false);
+        ]]>
+        </function>
+        <function name="onFocus" args="name">
+        <![CDATA[
+            if (name == "NEW_PASSWORD_2") {
+                if (!$share.form.pass.getValue('NEW_PASSWORD_1')) {
+                    $share.form.pass._apiConnector('getInput', 'NEW_PASSWORD_1').focus();
+                }
+            } else if (name == "NEW_PASSWORD_1") {
+                if (!$share.form.pass.getValue('PASS_WORD')) {
+                    $share.form.pass._apiConnector('getInput', 'PASS_WORD').focus();
+                }
+            }
+        ]]>
+        </function>
+        <function name="checkPass" args="str">
+        <![CDATA[
+            var reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{10,20}$/;
+            
+            return reg.test(str);
+        ]]>
+        </function>
+        <function name="checkPassword" args="">
+        <![CDATA[
+            if ($share.form2.pass.getValue('NEW_PASSWORD_1') != $share.form2.pass.getValue('NEW_PASSWORD_2')) {
+                return false;
+            }
+            return true;
+        ]]>
+        </function>
+        <function name="checkPwExist" args="pw">
+        <![CDATA[
+        	let id = Sepoa.info.ID;
+        	let result ;
+        	doServiceAjax('sepoa.svc.system.login.SepoaLoginService', 'CONNECTION', 'docheckpwexist', {PASSWORD : pw, ID : id}, function(so) {
+               if(so.status != 1){
+                    result = 'false';
+               }else{
+               		result = 'true';
+               }
+            },false);
+            
+            if(result == 'false'){
+            	return false;
+            }else{
+            	return true;
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsibUV0QVlYY0RESm92dGR4amF0Ijp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfZVpNeTF2SFFrQUcxIjoibnVsbCIsImRoeElkXzFsa3IwY2o1WVM4aiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9SQ3hrNjlqc1pZZTUiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9oTXZEMnBVODIzU3AiOiJudWxsIiwiZGh4SWRfWDVi
+        ZUNnMkplanhDIjoibnVsbCIsImRoeElkX0tVbzRlVHNXSkdoMSI6Im51bGwiLCJkaHhJZF9OTVdzbmxZOG1Hb0QiOiJudWxsIiwiZGh4SWRfRnF6QUZMbGt1THVEIjoibnVsbCIsImRoeElkX2tKTmJHR1Nsemc1MiI6Im51bGwiLCJkaHhJZF9UdHZvamE1SVVRcWoiOiJudWxsIiwiZGh4SWRfcUg5Z2t6NEtBZnFEIjoibnVsbCIsImRoeElkX0dFZWl5QjB3aDhGUiI6Im51bGwiLCJkaHhJZF9ZaU1OUk5vSVNMWVIiOiJudWxsIiwiZGh4SWRfMzFjdUxKWlZsTG1kIjoibnVsbCIsImRoeElkX04wcnJVZmt2dmxsVCI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6InRhYmJhck9iaiIsIk9CSkVDVF9JRCI6Im1FdEFZWGNEREpvdnRkeGphdCIsIklURU1fWUtVVlBW
+        RUVLUEVJRkRFQUVOVl9OQU1FIjoi67mE67CA67KI7Zi467OA6rK9IiwiSVRFTV9ZS1VWUFZFRUtQRUlGREVBRU5WX0lEIjoiQ0hBTkdFX1BBU1MiLCJJVEVNX0pKVVZQVkVDT1VTVkVERUFHVkRfU09SVCI6IjEiLCJJVEVNX0pKVVZQVkVDT1VTVkVERUFHVkRfSUQiOiJCQVNJQyIsIklURU1fWUtVVlBWRUVLUEVJRkRFQUVOVl9TT1JUIjoiMiIsIklURU1fSkpVVlBWRUNPVVNWRURFQUdWRF9OQU1FIjoi7J2867CY7KCV67O0IiwiSVRFTV9KSlVWUFZFQ09VU1ZFREVBR1ZEX1NFTEVDVEVEIjoidHJ1ZSIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoibUV0QVlYY0RESm92dGR4amF0IiwidHlwZSI6InRhYmJhciIsInRhYmJhciI6InRhYmJhciIsImV2ZW50
+        cyI6W119LCJvRXRBWVhjTFJZQnd0ZHhucHQiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJsYXlvdXRCdG5PYmoiLCJJVEVNXzBfUkVWRVJTRSI6ZmFsc2UsIklURU1fMF9TTENPREUiOiJCQVNFX0JVVFRPTi5TQVZFIiwiSVRFTV8xX1NMQ09ERSI6IkJBU0VfQlVUVE9OLkNBTkNFTCIsIklURU1fMF9UWVBFIjoiZGVmYXVsdCIsIklURU1fMF9QQVJBTSI6IiIs
+        IklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX09OQ0xJQ0siOiJkb0NhbmNlbCIsIklURU1fMV9QQVJBTSI6IiIsIklURU1fMF9PTkNMSUNLIjoiZG9TYXZlIiwiSVRFTV8xX1RFWFQiOiLst6jshowiLCJJVEVNXzFfVE9HR0xFIjpmYWxzZSwiSVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9TT1JUIjoiMSIsIklURU1fMV9TT1JUIjoiMiIsIk9CSkVDVF9JRCI6Im9FdEFZWGNMUllCd3RkeG5wdCIsIklURU1fMV9UWVBFIjoiZGVsZXRlIiwiSVRFTV8wX0lEIjoiU0FWRSIsIklURU1fMV9JRCI6IkNBTkNFTCIsIklURU1fMF9URVhUIjoi7KCA7J6lIn0sImlkIjoib0V0QVlYY0xSWUJ3dGR4bnB0IiwidHlwZSI6ImJ1dHRvbiIsImJ1dHRvbiI6ImJ1dHRv
+        biJ9LCJqRXRBWVhja1VIT3Z0ZHh0c24iOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX0FJWmtadnZpREpEUSI6Im51bGwiLCJkaHhJZF8xSzlyYmk5VExLcFkiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsImRoeElkX2paTlp5OVZuOHF0ZyI6Im51bGwiLCJkaHhJZF8wMWI2NU54eWtyRnciOiJudWxsIiwiZGh4SWRfcmJKbzRISWVuYW9pIjoibnVsbCIsIkFMSUdOX1ZFUlRJQ0FMIjoibWlkZGxlIiwiZGh4SWRfUVlDZ25Ic2pVbXoz
+        IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6ImpFdEFZWGNrVUhPdnRkeHRzbiIsIkZPUk1fSUQiOiJmaWxlOi8vL3Jlc291cmNlL3V4L2FkbWluL2Zvcm0vQURfMDUxLmpzIn0sImlkIjoiakV0QVlYY2tVSE92dGR4dHNuIiwidHlwZSI6ImZvcm0iLCJmb3JtIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvbkZvY3VzIiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0tfVFlQRSI6Im5hbWUiLCJOQU1FIjoib25Gb2N1cyJ9XX0sImhFdEFZWGNZdGVFdnRkeGxSUyI6eyJsYXlvdXQiOnsiU0NST0xMIjoiIiwiU0NST0xMX1YiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09O
+        VEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8yTHFxQ05Yb3NZdVAiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2pBMzJCdExWdEw0aiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzA1MSIsIk9CSkVDVF9JRCI6ImhFdEFZWGNZdGVFdnRkeGxSUyIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6ImhFdEFZWGNZdGVFdnRkeGxSUyIsInR5cGUiOiJib2R5In0sInp2bEhRSWV6a09KUUllZm5wYiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoienZsSFFJZXprT0pRSWVmbnBiIn0sImlkIjoienZsSFFJZXprT0pRSWVmbnBiIiwi
+        dHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sInp2bEhRSWV5a09KUUllV0RnSyI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfUEVGSXNleWUzRnpuIjoibnVsbCIsIk1BUkdJTl9UT1AiOiI0MHB4IiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfZTc3UEdSaFkyeVU5IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiJjZW50ZXIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2o0eFJpeHE5ZDFDZiI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX2dBSHpwOVF5YmxoUyI6
+        Im51bGwiLCJkaHhJZF9WZTVmbWYyZFZFbDIiOiJudWxsIiwiZGh4SWRfMGFhR3JEbTBSaHZwIjoibnVsbCIsImRoeElkX1JqWDlDc0VoQmtkRiI6Im51bGwiLCJkaHhJZF83djVSYjFXZmtEQUEiOiJudWxsIiwiZGh4SWRfY3BSZGxSSFVmbHh0IjoibnVsbCIsImRoeElkX1ExTUJBb3o0MDFHTSI6Im51bGwiLCJkaHhJZF9XU3ZOTFJwejVqSGciOiJudWxsIiwiZGh4SWRfelNEYXVMc2JnRGhsIjoibnVsbCIsImRoeElkX3ZrMVdkUTNOblh4MyI6Im51bGwiLCJkaHhJZF9Mb1VSMjdsbk1sSmoiOiJudWxsIiwiZGh4SWRfZlJGQjVORThOWjBqIjoibnVsbCIsImRoeElkX3U1SUFrekh5QkZEMyI6Im51bGwiLCJkaHhJZF9MVEN0c3lObXRoMWIiOiJudWxsIiwiZGh4
+        SWRfdXdrbDZIbG9lSU80IjoibnVsbCIsImRoeElkX0sxRHc5SEg4RkhQWiI6Im51bGwiLCJkaHhJZF9kM3RJamxkaExERDQiOiJudWxsIiwiZGh4SWRfcnBJTjd3N2lkN0ZiIjoibnVsbCIsImRoeElkX2RlRGt1a3hxMGl3NCI6Im51bGwiLCJkaHhJZF81V1J2QzlvbTBpb1QiOiJudWxsIiwiZGh4SWRfZXNEOWU0cXIyS21NIjoibnVsbCIsImRoeElkX3dpaTREWVhCNGVCayI6Im51bGwiLCJkaHhJZF8zYVYwT3oyOFZzamwiOiJudWxsIiwiZGh4SWRfYndKanZhazZKTVVjIjoibnVsbCIsImRoeElkXzlrUlpBTHFPeEc4SCI6Im51bGwiLCJkaHhJZF9qYlQySUF2MWZqa2YiOiJudWxsIiwiZGh4SWRfbmIydnh0NWkzN3daIjoibnVsbCIsImRoeElkX1JsRmQ3YzBP
+        UVJ0WCI6Im51bGwiLCJkaHhJZF9RMG1CUExIZWt6VDkiOiJudWxsIiwiZGh4SWRfRnVVSjhPTHFZSDhpIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6ImNvbk9iaiIsIk9CSkVDVF9JRCI6Inp2bEhRSWV5a09KUUllV0RnSyIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoienZsSFFJZXlrT0pRSWVXRGdLIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJKSlVWUFZFQ09VU1ZFREVBR1ZEIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJTT1JUIjoiMSIsIklEIjoiQkFTSUMiLCJpdGVtSUQiOiJKSlVWUFZFQ09VU1ZFREVBR1ZEIiwiTkFNRSI6IuydvOuwmOygleuztCIsIlNFTEVDVEVEIjoidHJ1ZSJ9LCJpZCI6IkpKVVZQVkVDT1VT
+        VkVERUFHVkQiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6IkJBU0lDIn0sIllLVVZQVkVFS1BFSUZERUFFTlYiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7Ik5BTUUiOiLruYTrsIDrsojtmLjrs4Dqsr0iLCJJRCI6IkNIQU5HRV9QQVNTIiwiaXRlbUlEIjoiWUtVVlBWRUVLUEVJRkRFQUVOViIsIlNPUlQiOiIyIn0sImlkIjoiWUtVVlBWRUVLUEVJRkRFQUVOViIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6InRhYmJhckNlbGwiLCJuYW1lIjoiQ0hBTkdFX1BBU1MifX0sInRyZWUiOnsiaWQiOiJoRXRBWVhjWXRlRXZ0ZHhsUlMiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Im9FdEFZWGNMUllCd3RkeG5w
+        dCIsInR5cGUiOiJidXR0b24ifSx7ImlkIjoienZsSFFJZXlrT0pRSWVXRGdLIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6Inp2bEhRSWV6a09KUUllZm5wYiIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJqRXRBWVhja1VIT3Z0ZHh0c24iLCJ0eXBlIjoiZm9ybSJ9LHsiaWQiOiJtRXRBWVhjRERKb3Z0ZHhqYXQiLCJ0eXBlIjoidGFiYmFyIiwiY2VsbHMiOlt7ImlkIjoiSkpVVlBWRUNPVVNWRURFQUdWRCIsInR5cGUiOiJ0YWJiYXJDZWxsIn0seyJpZCI6IllLVVZQVkVFS1BFSUZERUFFTlYiLCJ0eXBlIjoidGFiYmFyQ2VsbCJ9XX1dfV19XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9VcGRhdGVVc2VySW5mby9BZG1pblVwZGF0
+        ZVVzZXJJbmZvLnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6IjA1MSIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiVXBkYXRlVXNlckluZm8iLCJQQVRIXzMiOiJBZG1pblVwZGF0ZVVzZXJJbmZvIiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiIiLCJTQ1JFRU5fSUQiOiJBRF8wNTEifX0sImh0bWwiOiI8ZGl2IGlkPVwiaEV0QVlYY1l0ZUV2dGR4bFJTXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5u
+        ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwib0V0QVlYY0xSWUJ3dGR4bnB0XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHls
+        ZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwibWFyZ2luLXRvcDo0MHB4O21hcmdpbi1yaWdodDowO21hcmdpbi1ib3R0b206MDttYXJnaW4tbGVmdDowO2hlaWdodDpjYWxjKDEwMCUgLSA0MHB4KTtcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInp2bEhRSWV5a09KUUllV0RnS1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dy
+        YXBwZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9jZW50ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJ6dmxIUUllemtPSlFJZWZucGJcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1
+        eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9jZW50ZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX3ZhbGlnbl9taWRkbGVcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICA8ZGl2IGlkPVwiakV0QVlYY2tVSE92dGR4dHNuXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9mb3JtXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5l
+        cl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJtRXRBWVhjRERKb3Z0ZHhqYXRcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X3RhYmJhciBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAg
+        ICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

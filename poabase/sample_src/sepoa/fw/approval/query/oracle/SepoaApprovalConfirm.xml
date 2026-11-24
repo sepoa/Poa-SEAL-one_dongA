@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+
+	<method name="getArbitraryDecisionMaxCount">
+		<![CDATA[
+			SELECT COUNT( * ) - 1 
+				  FROM SGWGL GWGL 
+				   INNER JOIN SGWLN GWLN 
+				       ON GWGL.HOUSE_CODE = GWLN.HOUSE_CODE 
+				       AND GWGL.COMPANY_CODE = GWLN.COMPANY_CODE 
+				       AND GWGL.APP_NO = GWLN.APP_NO 
+				       AND GWGL.APP_NO_SEQ = GWLN.APP_NO_SEQ 
+				 WHERE GWGL.HOUSE_CODE = ${session.HOUSE_CODE} 
+				       AND GWGL.COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+				       AND GWGL.APP_NO = ${APP_NO} 
+				       AND GWGL.APP_NO_SEQ = ${APP_NO_SEQ} 
+				       AND GWLN.APP_TYPE = ${APP_TYPE} 
+			           AND TO_NUMBER(NVL(GWGL.CURRENT_STAGE,'999')) <= TO_NUMBER(NVL(GWLN.APP_STAGE ,'999'))
+		]]>
+	</method>
+
+	<method name="getAppLine">
+		<![CDATA[
+			SELECT GWGL.APP_NO 
+			     , GWGL.APP_NO_SEQ 
+			     , GWGL.APP_TYPE AS HEADER_APP_TYPE 
+			     , GWGL.APP_STATUS 
+			     , GWGL.CURRENT_STAGE 
+			     , GWLN.APP_LINE_SEQ 
+			     , GWLN.APP_STAGE 
+			     , GWLN.APP_TYPE 
+			     , GWLN.APP_METHOD 
+			     , GWLN.APP_LINE_STATUS 
+			     , GWLN.APP_USER_ID 
+			     , GWGL.SUX_WKEY1 
+			     , GWGL.SUX_WKEY2 
+			     , GWGL.SUX_WKEY3 
+			     , GWGL.SUX_WKEY4 
+			     , GWGL.SUX_WKEY5 
+			     , GWGL.SUX_WKEY6 
+			     , GWGL.SUX_WKEY7 
+			     , GWGL.SUX_WKEY8 
+			     , GWGL.SUX_WKEY9 
+			     , GWGL.SUX_WKEY10 
+			  FROM SGWGL GWGL 
+			   INNER JOIN SGWLN GWLN 
+			       ON GWGL.HOUSE_CODE = GWLN.HOUSE_CODE 
+			       AND GWGL.COMPANY_CODE = GWLN.COMPANY_CODE 
+			       AND GWGL.APP_NO = GWLN.APP_NO 
+			       AND GWGL.APP_NO_SEQ = GWLN.APP_NO_SEQ 
+			 WHERE GWGL.HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND GWGL.COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND GWGL.APP_NO = ${APP_NO} 
+			       AND GWGL.APP_NO_SEQ = ${APP_NO_SEQ} 
+			       AND TO_NUMBER(NVL(GWGL.CURRENT_STAGE,'999')) <= TO_NUMBER(NVL(GWLN.APP_STAGE ,'999'))
+			ORDER BY TO_NUMBER(NVL(GWLN.APP_LINE_SEQ ,'999'))
+			     , TO_NUMBER(NVL(GWLN.APP_STAGE,'999'))
+		]]>
+	</method>
+
+	<method name="setApprovalHeaderStatus">
+		<![CDATA[
+			UPDATE SGWGL 
+			       SET APP_STATUS = ${APP_STATUS} 
+			     , CURRENT_STAGE  = ${CURRENT_STAGE}  
+			     , CHANGE_DATE    = ${current.DATE}
+			     , CHANGE_TIME    = ${current.TIME}
+			     , CHANGE_USER_ID = ${session.ID}  
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO = ${APP_NO} 
+			       AND APP_NO_SEQ = ${APP_NO_SEQ} 
+		]]>
+	</method>
+		
+	<method name="setApprovalLineStatus">
+		<![CDATA[
+			UPDATE SGWLN 
+			       SET APP_LINE_STATUS = ${APP_LINE_STATUS}
+			     , APP_DEVICE          = ${APP_DEVICE}
+			     , CHANGE_DATE         = ${current.DATE}
+			     , CHANGE_TIME         = ${current.TIME}
+			     , CHANGE_USER_ID      = ${session.ID}  
+			     , ACCEPT_USER_ID      = ${session.ID}
+			     , ACCEPT_DATE         = ${current.DATE} 
+			     , ACCEPT_TIME         = ${current.TIME} 
+			     , ACCEPT_REASON       = ${ACCEPT_REASON} 
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO = ${APP_NO} 
+			       AND APP_NO_SEQ = ${APP_NO_SEQ} 
+			       AND APP_LINE_SEQ = ${APP_LINE_SEQ}
+		]]>
+	</method>
+	
+	<method name="setApprovalLineStatusStage">
+		<![CDATA[
+			UPDATE SGWLN 
+			       SET APP_LINE_STATUS = ${APP_LINE_STATUS}
+			     , APP_DEVICE          = ${APP_DEVICE}
+			     , CHANGE_DATE         = ${current.DATE}
+			     , CHANGE_TIME         = ${current.TIME}
+			     , CHANGE_USER_ID      = ${session.ID}  
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO = ${APP_NO} 
+			       AND APP_NO_SEQ = ${APP_NO_SEQ} 
+			       AND APP_STAGE = ${APP_STAGE}
+		]]>
+	</method>
+</service>

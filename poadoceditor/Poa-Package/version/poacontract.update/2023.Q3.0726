@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="BUTTON"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="review_req"/>
+					<entry key="CONTENTS" val="검토요청"/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

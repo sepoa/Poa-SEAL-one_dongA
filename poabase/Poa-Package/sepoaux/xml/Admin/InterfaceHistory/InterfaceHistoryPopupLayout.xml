@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="IFH_003" header="false">
+    <tabbar id="tabbarObj" div="ErsKdAfiYyKdAfUFPI">
+    </tabbar>
+    <onloadscript>
+        <![CDATA[
+        	if(Sepoa.request){
+	            var functionName = Sepoa.request.FUNCTION_NAME;
+	            var transactionCode = Sepoa.request.TRANSACTION_CODE;
+	            doCreateTabbar(functionName, transactionCode);
+        	}
+        ]]>
+    </onloadscript>
+    <userscript>
+        <function name="doCreateTabbar" args="functionName, transactionCode">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.IFH_001', 'CONNECTION', 'doFindTable', {
+                FUNCTION_NAME: functionName
+            }, function(so) {
+                if (so.status == 1) {
+                    var soResult = new SepoaFormater(so.result[0]);
+                    
+                    if(soResult.getArrayMap().length < 1){
+                    	Alert(Sepoa.cache.text.get('IFH_003.MESSAGE001'));
+                    	selfObj.close();
+                    }else{
+	                    soResult.getArrayMap().forEach(function(table) {
+	                        tabbarObj.addTab(table.TABLE_NAME, table.TABLE_NAME);
+	                        tabbarObj.cells(table.TABLE_NAME).attachURL("/Admin/InterfaceHistory/InterfaceHistoryTabGrid.sux?TABLE_NAME="+table.TABLE_NAME+"&TRANSACTION_CODE="+transactionCode);
+	                    })
+	                    
+	                    tabbarObj.tabs(soResult.getArrayMap()[0].TABLE_NAME).setActive();
+                    }
+                } else {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    return false;
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiRXJzS2RBZkVyc0tkQWZJWG50Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9RYURxQWdxaXFIUnkiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX0J3UUp6MXRMelFrcSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IklGSF8wMDMiLCJPQkpFQ1RfSUQiOiJFcnNLZEFmRXJzS2RBZklYbnQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJFcnNLZEFmRXJzS2RBZklYbnQiLCJ0eXBl
+        IjoiYm9keSJ9LCJFcnNLZEFmaVl5S2RBZlVGUEkiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9FOXBuQ1pQNmdQTU0iOiJudWxsIiwiZGh4SWRfQ21UMWNUUEtEWGVEIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX3ZKT3RiQWsxQ0R1MyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGFiYmFyT2JqIiwiT0JKRUNUX0lEIjoiRXJz
+        S2RBZmlZeUtkQWZVRlBJIn0sImlkIjoiRXJzS2RBZmlZeUtkQWZVRlBJIiwidHlwZSI6InRhYmJhciJ9fSwidHJlZSI6eyJpZCI6IkVyc0tkQWZFcnNLZEFmSVhudCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiRXJzS2RBZmlZeUtkQWZVRlBJIiwidHlwZSI6InRhYmJhciJ9XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9JbnRlcmZhY2VIaXN0b3J5L0ludGVyZmFjZUhpc3RvcnlQb3B1cExheW91dC54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiIwMDMiLCJQUkVGSVgiOiJJRkgiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJBZG1pbi9JbnRlcmZhY2VIaXN0b3J5IiwiSEVBREVSIjoiZmFsc2Ui
+        LCJOQU1FIjoiSW50ZXJmYWNlSGlzdG9yeVBvcHVwTGF5b3V0IiwiU0NSRUVOX0lEIjoiSUZIXzAwMyJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJFcnNLZEFmRXJzS2RBZklYbnRcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9v
+        dXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJFcnNLZEFmaVl5S2RBZlVGUElcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X3RhYmJhciBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

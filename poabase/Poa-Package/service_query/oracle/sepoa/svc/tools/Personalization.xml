@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryList">
+	<![CDATA[
+        SELECT
+              PSPS.HOUSE_CODE
+            , PSPS.USER_ID
+            , PSPS.CLASS
+            , PSPS.CODE
+            , PSPS.NAME
+            , PSPS.DESCRIPTION
+            , PSPS.DATA
+            , PSPS.USE_FLAG
+            , #DB_OWNER#GETCODETEXT(PSPS.HOUSE_CODE,'AD013', PSPS.USE_FLAG, ${session.LANGUAGE}) USE_FLAG_TEXT
+        FROM
+            UPSPS PSPS
+        WHERE
+            PSPS.HOUSE_CODE = ${session.HOUSE_CODE}
+        AND PSPS.USER_ID = ${session.ID}
+        AND PSPS.CLASS = ${CLASS}
+	]]>
+	</method>
+    
+    <method name="doQueryPreset">
+    <![CDATA[
+        SELECT
+              PSPS.HOUSE_CODE
+            , PSPS.USER_ID
+            , PSPS.CLASS
+            , PSPS.CODE
+            , PSPS.NAME
+            , PSPS.DESCRIPTION
+            , PSPS.DATA
+            , PSPS.USE_FLAG
+        FROM 
+            UPSPS PSPS
+        WHERE
+            HOUSE_CODE = ${session.HOUSE_CODE}
+        AND PSPS.USER_ID = ${session.ID}
+        AND PSPS.CLASS = ${CLASS}
+        AND PSPS.CODE = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doUpdatePreset">
+    <![CDATA[
+        UPDATE UPSPS
+            SET   NAME = ${NAME}
+                , DESCRIPTION = ${DESCRIPTION}
+                , DATA = ${DATA}
+            WHERE 
+                HOUSE_CODE = ${session.HOUSE_CODE}
+            AND USER_ID = ${session.ID}
+            AND CLASS = ${CLASS}
+            AND CODE = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doInsertPreset">
+    <![CDATA[
+        INSERT INTO UPSPS (
+              HOUSE_CODE
+            , USER_ID
+            , CLASS
+            , CODE
+            , NAME
+            , DESCRIPTION
+            , DATA
+            , USE_FLAG
+        ) VALUES (
+              ${session.HOUSE_CODE}
+            , ${session.ID}
+            , ${CLASS}
+            , ${CODE}
+            , ${NAME}
+            , ${DESCRIPTION}
+            , ${DATA}
+            , 'N'
+        )
+    ]]>
+    </method>
+    
+    <method name="doDeletePreset">
+    <![CDATA[
+        DELETE FROM UPSPS
+        WHERE 
+            HOUSE_CODE = ${session.HOUSE_CODE}
+        AND USER_ID = ${session.ID}
+        AND CLASS = ${CLASS}
+        AND CODE = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doUnusePreset">
+    <![CDATA[
+        UPDATE UPSPS
+            SET USE_FLAG = 'N'
+        WHERE 
+            HOUSE_CODE = ${session.HOUSE_CODE}
+        AND USER_ID = ${session.ID}
+        AND CLASS = ${CLASS}
+    ]]>
+    </method>
+    
+    <method name="doSetUsePreset">
+    <![CDATA[
+        UPDATE UPSPS
+            SET USE_FLAG = ${USE_FLAG}
+        WHERE 
+            HOUSE_CODE = ${session.HOUSE_CODE}
+        AND USER_ID = ${session.ID}
+        AND CLASS = ${CLASS}
+        AND CODE = ${CODE}
+    ]]>
+    </method>
+</service>

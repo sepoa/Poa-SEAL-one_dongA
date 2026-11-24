@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="getBatchInfo">
+	<![CDATA[
+		SELECT
+			MODULE
+		FROM
+			SIFLH
+		WHERE
+			#DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+			AND MODULE = ${MODULE}
+	]]>
+	</method>
+	<method name="updateBatchInfo">
+	<![CDATA[
+		UPDATE
+			SIFLH
+		SET
+			LAST_EXECUTE_DATE = ${EXECUTE_DATE},
+			LAST_EXECUTE_TIME = ${EXECUTE_TIME}
+		WHERE
+			#DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+			AND MODULE = ${MODULE}
+	]]>
+	</method>
+	<method name="insertBatchHistory">
+	<![CDATA[
+		INSERT INTO SIFLD (
+			IF_NUMBER,
+			MODULE,
+			EXECUTE_DATE,
+			EXECUTE_TIME,
+            IF_TYPE
+		) VALUES (
+			${IF_NUMBER},
+			${MODULE},
+			${EXECUTE_DATE},
+			${EXECUTE_TIME},
+            ${IF_TYPE}
+		)
+	]]>
+	</method>
+	<method name="getBatchLastExecuteTime">
+	<![CDATA[
+		SELECT
+			REPLACE(DATE(LEDT),'-','') AS LAST_EXECUTE_DATE,
+			REPLACE(DATE_FORMAT(LEDT,'%T'),':','') AS LAST_EXECUTE_TIME
+		FROM
+			(
+			SELECT
+				CONCAT(LH.LAST_EXECUTE_DATE, CASE WHEN LH.LAST_EXECUTE_TIME = '000000' THEN '000001' ELSE LH.LAST_EXECUTE_TIME end) AS LEDT
+			FROM
+				SIFLH LH
+			WHERE
+			LH.MODULE = ${MODULE}
+			) LH
+	]]>
+	<!--
+	<![CDATA[
+		SELECT
+			LH.LAST_EXECUTE_DATE,
+			CASE WHEN LH.LAST_EXECUTE_TIME = '000000' THEN '000001' ELSE LH.LAST_EXECUTE_TIME END AS LAST_EXECUTE_TIME
+		FROM
+			SIFLH LH
+		WHERE
+			LH.MODULE = ${MODULE}
+	]]>
+	-->
+	</method>
+</service>

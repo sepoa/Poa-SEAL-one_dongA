@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN LAYER VARCHAR(100) NOT NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN LAYER VARCHAR(100) NOT NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMPA ALTER COLUMN LAYER VARCHAR(100) NOT NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMPA ALTER COLUMN LAYER VARCHAR(100) NOT NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMMT ALTER COLUMN LAYER VARCHAR(100) NOT NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMMT ALTER COLUMN LAYER VARCHAR(100) NOT NULL;
+		]]>
+		</query>
+	</item>
+</body>

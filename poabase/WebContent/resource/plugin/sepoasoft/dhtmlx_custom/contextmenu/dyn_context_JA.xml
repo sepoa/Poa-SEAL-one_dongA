@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu id="0">
+	<item text="すべて選択" id="AllCheckLock" />
+	<item text="クリアを選択します" id="AllCheckUnLock" />
+	<item text="コピー" id="CellCopy" />
+	<item text="グリッド設定保存" id="SaveCookie" />
+	<item text="グリッド設定の初期化" id="ClearCookie" />
+	<item text="Excelのダウンロード" id="ExcelSave" />
+    <item text="選択した行をExcelダウンロード" id="SelectedExcelSave" />
+	<!-- <item text="元に戻す" id="Undo" /> -->
+	<!-- <item text="準備" id="Redo" /> -->
+	<!-- <item text="Clear Cell" id="CellDataInit"/> -->
+</menu>

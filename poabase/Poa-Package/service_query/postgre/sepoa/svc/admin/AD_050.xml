@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT USMT.COMPANY_CODE 
+		     , USMT.PLANT_CODE 
+		     , USMT.DEPT 
+		     , USMT.POSITION 
+		     , USMT.EMPLOYEE_NO 
+		     , USMT.USER_ID 
+		     , USMT.USER_NAME_LOC 
+		     , USMT.USER_NAME_ENG 
+		     , USMT.LANGUAGE 
+		     , USMT.MANAGER_POSITION
+		     , USMT.PROFILE_ATTACHE_NO
+		     , ADDR.EMAIL 
+		     , ADDR.PHONE_NO1 
+		     , ADDR.PHONE_NO2 
+		     , ADDR.FAX_NO 
+		     , ADDR.ZIP_CODE 
+		     , ADDR.ADDRESS_LOC 
+		     , ADDR.ADDRESS_ENG 
+		  FROM SUSMT USMT 
+		   LEFT OUTER JOIN SADDR ADDR 
+		       ON ADDR.HOUSE_CODE = USMT.HOUSE_CODE 
+		       AND ADDR.CODE_NO = USMT.USER_ID 
+		 WHERE USMT.USER_ID = ${session.ID}
+		       AND USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdate_SUSMT">
+	<![CDATA[
+    	UPDATE SUSMT
+      	   SET CHANGE_DATE        = ${current.DATE}
+	         , CHANGE_TIME        = ${current.TIME}
+	         , CHANGE_USER_ID     = ${session.ID}
+	         , DEPT 			  = ${DEPT}
+		     , POSITION           = ${POSITION}
+		     , EMPLOYEE_NO        = ${EMPLOYEE_NO}
+		     , USER_NAME_LOC      = ${USER_NAME_LOC}
+		     , USER_NAME_ENG      = ${USER_NAME_ENG}
+		     , MANAGER_POSITION   = ${MANAGER_POSITION}
+		     , PROFILE_ATTACHE_NO = ${PROFILE}
+	]]>
+	<if test="${NEW_PASSWORD}" operator="ne" value="">
+			 , PASSWORD = ${NEW_PASSWORD}
+			 , PW_RESET_FLAG = 'N'
+			 , PW_RESET_DATE = ${current.DATE}  
+	</if>
+	<![CDATA[
+      WHERE USER_ID  = ${session.ID}
+        AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doQuery_SADDR">
+	<![CDATA[
+		SELECT CODE_NO
+		  FROM SADDR ADDR 
+		 WHERE ADDR.CODE_NO = ${session.ID}
+	       AND ADDR.HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdate_SADDR">
+	<![CDATA[
+		UPDATE SADDR 
+	       SET CHANGE_DATE 	   = ${current.DATE} 
+		     , CHANGE_TIME     = ${current.TIME} 
+		     , CHANGE_USER_ID  = ${session.ID} 
+		     , EMAIL           = ${EMAIL} 
+		     , PHONE_NO1       = ${PHONE_NO1} 
+		     , PHONE_NO2       = ${PHONE_NO2} 
+		     , FAX_NO          = ${FAX_NO} 
+		     , ZIP_CODE        = ${ZIP_CODE} 
+		     , ADDRESS_LOC     = ${ADDRESS_LOC} 
+		     , ADDRESS_ENG     = ${ADDRESS_ENG} 
+		     , DEL_FLAG        = 'N'
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+		       AND CODE_NO = ${session.ID}
+	]]>
+	</method>
+	<method name="doInsert_SADDR">
+	<![CDATA[
+		INSERT INTO SADDR
+		(
+			 HOUSE_CODE
+			,CODE_NO
+			,CODE_TYPE
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE 	 
+			,CHANGE_TIME   
+			,CHANGE_USER_ID
+			,EMAIL         
+			,PHONE_NO1     
+			,PHONE_NO2     
+			,FAX_NO        
+			,ZIP_CODE      
+			,ADDRESS_LOC   
+			,ADDRESS_ENG 
+			,DEL_FLAG  	
+		) 
+		VALUES
+		(
+			 ${session.HOUSE_CODE}
+			,${session.ID}
+			,${session.WORK_TYPE}
+			,${CURRENT.DATE}
+			,${CURRENT.TIME}
+			,${session.ID}  
+			,${CURRENT.DATE}
+			,${CURRENT.TIME}
+			,${session.ID}  
+			,${EMAIL}
+			,${PHONE_NO1}
+			,${PHONE_NO2}
+			,${FAX_NO}
+			,${ZIP_CODE}
+			,${ADDRESS_LOC}
+			,${ADDRESS_ENG}
+			,'N'
+		)
+	]]>
+	</method>
+</service>

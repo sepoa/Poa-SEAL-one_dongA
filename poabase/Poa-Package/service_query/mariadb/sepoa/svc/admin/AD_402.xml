@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doDeleteService">
+	<![CDATA[
+		DELETE FROM
+			USERVICE
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE}
+	]]>
+	</method>
+	
+	<method name="doDeleteConfig">
+	<![CDATA[
+		DELETE FROM
+			UCONF
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE} 
+	]]>
+	</method>
+</service>

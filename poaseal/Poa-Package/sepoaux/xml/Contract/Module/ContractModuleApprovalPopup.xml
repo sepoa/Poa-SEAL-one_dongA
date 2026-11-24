@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_502_APPROVAL" header="false" pageCloseWarn="false">
+    <link>
+    <![CDATA[
+        <link href="<%=CONTEXT_NAME%>/resource/design/css/approvalLine/ApprovalLine.css" rel="stylesheet" type="text/css" />
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/approvalLine/ContractSetApproval.js" type="text/javascript"></script>
+    ]]>
+    </link>
+    <variable>
+        <var name="container" value="$($sObject._vp).find('#NJdjrVdUzejrVdWVIX')[0]"/>
+        <var name="NJdjrVdUzejrVdkNCA" value="$($sObject._vp).find('#NJdjrVdUzejrVdkNCA')[0]"/>
+        <var name="appLine"/>
+        <var name="$share" value="{}"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="init" args="">
+        <![CDATA[
+            if(Sepoa.params) {
+                $share = Sepoa.params;
+            }
+            
+            const config = {
+                data : [
+                    {
+                        APP_LINE_SEQ : '0',
+                        APP_STAGE : '0',
+                        APP_METHOD : '01',
+                        APP_USER_ID: Sepoa.info.ID,
+                        APP_USER_NAME: Sepoa.info.NAME_LOC,
+                        SELLER_CODE: Sepoa.info.COMPANY_CODE,
+                        POSITION: Sepoa.info.POSITION,
+                        DEPARTMENT_NAME: Sepoa.info.DEPARTMENT_NAME_LOC,
+                        EMPLOYEE_NO: Sepoa.info.EMPLOYEE_NO,
+                    }
+                ],
+                callback : doApp
+            };
+            const popup = $sObject.$popup = new SepoaContractApprovalPopup(container, config);
+            popup.tabbar.tabbar1.tabbarObj.setSizes();
+            popup.tabbar.tabbar2.tabbarObj.setSizes();
+        ]]>
+        </function>
+        
+        <function name="doApp" args="appLine">
+        <![CDATA[
+            const {approver, comment} = appLine;
+            const config = {
+                 url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                 contentType : 'json',
+                 async : false
+             }
+             
+            const data = {
+                APP_TYPE : 'C01',
+                APP_LINE : approver,
+                APP_INFO : {
+                    APP_COMMENT : comment
+                },
+                REQ_SEAL_INFO : {
+                    SUBJECT : $share.config.document.DOC_INFO_DATA.CONT_SUBJECT
+                }
+            };
+             
+            const params = $.extend(true, {
+                module: 'sepoa.svc.ct.CT_205',
+                action: 'doApprovalRequest',
+                PARAMETER: JSON.stringify(data)
+            }, $share.config.document, data);
+             
+            const so = sUtils.multipart.send(config, params);
+            if(so.flag === true) {
+                const data = new SepoaFormater(so.result[0]).getArrayMap();
+                $share.editor.fn.doClose(true);
+            }
+        ]]>
+        </function>
+        
+        <function name="setPopupWindowDisplay" args="display">
+        <![CDATA[
+            if(window.parent) {
+                const vp = window.parent.sUtils.popup.getWindowObject('CONTRACT_APPROVAL_POPUP').vp
+                vp.style.display = display;
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTkpkanJWZE9KZGpyVmRGanFxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUFBST1ZBTExJTkVfUE9QVVAifSwiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSJ9LCJOSmRqclZkVXplanJWZFdWSVgiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiMTAwJSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVktOTHlQMnRSS2d6IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJjb250YWluZXIiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJW
+        ZFdWSVgifSwiaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiTkpkanJWZFV6ZWpyVmRrTkNBIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9vQ1ZxRXo4Tk1jVFIiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3hNeDVoSFhlSUxEayI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9SdkxrUWFBZ216aTkiOiJudWxsIiwiQ0xBU1Mi
+        OiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVXhEZWZhdWx0L0FwcHJvdmFsTGluZS9Qb3B1cC54bWwiLCJQ
+        Uk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlV4RGVmYXVsdC9BcHByb3ZhbExpbmUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJQb3B1cCIsIkNPREUiOiJQT1BVUCIsIlBSRUZJWCI6IkFQUFJPVkFMTElORSIsIlNDUkVFTl9JRCI6IkFQUFJPVkFMTElORV9QT1BVUCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJOSmRqclZkT0pkanJWZEZqcXFcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOSmRqclZkVXplanJWZGtOQ0FcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIGxvd2VyRGl2XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2Nv
+        bXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk5KZGpyVmRVemVqclZkV1ZJWFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiaGVpZ2h0OjEwMCU7XCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

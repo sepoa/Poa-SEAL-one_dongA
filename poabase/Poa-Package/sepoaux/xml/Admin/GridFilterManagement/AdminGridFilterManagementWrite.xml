@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_023_2" header="false">
+    <variable>
+        <var name="gridbox" value="$($sObject._vp).find('#pKSJtndeDqJtndWblE')[0]"/>
+        <var name="pKSJtnddDqJtndvSTS" value="$($sObject._vp).find('#pKSJtnddDqJtndvSTS')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="drawGrid"/>
+    </onloadscript>
+    <userscript>
+        <var name="gridObj"/>
+        <function name="drawGrid" args="">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.common.COMMON', 'CONNECTION', 'getActiveLanguage', void 0, function(so) {
+                if (so.status != 1) {
+                    Alert(so.message);
+                    return;
+                }
+            
+                var gridOptions = Sepoa.cache.grid.load(window.CONTEXT_NAME + '/resource/ux/admin/grid/AD_023.js');
+            
+                for (var key in gridOptions) {
+                    if(key.startsWith("ORG")) continue;
+                    gridOptions[key].COL_VISIBLE = 'true';
+                }
+            
+                gridOptions['GRID_ID'].COL_WIDTH = '120';
+                gridOptions['CODE'].COL_WIDTH = '100';
+                gridOptions['CONTENTS'].COL_WIDTH = '360';
+                gridOptions['COL_WIDTH'].COL_WIDTH = '100';
+                gridOptions['COL_VISIBLE'].COL_WIDTH = '120';
+            
+                gridOptions['HOUSE_CODE'].COL_VISIBLE = 'false';
+                gridOptions['GRID_ID'].COL_VISIBLE = 'false';
+            
+                var langCombo = Sepoa.cache.combo.get('SL0001,000#KO#AD001');
+                var lang = Sepoa.cache.text.get("AD_023.CONTENTS");
+                for (var idx in langCombo) {
+                    var item = langCombo[idx];
+            
+                    if (item.value == Sepoa.info.LANGUAGE) {
+                        lang = item.text;
+                        break;
+                    }
+                }
+            
+                gridOptions['CONTENTS'].CONTENTS = lang;
+            
+                gridObj = $sObject.gridObj = new SepoaDhtmlXGridObject(gridbox, 'gridObj', gridOptions);
+                gridObj._onDnDFlag = true;
+                gridObj.setGridDraw();
+                gridObj.setSizes();
+                gridObj.setDataOutput(dataOutput)
+                gridObj.attachEvent('onTXE', doSaveEnd);
+                gridObj.attachEvent('onDrop', onDrop);
+                Sepoa.attachEvent('onLoad', function() {
+                    gridObj.setSizes();
+                });
+                SUX.attachEvent('onWindowResize', function() {
+                    gridbox.style.width = '';
+                    gridbox.style.height = '100%';
+                    gridObj.setSizes();
+                });
+            }, false);
+        ]]>
+        </function>
+        <function name="onDrop" args="">
+        <![CDATA[
+            var m = gridObj.getRowsNum();
+            var nextSeq = 1;
+            for (var i = 0; i < m; i++) {
+                var rid = gridObj.getRowId(i);
+                if (!sUtils.string.toBoolean(gridObj.cells(rid, gridObj.getColIndexById('COL_VISIBLE')).getValue())) {
+                    seq = 9999
+                } else if ((gridObj.cells(rid, gridObj.getColIndexById('COL_WIDTH')).getValue() || 0) <= 0) {
+                    seq = 9999
+                } else {
+                    seq = nextSeq;
+                    nextSeq++;
+                }
+                gridObj.cells(gridObj.getRowId(i), gridObj.getColIndexById('COL_SEQ')).setValue(seq * 10);
+            }
+            
+            gridObj.sortRows(gridObj.getColIndexById('COL_SEQ'));
+            gridObj.allRowsChecked('SELECTED', true);
+        ]]>
+        </function>
+        <function name="doQuery" args="item">
+        <![CDATA[
+            if (item && item.grid_id) {
+                dataOutput.setValue('GRID_ID', item.grid_id);
+                dataOutput.setValue('HOUSE_CODE', item.house_code);
+            
+                gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'PROCESS_ID=sepoa.svc.admin.AD_023']);
+                if (!gridObj._fake) {
+                    gridObj.setSizes();
+                }
+            } else {
+                gridObj.clearAll(false);
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+        	if(gridObj.getRowsNum() == 0) {
+        		Alert(Sepoa.cache.text.get('AD_023_2.MESSAGE_0001'));
+        		return;
+        	}
+        	
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(result) {
+                if (result) {
+                    gridObj.editStop();
+                    gridObj.postTransaction(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doSave', 'PROCESS_ID=sepoa.svc.admin.AD_023'], "COL_VISIBLE");
+                }
+            });
+        ]]>
+        </function>
+        <function name="doSaveEnd" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            
+            if (status != 'true') {
+                Alert(message);
+                return;
+            }
+            
+            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+            Sepoa.cache.clear();
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+            if (stage == 0) {
+                return true;
+            } else if (stage == 1) {
+                return true;
+            } else if (stage == 2) {
+                return true;
+            }
+            return false;
+        ]]>
+        </function>
+        
+        <function name="doInitialization" args="">
+        <![CDATA[
+        	if(gridObj.getRowsNum() == 0) {
+        		Alert(Sepoa.cache.text.get('AD_023_2.MESSAGE_0001'));
+        		return;
+        	}
+        	
+        	Confirm(Sepoa.cache.text.get('AD_023_2.MESSAGE_0002'), function(flag) {
+        		if(flag) {
+        			var replaceColumns = ['CONTENTS', 'COL_TYPE', 'NOT_NULL', 'COL_FORMAT', 'COL_WIDTH', 'COL_ALIGN', 'COL_SORT', 'COL_COLOR', 'COL_SEQ'];
+		        	var selectedRowIDS = gridObj.getSelectedRows('COL_VISIBLE');
+		        	
+		        	for(var idx in selectedRowIDS) {
+		        		var rID = selectedRowIDS[idx];
+		        		
+		        		for(var i in replaceColumns) {
+		        			var cIn = gridObj.getColIndexById(replaceColumns[i]);
+		        			var orgValue = gridObj.cells(rID, gridObj.getColIndexById('ORG_' + replaceColumns[i])).getValue();
+		        			
+		        			gridObj.cells(rID, cIn).setValue(orgValue);
+		        		}
+		        	}
+        		}
+        	});
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiUktleHNuZEN0UGhyR2JiU0ZhIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9mR0haV0Vsd2p0Uk0iOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX29WdTNNQmJ4UFdIcCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzAyM18yIiwiT0JKRUNUX0lEIjoiUktleHNuZEN0UGhyR2JiU0ZhIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiUktleHNuZEN0UGhyR2JiU0ZhIiwidHlw
+        ZSI6ImJvZHkifSwicEtTSnRuZGVEcUp0bmRXYmxFIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVzlKQ1d1UG9UbzI2IjoibnVsbCIsIkNMQVNTIjoiZ3JpZGJveF9kaHhfd2ViIGxvd2VyRGl2IiwiZGh4SWRfUTN0bzE1THFBa2xaIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZGJveCIsIk9CSkVDVF9JRCI6InBLU0p0bmRlRHFKdG5kV2JsRSJ9LCJpZCI6InBLU0p0bmRlRHFKdG5kV2JsRSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJwS1NKdG5kZERxSnRuZHZTVFMiOnsibGF5b3V0Ijp7fSwiY29tcG9u
+        ZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJwS1NKdG5kZERxSnRuZHZTVFMifSwiaWQiOiJwS1NKdG5kZERxSnRuZHZTVFMiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiUktleHNuZEN0UGhyR2JiU0ZhIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJwS1NKdG5kZERxSnRuZHZTVFMiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoicEtTSnRuZGVEcUp0bmRXYmxFIiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL0dyaWRGaWx0ZXJNYW5hZ2VtZW50L0FkbWluR3JpZEZpbHRlck1hbmFnZW1lbnRXcml0ZS54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiIwMjNfMiIsIlBSRUZJWCI6
+        IkFEIiwiUEFUSF8yIjoiR3JpZEZpbHRlck1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbkdyaWRGaWx0ZXJNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJXcml0ZSIsIlNDUkVFTl9JRCI6IkFEXzAyM18yIn19LCJodG1sIjoiPGRpdiBpZD1cIlJLZXhzbmRDdFBockdiYlNGYVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJc
+        IiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInBLU0p0bmRkRHFKdG5kdlNUU1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBncmlkYm94X2RoeF93ZWIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwicEtTSnRuZGVEcUp0bmRXYmxFXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAg
+        ICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

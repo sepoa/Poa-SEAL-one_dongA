@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_204" header="false">
+    <layout id="containerLayout" div="nvRqAJfULUTxFuOaP" pattern="2E">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false" type="contents"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <height>200</height>
+            <attach file="/Seal/Approval/SealApprovalLineGrid.xml"/>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <attach file="/Seal/Document/Request/SealDocumentGridLineCarousel.xml"/>
+        </cell>
+    </layout>
+    <onloadscript/>
+    <userscript>
+    	<function name="setHeaderText" args="text">
+	    <![CDATA[
+	    	changeHeaderText("a", text);
+	    ]]>
+	    </function>
+        <function name="loadDetail" args="applyType, smrNumber, viewMode, paramObj, status">
+        <![CDATA[
+            if(status =='T'){
+            	callFunction('AP_111', 'btn_false', ['Y']);//버튼 숨김
+            }else{
+            	callFunction('AP_111', 'doQuery', [paramObj, 'N']); // 결재선
+            }
+            callFunction('SLM_205', 'setDetailView', [applyType, smrNumber, viewMode]);
+    
+            if(paramObj != undefined){
+            	containerLayout.cells("a").setText(paramObj.HEADER_TEXT);
+	            dataOutput.setValue("LOAD_DATA_APP_TYPE", paramObj.APP_TYPE, true);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsia09LQ2xtZWN3eHlOTWNpd3hrIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJTTE1fMjA0In0sImlkIjoia09LQ2xtZWN3eHlOTWNpd3hrIiwidHlwZSI6ImJvZHkifSwibnZScUFKZlVMVVR4RnVPYVAiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMkUiLCJWQVIiOiJjb250YWluZXJMYXlvdXQiLCJPQkpFQ1RfSUQiOiJudlJx
+        QUpmVUxVVHhGdU9hUCJ9LCJpZCI6Im52UnFBSmZVTFVUeEZ1T2FQIiwidHlwZSI6ImxheW91dCJ9LCJudlJxQUpmWWJKVXhGdVNydyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJmYWxzZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSIsIkFUVEFDSF9UQVJHRVQiOiIvU2VhbC9BcHByb3ZhbC9TZWFsQXBwcm92YWxMaW5lR3JpZC54bWwiLCJCQVNFX0ZJWF9TSVpFIjoidHJ1ZSx0cnVlIiwiSEVBREVSX1RZUEUiOiJjb250ZW50cyIsIkFUVEFDSF9UWVBFIjoiVSIsIkJBU0VfSEVJR0hUIjoiMjAwIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFsc2UifSwi
+        aWQiOiJudlJxQUpmWWJKVXhGdVNydyIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYSIsImxheW91dENlbGwiOiJsYXlvdXRDZWxsIn0sIm52UnFBSmZrZ1FVeEZ1UWNiIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6ImZhbHNlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkFUVEFDSF9UQVJHRVQiOiIvU2VhbC9Eb2N1bWVudC9SZXF1ZXN0L1NlYWxEb2N1bWVudEdyaWRMaW5lQ2Fyb3VzZWwueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1ZSIsIkFUVEFDSF9UWVBFIjoiVSIsIkNPTExBUFNFX0JV
+        VFRPTiI6ImZhbHNlIn0sImlkIjoibnZScUFKZmtnUVV4RnVRY2IiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImIiLCJsYXlvdXRDZWxsIjoibGF5b3V0Q2VsbCJ9fSwidHJlZSI6eyJpZCI6ImtPS0NsbWVjd3h5Tk1jaXd4ayIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoibnZScUFKZlVMVVR4RnVPYVAiLCJ0eXBlIjoibGF5b3V0IiwiY2VsbHMiOlt7ImlkIjoibnZScUFKZlliSlV4RnVTcnciLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9LHsiaWQiOiJudlJxQUpma2dRVXhGdVFjYiIsInR5cGUiOiJsYXlvdXRDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvU2VhbC9Eb2N1bWVudC9SZXF1ZXN0L1NlYWxEb2N1bWVu
+        dEdyaWRMaW5lTGF5b3V0LnhtbCIsIlBST0pFQ1QiOiJTRUFMIiwiQ09ERSI6IjIwNCIsIlBSRUZJWCI6IlNMTSIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlNlYWwvRG9jdW1lbnQvUmVxdWVzdCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlNlYWxEb2N1bWVudEdyaWRMaW5lTGF5b3V0IiwiU0NSRUVOX0lEIjoiU0xNXzIwNCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJrT0tDbG1lY3d4eU5NY2l3eGtcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAg
+        PGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm52UnFBSmZVTFVUeEZ1T2FQXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9sYXlvdXQgbG93ZXJEaXZc
+        IiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

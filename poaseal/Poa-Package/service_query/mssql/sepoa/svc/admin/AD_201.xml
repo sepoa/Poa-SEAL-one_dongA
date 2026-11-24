@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="selectNoticeList">
+	<![CDATA[
+		SELECT * 
+	      FROM (SELECT snote.NOTICE_NUMBER
+                      ,snote.SUBJECT
+                      ,snote.COMPANY_CODE
+                      ,scmgl.COMPANY_NAME_LOC COMPANY_NAME
+                      ,snote.DEPT_TYPE
+                      ,snote.ATTACH_NO  
+                      ,snote.ADD_USER_ID
+                      ,(SELECT USER_NAME_LOC FROM SUSMT WHERE HOUSE_CODE = SNOTE.HOUSE_CODE AND USER_ID = SNOTE.ADD_USER_ID) ADD_USER_NAME
+                      ,snote.ADD_DATE 
+                      ,snote.ADD_TIME 
+                      ,snote.CHANGE_USER_ID
+                      ,snote.CHANGE_DATE 
+                      ,snote.CHANGE_TIME
+                      ,snote.DEL_FLAG 
+                      ,snote.NOTE_TYPE  
+                      ,snote.GONGJI_GUBUN
+                      ,GETCODETEXT(snote.HOUSE_CODE,'AD011', snote.GONGJI_GUBUN, 'KO') GONGJI_GUBUN_TEXT
+                      ,snote.PUBLISH_FLAG
+                      ,GETCODETEXT(snote.HOUSE_CODE,'AD013', snote.PUBLISH_FLAG, 'KO') PUBLISH_FLAG_TEXT
+                      ,snote.PUBLISH_FROM_DATE
+                      ,snote.PUBLISH_TO_DATE
+                      ,snote.VIEW_COUNT
+                      ,snote.POPUP_LOCATION
+                  FROM SNOTE snote
+             INNER JOIN SCMGL scmgl
+             ON scmgl.COMPANY_CODE = snote.COMPANY_CODE 
+             AND scmgl.HOUSE_CODE  = snote.HOUSE_CODE 
+                 WHERE NVL(snote.DEL_FLAG, 'N') = 'N'
+                   AND snote.NOTE_TYPE              = 'N'
+                   AND snote.NOTICE_NUMBER          = $S{NOTICE_NUMBER}
+                   AND snote.HOUSE_CODE             = ${session.HOUSE_CODE}
+                   AND snote.COMPANY_CODE				= $S{COMPANY_CODE}
+               ) A  
+         WHERE (
+                GONGJI_GUBUN_TEXT =    $S{F_KEYWORD} OR
+                PUBLISH_FLAG_TEXT =    $S{F_KEYWORD} OR
+                ADD_USER_NAME     like $S{F_KEYWORD} OR
+                NOTICE_NUMBER     like $S{F_KEYWORD} OR
+                SUBJECT           like $S{F_KEYWORD} AND
+                1=1
+               )
+           AND ( 
+                (PUBLISH_FROM_DATE >= $S{F_DATE_FROM} AND 
+                 PUBLISH_FROM_DATE <= $S{F_DATE_TO}) OR
+                (PUBLISH_TO_DATE >= $S{F_DATE_FROM} AND 
+                 PUBLISH_TO_DATE <= $S{F_DATE_TO}) AND
+                1=1
+               )
+           AND(
+           		COMPANY_CODE IN($INS{AFFILIATED_COMPANY})AND
+           		1 = 1
+           		)
+         ORDER 
+            BY NOTICE_NUMBER DESC 
+	]]>
+	</method>
+	<method name="selectNotice">
+	<![CDATA[
+		SELECT * 
+	      FROM (SELECT NOTICE_NUMBER
+                      ,SUBJECT
+                      ,COMPANY_CODE
+                      ,DEPT_TYPE
+                      ,ATTACH_NO  
+                      ,ADD_USER_ID
+                      ,(SELECT USER_NAME_LOC FROM SUSMT WHERE HOUSE_CODE = SNOTE.HOUSE_CODE AND USER_ID = SNOTE.ADD_USER_ID) ADD_USER_NAME
+                      ,ADD_DATE 
+                      ,ADD_TIME 
+                      ,CHANGE_USER_ID
+                      ,CHANGE_DATE 
+                      ,CHANGE_TIME
+                      ,DEL_FLAG 
+                      ,NOTE_TYPE  
+                      ,GONGJI_GUBUN
+                      ,GETCODETEXT(HOUSE_CODE,'AD011', GONGJI_GUBUN, 'KO') GONGJI_GUBUN_TEXT
+                      ,snote.PUBLISH_FLAG
+                      ,GETCODETEXT(HOUSE_CODE,'AD013', PUBLISH_FLAG, 'KO') PUBLISH_FLAG_TEXT
+                      ,PUBLISH_FROM_DATE
+                      ,PUBLISH_TO_DATE
+                      ,VIEW_COUNT
+                      ,POPUP_LOCATION
+                  FROM SNOTE
+                 WHERE NVL(DEL_FLAG, 'N') = 'N'
+                   AND NOTE_TYPE              = 'N'
+                   AND NOTICE_NUMBER          = $S{NOTICE_NUMBER}
+                   AND HOUSE_CODE             = ${session.HOUSE_CODE}
+                   AND COMPANY_CODE				= $S{COMPANY_CODE}
+               ) A  
+         WHERE (
+                GONGJI_GUBUN_TEXT =    $S{F_KEYWORD} OR
+                PUBLISH_FLAG_TEXT =    $S{F_KEYWORD} OR
+                ADD_USER_NAME     like $S{F_KEYWORD} OR
+                NOTICE_NUMBER     like $S{F_KEYWORD} OR
+                SUBJECT           like $S{F_KEYWORD} AND
+                1=1
+               )
+           AND ( 
+                (PUBLISH_FROM_DATE >= $S{F_DATE_FROM} AND 
+                 PUBLISH_FROM_DATE <= $S{F_DATE_TO}) OR
+                (PUBLISH_TO_DATE >= $S{F_DATE_FROM} AND 
+                 PUBLISH_TO_DATE <= $S{F_DATE_TO}) AND
+                1=1
+               )
+           AND(
+           		COMPANY_CODE IN($INS{AFFILIATED_COMPANY})AND
+           		1 = 1
+           		)
+         ORDER 
+            BY NOTICE_NUMBER DESC 
+	]]>
+	</method>
+	
+	<method name="selectNoticeContents">
+	<![CDATA[
+		SELECT NOTICE_SEQ
+		      ,CONTENT
+          FROM SNOTD
+         WHERE NOTICE_NUMBER = ${NOTICE_NUMBER}
+           AND NVL(DEL_FLAG, 'N') = 'N'
+         ORDER
+            BY CAST( NOTICE_SEQ AS NUMBER )
+	]]>
+	</method>
+	
+	<method name="selectApplyComapny">
+	<![CDATA[
+           SELECT COMPANY_NAME_LOC 
+             FROM SCMGL scmgl
+           INNER JOIN SNOTE snote 
+              ON scmgl.COMPANY_CODE = snote.COMPANY_CODE 
+             AND scmgl.HOUSE_CODE  = snote.HOUSE_CODE
+           WHERE snote.NOTICE_NUMBER =${NOTICE_NUMBER}
+             AND SNOTE.HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="insertNotice">
+	<![CDATA[
+		 INSERT 
+		   INTO SNOTE
+              (
+                HOUSE_CODE
+               ,NOTICE_NUMBER
+               ,SUBJECT
+               ,COMPANY_CODE
+               ,DEPT_TYPE
+               ,ATTACH_NO  
+               ,ADD_USER_ID
+               ,ADD_DATE 
+               ,ADD_TIME 
+               ,CHANGE_USER_ID
+               ,CHANGE_DATE 
+               ,CHANGE_TIME
+               ,DEL_FLAG 
+               ,NOTE_TYPE  
+               ,GONGJI_GUBUN
+               ,PUBLISH_FLAG
+               ,PUBLISH_FROM_DATE
+               ,PUBLISH_TO_DATE
+               ,VIEW_COUNT
+               ,POPUP_LOCATION
+              ) 
+         VALUES
+              (
+                ${session.HOUSE_CODE}
+               ,${NOTICE_NUMBER}
+               ,${SUBJECT}
+               ,${COMPANY_CODE}
+               ,${DEPT_TYPE}
+               ,${ATTACH_NO}
+               ,${session.ID}
+               ,${current.DATE}
+               ,${current.TIME}
+               ,${session.ID}
+               ,${current.DATE}
+               ,${current.TIME}
+               ,'N'
+               ,${NOTE_TYPE}
+               ,${GONGJI_GUBUN}
+               ,${PUBLISH_FLAG}
+               ,${PUBLISH_FROM_DATE}
+               ,${PUBLISH_TO_DATE}
+               ,0
+               ,${POPUP_LOCATION}
+              )
+	]]>
+	</method>
+	
+	<method name="updateNotice">
+	<![CDATA[
+		UPDATE SNOTE
+		   SET SUBJECT           = ${SUBJECT}                    
+		      ,COMPANY_CODE      = ${COMPANY_CODE}              
+		      ,DEPT_TYPE         = ${DEPT_TYPE}                 
+		      ,ATTACH_NO         = ${ATTACH_NO}                 
+		      ,CHANGE_USER_ID    = ${session.ID}                
+		      ,CHANGE_DATE       = ${current.DATE}              
+		      ,CHANGE_TIME       = ${current.TIME}              
+		      ,DEL_FLAG          = 'N'                          
+		      ,NOTE_TYPE         = ${NOTE_TYPE}                 
+		      ,GONGJI_GUBUN      = ${GONGJI_GUBUN}              
+		      ,PUBLISH_FLAG      = ${PUBLISH_FLAG}              
+		      ,PUBLISH_FROM_DATE = ${PUBLISH_FROM_DATE}         
+		      ,PUBLISH_TO_DATE   = ${PUBLISH_TO_DATE}           
+		      ,VIEW_COUNT        = 0
+		      ,POPUP_LOCATION    = ${POPUP_LOCATION}
+		 WHERE NOTICE_NUMBER     = ${NOTICE_NUMBER}
+		   AND COMPANY_CODE 	 = ${COMPANY_CODE}
+	]]>
+	</method>
+	
+	<method name="insertNoticeContents">
+	<![CDATA[
+		INSERT 
+		  INTO SNOTD   
+             (          
+               NOTICE_NUMBER     
+              ,NOTICE_SEQ 
+              ,CONTENT 
+              ,DEL_FLAG
+	         ) 
+	    VALUES
+	         (
+	           ${NOTICE_NUMBER}     
+              ,${NOTICE_SEQ} 
+              ,${SPLITED_CONTENT} 
+              ,'N'
+             )
+	]]>
+	</method>
+	
+	<method name="deleteNoticeContents">
+	<![CDATA[
+		DELETE FROM SNOTD
+		 WHERE NOTICE_NUMBER = ${NOTICE_NUMBER}
+	]]>
+	</method>
+	
+	<method name="updateNoticeDelFlag">
+	<![CDATA[
+		   UPDATE SNOTD snotd
+			  SET snotd.DEL_FLAG = 'Y'
+			WHERE snotd.NOTICE_NUMBER = ${NOTICE_NUMBER}
+			  AND EXISTS (
+    						SELECT 1
+    						  FROM SNOTE snote
+    						 WHERE snotd.NOTICE_NUMBER = snote.NOTICE_NUMBER
+    						   AND snote.COMPANY_CODE = '${COMPANY_CODE}
+						)
+	]]>
+	</method>
+	
+	<method name="updateViewCount">
+	<![CDATA[
+		UPDATE SNOTE
+		   SET VIEW_COUNT    = VIEW_COUNT+1
+		 WHERE NOTICE_NUMBER = ${NOTICE_NUMBER} 
+	]]>
+	</method>
+	
+	
+	<method name="selectNoticePopup">
+	<![CDATA[
+		SELECT NOTICE_NUMBER
+             , SUBJECT
+		  FROM SNOTE
+		 WHERE HOUSE_CODE                   = ${session.HOUSE_CODE} 
+           AND POPUP_LOCATION               = $S{POPUP_LOCATION}
+		   AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		   AND PUBLISH_FLAG                 = 'Y'
+		   AND GONGJI_GUBUN                in (
+                                                $S{session.USER_TYPE}, 
+                                                'A')
+            AND ( 
+                PUBLISH_FROM_DATE <= ${current.DATE} AND 
+                PUBLISH_TO_DATE   >= ${current.DATE} AND
+                1=1
+               )
+         ORDER 
+            BY NOTICE_NUMBER DESC 
+	]]>
+	</method>
+</service>

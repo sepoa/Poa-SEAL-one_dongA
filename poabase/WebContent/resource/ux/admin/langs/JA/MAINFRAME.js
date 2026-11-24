@@ -1,0 +1,11 @@
+{
+	"MAINFRAME":{
+		"SUMMARY_TITLE":"SUMMARY",
+		"LOGOUT_CONFIRM":"ログアウトしますか？",
+		"LOGOUT":"ログアウト",
+		"CHANGE_USER_INFO":"会員情報の修正",
+		"CANCEL"："キャンセル",
+		"GO_TO_MAIN":"メインページに移動する",
+		"OPEN_SIDE_MENU":"オープンサイドメニュー"
+	}
+}

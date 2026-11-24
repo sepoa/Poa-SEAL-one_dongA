@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT
+				   USMT.USER_ID,
+				   USMT.PASSWORD,
+				   USMT.EMAIL
+			 FROM SUSMT USMT 
+			WHERE 1=1
+			  AND #DB_OWNER#NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+			  AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+			  AND UPPER(USMT.EMAIL) = UPPER(${EMAIL})
+		]]>
+	</method>
+	
+</service>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryFormList">
+	<![CDATA[
+		SELECT FORM_ID
+		  FROM SFORM
+		 WHERE HOUSE_CODE = '000'
+		   AND UPPER(FORM_ID) LIKE '%' + UPPER($S{F_KEYWORD}) + '%'
+		 ORDER 
+		    BY FORM_ID
+	]]>
+	</method>
+</service>

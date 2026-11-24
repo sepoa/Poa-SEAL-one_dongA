@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AP_100" header="false">
+    <carousel id="carouselObj" div="lLnyypeCbBzypeTaDj">
+        <item id="LIST">
+            <attach file="/Seal/Approval/SealApprovalLayout.xml"/>
+        </item>
+        <item id="VIEW" render="lazy">
+            <attach file="/Seal/Approval/SealApprovalViewLayout.xml"/>
+        </item>
+    </carousel>
+    <onloadscript>
+    	callFunction('SLM_221', 'setScreenMode', ['APPR_' + Sepoa.request.MODE]);
+    	callFunction('SLM_211', 'setScreenMode', ['APPR_' + Sepoa.request.MODE]);
+    	callFunction('SLM_501', 'setScreenMode', ['APPR_' + Sepoa.request.MODE]);
+    	callFunction('SLM_251', 'setScreenMode', ['APPR_' + Sepoa.request.MODE]);
+    </onloadscript>
+    <userscript>
+        <function name="viewDetail" args="obj">
+        <![CDATA[
+            callFunction('AP_110', 'loadDetail', [obj]);
+            carouselObj.cells("VIEW").setActive();
+        ]]>
+        </function>
+        <function name="doBack">
+        <![CDATA[
+            callFunction('AP_102', 'doQuery', []);
+            carouselObj.cells("LIST").setActive();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsia09LQ2xtZWN3eHlOTWNpd3hrIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUF8xMDEifSwiaWQiOiJrT0tDbG1lY3d4eU5NY2l3eGsiLCJ0eXBlIjoiYm9keSJ9LCJsTG55eXBlQ2JCenlwZVRhRGoiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9mOWZvazVXV1VRcm8iOiJudWxsIiwiZGh4SWRfaGNIUnhUUW1yZmhN
+        IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX01ONmNualBHS094RyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzFBWWhTaGpRVWN2RyI6Im51bGwiLCJkaHhJZF8wTlVNYzJBR21jTmMiOiJudWxsIiwiZGh4SWRfNjZxMXNpZUtneHZCIjoibnVsbCIsImRoeElkX0htSGdNcld2TWp1cCI6Im51bGwiLCJkaHhJZF9rbW9pclNOa1Z1bVMiOiJudWxsIiwiZGh4SWRfc0lFRWhIUlRiRWJYIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY2Fyb3VzZWxPYmoiLCJJVEVNX1JTUlFBSkZHREtEQ0ZVUU1ZX1RZUEUiOiJVIiwiSVRFTV9SU1JRQUpGV0pDRENGVURMTV9TT1JUIjoiMiIsIk9CSkVDVF9JRCI6ImxM
+        bnl5cGVDYkJ6eXBlVGFEaiIsIklURU1fUlNSUUFKRldKQ0RDRlVETE1fSUQiOiJWSUVXIiwiSVRFTV9SU1JRQUpGV0pDRENGVURMTV9UWVBFIjoiVSIsIklURU1fUlNSUUFKRkdES0RDRlVRTVlfSUQiOiJMSVNUIiwiSVRFTV9SU1JRQUpGR0RLRENGVVFNWV9UQVJHRVQiOiIvU2VhbC9BcHByb3ZhbC9TZWFsQXBwcm92YWxMaXN0LnhtbCIsIklURU1fUlNSUUFKRldKQ0RDRlVETE1fVEFSR0VUIjoiL1NlYWwvQXBwcm92YWwvU2VhbEFwcHJvdmFsVmlld0xheW91dC54bWwiLCJJVEVNX1JTUlFBSkZHREtEQ0ZVUU1ZX1NPUlQiOiIxIn0sImlkIjoibExueXlwZUNiQnp5cGVUYURqIiwidHlwZSI6ImNhcm91c2VsIn0sIlJTUlFBSkZHREtEQ0ZVUU1ZIjp7ImxheW91
+        dCI6e30sImNvbXBvbmVudCI6eyJUWVBFIjoiVSIsIklEIjoiTElTVCIsIml0ZW1JRCI6IlJTUlFBSkZHREtEQ0ZVUU1ZIiwiVEFSR0VUIjoiL1NlYWwvQXBwcm92YWwvU2VhbEFwcHJvdmFsTGlzdC54bWwiLCJTT1JUIjoiMSJ9LCJpZCI6IlJTUlFBSkZHREtEQ0ZVUU1ZIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIiwibmFtZSI6IkxJU1QifSwiUlNSUUFKRldKQ0RDRlVETE0iOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlNPUlQiOiIyIiwiSUQiOiJWSUVXIiwiaXRlbUlEIjoiUlNSUUFKRldKQ0RDRlVETE0iLCJUWVBFIjoiVSIsIlRBUkdFVCI6Ii9TZWFsL0FwcHJvdmFsL1NlYWxBcHByb3ZhbFZpZXdMYXlvdXQueG1sIn0s
+        ImlkIjoiUlNSUUFKRldKQ0RDRlVETE0iLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJjYXJvdXNlbENlbGwiLCJuYW1lIjoiVklFVyJ9fSwidHJlZSI6eyJpZCI6ImtPS0NsbWVjd3h5Tk1jaXd4ayIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoibExueXlwZUNiQnp5cGVUYURqIiwidHlwZSI6ImNhcm91c2VsIiwiY2VsbHMiOlt7ImlkIjoiUlNSUUFKRkdES0RDRlVRTVkiLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIn0seyJpZCI6IlJTUlFBSkZXSkNEQ0ZVRExNIiwidHlwZSI6ImNhcm91c2VsQ2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL1NlYWwvQXBwcm92YWwvU2VhbEFwcHJvdmFsQ2Fyb3VzZWwueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJDT0RF
+        IjoiMTAxIiwiUFJFRklYIjoiQVAiLCJQQVRIXzIiOiJBcHByb3ZhbCIsIlBBVEhfMyI6IlNlYWxBcHByb3ZhbCIsIlBBVEhfMSI6IlNlYWwiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJDYXJvdXNlbCIsIlNDUkVFTl9JRCI6IkFQXzEwMSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJrT0tDbG1lY3d4eU5NY2l3eGtcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1c
+        IlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImxMbnl5cGVDYkJ6eXBlVGFEalwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfY2Fyb3VzZWwgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAg
+        ICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

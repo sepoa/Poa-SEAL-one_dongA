@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="checkExistSDEPT">
+	<![CDATA[
+		SELECT
+			DEPT
+		FROM
+			SDEPT
+		WHERE
+				HOUSE_CODE 		= ${HOUSE_CODE}
+			AND COMPANY_CODE 	= ${COMPANY_CODE}	
+			AND DEPT 			= ${deptcd}
+	]]>
+	</method>
+	
+	<method name="doUpdateSDEPT">
+	<![CDATA[
+		UPDATE SDEPT
+			SET
+				  DEPT_NAME_LOC	  = ${deptnm}
+				, PARENT_DEPT	  = ${pre_deptcd}
+				, MANAGER_ID	  = ${charge_empcd}  
+				, DEL_FLAG		  = CASE WHEN ${enabled_flag} = 'Y' THEN 'N' ELSE 'Y' END
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}
+		WHERE
+				HOUSE_CODE        = ${HOUSE_CODE}
+				AND COMPANY_CODE  = ${COMPANY_CODE}
+				AND DEPT		  = ${deptcd}
+	]]>
+	</method>
+	
+	<method name="doInsertSDEPT">
+	<![CDATA[
+		INSERT INTO SDEPT
+			(
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, DEPT
+				, DEPT_NAME_LOC
+				, MANAGER_ID
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID				
+				, PARENT_DEPT
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${HOUSE_CODE}
+				, ${COMPANY_CODE}
+				, ${deptcd}
+				, ${deptnm}
+				, ${charge_empcd}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, ${pre_deptcd}
+				, CASE WHEN ${enabled_flag} = 'Y' THEN 'N' ELSE 'Y' END
+			)	
+	]]>
+	</method>		
+</service>

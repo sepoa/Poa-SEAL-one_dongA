@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SCTGL (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스 코드',
+				COMPANY_CODE varchar(20) NOT NULL COMMENT '회사코드',
+				CONT_NO varchar(20) NOT NULL COMMENT '계약 문서 번호',
+				CONT_GL_SEQ varchar(20) NOT NULL COMMENT '계약 문서 시퀀스 번호',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성 일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성 시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경 일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경 시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자',
+				CONT_TYPE varchar(1) DEFAULT NULL COMMENT '계약타입 - 정형/비정형/수기계약 (S / N / M)',
+				CONT_SUBJECT text DEFAULT NULL COMMENT '계약서 제목',
+				DEL_FLAG varchar(1) DEFAULT NULL COMMENT '삭제여부',
+				STATUS varchar(2) DEFAULT NULL COMMENT '상태(상신,결재중,결재완료,반려, 서명 진행중, 취소된 계약, 완료 계약서 첨부)',
+				CATEGORY varchar(1) DEFAULT NULL COMMENT '카테고리',
+				CREATOR varchar(1000) DEFAULT NULL COMMENT '생성자',
+				CONT_METHOD varchar(1) DEFAULT NULL COMMENT '계약방법(D-디지털사인,C-인증서,S-수기,O-오프라인)',
+				CONT_FORM_NO varchar(20) DEFAULT NULL COMMENT '템플릿 번호 (정형 계약서)',
+				CONT_DATE varchar(8) DEFAULT NULL COMMENT '계약체결일',
+				CONT_FROM varchar(8) DEFAULT NULL COMMENT '계약시작일',
+				CONT_TO varchar(8) DEFAULT NULL COMMENT '계약종료일',
+				EXPIRED_ALARM varchar(1) DEFAULT NULL COMMENT '만기도래 관리 여부(Y,N)',
+				SUMMARY text DEFAULT NULL COMMENT '계약문서 요약내용',
+				PRE_CONT_NUMBER varchar(20) DEFAULT NULL COMMENT '이전 계약번호(재계약일경우 사용됨)',
+				GL_SEQ_REASON varchar(1) DEFAULT NULL,
+				CONT_AMT varchar(4000) DEFAULT NULL COMMENT '계약금액',
+				SIGN_ORDER varchar(3) DEFAULT NULL COMMENT '서명순서',
+				DATA_SOURCE varchar(10) DEFAULT NULL COMMENT '데이터 출처(내부시스템 / 외부시스템[시스템타입])',
+				INNER_MANAGER_NAME varchar(100) DEFAULT NULL,
+				INNER_MANAGER_ID varchar(100) DEFAULT NULL,
+				OUTER_COMPANY_NAME varchar(100) DEFAULT NULL,
+				OUTER_COMPANY_CODE varchar(100) DEFAULT NULL,
+				OUTER_MANAGER_NAME varchar(100) DEFAULT NULL,
+				OUTER_MANAGER_ID varchar(100) DEFAULT NULL,
+				PUSH_SEND_DATE varchar(8) DEFAULT NULL,
+				AP_STATUS varchar(3) DEFAULT NULL,
+				AP_MESSAGE text DEFAULT NULL,
+				T_ID varchar(20) DEFAULT NULL,
+				T_IP varchar(255) DEFAULT NULL,
+				T_MESSAGE varchar(2000) DEFAULT NULL,
+				T_NAME varchar(100) DEFAULT NULL,
+				PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_NO,CONT_GL_SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SCTGL (
+				HOUSE_CODE varchar(5) NOT NULL,
+				COMPANY_CODE varchar(20) NOT NULL,
+				CONT_NO varchar(20) NOT NULL,
+				CONT_GL_SEQ varchar(20) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				CONT_TYPE varchar(1) DEFAULT NULL,
+				CONT_SUBJECT varchar(MAX) DEFAULT NULL,
+				DEL_FLAG varchar(1) DEFAULT NULL,
+				STATUS varchar(2) DEFAULT NULL,
+				CATEGORY varchar(1) DEFAULT NULL,
+				CREATOR varchar(100) DEFAULT NULL,
+				CONT_METHOD varchar(1) DEFAULT NULL,
+				CONT_FORM_NO varchar(20) DEFAULT NULL,
+				CONT_DATE varchar(8) DEFAULT NULL,
+				CONT_FROM varchar(8) DEFAULT NULL,
+				CONT_TO varchar(8) DEFAULT NULL,
+				EXPIRED_ALARM varchar(1) DEFAULT NULL,
+				SUMMARY varchar(MAX) DEFAULT NULL,
+				PRE_CONT_NUMBER varchar(20) DEFAULT NULL,
+				GL_SEQ_REASON varchar(1) DEFAULT NULL,
+				CONT_AMT varchar(4000) DEFAULT NULL,
+				SIGN_ORDER varchar(3) DEFAULT NULL,
+				DATA_SOURCE varchar(10) DEFAULT NULL,
+				INNER_MANAGER_NAME varchar(100) DEFAULT NULL,
+				INNER_MANAGER_ID varchar(100) DEFAULT NULL,
+				OUTER_COMPANY_NAME varchar(100) DEFAULT NULL,
+				OUTER_COMPANY_CODE varchar(100) DEFAULT NULL,
+				OUTER_MANAGER_NAME varchar(100) DEFAULT NULL,
+				OUTER_MANAGER_ID varchar(100) DEFAULT NULL,
+				PUSH_SEND_DATE varchar(8) DEFAULT NULL,
+				AP_STATUS varchar(3) DEFAULT NULL,
+				AP_MESSAGE text DEFAULT NULL,
+				T_ID varchar(20) DEFAULT NULL,
+				T_IP varchar(255) DEFAULT NULL,
+				T_MESSAGE varchar(2000) DEFAULT NULL,
+				T_NAME varchar(100) DEFAULT NULL,
+				CONSTRAINT SCTGL_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_NO,CONT_GL_SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SCTGL (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				COMPANY_CODE VARCHAR2(20) NOT NULL,
+				CONT_NO VARCHAR2(20) NOT NULL,
+				CONT_GL_SEQ VARCHAR2(20) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				CONT_TYPE VARCHAR2(1) DEFAULT NULL,
+				CONT_SUBJECT VARCHAR2(4000) DEFAULT NULL,
+				DEL_FLAG VARCHAR2(1) DEFAULT NULL,
+				STATUS VARCHAR2(2) DEFAULT NULL,
+				CATEGORY VARCHAR2(1) DEFAULT NULL,
+				CREATOR VARCHAR2(100) DEFAULT NULL,
+				CONT_METHOD VARCHAR2(1) DEFAULT NULL,
+				CONT_FORM_NO VARCHAR2(20) DEFAULT NULL,
+				CONT_DATE VARCHAR2(8) DEFAULT NULL,
+				CONT_FROM VARCHAR2(8) DEFAULT NULL,
+				CONT_TO VARCHAR2(8) DEFAULT NULL,
+				EXPIRED_ALARM VARCHAR2(1) DEFAULT NULL,
+				SUMMARY CLOB DEFAULT NULL,
+				PRE_CONT_NUMBER VARCHAR2(20) DEFAULT NULL,
+				GL_SEQ_REASON VARCHAR2(1) DEFAULT NULL,
+				CONT_AMT VARCHAR2(4000) DEFAULT NULL,
+				SIGN_ORDER VARCHAR2(3) DEFAULT NULL,
+				DATA_SOURCE VARCHAR2(10) DEFAULT NULL,
+				INNER_MANAGER_NAME VARCHAR2(100) DEFAULT NULL,
+				INNER_MANAGER_ID VARCHAR2(100) DEFAULT NULL,
+				OUTER_COMPANY_NAME VARCHAR2(100) DEFAULT NULL,
+				OUTER_COMPANY_CODE VARCHAR2(100) DEFAULT NULL,
+				OUTER_MANAGER_NAME VARCHAR2(100) DEFAULT NULL,
+				OUTER_MANAGER_ID VARCHAR2(100) DEFAULT NULL,
+				PUSH_SEND_DATE VARCHAR2(8) DEFAULT NULL,
+				AP_STATUS VARCHAR2(3) DEFAULT NULL,
+				AP_MESSAGE CLOB DEFAULT NULL,
+				T_ID VARCHAR2(20) DEFAULT NULL,
+				T_IP VARCHAR2(255) DEFAULT NULL,
+				T_MESSAGE VARCHAR2(2000) DEFAULT NULL,
+				T_NAME VARCHAR2(100) DEFAULT NULL,
+				CONSTRAINT SCTGL_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_NO,CONT_GL_SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SCTDS (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스 코드',
+				CONT_NO varchar(20) NOT NULL COMMENT '계약 문서 번호',
+				CONT_GL_SEQ varchar(20) NOT NULL COMMENT '계약 문서 시퀀스 번호',
+				SIGNER_NO varchar(20) NOT NULL COMMENT '서명참여자 고유 키 값',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성 일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성 시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경 일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경 시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자',
+				SEQ varchar(6) NOT NULL COMMENT '순서',
+				SIGNER_ID varchar(200) NOT NULL COMMENT '서명자ID ( 회사라면 회사코드, 개인이라면 개인ID )',
+				SIGNER_NAME varchar(300) DEFAULT NULL COMMENT '서명자 ( 회사라면 회사명, 개인이라면 개인이름 )',
+				SIGNER_EMAIL varchar(300) DEFAULT NULL COMMENT '서명자 이메일주소',
+				SIGNER_PHONE varchar(100) DEFAULT NULL,
+				SIGNER_COMPANY_CODE varchar(20) NOT NULL COMMENT '서명자 회사코드',
+				SIGNER_COMPANY_NAME varchar(300) DEFAULT NULL COMMENT '서명자 회사명',
+				SIGNER_COMPANY_OWNER varchar(300) DEFAULT NULL COMMENT '서명자 회사 대표',
+				SIGNER_COMPANY_ADDR varchar(300) DEFAULT NULL COMMENT '서명자 회사 주소',
+				TERMINATION_STATUS varchar(1) DEFAULT NULL COMMENT '서명상태값 (동의, 거부)',
+				LINK varchar(50) DEFAULT NULL,
+				SIGN_COMMENT varchar(4000) DEFAULT NULL COMMENT '서명의견',
+				PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SIGNER_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SCTDS (
+				HOUSE_CODE varchar(5) NOT NULL,
+				CONT_NO varchar(20) NOT NULL,
+				CONT_GL_SEQ varchar(20) NOT NULL,
+				SIGNER_NO varchar(20) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				SEQ varchar(6) NOT NULL,
+				SIGNER_ID varchar(200) NOT NULL,
+				SIGNER_NAME varchar(300) DEFAULT NULL,
+				SIGNER_EMAIL varchar(300) DEFAULT NULL,
+				SIGNER_PHONE varchar(100) DEFAULT NULL,
+				SIGNER_COMPANY_CODE varchar(20) NOT NULL,
+				SIGNER_COMPANY_NAME varchar(300) DEFAULT NULL,
+				SIGNER_COMPANY_OWNER varchar(300) DEFAULT NULL,
+				SIGNER_COMPANY_ADDR varchar(300) DEFAULT NULL,
+				TERMINATION_STATUS varchar(1) DEFAULT NULL,
+				LINK varchar(50) DEFAULT NULL,
+				SIGN_COMMENT varchar(4000) DEFAULT NULL,
+				CONSTRAINT SCTDS_PK PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SIGNER_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SCTDS (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				CONT_NO VARCHAR2(20) NOT NULL,
+				CONT_GL_SEQ VARCHAR2(20) NOT NULL,
+				SIGNER_NO VARCHAR2(20) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				SEQ VARCHAR2(6) NOT NULL,
+				SIGNER_ID VARCHAR2(200) NOT NULL,
+				SIGNER_NAME VARCHAR2(300) DEFAULT NULL,
+				SIGNER_EMAIL VARCHAR2(300) DEFAULT NULL,
+				SIGNER_PHONE VARCHAR2(100) DEFAULT NULL,
+				SIGNER_COMPANY_CODE VARCHAR2(20) NOT NULL,
+				SIGNER_COMPANY_NAME VARCHAR2(300) DEFAULT NULL,
+				SIGNER_COMPANY_OWNER VARCHAR2(300) DEFAULT NULL,
+				SIGNER_COMPANY_ADDR VARCHAR2(300) DEFAULT NULL,
+				TERMINATION_STATUS VARCHAR2(1) DEFAULT NULL,
+				LINK VARCHAR2(50) DEFAULT NULL,
+				SIGN_COMMENT VARCHAR2(4000) DEFAULT NULL,
+				CONSTRAINT SCTDS_PK PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SIGNER_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SCFGL (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스코드',
+				COMPANY_CODE varchar(20) NOT NULL COMMENT '회사코드',
+				CONT_FORM_NO varchar(20) NOT NULL COMMENT '계약 템플릿 번호',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자 ID',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자 ID',
+				DEL_FLAG varchar(1) DEFAULT NULL COMMENT '삭제여부',
+				CONT_FORM_NAME text DEFAULT NULL COMMENT '템플릿 명',
+				CONT_FORM_DESC text DEFAULT NULL COMMENT '템플릿 설명',
+				STATUS varchar(5) DEFAULT NULL COMMENT '템플릿 상태',
+				USE_FLAG varchar(1) DEFAULT NULL COMMENT '사용여부',
+				CATEGORY varchar(1) DEFAULT NULL COMMENT '카테고리',
+				CONT_METHOD varchar(1) DEFAULT NULL COMMENT '계약방법(D-디지털사인,C-인증서,S-수기,O-오프라인)',
+				USE_FROM varchar(8) DEFAULT NULL COMMENT '사용기한 시작일',
+				USE_TO varchar(8) DEFAULT NULL COMMENT '사용기한 종료일',
+				APP_COMMENT text DEFAULT NULL COMMENT '비고',
+				THUMB_FILE_NAME varchar(1000) DEFAULT NULL COMMENT '썸네일파일명',
+				ROOT_PATH_TYPE varchar(10) DEFAULT NULL,
+				CONT_TYPE varchar(1) DEFAULT NULL,
+				SIGNER_CODE varchar(200) DEFAULT NULL,
+				PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_FORM_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SCFGL (
+				HOUSE_CODE varchar(5) NOT NULL,
+				COMPANY_CODE varchar(20) NOT NULL,
+				CONT_FORM_NO varchar(20) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				DEL_FLAG varchar(1) DEFAULT NULL,
+				CONT_FORM_NAME varchar(MAX) DEFAULT NULL,
+				CONT_FORM_DESC varchar(MAX) DEFAULT NULL,
+				STATUS varchar(5) DEFAULT NULL,
+				USE_FLAG varchar(1) DEFAULT NULL,
+				CATEGORY varchar(1) DEFAULT NULL,
+				CONT_METHOD varchar(1) DEFAULT NULL,
+				USE_FROM varchar(8) DEFAULT NULL,
+				USE_TO varchar(8) DEFAULT NULL,
+				APP_COMMENT varchar(MAX) DEFAULT NULL,
+				THUMB_FILE_NAME varchar(1000) DEFAULT NULL,
+				ROOT_PATH_TYPE varchar(10) DEFAULT NULL,
+				CONT_TYPE varchar(1) DEFAULT NULL,
+				SIGNER_CODE varchar(200) DEFAULT NULL,
+				CONSTRAINT SCFGL_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_FORM_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SCFGL (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				COMPANY_CODE VARCHAR2(20) NOT NULL,
+				CONT_FORM_NO VARCHAR2(20) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				DEL_FLAG VARCHAR2(1) DEFAULT NULL,
+				CONT_FORM_NAME VARCHAR2(4000) DEFAULT NULL,
+				CONT_FORM_DESC VARCHAR2(4000) DEFAULT NULL,
+				STATUS VARCHAR2(5) DEFAULT NULL,
+				USE_FLAG VARCHAR2(1) DEFAULT NULL,
+				CATEGORY VARCHAR2(1) DEFAULT NULL,
+				CONT_METHOD VARCHAR2(1) DEFAULT NULL,
+				USE_FROM VARCHAR2(8) DEFAULT NULL,
+				USE_TO VARCHAR2(8) DEFAULT NULL,
+				APP_COMMENT VARCHAR2(4000) DEFAULT NULL,
+				THUMB_FILE_NAME VARCHAR2(1000) DEFAULT NULL,
+				ROOT_PATH_TYPE VARCHAR2(10) DEFAULT NULL,
+				CONT_TYPE VARCHAR2(1) DEFAULT NULL,
+				SIGNER_CODE VARCHAR2(200) DEFAULT NULL,
+				CONSTRAINT SCFGL_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_FORM_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SSCGL (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스코드',
+				COMPANY_CODE varchar(20) NOT NULL COMMENT '회사코드',
+				CONT_NO varchar(20) NOT NULL COMMENT '계약 문서 번호',
+				CONT_GL_SEQ varchar(20) NOT NULL COMMENT '계약 문서 시퀀스 번호',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자 ID',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자 ID',
+				DEL_FLAG varchar(1) DEFAULT NULL COMMENT '삭제여부',
+				CONT_TYPE varchar(1) DEFAULT NULL COMMENT '계약타입 - 정형/비정형/수기계약 (S / N / M)',
+				CONT_SUBJECT varchar(4000) DEFAULT NULL COMMENT '계약서 제목',
+				STATUS varchar(5) DEFAULT NULL COMMENT '상태(상신,결재중,결재완료,반려, 서명 진행중, 취소된 계약, 완료 계약서 첨부)',
+				CATEGORY varchar(1) DEFAULT NULL COMMENT '카테고리',
+				CREATOR varchar(100) DEFAULT NULL COMMENT '생성자',
+				CONT_METHOD varchar(1) DEFAULT NULL COMMENT '계약방법(D-디지털사인,C-인증서,S-수기,O-오프라인)',
+				CONT_FORM_NO varchar(20) DEFAULT NULL COMMENT '템플릿 번호 (정형 계약서)',
+				CONT_DATE varchar(8) DEFAULT NULL COMMENT '계약체결일',
+				CONT_FROM varchar(8) DEFAULT NULL COMMENT '계약시작일',
+				CONT_TO varchar(8) DEFAULT NULL COMMENT '계약종료일',
+				EXPIRED_ALARM varchar(1) DEFAULT NULL COMMENT '만기도래 관리 여부(Y,N)',
+				SUMMARY text DEFAULT NULL COMMENT '계약문서 요약내용',
+				CONT_AMT varchar(4000) DEFAULT NULL COMMENT '계약금액',
+				SIGN_ORDER varchar(3) DEFAULT NULL COMMENT '서명순서',
+				SOURCE_NO varchar(20) DEFAULT NULL COMMENT '전자인장 ID',
+				REMARK varchar(4000) DEFAULT NULL COMMENT '비고',
+				PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_NO, CONT_GL_SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SSCGL (
+				HOUSE_CODE varchar(5) NOT NULL,
+				COMPANY_CODE varchar(20) NOT NULL,
+				CONT_NO varchar(20) NOT NULL,
+				CONT_GL_SEQ varchar(20) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				DEL_FLAG varchar(1) DEFAULT NULL,
+				CONT_TYPE varchar(1) DEFAULT NULL,
+				CONT_SUBJECT varchar(4000) DEFAULT NULL,
+				STATUS varchar(5) DEFAULT NULL,
+				CATEGORY varchar(1) DEFAULT NULL,
+				CREATOR varchar(100) DEFAULT NULL,
+				CONT_METHOD varchar(1) DEFAULT NULL,
+				CONT_FORM_NO varchar(20) DEFAULT NULL,
+				CONT_DATE varchar(8) DEFAULT NULL,
+				CONT_FROM varchar(8) DEFAULT NULL,
+				CONT_TO varchar(8) DEFAULT NULL,
+				EXPIRED_ALARM varchar(1) DEFAULT NULL,
+				SUMMARY text DEFAULT NULL,
+				CONT_AMT varchar(4000) DEFAULT NULL,
+				SIGN_ORDER varchar(3) DEFAULT NULL,
+				SOURCE_NO varchar(20) DEFAULT NULL,
+				REMARK varchar(4000) DEFAULT NULL,
+				CONSTRAINT SSCGL_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_NO,CONT_GL_SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SSCGL (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				COMPANY_CODE VARCHAR2(20) NOT NULL,
+				CONT_NO VARCHAR2(20) NOT NULL,
+				CONT_GL_SEQ VARCHAR2(20) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				DEL_FLAG VARCHAR2(1) DEFAULT NULL,
+				CONT_TYPE VARCHAR2(1) DEFAULT NULL,
+				CONT_SUBJECT VARCHAR2(4000) DEFAULT NULL,
+				STATUS VARCHAR2(2) DEFAULT NULL,
+				CATEGORY VARCHAR2(1) DEFAULT NULL,
+				CREATOR VARCHAR2(100) DEFAULT NULL,
+				CONT_METHOD VARCHAR2(1) DEFAULT NULL,
+				CONT_FORM_NO VARCHAR2(20) DEFAULT NULL,
+				CONT_DATE VARCHAR2(8) DEFAULT NULL,
+				CONT_FROM VARCHAR2(8) DEFAULT NULL,
+				CONT_TO VARCHAR2(8) DEFAULT NULL,
+				EXPIRED_ALARM VARCHAR2(1) DEFAULT NULL,
+				SUMMARY CLOB DEFAULT NULL,
+				CONT_AMT VARCHAR2(4000) DEFAULT NULL,
+				SIGN_ORDER VARCHAR2(3) DEFAULT NULL,
+				SOURCE_NO VARCHAR2(20) DEFAULT NULL,
+				REMARK VARCHAR2(4000) DEFAULT NULL,
+				CONSTRAINT SSCGL_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE,CONT_NO,CONT_GL_SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SSCSI (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스코드',
+				CONT_NO varchar(20) NOT NULL COMMENT '계약 문서 번호',
+				CONT_GL_SEQ varchar(20) NOT NULL COMMENT '계약 문서 시퀀스 번호',
+				SIGNER_ID varchar(200) NOT NULL COMMENT '서명자 ID',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자 ID',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자 ID',
+				DEL_FLAG varchar(1) DEFAULT NULL COMMENT '삭제여부',
+				SEQ varchar(6) DEFAULT NULL COMMENT '서명 순서',
+				SIGNER_COMPANY_CODE varchar(20) DEFAULT NULL COMMENT '서명자 회사코드',
+				FIXED_SIGNER_NAME varchar(300) DEFAULT NULL COMMENT '서명자 이름',
+				FIXED_SIGNER_EMAIL varchar(300) DEFAULT NULL COMMENT '서명자 이메일',
+				FIXED_SIGNER_PHONE varchar(100) DEFAULT NULL COMMENT '서명자 연락처',
+				FIXED_IRS_NO varchar(300) DEFAULT NULL COMMENT '사업자번호',
+				PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SIGNER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SSCSI (
+				HOUSE_CODE varchar(5) NOT NULL,
+				CONT_NO varchar(20) NOT NULL,
+				CONT_GL_SEQ varchar(20) NOT NULL,
+				SIGNER_ID varchar(200) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				DEL_FLAG varchar(1) DEFAULT NULL,
+				SEQ varchar(6) DEFAULT NULL,
+				SIGNER_COMPANY_CODE varchar(20) DEFAULT NULL,
+				FIXED_SIGNER_NAME varchar(300) DEFAULT NULL,
+				FIXED_SIGNER_EMAIL varchar(300) DEFAULT NULL,
+				FIXED_SIGNER_PHONE varchar(100) DEFAULT NULL,
+				FIXED_IRS_NO varchar(300) DEFAULT NULL,
+				CONSTRAINT SSCSI_PK PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SIGNER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SSCSI (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				CONT_NO VARCHAR2(20) NOT NULL,
+				CONT_GL_SEQ VARCHAR2(20) NOT NULL,
+				SIGNER_ID VARCHAR2(200) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				DEL_FLAG VARCHAR2(1) DEFAULT NULL,
+				SEQ VARCHAR2(6) DEFAULT NULL,
+				SIGNER_COMPANY_CODE VARCHAR2(20) DEFAULT NULL,
+				FIXED_SIGNER_NAME VARCHAR2(300) DEFAULT NULL,
+				FIXED_SIGNER_EMAIL VARCHAR2(300) DEFAULT NULL,
+				FIXED_SIGNER_PHONE VARCHAR2(100) DEFAULT NULL,
+				FIXED_IRS_NO VARCHAR2(300) DEFAULT NULL,
+				CONSTRAINT SSCSI_PK PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SIGNER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SBUPR (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스코드',
+				BIZ_CODE varchar(20) NOT NULL COMMENT '거래처코드',
+				BIZ_CATEGORY varchar(20) NOT NULL COMMENT '거래처분류 (C:도급처, S:수급처)',
+				BIZ_TYPE varchar(20) NOT NULL COMMENT '거래처타입 (P:매입, S:매출)',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자 ID',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자 ID',
+				DEL_FLAG varchar(1) DEFAULT NULL COMMENT '삭제여부',
+				SELLER_NAME_LOC varchar(500) DEFAULT NULL COMMENT '회사명',
+				IRS_NO varchar(20) DEFAULT NULL COMMENT '사업자번호',
+				ZIP_CODE varchar(10) DEFAULT NULL COMMENT '우편번호',
+				ADDRESS_LOC varchar(1000) DEFAULT NULL COMMENT '주소',
+				PHONE_NO varchar(100) DEFAULT NULL COMMENT '회사 전화번호',
+				EMAIL varchar(500) DEFAULT NULL COMMENT '회사 EMAIL',
+				CEO_NAME_LOC varchar(100) DEFAULT NULL COMMENT '대표자명',
+				FOUNDATION_DATE varchar(8) DEFAULT NULL COMMENT '개업년월일',
+				IF_FLAG varchar(1) DEFAULT NULL COMMENT '수동 등록 여부',
+				PRIMARY KEY (HOUSE_CODE,BIZ_CODE,BIZ_CATEGORY, BIZ_TYPE)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SBUPR (
+				HOUSE_CODE varchar(5) NOT NULL,
+				BIZ_CODE varchar(20) NOT NULL,
+				BIZ_CATEGORY varchar(20) NOT NULL,
+				BIZ_TYPE varchar(20) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				DEL_FLAG varchar(1) DEFAULT NULL,
+				SELLER_NAME_LOC varchar(500) DEFAULT NULL,
+				IRS_NO varchar(20) DEFAULT NULL,
+				ZIP_CODE varchar(10) DEFAULT NULL,
+				ADDRESS_LOC varchar(1000) DEFAULT NULL,
+				PHONE_NO varchar(100) DEFAULT NULL,
+				EMAIL varchar(500) DEFAULT NULL,
+				CEO_NAME_LOC varchar(100) DEFAULT NULL,
+				FOUNDATION_DATE varchar(8) DEFAULT NULL,
+				IF_FLAG varchar(1) DEFAULT NULL,
+				CONSTRAINT SBUPR_PK PRIMARY KEY (HOUSE_CODE,BIZ_CODE,BIZ_CATEGORY,BIZ_TYPE)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SBUPR (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				BIZ_CODE VARCHAR2(20) NOT NULL,
+				BIZ_CATEGORY VARCHAR2(20) NOT NULL,
+				BIZ_TYPE VARCHAR2(20) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				DEL_FLAG VARCHAR2(1) DEFAULT NULL,
+				SELLER_NAME_LOC VARCHAR2(500) DEFAULT NULL,
+				IRS_NO VARCHAR2(20) DEFAULT NULL,
+				ZIP_CODE VARCHAR2(10) DEFAULT NULL,
+				ADDRESS_LOC VARCHAR2(1000) DEFAULT NULL,
+				PHONE_NO VARCHAR2(100) DEFAULT NULL,
+				EMAIL VARCHAR2(500) DEFAULT NULL,
+				CEO_NAME_LOC VARCHAR2(100) DEFAULT NULL,
+				FOUNDATION_DATE VARCHAR2(8) DEFAULT NULL,
+				IF_FLAG VARCHAR2(1) DEFAULT NULL,
+				CONSTRAINT SBUPR_PK PRIMARY KEY (HOUSE_CODE,BIZ_CODE,BIZ_CATEGORY,BIZ_TYPE)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SBUPI (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스코드',
+				BIZ_CODE varchar(20) NOT NULL COMMENT '거래처코드',
+				SEQ varchar(100) NOT NULL COMMENT '순번',
+				USER_ID varchar(100) NOT NULL COMMENT '담당자 ID',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자 ID',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자 ID',
+				DEL_FLAG varchar(1) DEFAULT NULL COMMENT '삭제여부',
+				USER_NAME varchar(100) DEFAULT NULL COMMENT '담당자명',
+				EMAIL varchar(500) DEFAULT NULL COMMENT '담당자 EMAIL',
+				PHONE_NO varchar(200) DEFAULT NULL COMMENT '연락처',
+				IF_FLAG varchar(1) DEFAULT NULL COMMENT '수동 등록 여부',
+				PRIMARY KEY (HOUSE_CODE,BIZ_CODE,SEQ,USER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SBUPI (
+				HOUSE_CODE varchar(5) NOT NULL,
+				BIZ_CODE varchar(20) NOT NULL,
+				SEQ varchar(100) NOT NULL,
+				USER_ID varchar(100) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL,
+				DEL_FLAG varchar(1) DEFAULT NULL,
+				USER_NAME varchar(100) DEFAULT NULL,
+				EMAIL varchar(500) DEFAULT NULL,
+				PHONE_NO varchar(200) DEFAULT NULL,
+				IF_FLAG varchar(1) DEFAULT NULL,
+				CONSTRAINT SBUPI_PK PRIMARY KEY (HOUSE_CODE,BIZ_CODE,SEQ,USER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SBUPI (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				BIZ_CODE VARCHAR2(20) NOT NULL,
+				SEQ VARCHAR2(100) NOT NULL,
+				USER_ID VARCHAR2(100) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8) DEFAULT NULL,
+				CHANGE_TIME VARCHAR2(6) DEFAULT NULL,
+				CHANGE_USER_ID VARCHAR2(4000) DEFAULT NULL,
+				DEL_FLAG VARCHAR2(1) DEFAULT NULL,
+				USER_NAME VARCHAR2(100) DEFAULT NULL,
+				EMAIL VARCHAR2(500) DEFAULT NULL,
+				PHONE_NO VARCHAR2(200) DEFAULT NULL,
+				IF_FLAG VARCHAR2(1) DEFAULT NULL,
+				CONSTRAINT SBUPI_PK PRIMARY KEY (HOUSE_CODE,BIZ_CODE,SEQ,USER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_014" method="doInsertDetail" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="TYPE" val="M000"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="SM040"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="0"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="날인 신청 현황 필터 콤보"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="M000"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="SM040"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="0"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val=""/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="M000"/>
+					<entry key="LANGUAGE" val="ZH"/>
+					<entry key="CODE" val="SM040"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="0"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val=""/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="SM040"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="ADD_DATE"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="0"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="신청날짜"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="SM040"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="CONFIRM_DATE"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="1"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="날인 승인 날짜"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+			</list>
+		</params>
+	</item>
+	
+	
+</body>

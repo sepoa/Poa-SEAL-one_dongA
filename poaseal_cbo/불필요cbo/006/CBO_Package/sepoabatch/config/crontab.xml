@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<crontab>
+	<crontabentry id="0">
+		<seconds>*/10</seconds>
+		<minutes>*</minutes>
+		<hours>*</hours>
+		<daysofmonth>*</daysofmonth>
+		<months>*</months>
+		<daysofweek>*</daysofweek>
+		<years>*</years>
+		<bussinesdays>true</bussinesdays>
+		<startDate>null</startDate>
+		<endDate>null</endDate>
+		<class>sepoa.svc.batch.SepoaApprovalReceiverBatch</class>
+		<method>main</method>
+	        <parameters></parameters>
+		<description>Approval Receiver Batch</description>
+	</crontabentry>
+	<crontabentry id="1">
+		<seconds>0</seconds>
+		<minutes>10</minutes>
+		<hours>4</hours>
+		<daysofmonth>*</daysofmonth>
+		<months>*</months>
+		<daysofweek>*</daysofweek>
+		<years>*</years>
+		<bussinesdays>true</bussinesdays>
+		<startDate>null</startDate>
+		<endDate>null</endDate>
+		<class>sepoa.svc.batch.BatchRecvDeptInfo</class>
+		<method>main</method>
+	        <parameters></parameters>
+		<description>BatchRecvDeptInfo</description>
+	</crontabentry>
+		<crontabentry id="2">
+		<seconds>0</seconds>
+		<minutes>20</minutes>
+		<hours>4</hours>
+		<daysofmonth>*</daysofmonth>
+		<months>*</months>
+		<daysofweek>*</daysofweek>
+		<years>*</years>
+		<bussinesdays>true</bussinesdays>
+		<startDate>null</startDate>
+		<endDate>null</endDate>
+		<class>sepoa.svc.batch.BatchRecvUserInfo</class>
+		<method>main</method>
+	        <parameters></parameters>
+		<description>BatchRecvUserInfo</description>
+	</crontabentry>
+</crontab>

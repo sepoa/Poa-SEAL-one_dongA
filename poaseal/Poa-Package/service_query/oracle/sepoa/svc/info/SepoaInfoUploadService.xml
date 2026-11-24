@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQueryUser">
+    <![CDATA[
+        SELECT
+            T.PID AS USMT_CNT,
+            S.PID AS ADDR_CNT
+        FROM (
+        		SELECT COUNT(1) PID
+        		FROM SUSMT
+        		WHERE 1=1
+            	AND HOUSE_CODE = ${HOUSE_CODE}
+            	AND COMPANY_CODE = ${COMPANY_CODE}
+            	AND USER_ID = ${USER_ID}
+        	) T, 
+        	(
+        		SELECT COUNT(1) PID
+        		FROM SADDR
+        		WHERE 1=1
+            	AND HOUSE_CODE = ${HOUSE_CODE}
+            	AND CODE_NO = ${USER_ID}
+            	AND CODE_TYPE = 'USER'
+        	) S
+    ]]>
+    </method>
+    
+    <method name="doQueryDept">
+    <![CDATA[
+        SELECT COUNT(1) AS CNT
+        FROM SDEPT
+        WHERE 1=1
+            AND HOUSE_CODE = ${HOUSE_CODE}
+            AND COMPANY_CODE = ${COMPANY_CODE}
+            AND DEPT = ${DEPT}
+    ]]>
+    </method>
+    
+    <method name="doQueryPosition">
+    <![CDATA[
+        SELECT COUNT(1) AS CNT
+        FROM SCODE
+        WHERE 1=1
+            AND HOUSE_CODE = ${HOUSE_CODE}
+            AND TYPE = 'UX049'
+            AND CODE = ${POSITION_CODE}
+            AND LANGUAGE = ${LANGUAGE}
+    ]]>
+    </method>
+    
+    <method name="insertADDR">
+    <![CDATA[
+        INSERT INTO SADDR (
+            HOUSE_CODE
+            , CODE_NO
+            , CODE_TYPE
+            , EMAIL
+            , PHONE_NO1
+            , ADD_DATE 
+            , ADD_TIME 
+            , ADD_USER_ID
+            , CHANGE_DATE
+            , CHANGE_TIME
+            , CHANGE_USER_ID
+            , DEL_FLAG
+        ) VALUES (
+            ${HOUSE_CODE}
+            , ${USER_ID}
+            , 'USER'
+            , ${EMAIL}
+            , ${PHONE_NO}
+            , ${current.DATE} 
+            , ${current.TIME} 
+            , ${session.ID} 
+            , ${current.DATE} 
+            , ${current.TIME} 
+            , ${session.ID} 
+            , 'N'
+        )
+    ]]>
+    </method>    
+    <method name="insertUSMT">
+    <![CDATA[
+        INSERT INTO SUSMT (
+            HOUSE_CODE 
+            , COMPANY_CODE 
+            , ADD_DATE 
+            , ADD_TIME 
+            , ADD_USER_ID
+            , CHANGE_DATE
+            , CHANGE_TIME
+            , CHANGE_USER_ID
+            , DEL_FLAG 
+            , USER_ID	
+            , USER_NAME_LOC	
+            , USER_NAME_ENG
+            , DEPT	
+            , POSITION
+            , POSITION_NAME
+            , LANGUAGE	
+            , TIME_ZONE
+            , EMAIL
+            , COUNTRY
+            , MENU_PROFILE_CODE
+            , DATE_FORMAT	
+            , EMPLOYEE_NO
+            , PASSWORD
+            , SIGN_STATUS
+            , USER_TYPE
+            , PASS_CHECK_CNT
+            , PW_RESET_FLAG
+            , PHONE
+        ) VALUES ( 
+              ${HOUSE_CODE} 
+            , ${COMPANY_CODE}  
+            , ${current.DATE} 
+            , ${current.TIME} 
+            , ${session.ID} 
+            , ${current.DATE} 
+            , ${current.TIME} 
+            , ${session.ID} 
+            , 'N'
+            , ${USER_ID}	
+            , ${USER_NAME_LOC}	
+            , ${USER_NAME_ENG}
+            , ${DEPT_CODE}	
+            , ${POSITION_CODE}
+            , ${POSITION_NAME}
+            , ${LANGUAGE}	
+            , ${TIME_ZONE}
+            , ${EMAIL}
+            , ${COUNTRY}
+            , ${MENU_PROFILE_CODE}
+            , ${DATE_FORMAT}	
+            , ${EMPLOYEE_NO}
+            , ${PASSWORD}
+            , 'A'
+            , 'P'
+            , 0
+            , 'N'
+            , ${PHONE_NO}
+        )
+    ]]>
+    </method>
+    
+    <method name="insertDEPT">
+    <![CDATA[
+        INSERT INTO SDEPT (
+            HOUSE_CODE
+            , COMPANY_CODE
+            , DEPT
+            , DEPT_NAME_LOC
+            , DEPT_NAME_ENG
+            , DEPT_NAME_JP
+            , DEPT_NAME_CN
+            , PARENT_DEPT
+            , MANAGER_ID
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , DEL_FLAG
+        ) VALUES (
+            ${HOUSE_CODE}
+            , ${COMPANY_CODE}
+            , ${DEPT}
+            , ${DEPT_NAME_LOC}
+            , ${DEPT_NAME_ENG}
+            , ${DEPT_NAME_JP}
+            , ${DEPT_NAME_CN}
+            , ${PARENT_DEPT}
+            , ${MANAGER_ID}
+            , ${current.DATE} 
+            , ${current.TIME} 
+            , ${session.ID} 
+            , 'N'
+        )
+    ]]>
+    </method>
+        
+    <method name="insertCODE">
+    <![CDATA[
+        INSERT INTO SCODE (
+            HOUSE_CODE
+            , TYPE
+            , CODE
+            , LANGUAGE
+            , TEXT1
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , DEL_FLAG
+        ) VALUES (
+            ${HOUSE_CODE}
+            , 'UX049'
+            , ${POSITION_CODE}
+            , ${LANGUAGE}
+            , ${POSITION_NAME}
+            , ${current.DATE} 
+            , ${current.TIME} 
+            , ${session.ID} 
+            , 'N'
+        )
+    ]]>
+    </method>
+    
+    <method name="updateADDR">
+    <![CDATA[
+    	UPDATE SADDR
+    	SET
+            EMAIL = ${EMAIL},
+            PHONE_NO1 = ${PHONE_NO},
+            CHANGE_DATE = ${current.DATE},
+    	    CHANGE_TIME = ${current.TIME},
+    	    CHANGE_USER_ID = ${session.ID}
+        WHERE 1=1
+        	AND HOUSE_CODE = ${HOUSE_CODE}
+            AND CODE_NO = ${USER_ID}
+            AND CODE_TYPE = 'USER'
+    ]]>
+    </method>
+    
+    <method name="updateUSMT">
+    <![CDATA[
+    	UPDATE SUSMT
+    	SET
+    	    USER_NAME_LOC = ${USER_NAME_LOC},
+    	    USER_NAME_ENG = ${USER_NAME_ENG},
+    	    DEPT = ${DEPT_CODE},
+    	    POSITION = ${POSITION_CODE},
+    	    POSITION_NAME = ${POSITION_NAME},
+    	    LANGUAGE = ${LANGUAGE},
+    	    TIME_ZONE = ${TIME_ZONE},
+    	    EMAIL = ${EMAIL},
+    	    COUNTRY = ${COUNTRY},
+    	    MENU_PROFILE_CODE = ${MENU_PROFILE_CODE},
+    	    DATE_FORMAT = ${DATE_FORMAT},
+    	    EMPLOYEE_NO = ${EMPLOYEE_NO},
+    	    PHONE = ${PHONE_NO},
+    	    CHANGE_DATE = ${current.DATE},
+    	    CHANGE_TIME = ${current.TIME},
+    	    CHANGE_USER_ID = ${session.ID}
+    	WHERE 1=1
+    	    AND HOUSE_CODE = ${HOUSE_CODE}
+    	    AND COMPANY_CODE = ${COMPANY_CODE}
+    	    AND USER_ID = ${USER_ID}
+    ]]>
+    </method>
+    
+    <method name="updateDEPT">
+    <![CDATA[
+    	UPDATE SDEPT
+    	SET
+    	    DEPT_NAME_LOC = ${DEPT_NAME_LOC},
+    	    DEPT_NAME_ENG = ${DEPT_NAME_ENG},
+    	    DEPT_NAME_JP = ${DEPT_NAME_JP},
+    	    DEPT_NAME_CN = ${DEPT_NAME_CN},
+    	    PARENT_DEPT = ${PARENT_DEPT},
+    	    MANAGER_ID = ${MANAGER_ID},
+    	    CHANGE_DATE = ${current.DATE},
+    	    CHANGE_TIME = ${current.TIME},
+    	    CHANGE_USER_ID = ${session.ID}
+    	WHERE 1=1
+    	    AND HOUSE_CODE = ${HOUSE_CODE}
+    	    AND COMPANY_CODE = ${COMPANY_CODE}
+    	    AND DEPT = ${DEPT}
+    ]]>
+    </method>
+    
+    <method name="updateCODE">
+    <![CDATA[
+    	UPDATE SCODE
+    	SET
+    	    TEXT1 = ${POSITION_NAME},
+    	    CHANGE_DATE = ${current.DATE},
+    	    CHANGE_TIME = ${current.TIME},
+    	    CHANGE_USER_ID = ${session.ID}
+    	WHERE 1=1
+    	    AND HOUSE_CODE = ${HOUSE_CODE}
+    	    AND TYPE = 'UX049'
+    	    AND CODE = ${POSITION_CODE}
+    	    AND LANGUAGE = ${LANGUAGE}
+    ]]>
+    </method>
+    
+    <method name="searchUser">
+    <![CDATA[
+    	SELECT
+    	    USER_NAME_LOC,
+    	    USER_NAME_ENG
+    	FROM SUSMT
+    	WHERE 1=1
+    	    AND HOUSE_CODE = ${HOUSE_CODE}
+    	    AND COMPANY_CODE = ${COMPANY_CODE}
+    	    AND USER_ID = ${USER_ID}
+    ]]>
+    </method>
+    
+    <method name="searchDept">
+    <![CDATA[
+        SELECT
+            DEPT_NAME_LOC,
+            DEPT_NAME_ENG,
+            DEPT_NAME_JP,
+            DEPT_NAME_CN
+        FROM SDEPT
+        WHERE 1=1
+            AND HOUSE_CODE = ${HOUSE_CODE}
+            AND COMPANY_CODE = ${COMPANY_CODE}
+            AND DEPT = ${DEPT_CODE}
+    ]]>
+    </method>
+    
+    <method name="searchPosition">
+    <![CDATA[
+    	SELECT
+    	    MAX(CASE WHEN LANGUAGE = 'KO' THEN TEXT1 ELSE NULL END) AS POSITION_NAME_LOC,
+		    MAX(CASE WHEN LANGUAGE = 'EN' THEN TEXT1 ELSE NULL END) AS POSITION_NAME_ENG,
+		    MAX(CASE WHEN LANGUAGE = 'JA' THEN TEXT1 ELSE NULL END) AS POSITION_NAME_JP,
+		    MAX(CASE WHEN LANGUAGE = 'ZH' THEN TEXT1 ELSE NULL END) AS POSITION_NAME_CN
+	 	FROM SCODE
+		WHERE 1=1
+		    AND HOUSE_CODE = ${HOUSE_CODE}
+		    AND TYPE = 'UX049'
+		    AND CODE = ${POSITION_CODE}
+    ]]>
+    </method>
+</service>

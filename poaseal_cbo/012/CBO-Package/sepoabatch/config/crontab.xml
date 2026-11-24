@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<crontab>
+<!-- <crontabentry id="1">
+	<seconds>*/5</seconds>
+	<minutes>*</minutes>
+	<hours>*</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaUserBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SEPOA_USER_BATCH</description>
+</crontabentry>
+<crontabentry id="2">
+	<seconds>*/5</seconds>
+	<minutes>*</minutes>
+	<hours>*</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaUserBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>USER,DEPT,POSITION</description>
+</crontabentry> -->
+<crontabentry id="3">
+	<seconds>0</seconds>
+	<minutes>44</minutes>
+	<hours>14</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaAuthBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>Auth</description>
+</crontabentry>
+</crontab>
+

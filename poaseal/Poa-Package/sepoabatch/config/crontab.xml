@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<crontab>
+	<crontabentry id="0">
+		<seconds>*/10</seconds>
+		<minutes>*</minutes>
+		<hours>*</hours>
+		<daysofmonth>*</daysofmonth>
+		<months>*</months>
+		<daysofweek>*</daysofweek>
+		<years>*</years>
+		<bussinesdays>true</bussinesdays>
+		<startDate>null</startDate>
+		<endDate>null</endDate>
+		<class>sepoa.svc.batch.SepoaApprovalReceiverBatch</class>
+		<method>main</method>
+	        <parameters></parameters>
+		<description>Approval Receiver Batch</description>
+	</crontabentry>
+</crontab>

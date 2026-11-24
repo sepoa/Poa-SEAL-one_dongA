@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_022_2" header="false">    <template>    <![CDATA[        <div class="container" id="container" style="overflow:hidden;">        	<div id="layoutBox" class="lowerDiv" style="width:100%;height:100%"></div>        </div>    ]]>    </template>    <layout div="layoutBox" id="containerLayout" pattern="1C">        <cell>            <id>a</id>            <header type="contents" text="AD_022.TITLE2"/>            <cicon>                <btn id="new" type="new"/>                <btn id="add"/>                <btn id="delete"/>                <btn id="copy"/>                <btn id="save"/>            </cicon>            <collapse icon="false"/>            <fix_size>true, true</fix_size>            <attach file="/Admin/GridManagement/AdminGridManagementWriteGrid.sux"/>        </cell>    </layout>    <onloadscript>   		<call name="changeHeaderIcon" args="'a','show'"/>    </onloadscript>    <userscript>
+    	<function name="setTextArea" args="">
+    	<![CDATA[
+    		//callFunction("AD_022_4", "setTextArea", []);
+    	]]>
+    	</function>
+    	
+    	<function name="doList" args="flag"> 
+    	<![CDATA[
+    		callFunction('AD_022_1','doQuery',[flag]);
+    	]]>
+    	</function>    </userscript></body>

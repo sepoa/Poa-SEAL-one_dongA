@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+				  USER_ID
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+		FROM
+			SUSMT
+		WHERE
+				HOUSE_CODE 		= ${HOUSE_CODE}
+			AND COMPANY_CODE 	= ${COMPANY_CODE}	
+			AND USER_ID 		= ${empcd}		 
+	]]>
+	</method>
+	
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${hname}
+				, USER_NAME_ENG	 	= ${ename}
+				, DEPT		      	= ${deptcd}
+				, POSITION		  	= ${jikwicd}
+				, EMAIL  		    = ${email}
+				, PHONE           	= ${handpon}
+				, employee_no       = ${empcd}
+				, manager_position  = ${supervisor_cd}
+				, DEL_FLAG        	= ${DEL_FLAG}
+				, LANGUAGE			= 'KO'
+				, USER_TYPE			= #DB_OWNER#nvl($S{USER_TYPE}, USER_TYPE)
+		WHERE
+			  HOUSE_CODE        	= ${HOUSE_CODE}
+		  AND USER_ID           	= ${empcd}
+	]]>
+	</method>
+	
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL				
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, PHONE
+				, LANGUAGE
+				, EMPLOYEE_NO
+				, MANAGER_POSITION
+			)
+			VALUES
+			(
+				  ${HOUSE_CODE}
+				, ${empcd}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${COMPANY_CODE}
+				, ${COMPANY_CODE}
+				, ${hname}
+				, ${ename}
+				, ${PASSWORD}
+				, ${deptcd}
+				, ${jikwicd}
+				, ${email}				
+				, 'KR'
+				, 'A'
+				, 'Z'
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, '0'
+				, 'Y'
+				, ${DEL_FLAG}
+				, '%Y/%m/%d'
+				, ${handpon}
+				, 'KO'
+				, ${empcd}
+				, ${supervisor_cd}
+			)	
+	]]>
+	</method>
+	
+	<method name="doUpdateSADDR">
+	<![CDATA[
+		UPDATE SADDR
+			SET
+				  CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}			  
+				, DEL_FLAG        = ${DEL_FLAG}
+				, PHONE_NO1       = ${handpon}
+				, EMAIL           = ${email}
+		WHERE
+              HOUSE_CODE        = ${HOUSE_CODE}
+		  AND CODE_NO           = ${empcd}
+	]]>
+	</method>
+	
+	<method name="doInsertSADDR">
+	<![CDATA[
+		INSERT INTO SADDR
+			(
+				  HOUSE_CODE
+				, CODE_NO 
+				, CODE_TYPE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, DEL_FLAG
+				, PHONE_NO1
+				, EMAIL				
+			)
+			VALUES
+			(
+				  ${HOUSE_CODE}
+				, ${empcd}
+				, 'USER'
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, 'N'
+				, ${handpon}
+				, ${email}				
+			)	
+	]]>
+	</method>		
+	
+	<method name="checkExistPositionCode">
+	<![CDATA[
+		SELECT
+			CODE
+		FROM
+			SCODE
+		WHERE
+				HOUSE_CODE 		= ${HOUSE_CODE}
+			AND TYPE 			= 'UX049'
+			AND CODE            = ${jikwicd}
+			AND LANGUAGE        = 'KO'		 
+	]]>
+	</method>
+	
+	<method name="doUpdatePositionCode">
+	<![CDATA[
+		UPDATE SCODE
+			SET
+				  TEXT1		      = ${jikwicd_disp}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}	
+		WHERE
+				HOUSE_CODE        = ${HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+			AND CODE              = ${jikwicd}
+			AND LANGUAGE 		  = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="doInsertPositionCode">
+	<![CDATA[
+		INSERT INTO SCODE
+			(
+				  HOUSE_CODE
+				, TYPE 
+				, CODE
+				, LANGUAGE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, USE_FLAG
+				, TEXT1
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${HOUSE_CODE}
+				, 'UX049'
+				, ${jikwicd}
+				, ${LANGUAGE}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, 'Y'
+				, ${jikwicd_disp}
+				, 'N'
+			)	
+	]]>
+	</method>	
+</service>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="REMARK" header="false">
+    <variable>
+        <var name="formbox" value="$($sObject._vp).find('#aHNvbydoJUvbydvqXk')[0]"/>
+        <var name="aHNvbydnJUvbydxcHO" value="$($sObject._vp).find('#aHNvbydnJUvbydxcHO')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="formObj"/>
+        <var name="viewMode"/>
+        <var name="g_fn"/>
+        <function name="init" args="">
+        <![CDATA[
+            var formOptions = [{
+                    "type": "settings",
+                    "position": "label-top"
+                },
+                {
+                    "type": "block",
+                    "width": "auto",
+                    "list": [{
+                        "type": "editor",
+                        "name": "REMARK",
+                        "inputWidth": formbox.offsetWidth - 2,
+                        "inputHeight": formbox.offsetHeight - 11,
+                        "value": ""
+                    }]
+                }
+            ];
+            
+            formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(formbox, 'formObj', [formOptions], true);
+            formObj.enableLiveValidation(true);
+            formObj.attachEvent('onBlur', function(id) {
+                if (id == "REMARK") {
+                    remarkCallback('onBlur', formObj.getEditor("REMARK").getContent());
+                }
+            });
+            
+            SUX.attachEvent('onWindowResize', function(){
+                var editor = formObj.getEditor('REMARK');
+                editor.base.style.height = formbox.offsetHeight - 11 + 'px'
+                editor.base.style.width = formbox.offsetWidth - 2 + 'px'
+                editor.setSizes();
+            })
+            
+            if(Sepoa.request.isPopup) {
+            	var remark = Sepoa.params.remark;
+	            var viewMode = Sepoa.params.viewMode;
+	            
+	            if(remark) {
+	            	setRemark(remark);
+	            }
+	            
+	            if(viewMode) {
+	            	setViewMode(viewMode);
+	            }
+            }
+        ]]>
+        </function>
+        <function name="getRemark" args="">
+        <![CDATA[
+            if (viewMode) {
+                formObj.setViewMode(viewMode);
+            }
+            
+            return formObj.getEditor("REMARK").getContent();
+        ]]>
+        </function>
+        <function name="setRemark" args="c">
+        <![CDATA[
+            if (viewMode) {
+                formObj.setViewMode(viewMode);
+            }
+            
+            formObj.getEditor("REMARK").setContent(c);
+        ]]>
+        </function>
+        <function name="setViewMode" args="mode">
+        <![CDATA[
+        	if(typeof(mode) == 'string') {
+        		if(mode.toLocaleLowerCase() === 'true') {
+        			mode = true;
+        		} else {
+        			mode = false;
+        		}
+        	}
+        
+            viewMode = mode;
+            formObj.setViewMode(mode);
+        ]]>
+        </function>
+        <function name="setRemarkCallback" args="fn">
+        <![CDATA[
+            g_fn = fn;
+        ]]>
+        </function>
+        <function name="remarkCallback" args="type, data">
+        <![CDATA[
+            if (viewMode) return;
+            if (!g_fn) return;
+            
+			if(typeof(g_fn) == "string"){
+				callFunction('p', g_fn, [getScreenId(formbox), type, data]);
+			}else{
+				g_fn.apply(this, [getScreenId(formbox), type, data]);
+			}
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsibUdOdmJ5ZE1TemZjSVNRalBXIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9iMUhMbjhQMllFc0IiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2luOGlKUXYzekhvRyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX1Z6MFh5Z1QzTnNzQSI6Im51bGwiLCJkaHhJZF9YOTgwOXlSNjRGaUQiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiUkVNQVJLIiwiT0JKRUNUX0lEIjoibUdOdmJ5ZE1TemZjSVNRalBXIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJG
+        UkFNRV9QUkVTRVQiOiJGVUxMIn0sImlkIjoibUdOdmJ5ZE1TemZjSVNRalBXIiwidHlwZSI6ImJvZHkifSwiYUhOdmJ5ZG9KVXZieWR2cVhrIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfaGJwV3YyeEtmSEVoIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmb3JtYm94IiwiT0JKRUNUX0lEIjoiYUhOdmJ5ZG9KVXZieWR2cVhrIn0sImlkIjoiYUhOdmJ5ZG9KVXZieWR2cVhrIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sImFITnZieWRuSlV2YnlkeGNITyI6eyJsYXlvdXQiOnsiU0laRV9BVVRP
+        SEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfcFZOMnU5dFJtQWpkIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9NbThtdHFPOWduYlkiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfODR3MmtQekZaaXZUIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfNlVKY3h3MFM5b1VtIjoibnVsbCIsImRoeElkX2lMVUZReXVCYVFCTyI6Im51bGwiLCJkaHhJZF83b01RSkVkS2U5OFciOiJudWxsIn0sImNvbXBvbmVudCI6eyJD
+        T0xVTU4iOiIxIiwiVkFSIjoiYUhOdmJ5ZG5KVXZieWR4Y0hPIiwiT0JKRUNUX0lEIjoiYUhOdmJ5ZG5KVXZieWR4Y0hPIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDT0xVTU5fSVRFTV8wIjoiMSJ9LCJpZCI6ImFITnZieWRuSlV2YnlkeGNITyIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJtR052YnlkTVN6ZmNJU1FqUFciLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImFITnZieWRuSlV2YnlkeGNITyIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJhSE52Ynlkb0pVdmJ5ZHZxWGsiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVXhEZWZhdWx0L1JlbWFyay9SZW1hcmsueG1sIiwiUFJPSkVD
+        VCI6IkZSV0siLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJVeERlZmF1bHQvUmVtYXJrIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiUmVtYXJrIiwiQ09ERSI6IlJFTUFSSyIsIlBSRUZJWCI6IiIsIlNDUkVFTl9JRCI6IlJFTUFSSyJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJtR052YnlkTVN6ZmNJU1FqUFdcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhf
+        Y29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYUhOdmJ5ZG5KVXZieWR4Y0hPXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlciBsb3dlckRpdlwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZs
+        ZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJhSE52Ynlkb0pVdmJ5ZHZxWGtcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAg
+        ICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

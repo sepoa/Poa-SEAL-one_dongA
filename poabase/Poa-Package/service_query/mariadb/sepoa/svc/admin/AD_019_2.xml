@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doFormLoad">
+	<![CDATA[
+      SELECT USMT.COMPANY_CODE
+		     , USMT.PLANT_CODE
+		     , USMT.DEPT
+		     , USMT.POSITION
+		     , USMT.EMPLOYEE_NO
+		     , USMT.USER_ID
+		     , USMT.USER_NAME_LOC
+		     , USMT.USER_NAME_ENG
+		     , USMT.SIGN_STATUS
+		     , USMT.USER_TYPE
+		     , USMT.WORK_TYPE
+		     , ADDR.EMAIL
+		     , USMT.STATE
+		     , USMT.THEME
+		     , USMT.COUNTRY
+		     , USMT.TIME_ZONE
+		     , USMT.LANGUAGE
+		     , USMT.DATE_FORMAT
+		     , USMT.MENU_PROFILE_CODE
+		     , BAGL.CTRL_NAME_LOC
+		     , ADDR.PHONE_NO1
+		     , ADDR.PHONE_NO2
+		     , ADDR.ZIP_CODE
+		     , ADDR.ADDRESS_LOC
+		     , ADDR.ADDRESS_ENG 
+             , USMT.USER_NAME_LOC AS SELLER_NAME_LOC
+             , USMT.COMPANY_CODE AS SELLER_CODE
+		  FROM SUSMT USMT 
+		   LEFT OUTER JOIN SADDR ADDR 
+		       ON USMT.HOUSE_CODE = ADDR.HOUSE_CODE 
+		       AND USMT.USER_ID = ADDR.CODE_NO 
+		       AND ADDR.CODE_TYPE = 'USER' 
+		   LEFT OUTER JOIN SBAGL BAGL 
+		       ON USMT.CTRL_CODE = BAGL.CTRL_CODE 
+		       AND USMT.HOUSE_CODE = BAGL.HOUSE_CODE
+	     	   AND USMT.COMPANY_CODE = BAGL.COMPANY_CODE
+		 WHERE USMT.USER_ID = ${USER_ID} 
+		       AND USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+               AND #DB_OWNER#NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+	]]>
+	</method>
+	
+	<method name="doFormSave">
+	<![CDATA[
+	      INSERT INTO SUSMT (
+            	  HOUSE_CODE
+            	, USER_ID
+            	, ADD_DATE
+            	, ADD_TIME
+            	, ADD_USER_ID
+            	, CHANGE_DATE
+            	, CHANGE_TIME
+            	, CHANGE_USER_ID
+            	, COMPANY_CODE
+            	, PLANT_CODE
+            	, USER_NAME_LOC
+            	, USER_NAME_ENG
+            	, DEPT
+            	, `POSITION`
+            	, `LANGUAGE`
+            	, MENU_TYPE
+            	, TIME_ZONE
+            	, EMAIL
+            	, COUNTRY
+            	, STATE
+            	, EMPLOYEE_NO
+            	, SIGN_STATUS
+            	, WORK_TYPE
+            	, MENU_PROFILE_CODE
+            	, USER_TYPE
+            	, PASS_CHECK_CNT
+            	, DEL_FLAG
+            	, LAST_LOGIN_DATE
+            	, LAST_LOGIN_TIME
+            	, LAST_LOGIN_IP
+            	, THEME
+            	, `DATE_FORMAT`
+            	, CTRL_CODE
+            ]]>
+            <if test="${PASSWORD_1}" operator="ne" value="">
+            	, PASSWORD
+            	, PW_RESET_FLAG
+            	, PW_RESET_DATE
+            </if>
+            <![CDATA[			
+            ) VALUES (
+            	  ${session.HOUSE_CODE}
+            	, ${USER_ID}
+            	, ${current.DATE}
+            	, ${current.TIME}
+            	, ${USER_ID}
+            	, ${current.DATE}
+            	, ${current.TIME}
+            	, ${USER_ID}
+            	, ${COMPANY_CODE}
+            	, ${PLANT_CODE}
+            	, ${USER_NAME_LOC}
+            	, ${USER_NAME_ENG}
+            	, ${DEPT}
+            	, ${POSITION}
+            	, ${LANGUAGE}
+            	, ${MENU_TYPE}
+            	, ${TIME_ZONE}
+            	, ''
+            	, ${COUNTRY}
+            	, ${STATE}
+            	, ${EMPLOYEE_NO}
+            	, 'A'
+            	, 'Z'
+            	, ${MENU_PROFILE_CODE}
+            	, ${USER_TYPE}
+            	, '0'
+            	, 'N'
+            	, ${current.DATE}
+            	, ${current.TIME}
+            	, ${LAST_LOGIN_IP}
+            	, ${THEME}
+            	, ${DATE_FORMAT}
+            	, ${CTRL_CODE}
+            ]]>
+            <if test="${PASSWORD_1}" operator="ne" value="">
+            	, ${PASSWORD_1}
+            	, 'Y'
+            	, ${current.DATE}
+            </if>
+            <![CDATA[
+            	)ON DUPLICATE KEY
+            		UPDATE
+            		   CHANGE_DATE    = ${current.DATE}
+            		 , CHANGE_TIME    = ${current.TIME}
+            		 , USER_NAME_LOC  = ${USER_NAME_LOC}
+            		 , USER_NAME_ENG  = ${USER_NAME_ENG}
+            		 , LANGUAGE       = ${LANGUAGE}
+            		 , TIME_ZONE      = ${TIME_ZONE}
+            		 , EMAIL          = ${EMAIL}
+            		 , COUNTRY        = ${COUNTRY}
+            		 , STATE          = ${STATE}
+            		 , EMPLOYEE_NO    = ${EMPLOYEE_NO}
+            		 , SIGN_STATUS    = 'A'
+            		 , POSITION       = ${POSITION}
+            		 , THEME          = ${THEME}
+            		 , CHANGE_USER_ID = ${session.ID}
+            		 , DATE_FORMAT    = ${DATE_FORMAT}
+                     , MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+            ]]>
+            <if test="${PASSWORD_1}" operator="ne" value="">
+            		 ,PASSWORD        = ${PASSWORD_1}
+            		 ,PW_RESET_FLAG   = 'Y'
+            		 ,PW_RESET_DATE   = ${current.DATE}  
+            </if>
+	</method>
+	
+	<method name="changeUserInfo">
+	<![CDATA[
+    	UPDATE SUSMT
+      	   SET CHANGE_DATE    = ${current.DATE},
+	           CHANGE_TIME    = ${current.TIME},
+	           CHANGE_USER_ID = ${session.ID},
+	           USER_NAME_LOC  = ${USER_NAME_LOC},
+	           USER_NAME_ENG  = ${USER_NAME_ENG}
+	]]>
+	<if test="${PASSWORD_1}" operator="ne" value="">
+		  ,PASSWORD = ${PASSWORD_1}
+		  ,PW_RESET_FLAG = 'Y'
+		  ,PW_RESET_DATE = ${current.DATE}  
+	</if>
+	<![CDATA[
+      WHERE USER_ID  = ${session.ID}
+        AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdateSADDR">
+	<![CDATA[
+		INSERT INTO SADDR (
+        	  HOUSE_CODE
+        	, CODE_NO
+        	, CODE_TYPE
+        	, ZIP_CODE
+        	, PHONE_NO1
+        	, FAX_NO
+        	, HOMEPAGE
+        	, ADDRESS_LOC
+        	, ADDRESS_ENG
+        	, CEO_NAME_LOC
+        	, CEO_NAME_ENG
+        	, EMAIL
+        	, ZIP_BOX_NO
+        	, PHONE_NO2
+        	, ADD_DATE
+        	, ADD_TIME
+        	, ADD_USER_ID
+        	, CHANGE_DATE
+        	, CHANGE_TIME
+        	, CHANGE_USER_ID
+        	, DEL_FLAG
+        	, ADDRESS_TEXT
+        ) VALUES (
+        	  ${session.HOUSE_CODE}
+        	, ${USER_ID}
+        	, 'USER'
+        	, ${ZIP_CODE}
+        	, ${PHONE_NO1}
+        	, ${FAX_NO}
+        	, ${HOMEPAGE}
+        	, ${ADDRESS_LOC}
+        	, ${ADDRESS_ENG}
+        	, ${CEO_NAME_LOC}
+        	, ${CEO_NAME_ENG}
+        	, ${EMAIL}
+        	, ${ZIP_BOX_NO}
+        	, ${PHONE_NO2}
+        	, ${current.DATE}
+        	, ${current.TIME}
+        	, ${USER_ID}
+        	, ${current.DATE}
+        	, ${current.TIME}
+        	, ${USER_ID}
+        	, 'N'
+        	, ${ADDRESS_TEXT}			    
+        ) ON DUPLICATE KEY
+        	UPDATE 
+        		CHANGE_DATE    = ${current.DATE},
+        		CHANGE_TIME    = ${current.TIME},
+        		CHANGE_USER_ID = ${session.ID},
+        		EMAIL          = ${EMAIL},
+        		PHONE_NO1      = ${PHONE_NO1},
+        		PHONE_NO2      = ${PHONE_NO2},
+        		FAX_NO         = ${FAX_NO}
+	]]>
+	</method>
+	
+	<method name="doInsert_SADDR">
+	<![CDATA[
+		INSERT INTO SADDR (
+						  HOUSE_CODE
+						, CODE_NO
+						, CODE_TYPE
+						, ZIP_CODE
+						, PHONE_NO1
+						, FAX_NO
+						, HOMEPAGE
+						, ADDRESS_LOC
+						, ADDRESS_ENG
+						, CEO_NAME_LOC
+						, CEO_NAME_ENG
+						, EMAIL
+						, ZIP_BOX_NO
+						, PHONE_NO2
+						, ADD_DATE
+						, ADD_TIME
+						, ADD_USER_ID
+						, CHANGE_DATE
+						, CHANGE_TIME
+						, CHANGE_USER_ID
+						, DEL_FLAG
+						, ADDRESS_TEXT
+				) VALUES (
+						  ${session.HOUSE_CODE}
+						, ${USER_ID}
+						, 'USER'
+						, ${ZIP_CODE}
+						, ${PHONE_NO1}
+						, ${FAX_NO}
+						, ${HOMEPAGE}
+						, ${ADDRESS_LOC}
+						, ${ADDRESS_ENG}
+						, ${CEO_NAME_LOC}
+						, ${CEO_NAME_ENG}
+						, ${EMAIL}
+						, ${ZIP_BOX_NO}
+						, ${PHONE_NO2}
+						, ${current.DATE}
+					    , ${current.TIME}
+					    , ${USER_ID}
+					    , ${current.DATE}
+					    , ${current.TIME}
+					    , ${USER_ID}
+					    , 'N'
+					    , ${ADDRESS_TEXT}			    
+		) 
+	]]>
+	</method>			
+	<method name="doDelete">
+    <![CDATA[
+        UPDATE SUSMT
+      	   SET CHANGE_DATE    = ${current.DATE},
+	           CHANGE_TIME    = ${current.TIME},
+	           CHANGE_USER_ID = ${session.ID},
+	           DEL_FLAG       = 'Y'
+        WHERE USER_ID  = ${USER_ID}
+        AND HOUSE_CODE = ${session.HOUSE_CODE}
+    ]]>
+    </method>
+</service>

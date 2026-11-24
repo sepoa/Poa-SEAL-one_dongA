@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="getGroupwareApprovalEnd">
+	<![CDATA[
+		SELECT SMR_NUMBER
+		     , SEQ
+		     , RECENT
+		     , ERP_CODE
+		     , APP_STATUS
+		     , POSTPROCESSED
+		     , APPLY_FOR 
+		     , CONFIRM_USER_ID
+		     , ADD_DATE
+		     , ADD_TIME
+		  FROM DLCON_IF_APP 
+		 WHERE POSTPROCESSED = 'N'
+		   AND RECENT = 'Y'
+		 ORDER BY ADD_DATE, ADD_TIME
+	]]>
+	</method>
+	
+	<method name="updateStatusDLCON_IF_APP">
+	<![CDATA[
+		UPDATE DLCON_IF_APP
+		   SET POSTPROCESSED = ${POSTPROCESSED}
+		 WHERE SMR_NUMBER = ${SUX_WKEY1}
+		 AND SEQ = #{APP_SEQ}
+	]]>
+	</method>
+	
+	<method name="checkGW_applied">
+	<![CDATA[
+		SELECT SMR_NUMBER
+		  FROM DLCON_IF_APP 
+		 WHERE SMR_NUMBER = ${SMR_NUMBER}
+		   AND RECENT = 'Y'
+		   AND APP_STATUS = 'C'
+	]]>
+	</method>
+	
+	<method name="getNoDoc2">
+	<![CDATA[
+		SELECT NO_DOC2 
+		  FROM [#GW_DATABASE#].[dbo].[DAST_LEGALSEAL] 
+		 WHERE SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="checkLinkExists">
+	<![CDATA[
+		SELECT CODE AS LINK_CODE
+		  FROM ULNMA WITH(NOLOCK)
+		 WHERE HOUSE_CODE = '002'
+		   AND DOC_TYPE = ${LINK_TYPE}
+		   AND DOC_NUMBER = ${SMD_NUMBER}
+		   AND DOC_SEQ = '*'
+	]]>
+	</method>
+	
+	<method name="checkOrigin">
+	<![CDATA[
+		SELECT ERP_CODE 
+		  FROM DLCON_IF_APP 
+		 WHERE SMR_NUMBER = ${SMR_NUMBER} 
+		   AND SEQ = 1
+	]]>
+	</method>
+	
+	<method name="updateDLCON_IF_APP_old">
+	<![CDATA[
+		UPDATE DLCON_IF_APP
+		   SET RECENT = 'N'
+		 WHERE SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="setTempSaveIfLog">
+	<![CDATA[
+		INSERT INTO DLCON_IF_APP 
+		     ( SMR_NUMBER
+		     , SEQ
+		     , RECENT
+		     , ERP_CODE
+		     , APP_STATUS
+		     , ADD_DATE
+		     , ADD_TIME
+		     , APPLY_FOR
+		     , CONFIRM_USER_ID
+		) VALUES (
+		       ${SMR_NUMBER}
+		     , (SELECT ISNULL(MAX(SEQ),0)+1 FROM DLCON_IF_APP WHERE SMR_NUMBER = ${SMR_NUMBER})
+		     , 'Y'
+		     , 'EASYSEAL'
+		     , 'TEMPSAVE'
+		     , ${current.DATE}
+		     , ${current.TIME}
+		     , ${APPLY_FOR}
+		     , ${session.ID}
+		)
+	]]>
+	</method>
+	
+	<method name="getSealManagers">
+	<![CDATA[
+		SELECT MANAGE_NUMBER
+		     , SUBJECT
+		     , SEAL_STATUS
+		     , SEAL_TYPE
+		     , SEAL_MG_DEPT
+		     , SEAL_MG_USER_ID
+		  FROM SSEAL 
+		 WHERE HOUSE_CODE = '002' 
+		   AND COMPANY_CODE = '1000' 
+		   AND MANAGE_NUMBER IN ($IN{MANAGE_NUMBERS})
+	]]>
+	</method>
+	
+	<method name="getNewQRLink">
+	<![CDATA[
+		SELECT HOUSE_CODE
+		     , USER_COMPANY_CODE
+		     , EXTRA_PARAM
+		     , PRIVATE_CODE
+		  FROM ULNUS WITH(NOLOCK)
+		 WHERE (PRIVATE_CODE = ${LINK_CODE}
+		        OR CODE = ${LINK_CODE})
+		   AND USER_ID = 'TEMP_USER'
+		   AND DEL_FLAG = 'N'
+	]]>
+	</method>
+</service>

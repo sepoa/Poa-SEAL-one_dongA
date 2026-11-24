@@ -1,0 +1,25 @@
+<module name="logging" class="sepoa.fw.webservice.logger.axis2.LoggingModule">
+   <InFlow>
+        <handler name="InFlowLogHandler" class="sepoa.fw.webservice.logger.axis2.LoggingHandler">
+        <order phase="loggingPhase" />
+        </handler>
+   </InFlow>
+
+   <OutFlow>
+        <handler name="OutFlowLogHandler" class="sepoa.fw.webservice.logger.axis2.LoggingHandler">
+        <order phase="loggingPhase"/>
+        </handler>
+   </OutFlow>
+
+   <OutFaultFlow>
+        <handler name="FaultOutFlowLogHandler" class="sepoa.fw.webservice.logger.axis2.LoggingHandler">
+        <order phase="loggingPhase"/>
+        </handler>
+   </OutFaultFlow>
+
+   <InFaultFlow>
+        <handler name="FaultInFlowLogHandler" class="sepoa.fw.webservice.logger.axis2.LoggingHandler">
+        <order phase="loggingPhase"/>
+        </handler>
+   </InFaultFlow>
+</module>

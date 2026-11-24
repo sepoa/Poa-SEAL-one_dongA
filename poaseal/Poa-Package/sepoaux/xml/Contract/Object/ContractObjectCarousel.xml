@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_200" header="false" tpl="editor.tpl">
+    <carousel id="carouselObj" div="DNFbNUcYOTYlGulpvH">
+        <item id="LIST" >
+            <attach file="/Contract/Object/ContractObjectLayout.xml"/>
+        </item>
+        <item id="FORM">
+            <attach file="/Contract/setForm/ContractSetFormLayout.xml"/>
+        </item>
+    </carousel>
+    <onloadscript>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{childScreen:{}}" />
+        <function name="changeView" args="data">
+    	<![CDATA[
+    		var id = data.view.toUpperCase();
+    		carouselObj.cells(id).setActive();
+            
+            if(id == "FORM"){
+                $share.config = data;
+                if($share.childScreen.FORM){
+                    $share.childScreen.FORM.fn.doOpenDocument($share.config);
+                }
+            }else if(id == "LIST"){
+                if($share.childScreen.FORM){
+                    $share.childScreen.FORM.fn.doClear();
+                }
+            
+                delete $share.config;
+                callFunction("CT_201", 'doQuery', []);
+            }
+    	]]>
+    	</function>
+    	
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            $share.childScreen[config.name] = config;
+            if($share.config){
+                $share.childScreen[config.name].fn.doOpenDocument($share.config);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiRE5GYk5VY1lrSVlsR3Vsb210Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JPTExfViI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLCJWQVIiOiJDVF8yMDAifSwiaWQiOiJETkZiTlVjWWtJWWxHdWxvbXQiLCJ0eXBlIjoiYm9keSJ9LCJETkZiTlVjWU9UWWxHdWxwdkgiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9DOTR0QUQxVXdRam0iOiJudWxsIiwiZGh4SWRf
+        a05RR3pXWjFmZEVJIjoibnVsbCIsImRoeElkX0RyR0liUjBHWEJ6cSI6Im51bGwiLCJkaHhJZF9kTWppOVBCU3JiTFciOiJudWxsIiwiZGh4SWRfU1QyMjByaFlHQ3VYIjoibnVsbCIsImRoeElkX21KcEV1WjBKZFZkYiI6Im51bGwiLCJkaHhJZF9kODNtbXMwbFNEWDUiOiJudWxsIiwiZGh4SWRfMlkxWVhQNDBVV2R3IjoibnVsbCIsImRoeElkXzdGdEtrWVdoUHB4OSI6Im51bGwiLCJkaHhJZF9saEtMQ2dtb1VKYTAiOiJudWxsIiwiZGh4SWRfYUJseHlIVHlZRUF0IjoibnVsbCIsImRoeElkXzgxY084enZsTkdrNCI6Im51bGwiLCJkaHhJZF9KR0tKbjB6ZUhRSGIiOiJudWxsIiwiZGh4SWRfNG4wWXI5WnBWQWRuIjoibnVsbCIsImRoeElkX2l3enJYT1FHOWJp
+        ciI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImNhcm91c2VsT2JqIiwiSVRFTV9WVEpGSEFDQUNKTkpWTkhZTl9UQVJHRVQiOiIvQ29udHJhY3Qvc2V0Rm9ybS9Db250cmFjdFNldEZvcm1MYXlvdXQueG1sIiwiT0JKRUNUX0lEIjoiRE5GYk5VY1lPVFlsR3VscHZIIiwiSVRFTV9WVEpGSEFDQUNKTkpWTkhZTl9UWVBFIjoiVSIsIklURU1fVlRKRkhBQ0tRRk5KVk5CTldfSUQiOiJkb2NMaXN0IiwiSVRFTV9WVEpGSEFDS1FGTkpWTkJOV19UWVBFIjoiVSIsIklURU1fVlRKRkhBQ0FDSk5KVk5IWU5fU09SVCI6IjIiLCJJVEVNX1ZUSkZIQUNLUUZOSlZOQk5XX1NPUlQiOiIxIiwiSVRFTV9WVEpGSEFDS1FGTkpWTkJOV19UQVJHRVQiOiIvQ29udHJhY3QvT2Jq
+        ZWN0L0NvbnRyYWN0T2JqZWN0TGF5b3V0LnhtbCIsIklURU1fVlRKRkhBQ0FDSk5KVk5IWU5fSUQiOiJzZXRGb3JtIn0sImlkIjoiRE5GYk5VY1lPVFlsR3VscHZIIiwidHlwZSI6ImNhcm91c2VsIiwiY2Fyb3VzZWwiOiJjYXJvdXNlbCIsImV2ZW50cyI6bnVsbH0sIlZUSkZIQUNLUUZOSlZOQk5XIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJJRCI6ImRvY0xpc3QiLCJpdGVtSUQiOiJWVEpGSEFDS1FGTkpWTkJOVyIsIlRZUEUiOiJVIiwiU09SVCI6IjEiLCJUQVJHRVQiOiIvQ29udHJhY3QvT2JqZWN0L0NvbnRyYWN0T2JqZWN0TGF5b3V0LnhtbCJ9LCJpZCI6IlZUSkZIQUNLUUZOSlZOQk5XIiwibWF4Q2hpbGRDb3VudCI6MSwidHlwZSI6ImNhcm91c2Vs
+        Q2VsbCIsIm5hbWUiOiJkb2NMaXN0In0sIlZUSkZIQUNBQ0pOSlZOSFlOIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJUQVJHRVQiOiIvQ29udHJhY3Qvc2V0Rm9ybS9Db250cmFjdFNldEZvcm1MYXlvdXQueG1sIiwiVFlQRSI6IlUiLCJTT1JUIjoiMiIsIklEIjoic2V0Rm9ybSIsIml0ZW1JRCI6IlZUSkZIQUNBQ0pOSlZOSFlOIn0sImlkIjoiVlRKRkhBQ0FDSk5KVk5IWU4iLCJtYXhDaGlsZENvdW50IjoxLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIiwibmFtZSI6InNldEZvcm0ifX0sInRyZWUiOnsiaWQiOiJETkZiTlVjWWtJWWxHdWxvbXQiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IkRORmJOVWNZT1RZbEd1bHB2SCIsInR5cGUiOiJjYXJvdXNl
+        bCIsImNlbGxzIjpbeyJpZCI6IlZUSkZIQUNLUUZOSlZOQk5XIiwidHlwZSI6ImNhcm91c2VsQ2VsbCJ9LHsiaWQiOiJWVEpGSEFDQUNKTkpWTkhZTiIsInR5cGUiOiJjYXJvdXNlbENlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9PYmplY3QvQ29udHJhY3RPYmplY3RDYXJvdXNlbC54bWwiLCJQUk9KRUNUIjoiU1JNIiwiQ09ERSI6IjIwMCIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoiT2JqZWN0IiwiUEFUSF8zIjoiQ29udHJhY3RPYmplY3QiLCJQQVRIXzEiOiJDb250cmFjdCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkNhcm91c2VsIiwiU0NSRUVOX0lEIjoiQ1RfMjAwIn19LCJodG1sIjoiPGRpdiBpZD1cIkRORmJOVWNZa0lZbEd1bG9t
+        dFwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5l
+        clwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJETkZiTlVjWU9UWWxHdWxwdkhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2Nhcm91c2VsIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

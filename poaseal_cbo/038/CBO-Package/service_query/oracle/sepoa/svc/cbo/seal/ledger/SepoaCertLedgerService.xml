@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="getSmrNumbersWithSsisd">
+	<![CDATA[
+		SELECT DISTINCT SISD.SMR_NUMBER
+		FROM SSISD SISD
+		WHERE SISD.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND SISD.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND NVL(SISD.DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+</service>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="APM_100" header="false" pageCloseWarn="false">
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+        <function name="init" args="obj">
+        <![CDATA[
+			document.body.innerHTML = "리스트 화면 MobileSealApprovalList.xml";
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYTIzMWE2NDJhYjdiNGU3YjhkYzQ5ZDhmZDA2YmUyIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUE1fMTAwIn0sImlkIjoiYTIzMWE2NDJhYjdiNGU3YjhkYzQ5ZDhmZDA2YmUyIiwidHlwZSI6ImJvZHkifX0sInRyZWUiOnsiaWQiOiJhMjMxYTY0MmFiN2I0ZTdiOGRjNDlkOGZkMDZiZTIiLCJ0eXBlIjoiYm9keSJ9LCJpbmZvIjp7IlBST0pFQ1QiOiJTRUFMIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8xIjoiU2VhbCIsIlBBVEhfMiI6IiIsIlBBVEhfMyI6IkFwcHJvdmFsL01vYmlsZS8iLCJOQU1FIjoiTW9iaWxlU2VhbEFwcHJvdmFsTGlzdCIsIlBBVEgiOiIv
+        U2VhbC9BcHByb3ZhbC9Nb2JpbGUvTW9iaWxlU2VhbEFwcHJvdmFsTGlzdC54bWwiLCJBUkVBX0RJVklTSU9OIjpudWxsLCJQUkVGSVgiOiJBUE0iLCJDT0RFIjoiMTAwIiwiU0NSRUVOX0lEIjoiQVBNXzEwMCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJhMjMxYTY0MmFiN2I0ZTdiOGRjNDlkOGZkMDZiZTJcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiLz5c
+        biAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

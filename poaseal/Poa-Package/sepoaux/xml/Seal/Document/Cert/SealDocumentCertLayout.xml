@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_250" header="false">
+    <layout id="tQEwYmewKAzNMclvfL" div="tQEwYmewKAzNMclvfL" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" text="SLM_250.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <attach file="/Seal/Document/Cert/SealDocumentCertWrite.xml"/>
+        </cell>
+    </layout>
+    <onloadscript/>
+    <userscript>
+        <function name="loadDetail" args="obj">
+        <![CDATA[
+            callFunction('SLM_251', 'doQueryGroupWare', [obj]);
+        ]]>
+        </function>
+        <function name="doGroupBack">
+        <![CDATA[
+            callFunction('SLM_600', 'doBack', []);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsidFFFd1ltZWN3eHlOTWNpd3hrIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJTTE1fMjUwIn0sImlkIjoidFFFd1ltZWN3eHlOTWNpd3hrIiwidHlwZSI6ImJvZHkifSwidFFFd1ltZXdLQXpOTWNHREtPIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6InRydWUiLCJDT0xMQVBTRV9DT0xMQVBTRUQiOiJmYWxzZSIsIkNPTExBUFNFX0lDT04iOiJmYWxzZSIsIkJBU0VfTUVOVSI6InRydWUiLCJIRUFERVJfVEVYVCI6IuymneuqheyEnCDrsJzquInsi6Dssq0iLCJBVFRBQ0hfVEFSR0VUIjoiL1NlYWwvRG9jdW1lbnQvQ2VydC9TZWFsRG9jdW1l
+        bnRDZXJ0V3JpdGUueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1ZSIsIkFUVEFDSF9UWVBFIjoiVSIsIkNPTExBUFNFX0JVVFRPTiI6ImZhbHNlIn0sImlkIjoidFFFd1ltZXdLQXpOTWNHREtPIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sInRRRXdZbWV3S0F6Tk1jbHZmTCI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEifSwiY29tcG9uZW50Ijp7IlBBVFRFUk4iOiIxQyIsIlZBUiI6InRRRXdZbWV3S0F6Tk1j
+        bHZmTCIsIk9CSkVDVF9JRCI6InRRRXdZbWV3S0F6Tk1jbHZmTCJ9LCJpZCI6InRRRXdZbWV3S0F6Tk1jbHZmTCIsInR5cGUiOiJsYXlvdXQifX0sInRyZWUiOnsiaWQiOiJ0UUV3WW1lY3d4eU5NY2l3eGsiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6InRRRXdZbWV3S0F6Tk1jbHZmTCIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJ0UUV3WW1ld0tBek5NY0dES08iLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL1NlYWwvRG9jdW1lbnQvQ2VydC9TZWFsRG9jdW1lbnRDZXJ0TGF5b3V0LnhtbCIsIlBST0pFQ1QiOiJTRUFMIiwiQ09ERSI6IjI1MCIsIlBSRUZJWCI6IlNMTSIsIlBBVEhfMiI6IiIsIk5PTlNURF9Q
+        QVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlNlYWwvRG9jdW1lbnQvQ2VydCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlNlYWxEb2N1bWVudENlcnRMYXlvdXQiLCJTQ1JFRU5fSUQiOiJTTE1fMjUwIn19LCJodG1sIjoiPGRpdiBpZD1cInRRRXdZbWVjd3h5Tk1jaXd4a1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAg
+        ICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwidFFFd1ltZXdLQXpOTWNsdmZMXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9sYXlvdXQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2
+        PiJ9
+    </template>
+</body>

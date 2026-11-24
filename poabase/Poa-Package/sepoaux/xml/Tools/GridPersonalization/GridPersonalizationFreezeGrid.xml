@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="GP_005" header="false" pageCloseWarn="false">
+    <grid id="freezeGridObj" div="b45bfeaa83ef472983e86a5c0d607c" grid-id="file:///resource/ux/grid_personalization/grid/FREEZE_GRID.js" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onEditCell" callback="onEditCell"/>
+    </grid>
+    <variable>
+        <var name="$share" value="{}" />
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="setGridInfo" args="obj">
+        <![CDATA[
+            $share.gridObj = obj;
+        ]]>
+        </function>
+        <function name="init">
+        <![CDATA[
+            freezeGridObj.attachEvent("onBeforeContextMenu", ()=>{
+                return false;
+            });
+
+            freezeGridObj.attachEvent("onHeaderClick", () => {
+                return false;
+            });
+            
+            freezeGridObj.disableHeaderFilter();
+            
+            callFunction('GP_003', 'setObj', ['FREEZE', freezeGridObj]);
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd">
+        <![CDATA[
+            var header = freezeGridObj.getColumnId(cInd);
+            if(header == 'SELECTED') {
+                if(stage == 1) {
+                    var selectedIds = freezeGridObj.getGridChangedRows('SELECTED');
+                
+                    if(selectedIds && selectedIds.length > 1) {
+                        var releaseIds = selectedIds.filter(x => x != rId);
+                        
+                        if(releaseIds.length > 0) {
+                            releaseIds.forEach((rowId) => {
+                                freezeGridObj.cells(rowId, freezeGridObj.getColIndexById("SELECTED")).setValue(0);
+                            });
+                            
+                            callFunction('GP_007', 'setGridFreeze', [columnId, false]);
+                        }
+                    }
+                    
+                    var selected = freezeGridObj.cells(rId, freezeGridObj.getColIndexById("SELECTED")).getValue();
+                    var columnId = freezeGridObj.cells(rId, freezeGridObj.getColIndexById("COLUMN_ID")).getValue();
+                    var cspan = freezeGridObj.cells(rId, freezeGridObj.getColIndexById("CSPAN")).getValue();
+                    
+                    if(cspan != undefined && cspan != '') {
+                        var cspanIds = cspan.split(',');
+                        
+                        if(cspanIds.length > 0) {
+                            columnId = cspanIds[cspanIds.length - 1];
+                        }
+                    }
+                    
+                    var flag = false;
+                    
+                    if(selected == 1) {
+                        flag = true;
+                    }
+                    
+                    callFunction('GP_007', 'setGridFreeze', [columnId, flag]);
+                    callFunction('GP_006', 'setColumnWidth', []);
+                }
+                
+                return true;
+            }
+        ]]>
+        </function>
+        <function name="doMoveColumn" args="data">
+        <![CDATA[
+            var selectedRow = freezeGridObj.getSelectedRows('SELECTED');
+            
+            freezeGridObj.clearAll(false);
+            
+            for(var row of data) {
+                var colName = row.COLUMN_NAME;
+                var hideFlag = false;
+                
+                if(colName == '#cspan') {
+                    hideFlag = true;
+                }
+                
+                callFunction('GP_003', 'addData', [freezeGridObj, row.gr_id, freezeGridObj.getRowsNum(), row, false, hideFlag]);
+            }
+            
+            if(selectedRow.length > 0) {
+                freezeGridObj.cells(selectedRow[0], freezeGridObj.getColIndexById('SELECTED')).setValue(1);
+            }
+        ]]>
+        </function>
+        <function name="setFreezeValue" args="rowId">
+        <![CDATA[
+            if(rowId !== undefined) {
+                freezeGridObj.cells(rowId, freezeGridObj.getColIndexById('SELECTED')).setValue(1);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZmQ1MmVmY2IxOThlNDY2NzhiODM5MGIwMGY5MTcyIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9GaWNCNlJrdlVrbWMiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX08zZTFManFySFhKeCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkdQXzAwNSIsIk9CSkVDVF9JRCI6ImZkNTJlZmNiMTk4ZTQ2Njc4YjgzOTBiMDBmOTE3MiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6ImZk
+        NTJlZmNiMTk4ZTQ2Njc4YjgzOTBiMDBmOTE3MiIsInR5cGUiOiJib2R5In0sImI0NWJmZWFhODNlZjQ3Mjk4M2U4NmE1YzBkNjA3YyI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiI2MDAiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkXzF3RlBqTUxyM0VDdiI6Im51bGwiLCJkaHhJZF82ek5JUGphaHVkMk8iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfWnI0ZFZDbDRLYUU1IjoibnVsbCIsIkNMQVNTIjoi
+        IiwiZGh4SWRfMGlUUzlMeTNwU3BnIjoibnVsbCIsImRoeElkX1k5dk1DYWZJZkRLaSI6Im51bGwiLCJkaHhJZF9MdXhlY2xlQWs1cTMiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmcmVlemVHcmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIkVYQ0VMRE9XTkxPQUQiOiJ0cnVlIiwiT0JKRUNUX0lEIjoiYjQ1YmZlYWE4M2VmNDcyOTgzZTg2YTVjMGQ2MDdjIiwiR1JJRF9JRCI6ImZpbGU6Ly8vcmVzb3VyY2UvdXgvZ3JpZF9wZXJzb25hbGl6YXRpb24vZ3JpZC9GUkVFWkVfR1JJRC5qcyIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiYjQ1YmZlYWE4M2VmNDcyOTgzZTg2YTVjMGQ2MDdjIiwi
+        dHlwZSI6ImdyaWQifX0sInRyZWUiOnsiaWQiOiJmZDUyZWZjYjE5OGU0NjY3OGI4MzkwYjAwZjkxNzIiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImI0NWJmZWFhODNlZjQ3Mjk4M2U4NmE1YzBkNjA3YyIsInR5cGUiOiJncmlkIn1dfSwiaW5mbyI6eyJQQVRIIjoiL1Rvb2xzL0dyaWRQZXJzb25hbGl6YXRpb24vR3JpZFBlcnNvbmFsaXphdGlvbkZyZWV6ZUdyaWQueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiMDA1IiwiUFJFRklYIjoiR1AiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJUb29scy9HcmlkUGVyc29uYWxpemF0aW9uIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiR3JpZFBlcnNv
+        bmFsaXphdGlvbkZyZWV6ZUdyaWQiLCJTQ1JFRU5fSUQiOiJHUF8wMDUifX0sImh0bWwiOiI8ZGl2IGlkPVwiZmQ1MmVmY2IxOThlNDY2NzhiODM5MGIwMGY5MTcyXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXIg
+        XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYjQ1YmZlYWE4M2VmNDcyOTgzZTg2YTVjMGQ2MDdjXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJ3aWR0aDo2MDBweDtcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

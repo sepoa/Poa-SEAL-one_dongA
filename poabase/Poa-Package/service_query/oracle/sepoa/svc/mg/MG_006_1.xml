@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doList">
+	<![CDATA[
+		SELECT 
+			   GWAH.HOUSE_CODE
+			 , GWAH.COMPANY_CODE
+			 , GETCOMPANYNAME(GWAH.HOUSE_CODE, GWAH.COMPANY_CODE, '#session.LANGUAGE#') AS COMPANY_NAME 
+			 , GWAH.LINE_TYPE 
+		     , GWAH.LINE_TYPE_NAME 
+		     , GWAH.APP_TYPE 
+		     , GWAH.CODE 
+		     , GETCODETEXT1( 'AP001', GWAH.APP_TYPE, '#session.LANGUAGE#' , '#session.HOUSE_CODE#') AS APP_TYPE_TEXT 
+		     , CASE 
+		           WHEN LINE_TYPE = '03' 
+		           THEN (SELECT ACCOUNT_NAME FROM SAMST WHERE LANGUAGE = '#session.LANGUAGE#' AND ACCOUNT_CODE = GWAH.CODE AND ROWNUM = 1)
+		           WHEN LINE_TYPE = '02' 
+		           THEN GETDEPTNAME( GWAH.HOUSE_CODE, GWAH.COMPANY_CODE, GWAH.CODE, 'KO' ) 
+		       END AS CODE_TEXT 
+		  FROM SGWAH GWAH 
+		 WHERE GWAH.HOUSE_CODE = ${session.HOUSE_CODE} 
+		       AND GWAH.COMPANY_CODE IN ($IN{F_COMPANY_CODE}) 
+		       AND GWAH.LINE_TYPE = ${LINE_TYPE} 
+		       AND 
+		       ( 
+		           1 = 1 
+		           AND LINE_TYPE_NAME LIKE '%' || UPPER( $S{F_KEYWORD} ) || '%'  
+		       )  
+	]]>
+	</method>
+</service>

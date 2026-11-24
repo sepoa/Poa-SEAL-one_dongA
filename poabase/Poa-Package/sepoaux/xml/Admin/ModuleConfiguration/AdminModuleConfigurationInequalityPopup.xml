@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_122" header="false">
+    <button id="btnObj">
+        <btn div="JluDlIeeEiElIeCnVI" id="CLEAR" type="default" text="{BUTTON.clear}" toggle="false" reverse="false" onclick="doSave(false)"/>
+        <btn div="JluDlIeeEiElIeCnVI" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(true)"/>
+    </button>
+    <form id="formObj" div="JluDlIebozElIeiehf" form-id="file:///resource/ux/admin/form/AD_122.js"/>
+    <onloadscript>
+    	<call name="pageInit" args=""/>
+    </onloadscript>
+    <userscript>
+    	<function name="pageInit" args="">
+    	<![CDATA[
+    		var selectedValue = Sepoa.params.selectedValue;
+    		
+    		if(selectedValue) {
+    			var inequality = selectedValue.split(',')[0];
+    			var value = selectedValue.split(',')[1];
+    			
+    			formObj.setValue('INEQUALITY_TYPE', inequality);
+    			formObj.setValue('VALUE', value);
+    		}
+    	]]>
+    	</function>
+    	<function name="doSave" args="flag">
+    	<![CDATA[
+    		if(flag) {
+    			if(!formObj.validate()) {
+	    			Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+	    			return;
+	    		}
+    		}
+    		
+    		if(Sepoa.params.callback) {
+    			var data = {};
+    			if(flag) {
+    				data = $.extend(true, data, formObj.getFormData());
+    				
+    				var combo = formObj.getCombo('INEQUALITY_TYPE');
+    				var text = combo.options[combo.selectedIndex].text;
+    				
+    				data.INEQUALITY_TYPE_STR = text;
+    			} else {
+    				data = void 0;
+    			}
+    			
+    			Sepoa.params.callback.apply(null, [data, Sepoa.params]);
+    		}
+    		
+    		selfObj.close();
+    	]]>
+    	</function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiSmx1RGxJZUpsdURsSWVIaUlSIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF81YkRxNVhwR3dGZlMiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3FOdXFHVTQ1RWdqNyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzEyMiIsIk9CSkVDVF9JRCI6IkpsdURsSWVKbHVEbEllSGlJUiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6IkpsdURsSWVKbHVEbEllSGlJUiIsInR5cGUi
+        OiJib2R5In0sIkpsdURsSWVlRWlFbEllQ25WSSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5jbGVhciIsIklURU1fMV9TTENPREUiOiJCVVRUT04uc2F2ZSIsIklURU1fMF9UWVBFIjoiZGVmYXVsdCIsIklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX1RF
+        WFQiOiLsoIDsnqUiLCJJVEVNXzFfVE9HR0xFIjpmYWxzZSwiSVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9TT1JUIjoiMSIsIklURU1fMV9TT1JUIjoiMiIsIk9CSkVDVF9JRCI6IkpsdURsSWVlRWlFbEllQ25WSSIsIklURU1fMV9UWVBFIjoic2F2ZSIsIklURU1fMF9JRCI6IkNMRUFSIiwiSVRFTV8xX0lEIjoiU0FWRSIsIklURU1fMF9URVhUIjoi7KeA7Jqw6riwIn0sImlkIjoiSmx1RGxJZWVFaUVsSWVDblZJIiwidHlwZSI6ImJ1dHRvbiJ9LCJKbHVEbEllYm96RWxJZWllaGYiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwi
+        U0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9ndTVIcGhXZ1VNZ2wiOiJudWxsIiwiZGh4SWRfSUYyVUhVblhIc3VCIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX0lrYXlDcjFiOVE3ViI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6IkpsdURsSWVib3pFbEllaWVoZiIsIkZPUk1fSUQiOiJmaWxlOi8vL3Jlc291cmNlL3V4L2FkbWluL2Zvcm0vQURfMTIyLmpzIn0sImlkIjoiSmx1RGxJZWJvekVsSWVpZWhmIiwidHlwZSI6ImZvcm0ifX0sInRyZWUiOnsiaWQiOiJKbHVE
+        bEllSmx1RGxJZUhpSVIiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IkpsdURsSWVlRWlFbEllQ25WSSIsInR5cGUiOiJidXR0b24ifSx7ImlkIjoiSmx1RGxJZWJvekVsSWVpZWhmIiwidHlwZSI6ImZvcm0ifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vTW9kdWxlQ29uZmlndXJhdGlvbi9BZG1pbk1vZHVsZUNvbmZpZ3VyYXRpb25JbmVxdWFsaXR5UG9wdXAueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiMTIyIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJNb2R1bGVDb25maWd1cmF0aW9uIiwiUEFUSF8zIjoiQWRtaW5Nb2R1bGVDb25maWd1cmF0aW9uIiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJJbmVxdWFs
+        aXR5UG9wdXAiLCJTQ1JFRU5fSUQiOiJBRF8xMjIifX0sImh0bWwiOiI8ZGl2IGlkPVwiSmx1RGxJZUpsdURsSWVIaUlSXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAg
+        ICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiSmx1RGxJZWVFaUVsSWVDblZJXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAg
+        ICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkpsdURsSWVib3pFbEllaWVoZlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

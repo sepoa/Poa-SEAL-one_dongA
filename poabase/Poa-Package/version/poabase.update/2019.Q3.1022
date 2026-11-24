@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SMOTK 
+			(	HOUSE_CODE VARCHAR2(20), 
+				USER_ID VARCHAR2(200), 
+				TOKEN_ID VARCHAR2(100), 
+				ADD_DATE VARCHAR2(8), 
+				ADD_TIME VARCHAR2(6), 
+				LAST_ACCESS_DATE VARCHAR2(8), 
+				LAST_ACCESS_TIME VARCHAR2(6), 
+				 CONSTRAINT PK_SMOTK PRIMARY KEY (HOUSE_CODE, USER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SMOTK
+		   	(	HOUSE_CODE VARCHAR(20), 
+				USER_ID VARCHAR(200), 
+				TOKEN_ID VARCHAR(100), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				LAST_ACCESS_DATE VARCHAR(8), 
+				LAST_ACCESS_TIME VARCHAR(6), 
+				CONSTRAINT PK_SMOTK PRIMARY KEY (HOUSE_CODE, USER_ID)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			CREATE TABLE SMOTK
+		   	(	HOUSE_CODE VARCHAR(20), 
+				USER_ID VARCHAR(200), 
+				TOKEN_ID VARCHAR(100), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				LAST_ACCESS_DATE VARCHAR(8), 
+				LAST_ACCESS_TIME VARCHAR(6), 
+				CONSTRAINT PK_SMOTK PRIMARY KEY (HOUSE_CODE, USER_ID)
+			)
+		]]>
+		</query>
+	</item>
+</body>

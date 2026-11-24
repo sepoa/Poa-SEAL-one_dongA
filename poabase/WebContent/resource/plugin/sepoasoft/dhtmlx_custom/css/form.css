@@ -1,0 +1,451 @@
+.dhxform_obj_material div.dhxform_label span.dhxform_item_required{
+	display:none;
+}
+
+/* container */
+.sepoaux_component.sepoaux_form.form_area{
+	
+}
+
+.dhxform_obj_material > .dhxform_base{
+	left:-16px;
+	display: flex;
+    flex-direction: column;
+}
+.dhxform_obj_material.multi_form_box{
+	position:relative;
+	
+	overflow: auto;
+    max-width: calc(100% + 17px);
+}
+
+.dhxform_obj_material.dhxform_block,
+.dhxform_base_nested.in_block{
+	width:100%;
+	display: inline-flex;
+}
+
+/* item */
+.dhxform_obj_material div.dhxform_base > .dhxform_item{
+	display:table;
+	position:relative;
+}
+.dhxform_obj_material div.dhxform_item_label_right,
+.dhxform_obj_material div.dhxform_item_label_left{
+	padding: 0px;
+}
+.dhxform_obj_material div.dhxform_control.dhxform_img_node .dhxform_textarea{
+	display: none;
+}
+
+.dhxform_obj_material .dhxform_select,
+.dhxform_obj_material input.dhxform_textarea, 
+.dhxform_obj_material textarea.dhxform_textarea,
+.dhxform_obj_material div.dhxform_control div.dhxcombo_material{
+	min-height:30px;
+	width:calc(100% - 7px);
+	padding:0 0 0 5px !important;
+	margin:0px;
+	border:1px solid #dddddd;
+	border-radius:5px;
+	font-size:12px;
+	color:#666666;
+}
+.dhxform_obj_material textarea.dhxform_textarea{
+	padding-top:5px !important;
+	min-height: calc(100% - 8px);
+}
+
+/* item - checkbox */
+.dhxform_obj_material div.dhxform_control.dhxform_img_node div.dhxform_img,
+.dhxform_obj_material div.dhxform_control.dhxform_img_node div.dhxform_actv_c,
+.dhxform_obj_material div.dhxform_control.dhxform_img_node div.dhxform_actv_r{
+	position:inherit;
+}
+
+/* item - fieldset */
+.dhxform_obj_material .fs_dhxform_item_label_top{
+	display: inline-block;
+	float:left;
+	clear:both;
+}
+.dhxform_obj_material fieldset.dhxform_fs{
+	padding:0px 16px 8px 0px;
+	margin:10px 16px 0px 16px;
+	width:calc(100% - 18px);
+}
+
+/* item - label */
+.dhxform_obj_material div.dhxform_txt_label2{
+	line-height:32px;
+	font-weight:unset;
+}
+
+/* item - select */
+.dhxform_obj_material .dhxform_select{
+	height:100%;
+	width:100%;
+	left:0px;
+	background-color:transparent;
+}
+.dhxform_obj_material div.dhxform_control div.dhxcombo_material input.dhxcombo_input{
+	height:100%;
+	line-height:30px;
+	font-size:12px;
+	color:#666666;
+}
+.dhxform_obj_material .dhxform_select{
+	padding-right:18px !important;
+	appearance:none;
+}
+.dhxform_obj_material .dhxform_select::-ms-expand {
+	display:none
+}
+.dhxform_obj_material .dhxform_select_back{
+	position:absolute;
+	height:100%;
+	width:100%;
+	left:0px;
+	top:0px;
+	padding-left:16px;
+}
+.dhxform_obj_material .dhxform_item_label_left .dhxform_select_back{
+	padding-left:0px;
+}
+
+/* item - button */
+.dhxform_obj_material div.dhxform_btn,
+.dhxform_obj_material div.dhxform_btn:focus{
+	margin:0px 0px 0px 16px;
+	height:30px;	
+	border-radius:5px;
+	
+	cursor:pointer;
+}
+.dhxform_obj_material div.dhxform_item_label_top div.dhxform_btn{
+	margin-top:42px;
+}
+.dhxform_obj_material div.dhxform_item_label_left div.dhxform_btn,
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_btn{
+	margin-top:16px;
+}
+.dhxform_obj_material div.dhxform_btn div.dhxform_btn_txt{
+	height:30px;
+	line-height:30px;
+	margin:0 18px;
+}
+.dhxform_obj_material div.dhxform_btn:focus div.dhxform_btn_txt{
+	height:28px;
+	line-height:28px;
+	margin:0 17px;
+}
+.dhxform_obj_material div.dhxform_btn div.dhxform_btn_filler{
+	display:none;
+}
+/* item - dbcalendar */
+.sepoa_form_dbcalendar_container{
+	display:none;
+	position:absolute;
+}
+.sepoa_form_dbcalendar_container.show{
+	display:block;
+	width: 502px;
+    height: 300px;
+}
+
+/* control */
+.dhxform_obj_material div.dhxform_control,
+.dhxform_obj_material div.dhxform_txt_label2{
+	height:32px;
+	position:relative;
+}
+.dhxform_obj_material div.dhxform_item_label_top div.dhxform_txt_label2{
+	margin:34px 0px 0px 16px;
+	padding-top:8px;
+	padding-bottom:0px;
+	height:32px;
+	line-height:32px;
+}
+.dhxform_obj_material div.dhxform_item_label_top div.dhxform_control,
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_control,
+.dhxform_obj_material div.dhxform_item_label_left div.dhxform_control{
+	padding: 0px;
+    margin: 8px 0px 0px 16px;
+    display: inline-table;
+    float: left;
+}
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_control,
+.dhxform_obj_material div.dhxform_item_label_left div.dhxform_control{
+	margin-top:16px;
+}
+.dhxform_obj_material div.dhxform_item_label_top div.dhxform_control.dhxform_control_width_full,
+.dhxform_obj_material div.dhxform_item_label_left div.dhxform_control.dhxform_control_width_full,
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_control.dhxform_control_width_full{
+	width:calc(100% - 16px);
+}
+.dhxform_item.lowerDiv > .dhxform_control{
+	height:calc(100% - 44px);
+}
+.dhxform_item > .dhxform_control > .dhxform_container{
+	height:100%;
+}
+.dhxform_item > .dhxform_control.dhxform_note_included > .dhxform_container{
+	height:calc(100% - 14px);
+}
+.dhxform_item.dhxform_label_hidden.lowerDiv > .dhxform_control{
+	height:calc(100% - 8px);
+}
+
+/* label */
+.dhxform_obj_material div.dhxform_label{
+	height:18px;
+	overflow: visible;
+    white-space: nowrap;
+}
+.dhxform_obj_material div.dhxform_label div.dhxform_label_nav_link,
+.dhxform_obj_material div.dhxform_label div.dhxform_label_nav_link:visited,
+.dhxform_obj_material div.dhxform_label div.dhxform_label_nav_link:active,
+.dhxform_obj_material div.dhxform_label div.dhxform_label_nav_link:hover{
+	overflow: visible;
+    white-space: nowrap;
+}
+.dhxform_obj_material div.dhxform_label, 
+.dhxform_obj_material div.dhxform_label div.dhxform_label_nav_link, 
+.dhxform_obj_material div.dhxform_label span.dhxform_item_required,
+.dhxform_obj_material div.disabled div.dhxform_label, 
+.dhxform_obj_material div.disabled div.dhxform_label div.dhxform_label_nav_link, 
+.dhxform_obj_material div.disabled div.dhxform_label span.dhxform_item_required,
+.dhxform_obj_material div.readonly div.dhxform_label,
+.dhxform_obj_material div.readonly div.dhxform_label div.dhxform_label_nav_link,
+.dhxform_obj_material div.readonly div.dhxform_label span.dhxform_item_required{
+	color:#222222;
+	font-size:14px;
+}
+.dhxform_obj_material .dhxform_label_hidden > .dhxform_label{
+	display:none;
+}
+.dhxform_obj_material .dhxform_label_blank > .dhxform_label{
+	color:transparent !important;
+}
+/* label - top */
+.dhxform_obj_material div.dhxform_item_label_top div.dhxform_label{
+	padding:16px 0px 0px 16px;
+	margin:0px;
+}
+.dhxform_obj_material div.dhxform_base > .block_dhxform_item_label_top{
+	display:inline-flex;
+	clear:both;
+	float:left;
+}
+.dhxform_obj_material div.dhxform_base > .dhxform_item_label_top.label-hidden > .dhxform_label{
+	display:none;
+}
+.dhxform_obj_material div.dhxform_base > .dhxform_item_label_top.label-hidden > .dhxform_control{
+	padding-top:16px;
+}
+
+/* label - left, right */
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_label,
+.dhxform_obj_material div.dhxform_item_label_left div.dhxform_label{
+	padding:16px 0px 0px 16px;
+	margin:0px;
+	height:32px;	
+}
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_label{
+	padding-left:8px;
+}
+.dhxform_obj_material div.dhxform_item_label_right div.dhxform_label > *,
+.dhxform_obj_material div.dhxform_item_label_left div.dhxform_label > *{
+	height:100%;
+	line-height:32px;
+}
+
+/* manual padding */
+.dhxform_obj_material div.dhxform_item_label_top.sepoa-form-padding-left-available div.dhxform_label,
+.dhxform_obj_material div.dhxform_item_label_right.sepoa-form-padding-left-available div.dhxform_label,
+.dhxform_obj_material div.dhxform_item_label_left.sepoa-form-padding-left-available div.dhxform_label{
+	padding-left:0px;
+}
+
+.dhxform_obj_material div.dhxform_item_label_top.sepoa-form-padding-left-available div.dhxform_control,
+.dhxform_obj_material div.dhxform_item_label_right.sepoa-form-padding-left-available div.dhxform_control,
+.dhxform_obj_material div.dhxform_item_label_left.sepoa-form-padding-left-available div.dhxform_control{
+	margin-left:0px;
+}
+
+/* icon */
+.dhxform_obj_material .xi-sepoa-dummy-after::after{
+	position: absolute;
+    line-height: 32px;
+    right: 2px;
+    bottom:0px;
+    font-size: 18px;
+    color:#666666;
+}
+.dhxform_obj_material input.dhxform_textarea.calendar,
+.dhxform_obj_material div.disabled input.dhxform_textarea.calendar,
+.dhxform_obj_material .dhxform_select,
+.dhxform_obj_material div.disabled .dhxform_select{
+	background-image:none;
+}
+
+.dhxform_obj_material .dhxform_custom_required input.dhxform_textarea::placeholder,
+.dhxform_obj_material .dhxform_custom_required textarea.dhxform_textarea::placeholder{
+	font-size:10px;
+	color:#999999;
+}
+
+/* btn_search */
+.dhxform_obj_material div.dhxform_item_label_top.btn_search div.dhxform_label{
+	display:inherit;
+	width:32px !important;
+}
+.dhxform_obj_material div.dhxform_item_label_top.btn_search div.dhxform_control, 
+.dhxform_obj_material div.dhxform_item_label_right.btn_search div.dhxform_control, 
+.dhxform_obj_material div.dhxform_item_label_left.btn_search div.dhxform_control{
+	height:30px !important;
+	width:30px !important;
+}
+.dhxform_obj_material div.btn_search div.dhxform_control > .dhxform_image{
+	height: 100%;
+    width: 100%;
+    font-size: 16px;
+    text-align: center;
+    line-height: 28px;
+    display: inline-flex;
+    border:1px solid #dddddd;
+    border-radius:5px;
+}
+.dhxform_obj_material div.btn_search div.dhxform_control > .dhxform_image::before{
+	content:"\e97a";
+	width:100%;
+	color:#666666;
+}
+
+
+/* required */
+.dhxform_obj_material .dhxform_custom_required .dhxform_select,
+.dhxform_obj_material .dhxform_custom_required input.dhxform_textarea,
+.dhxform_obj_material .dhxform_custom_required div.dhxform_control div.dhxcombo_material{
+	border-left-width:2px;
+	border-left-color:#D22C36;
+}
+.dhxform_obj_material .dhxform_custom_required input.dhxform_textarea,
+.dhxform_obj_material .dhxform_custom_required textarea.dhxform_textarea,
+.dhxform_obj_material .dhxform_custom_required div.dhxform_control div.dhxcombo_material{
+	width:calc(100% - 10px);
+}
+
+/* required -origin dropped- */
+/* 
+.dhxform_obj_material .dhxform_custom_required label:after{
+	content:"*";
+	color:#D22C36;
+	padding-left:3px;
+} */
+
+/* focus */
+.dhxform_obj_material .dhxform_select:focus,
+.dhxform_obj_material input.dhxform_textarea:focus, 
+.dhxform_obj_material textarea.dhxform_textarea:focus,
+.dhxform_obj_material div.dhxform_control div.dhxcombo_material:focus{
+	border-color: #39c;
+    border-width: 1px;
+    padding-bottom: 0px !important;
+}
+
+.dhxform_obj_material .dhxform_custom_required .dhxform_select:focus,
+.dhxform_obj_material .dhxform_custom_required input.dhxform_textarea:focus, 
+.dhxform_obj_material .dhxform_custom_required textarea.dhxform_textarea:focus,
+.dhxform_obj_material .dhxform_custom_required div.dhxform_control div.dhxcombo_material:focus{
+	border-left-width:2px;
+}
+
+
+.dhxform_obj_material .dhxform_select:focus::placeholder,
+.dhxform_obj_material input.dhxform_textarea:focus::placeholder, 
+.dhxform_obj_material textarea.dhxform_textarea:focus::placeholder,
+.dhxform_obj_material .dhxform_custom_required div.dhxform_control div.dhxcombo_material::placeholder{
+	color: transparent;
+}
+
+/* readonly */
+.dhxform_obj_material div.disabled .dhxform_select,
+.dhxform_obj_material div.disabled .dhxform_textarea,
+.dhxform_obj_material div.disabled div.dhxform_control div.dhxcombo_material,
+.dhxform_obj_material div.readonly input.dhxform_textarea,
+.dhxform_obj_material div.readonly textarea.dhxform_textarea{
+	border-style:solid;
+	border-color:#efefef;
+	color: #666666;
+	cursor:unset;
+}
+.dhxform_obj_material div.disabled > .dhxform_select_back.xi-sepoa-dummy-after::after{
+	color:#efefef;
+}
+.dhxform_obj_material div.disabled .dhxform_control.xi-sepoa-dummy::before,
+.dhxform_obj_material div.readonly .dhxform_control.xi-sepoa-dummy::before{
+	color:#efefef;
+}
+
+/* form custom design */
+.dhxform_obj_material div.disabled.sepoa-dhxform-custom-item-design-primary .dhxform_select,
+.dhxform_obj_material div.disabled.sepoa-dhxform-custom-item-design-primary .dhxform_textarea,
+.dhxform_obj_material div.disabled.sepoa-dhxform-custom-item-design-primary div.dhxform_control div.dhxcombo_material,
+.dhxform_obj_material div.readonly.sepoa-dhxform-custom-item-design-primary input.dhxform_textarea,
+.dhxform_obj_material div.readonly.sepoa-dhxform-custom-item-design-primary textarea.dhxform_textarea {
+	color: #00a8d9;
+	font-size: 15px;
+}
+
+/* form item align */
+.dhxform_obj_material .sepoa-dhxform-custom-item-align-right input.dhxform_textarea {
+	text-align: right;
+	padding: 0 5px 0 0 !important;
+}
+
+/* form sepoa style */
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-primary .dhxform_control input.dhxform_textarea,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-primary .dhxform_control textarea.dhxform_textarea,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-primary .dhxform_control .dhxform_select,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-primary .dhxform_control div.dhxform_control div.dhxcombo_material {
+	color:#FF5252;
+	font-weight: 500;
+	font-size:16px;
+}
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-secondary .dhxform_control input.dhxform_textarea,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-secondary .dhxform_control textarea.dhxform_textarea,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-secondary .dhxform_control .dhxform_select,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-secondary .dhxform_control div.dhxform_control div.dhxcombo_material {
+	color:#0288D1;
+	font-weight: 500;
+	font-size:14px;
+}
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-tertiary .dhxform_control input.dhxform_textarea,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-tertiary .dhxform_control textarea.dhxform_textarea,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-tertiary .dhxform_control .dhxform_select,
+.dhxform_obj_material .dhxform_item.sepoa-dhxform-custom-item-style-tertiary .dhxform_control div.dhxform_control div.dhxcombo_material {
+	color:#0AB169;
+	font-weight: 500;
+	font-size:14px;
+}
+
+.dhxform_obj_material.multi_form_box.block_flex_wrap > .dhxform_base{
+	flex-wrap: wrap;
+	gap: 5px;
+}
+
+.dhxform_obj_material.multi_form_box.flex_direction_row > .dhxform_base{
+	flex-direction: row;
+	width: 100%;
+}
+
+.dhxform_obj_material.multi_form_box.flex_direction_column > .dhxform_base{
+	flex-direction: column;
+	height: 100%;
+}
+
+.dhxform_obj_material.multi_form_box.block_flex_wrap > div.dhxform_base > .block_dhxform_item_label_top{
+	border: 1px solid #e3e3e3;
+	padding: 0 16px 10px 0;
+}

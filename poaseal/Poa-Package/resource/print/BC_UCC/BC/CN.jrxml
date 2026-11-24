@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Master" pageWidth="181" pageHeight="299" whenNoDataType="AllSectionsNoDetail" columnWidth="159" leftMargin="11" rightMargin="11" topMargin="11" bottomMargin="11" uuid="8e2fabd9-ace9-4ac9-80e0-552f13d97ba0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="Data" class="java.util.Map"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="271" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="183" width="159" height="18" uuid="f5b25428-858d-4d72-8e71-884d52bf8f76"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("DESCRIPTION_LOC")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="201" width="15" height="7" uuid="b31212df-acbc-400a-9626-af3d1948bbb1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["商标 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="208" width="15" height="7" uuid="d6fc998d-222d-4a2a-acce-11d5b1f365fb">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["品名 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="107" y="215" width="15" height="7" uuid="70a4c543-0c9c-4fd2-aee2-12287db76f74">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["产地 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="222" width="22" height="7" uuid="5448e494-5325-42ad-8f39-d669bb501523">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["执行标准 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="243" width="15" height="7" uuid="e4dc9b0e-3269-4b6d-a99e-f3c392e82ec0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["地址 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="45" y="208" width="15" height="7" uuid="fa20798e-d4ce-4fd0-8fce-d4e9c1e551bc">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["类别 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="215" width="15" height="7" uuid="e74047d7-85fe-44da-8ceb-1aa4b9863ad6">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["材质 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="229" width="15" height="7" uuid="dd4a47ec-4632-430c-abac-19bc2c4afe5a">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["颜色 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="236" width="22" height="7" uuid="0c800cbf-cee6-4d0d-9baa-847d1478ffa9">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["经销商 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="264" width="15" height="7" uuid="d1c378be-63f6-4992-bef6-aefc2e1431af"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["警告 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="100" y="208" width="22" height="7" uuid="ce2208c9-acff-4a75-9b38-8340719f4b06">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["制造年月 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="45" y="229" width="15" height="7" uuid="4a0b689f-6fad-402f-9e58-ed4e27278b14">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["尺寸 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="100" y="229" width="15" height="7" uuid="1c78b5c2-64a0-4ed1-8f25-e544bc9b90ed">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["等级 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="250" width="22" height="7" uuid="4661dca4-74c9-4fcb-8028-6d94d2ff1dd1">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["联系方式 : "]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="70" y="250" width="20" height="7" uuid="746b8f88-be7f-42f4-8ac7-5ecdcd14a6e3">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["制造商 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="120" y="61" width="15" height="20" uuid="f92ea7b1-1d43-44dd-8d09-12b6a78ad16b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="2019 GM BARCODE" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\u0064"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="138" y="61" width="15" height="20" uuid="aa754731-9b2f-4166-a743-0c48ed878018">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="2019 GM BARCODE" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\u0063"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="102" y="61" width="15" height="20" uuid="63b3a3c6-8c6a-4ca5-8f70-d1798da4ee4d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="2019 GM BARCODE" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CAR").toString().equals("Y") ? "\u0067" : ""]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="50" y="5" width="114" height="55" uuid="64819e26-9c7d-45e6-be46-c4c01f995121">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<jr:EAN13 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="1.0">
+					<jr:codeExpression><![CDATA[$P{Data}.get("BARCODE_NUMBER").toString().replaceAll("\\s", "")]]></jr:codeExpression>
+				</jr:EAN13>
+			</componentElement>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="201" width="144" height="7" uuid="6e3c8d5a-7cf9-4ce6-b9bd-1f2d1b476f49">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["商标 : " + $P{Data}.get("BRAND_NAME")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="208" width="30" height="7" uuid="63ecedb0-56e6-4346-a20f-b74247f43859">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CATEGORY_CODE")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="60" y="208" width="40" height="7" uuid="edcdf962-d135-46a3-b186-811362f7e90b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CHARACTERISTIC") +" "+ $P{Data}.get("CN_TEXT")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="122" y="208" width="37" height="7" uuid="c64d3195-660b-4d08-b87a-7b103f787da2">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{Data}.get("MF_DATE").toString() == null || $P{Data}.get("MF_DATE").toString().isEmpty()) ? "n/a" : new SimpleDateFormat("yyyy.MM").format(new SimpleDateFormat("yyyyMMdd").parse($P{Data}.get("MF_DATE").toString()))]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="215" width="92" height="7" uuid="11f7bf35-fcbc-469a-9c17-26512b797d72">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("MATERIAL_1")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="122" y="215" width="37" height="7" uuid="7eb5e72b-b5fc-464e-90a4-75e2695246cc">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("ORIGIN")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="22" y="222" width="137" height="7" uuid="ea6f55a0-5daf-4f1f-904f-86cf3f1b0532">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("RELATED_STANDARDS")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="229" width="30" height="7" uuid="045c9c43-8c6d-4c68-b4dc-37d9782410c5">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("PRODUCT_COLOR")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="60" y="229" width="40" height="7" uuid="a8716ad9-2676-4386-9b8d-19dc43201d10">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("SIZE")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="115" y="229" width="44" height="7" uuid="7161e79e-6f26-46e2-8707-8a8a2f6255a0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("PASSED_PRODUCT")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="22" y="236" width="137" height="7" uuid="063a79b7-87a7-469d-a352-1a038d1f61de">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("BUYER_NAME")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="243" width="144" height="7" uuid="2fcbd5b2-031d-495c-a114-5e360fa9298b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("BUYER_ADDRESS")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="22" y="250" width="48" height="7" uuid="36975fe9-3ebf-49b4-a541-07f85ab78812">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("BUYER_TEL")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="257" width="144" height="7" uuid="69c1b070-b822-4cf3-ae04-06526226722b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("SELLER_ADDRESS")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="15" y="264" width="144" height="7" uuid="85568c9a-772f-4785-8ca1-a1b81032c11a"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CAUTION_CODE")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="90" y="250" width="69" height="7" uuid="efa4a8f1-5462-4b4b-ac35-51e287d2c0bc">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("SELLER_NAME_LOC")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="257" width="15" height="7" uuid="cef7065d-02a3-4a9c-902b-0098f33962a0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Noto Sans CJK SC DemiLight" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["地址 : "]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

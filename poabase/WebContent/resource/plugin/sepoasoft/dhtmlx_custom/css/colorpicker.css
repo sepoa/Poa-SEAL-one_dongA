@@ -1,0 +1,33 @@
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_save,
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_cancel,
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_clear
+{
+	height: 32px;
+	line-height: 22px;
+	margin: 0 2px;
+	padding-left: 12px;
+	padding-right: 12px;
+	overflow: hidden;
+	text-align: center;
+	outline: none !important;
+	border: none !important;
+	background-color: white;
+	font-weight: 500;
+	font-size: 14px;
+	font-family: "Roboto", "Noto Sans KR";
+	color: #39c;
+}
+
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_save:hover,
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_cancel:hover,
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_clear:hover
+{
+	background-color: #ededed;
+}
+
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_save:active,
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_cancel:active,
+.dhtmlxcp_material div.dhxcp_g_area div.dhxcp_sub_area div.dhxcp_buttons_area button.dhx_button_clear:active
+{
+	background-color: #e1e1e1;
+}

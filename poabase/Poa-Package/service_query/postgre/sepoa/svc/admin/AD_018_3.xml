@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		  SELECT CODE.HOUSE_CODE
+	          ,CODE.SCREEN_ID
+	          ,CODE.CODE
+	          ,CODE.CODE CODE_HD
+	          ,LANG.CONTENTS AS CONTENTS_#LANGUAGE#
+	      FROM (
+	           SELECT HOUSE_CODE
+		             ,SCREEN_ID
+		             ,CODE
+                 FROM SLANG
+                WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+                  AND SCREEN_ID  = ${SCREEN_ID}
+                  AND LANGUAGE in (SELECT CODE FROM SCODE WHERE TYPE ='AD001')
+                  GROUP BY HOUSE_CODE,SCREEN_ID,CODE	             
+	           ) CODE
+	      LEFT OUTER 
+	      JOIN SLANG LANG
+	        ON CODE.HOUSE_CODE = LANG.HOUSE_CODE
+	       AND CODE.SCREEN_ID  = LANG.SCREEN_ID
+	       AND CODE.CODE       = LANG.CODE
+	       AND LANG.LANGUAGE   = ${LANGUAGE}
+	     ORDER BY HOUSE_CODE, SCREEN_ID, CODE
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE 
+		  FROM #DB_OWNER#SLANG 
+		 WHERE SCREEN_ID  = ${SCREEN_ID}
+		   AND CODE       = ${CODE}
+		   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doQueryExistRow">
+	<![CDATA[
+		SELECT COUNT(*) CNT
+		  FROM #DB_OWNER#SLANG 
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND LANGUAGE   = ${LANGUAGE}
+		   AND SCREEN_ID  = ${SCREEN_ID}
+		   AND CODE       = ${CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdateData">
+	<![CDATA[
+		UPDATE #DB_OWNER#SLANG
+	       SET CONTENTS    = ${CONTENTS}
+			  ,CHANGE_DATE = ${current.DATE}
+			  ,CHANGE_TIME = ${current.TIME}
+		 WHERE HOUSE_CODE  = ${session.HOUSE_CODE}
+		   AND LANGUAGE    = ${LANGUAGE}
+		   AND SCREEN_ID   = ${SCREEN_ID}
+		   AND CODE        = ${CODE}
+		   
+	]]>
+	</method>
+	
+	<method name="doInsertData">
+	<![CDATA[
+		INSERT 
+		  INTO #DB_OWNER#SLANG
+		     ( HOUSE_CODE,
+		       SCREEN_ID,
+		       LANGUAGE,
+		       CODE,
+		       CONTENTS,
+		       ADD_USER_ID,
+		       ADD_DATE,
+		       ADD_TIME,
+		       CHANGE_USER_ID,
+		       CHANGE_DATE,
+		       CHANGE_TIME,
+		       DEL_FLAG
+	         ) 
+	  VALUES (
+		       ${session.HOUSE_CODE},
+		       ${SCREEN_ID},
+		       ${LANGUAGE},
+		       ${CODE},
+		       ${CONTENTS},
+		       ${session.ID},
+		       ${current.DATE},
+		       ${current.TIME},
+		       ${session.ID},
+		       ${current.DATE},
+		       ${current.TIME},
+		       'N'
+		     )
+	]]>
+	</method>
+</service>

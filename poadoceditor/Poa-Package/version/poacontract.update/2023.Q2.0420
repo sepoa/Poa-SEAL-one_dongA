@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTRV ADD LINK VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTRV ADD LINK VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTRV ADD LINK VARCHAR2(50)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_50"/>
+					<entry key="CONTENTS" val="$.{TASK} 하시겠습니까?"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TASK_SEND"/>
+					<entry key="CONTENTS" val="계약대상에게 계약서를 전송"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TASK_SAVE"/>
+					<entry key="CONTENTS" val="임시저장"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TASK_REVIEW_REQ"/>
+					<entry key="CONTENTS" val="계약대상에게 계약서를 검토요청"/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

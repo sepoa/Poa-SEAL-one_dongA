@@ -1,0 +1,24 @@
+{
+	"AD_121":{
+		"SELECTED":"선택", 
+		"DESCRIPTION":"모듈명",
+		"TYPE":"타입",
+		"MODULE":"모듈",
+		"NODE":"노드종류",
+		"OPTIONS":"옵션",
+		"TREE_ID":"모듈",
+		"TREE_PARENT_ID":"상위모듈",
+		"SORT":"순서"
+	},
+	"AD_121_GRID_LENGTH": {
+		"SELECTED":"50",
+		"DESCRIPTION":"650",
+		"TYPE":"100",
+		"MODULE":"100",
+		"NODE":"100",
+		"OPTIONS":"100",
+		"TREE_ID":"100",
+		"TREE_PARENT_ID":"100",
+		"SORT":"50"
+	}
+}

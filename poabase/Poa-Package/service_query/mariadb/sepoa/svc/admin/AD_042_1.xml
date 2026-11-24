@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryClient">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, COMPANY_NAME
+		FROM
+			USERVICE
+		WHERE HOUSE_CODE <> '000'
+        AND	COMPANY_CODE = '1000'
+		AND HOUSE_CODE = $S{HOUSE_CODE}
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		AND ( UPPER( HOUSE_CODE )  LIKE CONCAT('', UPPER( $S{F_KEYWORD}, '%' )) 
+      	      OR UPPER( COMPANY_CODE ) LIKE CONCAT('', UPPER( $S{F_KEYWORD}, '%' ) 
+      	      OR UPPER( COMPANY_NAME ) LIKE CONCAT('', UPPER( $S{F_KEYWORD}, '%' )) 
+	]]>
+	</method>
+	
+	<method name="doQueryMasterList">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, FORM_ID
+		FROM
+			#DB_OWNER#SFORM
+		WHERE
+			HOUSE_CODE = '000'
+		AND FORM_ID LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		ORDER BY
+			FORM_ID ASC
+	]]>
+	</method>	
+</service>

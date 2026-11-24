@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CM_015" header="false">
+    <usercss>
+    <![CDATA[
+        .signIconArea {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #b4b5bf;
+            width: 200px;
+            height: 200px;
+            margin: 20px 20px;
+        }
+        
+        .signAreaWrapper{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #ZRmVkNeSbHWkNecEsQ {
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .signBtnArea{
+            display: inline-block;
+            height: 300px;
+        }
+        
+        .buttton_area{
+            display: flex;
+            float: right;
+            margin: 20px 20px;
+        }
+        
+        .sepoa-button-item-type-modify{
+            background-color: #307bee;
+            border-color: #307bee;
+            border-radius: 7px;
+        }
+        
+        .sepoa-button-item-type-delete{
+            background-color: #0000009c;
+            border-color: #0000009c;
+            border-radius: 7px;
+        }
+        
+        .sepoa-button-item-label{
+            color: #ffffff !important;;
+        }
+        
+        .xi-plus:before{
+            opacity: 0.5;
+        }
+    ]]>
+    </usercss>
+    <button id="btnObj"/>
+    <variable>
+        <var name="signCol" value="$($sObject._vp).find('#ZRmVkNeSbHWkNecEsQ')[0]"/>
+        <var name="signArea" value="$($sObject._vp).find('#ZRmVkNeSbHWkNeZPKn')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="init" args="">
+        <![CDATA[
+            var imageUrl = '';
+            
+            doServiceAjax('sepoa.svc.contract.SepoaContractDigitalSign', 'CONNECTION', 'doQuery', '', function(so) {
+                var sf = new SepoaFormater(so.result[0]);
+                var sfList = sf.getArrayMap();
+                var signAreaWrapper = document.createElement('div');
+                signAreaWrapper.className = 'signAreaWrapper';
+                
+                this.sfList = sfList;
+                
+                for (var i = 0; i < 5; i++) {
+                    var result = sfList[i];
+                    var flag = false;
+                    if(typeof(result) == 'undefined'){
+                        //imageUrl = '/resource/design/imgs/common/FILE_ADD_IMG.png';
+                        imageUrl = '';
+                        flag = false;
+                    } else {
+                        if (sfList[i].ROOT_PATH_TYPE && sfList[i].DES_FILE_NAME) {
+                            imageUrl = '/SepoaImage.sux?mode=CUSTOM&METHOD=doImage&PROCESS_ID=sepoa.svc.contract.SepoaContractDigitalSign&signId=YDH_1&ROOT_PATH_TYPE=' + result.ROOT_PATH_TYPE 
+                            + '&DES_FILE_NAME=' + result.DES_FILE_NAME + '&SRC_FILE_NAME=' + result.SRC_FILE_NAME;
+                            flag = true;
+                        }
+                    }
+                    
+                    var signBtnArea = document.createElement('div');
+                    var signIconArea = document.createElement('div');
+                    var signIcon = document.createElement('div');
+                    var addIconArea = document.createElement('div');
+                    // addIconArea
+                    addIconArea.className = 'addIconArea_' + i + ' xi-plus';
+                    addIconArea.style.setProperty('display', 'flex');
+                    addIconArea.style.setProperty('justify-content', 'center');
+                    addIconArea.style.setProperty('align-items', 'center');
+                    addIconArea.style.setProperty('font-size', '50pt');
+                    addIconArea.style.width = '115px';
+                    addIconArea.style.height = '115px';
+                    addIconArea.style.background = '#0000000f center center / 115px 115px no-repeat';
+                    
+                    // signIcon
+                    signIcon.className = flag ? 'signIcon_' + i : 'addIcon_' + i;
+                    signIcon.style.background = 'url(' + imageUrl + ') center center / 100px 100px no-repeat';
+                    signIcon.style.width = '200px';
+                    signIcon.style.height = '200px';
+                    signIcon.style.setProperty('display', 'flex');
+                    signIcon.style.setProperty('justify-content', 'center');
+                    signIcon.style.setProperty('align-items', 'center');
+                    signIcon.style.setProperty('box-shadow', '#D0D0D0 0px 3px 3px 2px');
+                    if(flag == false){
+                        signIcon.appendChild(addIconArea);
+                    }
+                    // signIconArea
+                    signIconArea.className = 'signIconArea';
+                    signIconArea.appendChild(signIcon);
+                    //signBtnArea
+                    signBtnArea.className = 'signBtnArea';
+                    signBtnArea.appendChild(signIconArea);
+
+                    var buttonArea = document.createElement('div');
+                    var buttonSave = document.createElement('div');
+                    var buttonDelete = document.createElement('div');
+                    buttonArea.className = 'buttton_area';
+
+                    if(flag == true) {
+                        var saveParam = $.extend(true, {BTN_TYPE: 'SAVE'}, result);
+                        var deleteParam = $.extend(true, {BTN_TYPE: 'DELETE'}, result);
+                        
+                        btnObj.addButton({"div":buttonArea,"id":"buttonSave_" + i,"text":"{BUTTON.modify}","type":"modify", onclick:onButtonClick.bind(this, saveParam)});
+                        btnObj.addButton({"div":buttonArea,"id":"buttonDelete_" + i,"text":"{BUTTON.delete}","type":"delete", onclick:onButtonClick.bind(this, deleteParam)});
+                        
+                        buttonArea.appendChild(buttonSave);
+                        buttonArea.appendChild(buttonDelete);
+                        signBtnArea.appendChild(buttonArea);
+                    }
+                    
+                    signAreaWrapper.appendChild(signBtnArea);
+                }
+                
+                signAreaWrapper.addEventListener('click', function(e) {
+                    var se = e.srcElement;
+                    var eventClass = se.className;
+                    var classSplitBySpace = eventClass.split(' ');
+                    var classSplit = classSplitBySpace[0].split('_');
+                    
+                    if(classSplit[0] == 'addIcon' || classSplit[0] == 'addIconArea'){
+                        digitalSignPopupOpen();
+                    }
+                }.bind(this));
+                
+                signCol.appendChild(signAreaWrapper);
+                
+            }, false);
+        ]]>
+        </function>
+        
+        <function name="onButtonClick" args="params">
+        <![CDATA[
+            var btnType = params.BTN_TYPE;
+            
+            if(btnType == 'SAVE'){
+                openSavePopup(params);
+            } else if(btnType == 'DELETE'){
+                doDelete(params);
+            }
+        ]]>
+        </function>
+        
+        <function name="openSavePopup" args="params">
+        <![CDATA[
+            PopupOpenPost('/Contract/DigitalSign/ContractDigitalSignSetter.sux', {
+                callback: popupCallback, data : params
+            }, '', 750, 550, Sepoa.cache.text.get('CM_010.SIGN_MANAGEMENT'));
+        ]]>
+        </function>
+        
+        <function name="doDelete" args="params">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('CM_010.DELETE_CONFIRM'), function(flag) {
+                if(flag == true){
+                    doServiceAjax('sepoa.svc.contract.SepoaContractDigitalSign', 'TRANSACTION', 'doDelete', params, function(so) {
+                        if (so.status == 1) {
+                            Alert(Sepoa.cache.text.get('CM_010.DELETE_SUCCESS'));
+                            popupCallback();
+                        } else {
+                            Alert(so.message);
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="popupCallback" args="">
+        <![CDATA[
+            $('.signIconArea').remove();
+            $('.buttton_area').remove();
+            init();
+        ]]>
+        </function>
+        
+        <function name="digitalSignPopupOpen" args="">
+        <![CDATA[
+            PopupOpenPost('/Contract/DigitalSign/ContractDigitalSignSetter.sux', {
+                callback: popupCallback
+            }, '', 750, 550, Sepoa.cache.text.get('CM_010.SIGN_MANAGEMENT'));
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWlJtVmtOZWFSbVZrTmVTSEYiOnsibGF5b3V0Ijp7IlNDUk9MTCI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNNXzAxNSJ9LCJpZCI6IlpSbVZrTmVhUm1Wa05lU0hGIiwidHlwZSI6ImJvZHkifSwiWlJtVmtOZVNiSFdrTmVjRXNRIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfMjVNUEc3bHI3dWNqIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJzaWduQ29sIiwiT0JKRUNUX0lEIjoiWlJtVmtOZVNiSFdrTmVjRXNRIn0sImlkIjoiWlJtVmtO
+        ZVNiSFdrTmVjRXNRIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIlpSbVZrTmVTYkhXa05lWlBLbiI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfTzg3SVFtbjdOUGRTIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9BSkJ2dVNYMEgwNjYiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfcG5od05xSG9qYTB1IjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfd08yeXhLVVBv
+        ejdJIjoibnVsbCIsImRoeElkX0NtUTZjOE44ZFRJSyI6Im51bGwiLCJkaHhJZF9VdEJsZEJkRkd5cHYiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoic2lnbkFyZWEiLCJPQkpFQ1RfSUQiOiJaUm1Wa05lU2JIV2tOZVpQS24iLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIn0sImlkIjoiWlJtVmtOZVNiSFdrTmVaUEtuIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IlpSbVZrTmVhUm1Wa05lU0hGIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJaUm1Wa05lU2JIV2tOZVpQS24iLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiWlJtVmtOZVNiSFdrTmVjRXNRIiwi
+        dHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L0NvbW1vbi9TaWduL0NvbnRyYWN0TWFpblNlbGVjdFNpZ25Xcml0ZS54bWwiLCJQUk9KRUNUIjoiQ09OVFJBQ1QiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJDb250cmFjdC9Db21tb24vU2lnbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkNvbnRyYWN0TWFpblNlbGVjdFNpZ25Xcml0ZSIsIkNPREUiOiIwMTUiLCJQUkVGSVgiOiJDTSIsIlNDUkVFTl9JRCI6IkNNXzAxNSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJaUm1Wa05lYVJtVmtOZVNIRlwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlpSbVZrTmVTYkhXa05lWlBLblwiIGNsYXNzPVwic2Vwb2F1eF9jb21w
+        b25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiWlJtVmtOZVNiSFdrTmVjRXNRXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5
+        bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

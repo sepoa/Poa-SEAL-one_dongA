@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_302" header="false" pageCloseWarn="false">
+    <tabbar id="tabbarObj" div="GBvvrThaOysOPcSFXM">
+        <event type="onTabChanged" callback="onTabChanged"/>
+    </tabbar>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <variable>
+        <var name="$share" value="{}"/>
+    </variable>
+    <userscript>
+        <function name="init" args="">
+        <![CDATA[
+            if($share.childScreen === undefined) {
+                $share.childScreen = {};
+            }
+            
+            initTabbar();
+            onReady();
+        ]]>
+        </function>
+        
+        <function name="initTabbar" args="">
+        <![CDATA[
+            const contractorId = 'C';
+            tabbarObj.addTab(contractorId, Sepoa.cache.text.get('CT_301.TABBAR_Contractor_NAME'));
+            tabbarObj.cells(contractorId).attachURL('/Contract/CompanyManagement/ContractCompanyManagementContractor.sux?alias=' + contractorId);
+            tabbarObj.cells(contractorId).setActive();
+            
+            const contracteeId = 'S';
+            tabbarObj.addTab(contracteeId, Sepoa.cache.text.get('CT_301.TABBAR_Contractee_NAME'));
+            tabbarObj.cells(contracteeId).attachURL('/Contract/CompanyManagement/ContractCompanyManagementContractor.sux?alias=' + contracteeId);
+        ]]>
+        </function>
+        
+        <function name="onReady" args="">
+        <![CDATA[
+            const parents = $sObject._vp.parents('div.sepoaux.screen_area');
+            if(parents.length > 0) {
+                callFunction('p', 'childScreenReady', [{
+                    name : 'list',
+                    fn : {
+                        doQuery : doQuery
+                    },
+                    share : $share
+                }]);
+            }
+        ]]>
+        </function>
+        
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            const child = $share.childScreen[config.name] = config;
+            if(child.share) {
+                child.share.data = $share.data;
+                child.share.event = $share.event
+            }
+            
+            if($share.queue) {
+                const target = $share.childScreen[$share.queue.name];
+                if(target) {
+                    target.fn[$share.queue.task].call();
+                    delete $share.queue;
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="doQuery" args="id">
+        <![CDATA[
+            if(!id) {
+                id = tabbarObj.getActiveTab();
+            }
+            
+            const target = 'CT_302_1_' + id;
+            if($share.childScreen?.[target]) {
+                $share.childScreen[target].fn.doQuery();
+            } else {
+                $share.queue = {
+                    name : target,
+                    task : 'doQuery'
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="onTabChanged" args="id">
+        <![CDATA[
+            doQuery(id);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiR0J2dnJUaEFkaHNPUGNMYnhCIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJCTV8wMDEifSwiaWQiOiJHQnZ2clRoQWRoc09QY0xieEIiLCJ0eXBlIjoiYm9keSJ9LCJHQnZ2clRoYU95c09QY1NGWE0iOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9PM0pOZzFKb0hZVmYiOiJudWxsIiwiZGh4SWRfVEJ0a0JFZ25ZRjNK
+        IjoibnVsbCIsImRoeElkX2RkUkJiZjdQT0tsbiI6Im51bGwiLCJkaHhJZF9rNWdiVXI0YUp5NHIiOiJudWxsIiwiZGh4SWRfcDdaODV6TGZ2aWRIIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX3FYZFJvb0N0ZHRlMyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX1VUR0oxRnA2QzBEdCI6Im51bGwiLCJkaHhJZF9ZY25lNFlBNEdBdVYiOiJudWxsIiwiZGh4SWRfOEwyWElodFpValFiIjoibnVsbCIsImRoeElkX2lBMUVhOFNsb1lCViI6Im51bGwiLCJkaHhJZF94TU1WbzlidXRNcVciOiJudWxsIiwiZGh4SWRfYlBuRE9DRW1ERkM4IjoibnVsbCIsImRoeElkX3lwRVRBSVBva3B2TSI6Im51bGwiLCJkaHhJ
+        ZF9STXJ0ZDBXa3lBOVIiOiJudWxsIiwiZGh4SWRfWjllSGp4dVFnT0tsIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGFiYmFyT2JqIiwiT0JKRUNUX0lEIjoiR0J2dnJUaGFPeXNPUGNTRlhNIiwiSVRFTV9EVUlEU1RIT05MUk9XQ09SUU5fTkFNRSI6IuuPhOq4ieyymCIsIklURU1fRFVJRFNUSE9OTFJPV0NPUlFOX0lEIjoiQ29udHJhY3RvciIsIklURU1fRFVJRFNUSE9OTFJPV0NPUlFOX1NFTEVDVEVEIjoidHJ1ZSIsIklURU1fRFVJRFNUSENOQVJPV0NPR0dHX1NPUlQiOiIyIiwiSVRFTV9EVUlEU1RIQ05BUk9XQ09HR0dfTkFNRSI6IuyImOq4ieyymCIsIklURU1fRFVJRFNUSENOQVJPV0NPR0dHX0lEIjoiQ29udHJhY3RlZSIsIklURU1fRFVJRFNU
+        SE9OTFJPV0NPUlFOX1NPUlQiOiIxIiwiSVRFTV9EVUlEU1RIQ05BUk9XQ09HR0dfU0VMRUNURUQiOiJmYWxzZSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiSVRFTV9EVUlEU1RIT05MUk9XQ09SUU5fVEFSR0VUIjoiL0J1c2luZXNzL0NvbXBhbnlNYW5hZ2VtZW50L0J1c2luZXNzQ29tcGFueU1hbmFnZW1lbnRDb250cmFjdG9yLnhtbCIsIklURU1fRFVJRFNUSENOQVJPV0NPR0dHX1RBUkdFVCI6Ii9CdXNpbmVzcy9Db21wYW55TWFuYWdlbWVudC9CdXNpbmVzc0NvbXBhbnlNYW5hZ2VtZW50Q29udHJhY3RlZS54bWwiLCJJVEVNX0RVSURTVEhPTkxST1dDT1JRTl9UWVBFIjoiVSIsIklURU1fRFVJRFNUSENOQVJPV0NPR0dHX1RZUEUiOiJVIn0sImlkIjoiR0J2
+        dnJUaGFPeXNPUGNTRlhNIiwidHlwZSI6InRhYmJhciIsImV2ZW50cyI6W119LCJEVUlEU1RIT05MUk9XQ09SUU4iOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7Ik5BTUUiOiLrj4TquInsspgiLCJJRCI6IkNvbnRyYWN0b3IiLCJpdGVtSUQiOiJEVUlEU1RIT05MUk9XQ09SUU4iLCJTRUxFQ1RFRCI6InRydWUiLCJTT1JUIjoiMSIsIlRBUkdFVCI6Ii9CdXNpbmVzcy9Db21wYW55TWFuYWdlbWVudC9CdXNpbmVzc0NvbXBhbnlNYW5hZ2VtZW50Q29udHJhY3Rvci54bWwiLCJUWVBFIjoiVSJ9LCJpZCI6IkRVSURTVEhPTkxST1dDT1JRTiIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6InRhYmJhckNlbGwiLCJuYW1lIjoiQ29udHJhY3RvciJ9LCJEVUlEU1RI
+        Q05BUk9XQ09HR0ciOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlNPUlQiOiIyIiwiTkFNRSI6IuyImOq4ieyymCIsIklEIjoiQ29udHJhY3RlZSIsIml0ZW1JRCI6IkRVSURTVEhDTkFST1dDT0dHRyIsIlNFTEVDVEVEIjoiZmFsc2UiLCJUQVJHRVQiOiIvQnVzaW5lc3MvQ29tcGFueU1hbmFnZW1lbnQvQnVzaW5lc3NDb21wYW55TWFuYWdlbWVudENvbnRyYWN0ZWUueG1sIiwiVFlQRSI6IlUifSwiaWQiOiJEVUlEU1RIQ05BUk9XQ09HR0ciLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6IkNvbnRyYWN0ZWUifX0sInRyZWUiOnsiaWQiOiJHQnZ2clRoQWRoc09QY0xieEIiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJp
+        ZCI6IkdCdnZyVGhhT3lzT1BjU0ZYTSIsInR5cGUiOiJ0YWJiYXIiLCJjZWxscyI6W3siaWQiOiJEVUlEU1RIT05MUk9XQ09SUU4iLCJ0eXBlIjoidGFiYmFyQ2VsbCJ9LHsiaWQiOiJEVUlEU1RIQ05BUk9XQ09HR0ciLCJ0eXBlIjoidGFiYmFyQ2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0J1c2luZXNzL0NvbXBhbnlNYW5hZ2VtZW50L0J1c2luZXNzQ29tcGFueU1hbmFnZW1lbnRUYWJiYXIueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJDT0RFIjoiMDAxIiwiUFJFRklYIjoiQk0iLCJQQVRIXzIiOiJDb21wYW55TWFuYWdlbWVudCIsIlBBVEhfMyI6IkJ1c2luZXNzQ29tcGFueU1hbmFnZW1lbnQiLCJQQVRIXzEiOiJCdXNpbmVzcyIsIkhFQURFUiI6ImZhbHNl
+        IiwiTkFNRSI6IlRhYmJhciIsIlNDUkVFTl9JRCI6IkJNXzAwMSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJHQnZ2clRoQWRoc09QY0xieEJcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4g
+        ICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkdCdnZyVGhhT3lzT1BjU0ZYTVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfdGFiYmFyIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

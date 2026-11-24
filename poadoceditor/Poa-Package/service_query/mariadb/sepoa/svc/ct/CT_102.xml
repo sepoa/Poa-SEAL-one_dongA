@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doGetScreenConfig">
+    <![CDATA[
+        SELECT CODE
+              ,TEXT5
+          FROM SCODE
+         WHERE HOUSE_CODE = '000'
+           AND TYPE       = 'CT002'
+           AND LANGUAGE   = 'KO'
+           AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+    ]]>
+    </method>
+    
+    <method name="doQuery_SIGN">
+        <if test="${Q_COUNT_MODE}" operator="eq" value="Y">
+        <![CDATA[
+            SELECT count(*) AS COUNT 
+              FROM (
+        ]]>
+        </if>
+    <![CDATA[
+        SELECT DISTINCT
+               CTGL.STATUS                                AS CONT_STATUS
+             , CTGL.CONT_TYPE
+             , CTGL.CATEGORY
+             , CTGL.CONT_SUBJECT
+             , CTGL.CONT_FROM
+             , CTGL.CONT_TO
+             , CTGL.CONT_METHOD
+             , CTGL.CONT_NO
+             , CTGL.CONT_GL_SEQ
+             , CTGL.ADD_DATE
+             , CTGL.CREATOR
+             , CASE WHEN CTGL.STATUS != 'C' THEN #DB_OWNER#NVL(SIGN.SIGN_FLAG, CTGL.STATUS)
+                    ELSE CTGL.STATUS
+                     END AS SIGN_STATUS
+          FROM SDCAM DCAM
+         INNER
+          JOIN SCTGL CTGL
+            ON DCAM.HOUSE_CODE                             = CTGL.HOUSE_CODE 
+           AND DCAM.COMPANY_CODE                           = CTGL.COMPANY_CODE 
+           AND DCAM.CODE                                   = CTGL.CONT_NO
+           AND DCAM.SEQ                                    = CTGL.CONT_GL_SEQ
+          LEFT OUTER                                                                 
+          JOIN SSIGN SIGN                                                            
+            ON CTGL.HOUSE_CODE                             = SIGN.HOUSE_CODE
+           AND CTGL.CONT_NO                                = SIGN.CONT_NO
+           AND CTGL.CONT_GL_SEQ                            = SIGN.CONT_GL_SEQ
+           AND DCAM.USER_ID                                = SIGN.SIGNER
+         WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+           AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+           AND (
+                    DCAM.USER_ID                           = ${session.ID}
+                 OR DCAM.USER_GROUP_CODE                   = $S{session.DEPARTMENT}
+               )
+           AND CTGL.STATUS                                IN ('G', 'A', 'C')
+           AND #DB_OWNER#NVL(CTGL.DEL_FLAG, 'N')          <> 'Y'
+           AND CTGL.ADD_DATE                              >= $S{F_DATE_FROM}
+           AND CTGL.ADD_DATE                              <= $S{F_DATE_TO}
+           AND CTGL.CATEGORY                              IN ($INS{F_CONT_CATEGORY})
+           AND CTGL.CONT_SUBJECT                        like CONCAT('%', $S{F_KEYWORD}, '%')
+    ]]>
+        <if test="${F_STATUS}" operator="ne" value="">
+        <![CDATA[
+            AND $S{F_STATUS} = (
+                CASE WHEN CTGL.STATUS != 'C' THEN #DB_OWNER#NVL(SIGN.SIGN_FLAG, CTGL.STATUS)
+                ELSE CTGL.STATUS END
+            )
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONT_DATE">
+        <![CDATA[
+            AND CTGL.CONT_DATE  >= $S{F_CALENDAR_FROM}
+            AND CTGL.CONT_DATE  <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONT_TERM">
+        <![CDATA[
+            AND CTGL.CONT_FROM  >= $S{F_CALENDAR_FROM}
+            AND CTGL.CONT_TO    <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="ADD_DATE">
+        <![CDATA[
+            AND CTGL.ADD_DATE   >= $S{F_CALENDAR_FROM}
+            AND CTGL.ADD_DATE   <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${Q_COUNT_MODE}" operator="eq" value="Y">
+        <![CDATA[
+            ) A
+        ]]>
+        </if>
+        <if test="${Q_COUNT_MODE}" operator="ne" value="Y">
+        <![CDATA[
+         ORDER 
+            BY CTGL.CONT_NO DESC, CTGL.CONT_GL_SEQ DESC
+        ]]>
+        </if>
+    </method>
+    
+    <method name="doQuery_CONTRACT">
+        <if test="${Q_COUNT_MODE}" operator="eq" value="Y">
+        <![CDATA[
+            SELECT count(*) AS COUNT 
+              FROM (
+        ]]>
+        </if>
+    <![CDATA[
+        SELECT DISTINCT
+               CTGL.HOUSE_CODE
+             , CTGL.COMPANY_CODE
+             , CTGL.CONT_NO
+             , CTGL.CONT_GL_SEQ
+             , CTGL.CATEGORY
+             , CTGL.STATUS                                    AS CONT_STATUS
+             , CTGL.STATUS                                    AS MANUAL_STATUS
+             , CASE WHEN CTGL.CONT_SUBJECT = 'T'
+                    THEN CONCAT('file name : ', (SELECT SRC_FILE_NAME
+                                              FROM SCTLN
+                                             WHERE HOUSE_CODE   = CTGL.HOUSE_CODE
+                                               AND COMPANY_CODE = CTGL.COMPANY_CODE
+                                               AND CONT_NO      = CTGL.CONT_NO
+                                               AND CONT_GL_SEQ  = CTGL.CONT_GL_SEQ
+                                               AND UPLOAD_SEQ   = '1' 
+                                               AND DEL_FLAG    <> 'Y'
+                                           )
+                                 )         
+                    ELSE CTGL.CONT_SUBJECT
+                END                                           AS CONT_SUBJECT
+             , CTGL.CONT_FROM
+             , CTGL.CONT_TO
+             , CTGL.ADD_DATE
+             , CTGL.CONT_TYPE
+             , CTGL.CONT_METHOD
+             , CTGL.EXPIRED_ALARM
+             , CTGL.CREATOR
+    ]]>
+        <if test="${TYPE}" operator="eq" value="CONTRACT_COMPLETE">
+        <![CDATA[
+             , CASE WHEN     CTGL.CONT_TO <= ${EXPIRED_ALARM_TO}
+                         AND CTGL.CONT_TO >= ${EXPIRED_ALARM_FROM}
+                    THEN 'Y'
+                    ELSE 'N'
+                END                    AS EXPIRED_ALARM_TARGET
+        ]]>
+        </if>
+        <if test="${TYPE}" operator="ne" value="CONTRACT_COMPLETE">
+        <![CDATA[
+                     , ''                      AS EXPIRED_ALARM_TARGET
+        ]]>
+        </if>
+        <![CDATA[
+          FROM SDCAM DCAM
+         INNER
+          JOIN SCTGL CTGL
+            ON DCAM.HOUSE_CODE                             = CTGL.HOUSE_CODE 
+           AND DCAM.COMPANY_CODE                           = CTGL.COMPANY_CODE 
+           AND DCAM.CODE                                   = CTGL.CONT_NO
+           AND DCAM.SEQ                                    = CTGL.CONT_GL_SEQ
+         WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+           AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+           AND (
+                    DCAM.USER_ID                           = ${session.ID}
+                 OR DCAM.USER_GROUP_CODE                   = $S{session.DEPARTMENT}
+               )
+           AND #DB_OWNER#NVL(CTGL.DEL_FLAG, 'N')           = 'N'
+           AND CTGL.CONT_NO                                = $S{CONT_NO}
+           AND CTGL.CONT_GL_SEQ                            = $S{CONT_GL_SEQ}
+           AND CTGL.STATUS                                #MODE_TYPE_OPERATOR# $S{MODE_TYPE_STATUS}
+           AND CTGL.CATEGORY                               IN ($INS{F_CONT_CATEGORY})
+           AND CTGL.CONT_SUBJECT                           like CONCAT('%', $S{F_KEYWORD}, '%')
+           AND #DB_OWNER#NVL(CTGL.CONT_METHOD, 'X')       #MANUAL_FLAG_OPERATOR# $S{MANUAL_FLAG_VALUE}
+        ]]>
+        <if test="${F_EXPIRED_VIEW}" operator="eq" value="true">
+        <![CDATA[
+           AND CASE WHEN     CTGL.CONT_TO <= ${EXPIRED_ALARM_TO}
+                         AND CTGL.CONT_TO >= ${EXPIRED_ALARM_FROM}
+                    THEN 'Y'
+                    ELSE 'N'
+                END                                        = 'Y'
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONT_DATE">
+        <![CDATA[
+            AND CTGL.CONT_DATE  >= $S{F_CALENDAR_FROM}
+            AND CTGL.CONT_DATE  <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONT_TERM">
+        <![CDATA[
+            AND CTGL.CONT_FROM  >= $S{F_CALENDAR_FROM}
+            AND CTGL.CONT_TO    <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="ADD_DATE">
+        <![CDATA[
+            AND CTGL.ADD_DATE   >= $S{F_CALENDAR_FROM}
+            AND CTGL.ADD_DATE   <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${Q_COUNT_MODE}" operator="eq" value="Y">
+        <![CDATA[
+            ) A
+        ]]>
+        </if>
+        <if test="${Q_COUNT_MODE}" operator="ne" value="Y">
+        <![CDATA[
+         ORDER 
+            BY CASE WHEN CONT_STATUS = 'T' THEN 0
+                    ELSE 1 
+                END
+             , #ORDER_COLUMN# #ORDER_SORT#
+        ]]>
+        </if>
+    </method>
+    
+    
+    
+    <method name="doQuery_APPROVAL">
+        <if test="${Q_COUNT_MODE}" operator="eq" value="Y">
+        <![CDATA[
+            SELECT count(*) AS COUNT 
+              FROM (
+        ]]>
+        </if>
+    <![CDATA[
+        SELECT DISTINCT
+               CTGL.STATUS                                                                            AS CONT_STATUS
+             , CTGL.CONT_TYPE
+             , CTGL.CATEGORY
+             , CTGL.CONT_SUBJECT
+             , CTGL.CONT_FROM
+             , CTGL.CONT_TO
+             , CTGL.CONT_METHOD
+             , CTGL.CONT_NO
+             , CTGL.CONT_GL_SEQ
+             , CTGL.ADD_DATE
+             , CTGL.HOUSE_CODE
+             , CTGL.CREATOR
+             , GWGL.APP_USER_ID                                                                       AS APP_USER_ID
+             , GWGL.APP_USER_DATE                                                                     AS APP_DATE
+             , CASE WHEN GWLN.APP_LINE_STATUS = 'L01'
+                    THEN CTGL.STATUS
+                    ELSE GWLN.APP_LINE_STATUS
+                    END                                                                               AS APP_STATUS
+             , getusername(GWGL.HOUSE_CODE, GWGL.COMPANY_CODE, GWGL.APP_USER_ID, ${session.LANGUAGE}) AS APP_USER_NAME
+          FROM SDCAM DCAM
+         INNER
+          JOIN SCTGL CTGL
+            ON DCAM.HOUSE_CODE                             = CTGL.HOUSE_CODE 
+           AND DCAM.COMPANY_CODE                           = CTGL.COMPANY_CODE 
+           AND DCAM.CODE                                   = CTGL.CONT_NO
+           AND DCAM.SEQ                                    = CTGL.CONT_GL_SEQ
+         INNER 
+          JOIN SGWGL GWGL
+            ON CTGL.CONT_NO                                = GWGL.SUX_WKEY1
+           AND CTGL.CONT_GL_SEQ                            = GWGL.SUX_WKEY3
+         INNER                                             
+          JOIN SGWLN GWLN                                  
+            ON GWGL.HOUSE_CODE                             = GWLN.HOUSE_CODE 
+           AND GWGL.COMPANY_CODE                           = GWLN.COMPANY_CODE
+           AND GWGL.APP_NO                                 = GWLN.APP_NO
+           AND GWLN.APP_USER_ID                            = DCAM.USER_ID
+           AND GWLN.APP_LINE_SEQ                           = (SELECT max(APP_LINE_SEQ)
+                                                                FROM SGWLN
+                                                               WHERE HOUSE_CODE   = GWGL.HOUSE_CODE
+                                                                 AND COMPANY_CODE = GWGL.COMPANY_CODE
+                                                                 AND APP_NO       = GWGL.APP_NO
+                                                                 AND APP_USER_ID  = DCAM.USER_ID
+                                                             )  
+         WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+           AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+           AND (
+                    DCAM.USER_ID                           = ${session.ID}
+                 OR DCAM.USER_GROUP_CODE                   = $S{session.DEPARTMENT}
+               )
+           AND CTGL.STATUS                                <> 'T'
+           AND #DB_OWNER#NVL(CTGL.DEL_FLAG, 'N')          = 'N'
+           AND GWGL.APP_USER_DATE                         >= $S{F_DATE_FROM}
+           AND GWGL.APP_USER_DATE                         <= $S{F_DATE_TO}
+           AND CTGL.CATEGORY                              IN ($INS{F_CONT_CATEGORY})
+           AND CTGL.CONT_SUBJECT                        like CONCAT('%', $S{F_KEYWORD}, '%')
+       ]]>
+        <if test="${F_STATUS}" operator="ne" value="">
+        <![CDATA[
+           #F_STATUS_QUERY#                            = $S{F_STATUS}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONT_DATE">
+        <![CDATA[
+            AND CTGL.CONT_DATE  >= $S{F_CALENDAR_FROM}
+            AND CTGL.CONT_DATE  <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="CONT_TERM">
+        <![CDATA[
+            AND CTGL.CONT_FROM  >= $S{F_CALENDAR_FROM}
+            AND CTGL.CONT_TO    <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+        <if test="${F_CALENDAR_TARGET}" operator="eq" value="ADD_DATE">
+        <![CDATA[
+            AND CTGL.ADD_DATE   >= $S{F_CALENDAR_FROM}
+            AND CTGL.ADD_DATE   <= $S{F_CALENDAR_TO}
+        ]]>
+        </if>
+    <![CDATA[
+         ORDER 
+            BY GWGL.APP_USER_DATE DESC
+    ]]>
+        <if test="${Q_COUNT_MODE}" operator="eq" value="Y">
+        <![CDATA[
+            ) A
+        ]]>
+        </if>
+    </method>
+    
+    <method name="doChangeCategory">
+    <![CDATA[
+        UPDATE SCTGL
+           SET CATEGORY     = ${CATEGORY}
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doChangeExpiredAlarm">
+    <![CDATA[
+        UPDATE SCTGL
+           SET EXPIRED_ALARM = ${EXPIRED_ALARM_FLAG}
+         WHERE HOUSE_CODE    = ${session.HOUSE_CODE}
+           AND COMPANY_CODE  = ${session.COMPANY_CODE}
+           AND CONT_NO       = ${CONT_NO}
+    ]]>
+    </method>
+    
+    <method name="doDeleteSCTLN">
+    <![CDATA[
+        DELETE
+          FROM SCTLN
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doDeleteSCTSE">
+    <![CDATA[
+        DELETE
+          FROM SCTSE
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    
+    <method name="doCompleteManual">
+    <![CDATA[
+        UPDATE SCTGL
+           SET STATUS         = 'A'
+              ,CONTRACT_FILE = ${CONTRACT_FILE}
+              ,ROOT_PATH_TYPE = ${ROOT_PATH_TYPE}
+              ,CHANGE_USER_ID = ${session.ID}
+              ,CHANGE_DATE    = ${current.DATE}
+              ,CHANGE_TIME    = ${current.TIME}
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${CONT_NO}
+           AND CONT_GL_SEQ  = ${CONT_GL_SEQ}
+    ]]>
+    </method>
+    <method name="doQueryManager">
+	<![CDATA[
+		SELECT
+			USER_ID AS MANAGER_ID
+			,USER_NAME_LOC AS MANAGER_NAME
+			, COMPANY_CODE
+			, EMAIL
+		FROM SUSMT
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USER_ID = ${APPROVAL_ID}
+			AND #DB_OWNER#NVL(DEL_FLAG ,'N') = 'N'
+			AND USER_TYPE != 'S'
+	]]>
+	</method>
+	<method name="doQuerySigner">
+	<![CDATA[
+		SELECT
+		    SIGNER_ID
+		   ,SIGNER_NAME
+		FROM
+		    SSIGN
+		WHERE
+		    HOUSE_CODE      = ${session.HOUSE_CODE}
+		    AND CONT_NO     = ${CONT_NO}
+		    AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+		    AND SIGNER_ID   = ${session.ID}
+	]]>
+	</method>
+	<method name="doQueryPermission">
+	<![CDATA[
+		SELECT
+			DCAM.CODE
+			, DCAM.SEQ
+			, DCAM.USER_COMPANY_CODE
+			, DCAM.USER_GROUP_CODE
+			, DCAM.USER_ID
+			, DCAM.EXPIRED_DATE
+			, DCAM.WRITE
+			, DCAM.OWNER
+		FROM SDCAM DCAM
+		WHERE 1 = 1
+			AND DCAM.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND DCAM.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND DCAM.TYPE = 'CONT'
+			AND DCAM.CODE = ${CONT_NO}
+			AND DCAM.SEQ = ${CONT_GL_SEQ}
+			AND DCAM.USER_COMPANY_CODE= ${session.COMPANY_CODE}
+			AND DCAM.USER_GROUP_CODE = '*'
+			AND DCAM.USER_ID = ${TARGET_USER_ID}
+	]]>
+	</method>
+	<method name="doInsertPermission">
+	<![CDATA[
+		INSERT INTO SDCAM (
+			HOUSE_CODE  
+			, COMPANY_CODE
+			, TYPE        
+			, CODE        
+			, SEQ         
+			, USER_COMPANY_CODE
+			, USER_GROUP_CODE
+			, USER_ID
+			, EXPIRED_DATE
+			, `WRITE`
+			, OWNER
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+		) VALUES (
+			${session.HOUSE_CODE}       
+			, ${session.COMPANY_CODE}     
+			, 'CONT'
+			, ${CONT_NO}
+			, ${CONT_GL_SEQ}
+			, ${session.COMPANY_CODE}
+			, '*'
+			, ${TARGET_USER_ID}
+			, ${EXPIRED_DATE}
+			, 'Y'
+			, 'Y'
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+		)
+	]]>
+	</method>
+	<method name="doSignerUpdateSSIGN">
+	<![CDATA[
+		UPDATE
+			    SSIGN
+			SET SIGNER_ID   = ${TARGET_USER_ID}
+			  , SIGNER_NAME =
+			    (
+			        SELECT
+			            USER_NAME_LOC
+			        FROM
+			            SUSMT
+			        WHERE
+			            HOUSE_CODE  = ${session.HOUSE_CODE}
+			            AND USER_ID = ${TARGET_USER_ID}
+			    )
+			  , SIGNER_EMAIL =
+			    (
+			        SELECT
+			            EMAIL
+			        FROM
+			            SADDR
+			        WHERE
+			            HOUSE_CODE    = ${session.HOUSE_CODE}
+			            AND CODE_NO   = ${TARGET_USER_ID}
+			            AND CODE_TYPE = 'USER'
+			    )
+			  , SIGNER_PHONE =
+			    (
+			        SELECT
+			            PHONE_NO2
+			        FROM
+			            SADDR
+			        WHERE
+			            HOUSE_CODE    = ${session.HOUSE_CODE}
+			            AND CODE_NO   = ${TARGET_USER_ID}
+			            AND CODE_TYPE = 'USER'
+			    )
+			WHERE
+			    HOUSE_CODE      = ${session.HOUSE_CODE}
+			    AND CONT_NO     = ${CONT_NO}
+			    AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+			    AND SIGNER_ID   = ${session.ID}
+	]]>
+	</method>
+	
+	
+	<method name="doSignerUpdateSPCSI">
+	<![CDATA[
+		UPDATE
+			    SPCSI
+			SET SIGNER_ID   = ${TARGET_USER_ID}
+			  , SIGNER_NAME =
+			    (
+			        SELECT
+			            USER_NAME_LOC
+			        FROM
+			            SUSMT
+			        WHERE
+			            HOUSE_CODE  = ${session.HOUSE_CODE}
+			            AND USER_ID = ${TARGET_USER_ID}
+			    )
+			  , SIGNER_EMAIL =
+			    (
+			        SELECT
+			            EMAIL
+			        FROM
+			            SADDR
+			        WHERE
+			            HOUSE_CODE    = ${session.HOUSE_CODE}
+			            AND CODE_NO   = ${TARGET_USER_ID}
+			            AND CODE_TYPE = 'USER'
+			    )
+			  , SIGNER_PHONE =
+			    (
+			        SELECT
+			            PHONE_NO2
+			        FROM
+			            SADDR
+			        WHERE
+			            HOUSE_CODE    = ${session.HOUSE_CODE}
+			            AND CODE_NO   = ${TARGET_USER_ID}
+			            AND CODE_TYPE = 'USER'
+			    )
+			WHERE
+			    HOUSE_CODE      = ${session.HOUSE_CODE}
+			    AND DOC_NO      = (
+			                      SELECT DOC_NO FROM SPCGL
+			                      WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			                        AND COMPANY_CODE = ${session.COMPANY_CODE}
+			                        AND CONT_NO = ${CONT_NO}
+			                        AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+			                      )
+			    AND SIGNER_ID   = ${session.ID}
+	]]>
+	</method>
+	<method name="doQuerySignerInfo">
+	<![CDATA[
+		SELECT
+		    SIGNER_ID
+		   ,SIGNER_NAME
+		FROM
+		    SSIGN
+		WHERE
+		    HOUSE_CODE      = ${session.HOUSE_CODE}
+		    AND CONT_NO     = ${CONT_NO}
+		    AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+		    AND SIGNER_COMPANY_CODE = ${session.COMPANY_CODE}
+	]]>
+	</method>
+</service>

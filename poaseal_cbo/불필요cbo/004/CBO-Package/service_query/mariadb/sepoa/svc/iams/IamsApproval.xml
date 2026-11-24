@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuerySSIAD_SMR_NUMBER">
+	<![CDATA[
+		SELECT SMR_NUMBER
+			  ,SMR_STATUS
+		  FROM SSIAD
+		 WHERE APPR_DOC_NO = ${APPR_DOC_NO}
+	]]>
+	</method>
+	<method name="doQuerySSETL_SMR_NUMBER">
+	<![CDATA[
+		SELECT SMR_NUMBER
+		  FROM SSETL
+		 WHERE APVID = ${APPR_DOC_NO}
+	]]>
+	</method>
+	<method name="updateSSIAD_SUBMITTED">
+	<![CDATA[
+		UPDATE SSIAD
+		   SET SMR_STATUS = 'I'
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+	
+	<method name="updateSSETL_SUBMITTED">
+	<![CDATA[
+		UPDATE SSETL
+		   SET SMR_STATUS = 'I'
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+	
+	<method name="updateSSIAD">
+	<![CDATA[
+		UPDATE SSIAD
+		   SET SMR_STATUS = ${SMR_STATUS}
+  		     , REJECT_REASON = ${APPR_COMMENT}
+  		     , CONFIRM_USER_ID = ${APPR_USER_ID}
+  		     , CONFIRM_DATE = ${ACCEPT_DATE}
+  		     , CONFIRM_TIME = ${ACCEPT_TIME}
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+	<method name="updateSSETL">
+	<![CDATA[
+		UPDATE SSETL
+		   SET SMR_STATUS = ${SMR_STATUS}
+  		     , REJECT_REMARK = ${APPR_COMMENT}
+  		     , CONFIRM_USER_ID = ${APPR_USER_ID}
+  		     , CONFIRM_DATE = ${ACCEPT_DATE}
+  		     , CONFIRM_TIME = ${ACCEPT_TIME}
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+	<method name="doQuerySSIAD">
+	<![CDATA[
+		SELECT CONCAT(APPLY_TYPE, 'S') AS APPLY_FOR
+		     , RE_FLAG
+		  FROM SSIAD
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+	<method name="doQuerySSETL">
+	<![CDATA[
+		SELECT CONCAT(APPLY_TYPE, 'S') AS APPLY_FOR
+		  FROM SSETL
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+    <method name="doAddSAPPP">
+    <![CDATA[
+		INSERT INTO SAPPP (
+		       HOUSE_CODE
+		     , COMPANY_CODE
+		     , SMR_NUMBER
+		     , SEQ
+		     , RECENT
+		     , APP_STATUS
+		     , APPLY_FOR
+		     , POSTPROCESSED
+		     , ADD_DATE
+		     , ADD_TIME
+		     , CONFIRM_USER_ID
+		     , APP_COMMENT
+		     , APP_NO
+		     , APP_NO_SEQ
+		     , APP_LINE_SEQ
+		     , RE_FLAG
+		) VALUES(
+		       ${session.HOUSE_CODE}
+		     , ${session.COMPANY_CODE}
+		     , ${SMR_NUMBER}
+		     , CAST((CAST(NVL(
+		     			(SELECT PP.SEQ
+						  FROM SAPPP PP
+				 		 WHERE PP.HOUSE_CODE = ${session.HOUSE_CODE}
+				   		   AND PP.COMPANY_CODE = ${session.COMPANY_CODE}
+				   		   AND PP.SMR_NUMBER = ${SMR_NUMBER})
+		       , '0') as unsigned) + 1) as char)
+		     , 'Y'
+		     , ${SMR_STATUS}
+		     , ${APPLY_FOR}
+		     , 'N'
+		     , ${ACCEPT_DATE}
+		     , ${ACCEPT_TIME}
+		     , ${APPR_USER_ID}
+		     , ${APPR_COMMENT}
+		     , ${APP_NO}
+		     , ${APP_NO_SEQ}
+		     , ${APP_LINE_SEQ}
+		     , ${RE_FLAG}
+		)
+    ]]>
+    </method>
+    <method name="doChangeFlag">
+	<![CDATA[
+		UPDATE SSEDC_SEAL SET
+			COMPLETE_FLAG	= ${COMPLETE_FLAG}
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+</service>

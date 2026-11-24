@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			UPDATE SCONF
+			   SET COMPANY_CODE = '1000'
+			 WHERE COMPANY_CODE is null 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			UPDATE SCONF
+			   SET COMPANY_CODE = '1000'
+			 WHERE COMPANY_CODE is null
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			UPDATE SCONF
+			   SET COMPANY_CODE = '1000'
+			 WHERE COMPANY_CODE is null
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCONF ADD CONSTRAINT SCONF_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCONF ADD CONSTRAINT SCONF_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			ALTER TABLE SCONF ADD CONSTRAINT SCONF_PK PRIMARY KEY (HOUSE_CODE,COMPANY_CODE)
+		]]>
+		</query>
+	</item>
+</body>

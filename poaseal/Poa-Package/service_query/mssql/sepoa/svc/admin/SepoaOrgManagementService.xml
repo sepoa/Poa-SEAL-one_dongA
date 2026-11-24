@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>		
+	<method name="doQueryCompanyGrid">
+	<![CDATA[
+        SELECT COMPANY_NAME_LOC AS COMPANY_NAME
+		     , COMPANY_CODE
+		     , IRS_NO                                                                 
+		  FROM SCMGL
+		 WHERE 1=1
+		   AND DEL_FLAG 	= 'N'                                     
+		   AND HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_NAME_LOC LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%'
+	]]>
+	</method>
+	
+	<method name="doQueryDeptGrid">
+	<![CDATA[  
+		SELECT
+			DEPT.HOUSE_CODE,
+			DEPT.COMPANY_CODE,
+			DEPT.DEPT_NAME_LOC,
+			DEPT.DEPT_NAME_ENG,
+			DEPT.DEPT_NAME_JP,
+			DEPT.DEPT_NAME_CN,
+			CMGL.COMPANY_NAME_LOC,
+			DEPT.DEPT,
+			DEPT.PARENT_DEPT,
+			CASE '#session.LANGUAGE#'
+				WHEN 'KO' THEN PDEPT.DEPT_NAME_LOC
+				WHEN 'JA' THEN PDEPT.DEPT_NAME_JP
+				WHEN 'ZH' THEN PDEPT.DEPT_NAME_CN
+				ELSE PDEPT.DEPT_NAME_ENG
+			END AS PARENT_DEPT_NAME
+		FROM SDEPT DEPT
+		LEFT OUTER JOIN SDEPT PDEPT
+			ON DEPT.HOUSE_CODE = PDEPT.HOUSE_CODE
+			AND DEPT.COMPANY_CODE = PDEPT.COMPANY_CODE
+			AND DEPT.PARENT_DEPT = PDEPT.DEPT
+		LEFT OUTER JOIN SCMGL CMGL
+		  	ON DEPT.HOUSE_CODE   = CMGL.HOUSE_CODE
+			AND DEPT.COMPANY_CODE = CMGL.COMPANY_CODE
+		WHERE 1=1
+		   AND #DB_OWNER#NVL(DEPT.DEL_FLAG, 'N') = 'N'
+	       AND DEPT.HOUSE_CODE   = ${session.HOUSE_CODE}
+	       AND DEPT.COMPANY_CODE = ${session.COMPANY_CODE}
+	       AND (DEPT.DEPT_NAME_LOC LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%'
+	       	   OR DEPT.PARENT_DEPT LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%'
+               OR CMGL.COMPANY_NAME_LOC LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%'
+               OR DEPT.DEPT LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%')
+	]]>
+	</method>
+	
+	<method name="doQueryDept">
+	<![CDATA[
+		SELECT
+			DEPT.HOUSE_CODE,
+			DEPT.COMPANY_CODE,
+			CMGL.COMPANY_NAME_LOC,
+			DEPT.PLANT_CODE,
+			DEPT.DEPT,
+			DEPT.DEPT_NAME_LOC,
+			DEPT.DEPT_NAME_ENG,
+			DEPT.MANAGER_NAME,
+			DEPT.MANAGER_POSITION,
+			DEPT.PR_LOCATION,
+			DEPT.PR_LOCATION_NAME,
+			DEPT.CTRL_DEPT_FLAG,
+			DEPT.PHONE_NO,
+			DEPT.FAX_NO,
+			DEPT.MENU_TYPE,
+			DEPT.WORK_TYPE,
+			DEPT.MENU_PROFILE_CODE,
+			DEPT.SIGN_ATTACH_NO,
+			DEPT.PARENT_DEPT,
+			DEPT.MANAGER_ID,
+			DEPT.DPC,
+			DEPT.DPTSNA,
+			DEPT.DPTCNA,
+			DEPT.DPTCL,
+			DEPT.DPTJL,
+			DEPT.SAUP
+		FROM
+		  	SDEPT DEPT
+		JOIN SCMGL CMGL
+			ON DEPT.HOUSE_CODE   = CMGL.HOUSE_CODE
+			AND DEPT.COMPANY_CODE = CMGL.COMPANY_CODE
+		WHERE
+			DEPT.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND DEPT.COMPANY_CODE = ${COMPANY_CODE}
+			AND DEPT.DEPT = ${DEPT}
+	]]>
+	</method>
+	
+		
+	<method name="doSaveDept">
+	<![CDATA[
+		MERGE INTO
+			SDEPT
+		USING (SELECT '' A) DUAL ON (
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND DEPT = ${DEPT}
+		)
+		WHEN MATCHED
+		THEN UPDATE SET
+			DEPT_NAME_LOC = ${DEPT_NAME_LOC},
+			DEPT_NAME_ENG = ${DEPT_NAME_ENG},
+			DEPT_NAME_JP = ${DEPT_NAME_JP},
+			DEPT_NAME_CN = ${DEPT_NAME_CN},
+			DEPT = ${DEPT},
+			PARENT_DEPT = ${PARENT_DEPT}
+		 WHEN NOT MATCHED 
+	     THEN INSERT (
+	     	HOUSE_CODE,
+	     	COMPANY_CODE,
+	     	DEPT,
+	     	DEPT_NAME_LOC,
+	     	DEPT_NAME_ENG,
+	     	DEPT_NAME_JP,
+	     	DEPT_NAME_CN,
+	     	MANAGER_NAME,
+	     	MANAGER_POSITION,
+	     	PR_LOCATION,
+	     	PR_LOCATION_NAME,
+	     	CTRL_DEPT_FLAG,
+	     	PHONE_NO,
+	     	FAX_NO,
+	     	MENU_TYPE,
+	     	WORK_TYPE,
+	     	MENU_PROFILE_CODE,
+	     	SIGN_ATTACH_NO,
+	     	PARENT_DEPT,
+	     	MANAGER_ID,
+	     	DPC,
+	     	DPTSNA,
+	     	DPTCNA,
+	     	DPTCL,
+	     	DPTJL,
+	     	SAUP,
+	     	CHANGE_DATE,
+	     	CHANGE_TIME,
+	     	CHANGE_USER_ID,
+	     	ADD_DATE,
+	     	ADD_TIME,
+	     	ADD_USER_ID
+	     ) VALUES (
+	     	${session.HOUSE_CODE},
+	     	${COMPANY_CODE},
+	     	${DEPT},
+	     	${DEPT_NAME_LOC},
+	     	${DEPT_NAME_ENG},
+	     	${DEPT_NAME_JP},
+	     	${DEPT_NAME_CN},
+	     	${MANAGER_NAME},
+	     	${MANAGER_POSITION},
+	     	${PR_LOCATION},
+	     	${PR_LOCATION_NAME},
+	     	${CTRL_DEPT_FLAG},
+	     	${PHONE_NO},
+	     	${FAX_NO},
+	     	${MENU_TYPE},
+	     	${WORK_TYPE},
+	     	${MENU_PROFILE_CODE},
+	     	${SIGN_ATTACH_NO},
+	     	${PARENT_DEPT},
+	     	${MANAGER_ID},
+	     	#{DPC},
+	     	${DPTSNA},
+	     	${DPTCNA},
+	     	#{DPTCL},
+	     	#{DPTJL},
+	     	${SAUP},
+	     	${current.date},
+	     	${current.time},
+	     	${session.ID},
+	     	${current.date},
+	     	${current.time},
+	     	${session.ID}
+	     ); 
+	]]>
+	</method>
+		
+	<method name="doDeleteDept">
+	<![CDATA[
+		DELETE FROM
+			SDEPT
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND DEPT = ${DEPT}
+	]]>
+	</method>
+	
+	<method name="chkCompanyData">
+	<![CDATA[
+    	SELECT COMPANY_CODE
+    	FROM SCMGL
+		WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		  AND COMPANY_CODE      = ${COMPANY_CODE}
+		  AND DEL_FLAG	   = 'N'
+	]]>
+	</method>
+	
+	<method name="doQueryCompany">
+	<![CDATA[
+        SELECT MGL.LANGUAGE
+       		  ,#DB_OWNER#GETCODETEXT2('M013',MGL.LANGUAGE,'#session.LANGUAGE#') LANGUAGE_NAME
+			  ,MGL.COMPANY_NAME_LOC
+			  ,MGL.COMPANY_CODE
+			  ,MGL.COMPANY_NAME_ENG
+			  ,MGL.CUR                                                     
+			  ,MGL.COUNTRY                                                 
+			  ,MGL.CITY_CODE                                               
+			  ,MGL.CITY_CODE CITY_CODE_NAME                                
+			  ,ADR.ADDRESS_LOC ADDRESS_LOC                                 
+			  ,ADR.ADDRESS_ENG ADDRESS_ENG                                 
+			  ,ADR.ZIP_CODE ZIP_CODE                                       
+			  ,ADR.PHONE_NO1 PHONE_NO                                     
+			  ,MGL.IRS_NO                                                 
+			  ,MGL.DUNS_NO                                                 
+			  ,ADR.HOMEPAGE HOMEPAGE                                       
+			  ,MGL.FOUNDATION_DATE                                        
+			  ,MGL.GROUP_COMPANY_CODE                                      
+			  ,MGL.GROUP_COMPANY_NAME                                      
+			  ,MGL.CREDIT_RATING                                           
+			  ,MGL.INDUSTRY_TYPE                                           
+			  ,MGL.INDUSTRY_TYPE INDUSTRY_TYPE_NAME                        
+			  ,ADR.CEO_NAME_LOC CEO_NAME                                  
+			  ,MGL.BUSINESS_TYPE                                           
+			  ,MGL.TRADE_AGENCY_NO                                         
+			  ,MGL.TRADE_AGENCY_NAME                                       
+			  ,MGL.EDI_ID                                                  
+			  ,MGL.EDI_QUALIFIER                                           
+			  ,MGL.INS_COM_CODE                                                                              
+			  ,MGL.ATTACH_NO                                                                              
+		  FROM SCMGL MGL
+		  LEFT OUTER
+		  JOIN SADDR ADR
+		    ON MGL.HOUSE_CODE   = ADR.HOUSE_CODE
+		   AND MGL.COMPANY_CODE = ADR.CODE_NO
+		   AND ADR.CODE_TYPE    = 'COMPANY'
+		 WHERE 1=1                                     
+		   AND MGL.HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND MGL.COMPANY_CODE = $S{COMPANY_CODE}
+	]]>
+	</method>
+	
+	<method name="doSaveAddress">
+	<![CDATA[
+		MERGE INTO SADDR
+		USING (SELECT '' A) DUAL ON 
+		     (	  HOUSE_CODE   = ${session.HOUSE_CODE}
+		  	  AND CODE_NO      = ${CODE_NO}
+		  	  AND CODE_TYPE    = ${CODE_TYPE}
+		  	 )
+		 WHEN MATCHED 
+		 THEN UPDATE                                                        
+		         SET ADDRESS_LOC  = ${ADDRESS_LOC}                                
+			        ,ADDRESS_ENG  = ${ADDRESS_ENG}                               
+			        ,ZIP_CODE     = ${ZIP_CODE}
+			        ,HOMEPAGE     = ${HOMEPAGE}
+			        ,PHONE_NO1	  = ${PHONE_NO}
+			        ,CEO_NAME_LOC = ${CEO_NAME}
+			        ,CHANGE_DATE     = ${current.date}      
+					,CHANGE_TIME     = ${current.time}
+					,CHANGE_USER_ID  = ${session.ID} 
+	   	 WHEN NOT MATCHED 
+	     THEN INSERT(HOUSE_CODE
+	                ,CODE_NO
+	                ,CODE_TYPE
+	                ,ADDRESS_LOC 
+					,ADDRESS_ENG 
+					,ZIP_CODE    
+					,HOMEPAGE    
+					,PHONE_NO1	 
+					,CEO_NAME_LOC     
+					,CHANGE_DATE    
+	                ,CHANGE_TIME    
+	                ,CHANGE_USER_ID 
+	                ,ADD_DATE   
+	                ,ADD_TIME   
+	                ,ADD_USER_ID 
+	     	)VALUES(
+	     	        ${session.HOUSE_CODE}
+	     	       ,${CODE_NO}
+	     	       ,${CODE_TYPE}
+	     	 	   ,${ADDRESS_LOC}
+			       ,${ADDRESS_ENG}
+			       ,${ZIP_CODE}   
+			       ,${HOMEPAGE}   
+			       ,${PHONE_NO}   
+			       ,${CEO_NAME}
+			       ,${current.date}    
+                   ,${current.time}    
+                   ,${session.ID}
+                   ,${current.date}    
+                   ,${current.time}    
+                   ,${session.ID}
+	     	);
+	]]>
+	</method>
+	
+	<method name="doSaveCompany">
+	<![CDATA[
+		MERGE INTO SCMGL
+		USING (SELECT '' A) DUAL ON 
+		     (	  HOUSE_CODE   = ${session.HOUSE_CODE}
+		  	  AND COMPANY_CODE = ${COMPANY_CODE}
+		  	 )
+		 WHEN MATCHED 
+		 THEN UPDATE                                                        
+		         SET LANGUAGE 	 	            = ${LANGUAGE}
+					,COMPANY_NAME_LOC           = ${COMPANY_NAME_LOC}      
+					,COMPANY_NAME_ENG           = ${COMPANY_NAME_ENG}      
+					,CUR                        = ${CUR}      
+					,COUNTRY                    = ${COUNTRY}      
+					,CITY_CODE                  = ${CITY_CODE}      
+					,IRS_NO                     = ${IRS_NO}      
+					,DUNS_NO                    = ${DUNS_NO}      
+					,FOUNDATION_DATE            = ${FOUNDATION_DATE}      
+					,GROUP_COMPANY_CODE         = ${GROUP_COMPANY_CODE}      
+					,GROUP_COMPANY_NAME         = ${GROUP_COMPANY_NAME}      
+					,CREDIT_RATING              = ${CREDIT_RATING}      
+					,INDUSTRY_TYPE              = ${INDUSTRY_TYPE}        
+					,BUSINESS_TYPE              = ${BUSINESS_TYPE}      
+					,TRADE_AGENCY_NO            = ${TRADE_AGENCY_NO}      
+					,TRADE_AGENCY_NAME          = ${TRADE_AGENCY_NAME}      
+					,EDI_ID                     = ${EDI_ID}      
+					,EDI_QUALIFIER              = ${EDI_QUALIFIER}      
+					,INS_COM_CODE               = ${INS_COM_CODE}   
+					,CHANGE_DATE     = ${current.date}      
+					,CHANGE_TIME     = ${current.time}
+					,CHANGE_USER_ID  = ${session.ID}   
+					,DEL_FLAG		 = 'N'
+					,ATTACH_NO		 = ${ATTACH_NO}  
+	   	 WHEN NOT MATCHED 
+	     THEN INSERT(HOUSE_CODE
+	                ,COMPANY_CODE
+	                ,LANGUAGE 	 	   
+			        ,COMPANY_NAME_LOC  
+			        ,COMPANY_NAME_ENG  
+			        ,CUR               
+			        ,COUNTRY           
+			        ,CITY_CODE         
+			        ,IRS_NO            
+			        ,DUNS_NO           
+			        ,FOUNDATION_DATE   
+			        ,GROUP_COMPANY_CODE
+			        ,GROUP_COMPANY_NAME
+			        ,CREDIT_RATING     
+			        ,INDUSTRY_TYPE     
+			        ,BUSINESS_TYPE     
+			        ,TRADE_AGENCY_NO   
+			        ,TRADE_AGENCY_NAME 
+			        ,EDI_ID            
+			        ,EDI_QUALIFIER     
+			        ,INS_COM_CODE
+			        ,CHANGE_DATE    
+	                ,CHANGE_TIME    
+	                ,CHANGE_USER_ID 
+	                ,ADD_DATE   
+	                ,ADD_TIME   
+	                ,ADD_USER_ID
+	                ,DEL_FLAG    
+	                ,ATTACH_NO   
+     		    )
+   		    	VALUES
+     		    (
+	     	        ${session.HOUSE_CODE}
+	     	       ,${COMPANY_CODE}
+	     		   ,${LANGUAGE}          
+			       ,${COMPANY_NAME_LOC}  
+			       ,${COMPANY_NAME_ENG}  
+			       ,${CUR}               
+			       ,${COUNTRY}           
+			       ,${CITY_CODE}         
+			       ,${IRS_NO}            
+			       ,${DUNS_NO}           
+			       ,${FOUNDATION_DATE}   
+			       ,${GROUP_COMPANY_CODE}
+			       ,${GROUP_COMPANY_NAME}
+			       ,${CREDIT_RATING}     
+			       ,${INDUSTRY_TYPE}     
+			       ,${BUSINESS_TYPE}     
+			       ,${TRADE_AGENCY_NO}   
+			       ,${TRADE_AGENCY_NAME} 
+			       ,${EDI_ID}            
+			       ,${EDI_QUALIFIER}     
+			       ,${INS_COM_CODE}   
+			       ,${current.date}    
+                   ,${current.time}
+                   ,${session.ID}
+                   ,${current.date}    
+                   ,${current.time}    
+                   ,${session.ID}   
+                   ,'N'
+                   ,${ATTACH_NO}  
+	     	);
+	]]>
+	</method>
+	
+	<method name="doDeleteAddress">
+	<![CDATA[
+		DELETE FROM SADDR
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND CODE_NO   = ${CODE_NO}
+		   AND CODE_TYPE = ${CODE_TYPE}
+	]]>
+	</method>
+	
+	<method name="doDeleteCompany">
+	<![CDATA[
+		DELETE FROM SCMGL
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${COMPANY_CODE}
+	]]>
+	</method>
+	
+	<method name="doDuplicateCompany">
+	<![CDATA[
+    	SELECT COMPANY_CODE
+    	FROM SCMGL
+		WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		  AND COMPANY_CODE      = ${COMPANY_CODE}
+		  AND DEL_FLAG	   = 'N'
+	]]>
+	</method>
+	
+	<method name="doDuplicateDept">
+	<![CDATA[
+    	SELECT DEPT
+    	FROM SDEPT
+		WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		  AND DEPT      = ${DEPT_CODE}
+	]]>
+	</method>
+	
+	<method name="doDuplicateCtrl">
+	<![CDATA[
+    	SELECT HOUSE_CODE
+			 , COMPANY_CODE
+			 , CTRL_CODE
+			 , CTRL_TYPE
+			 , CTRL_NAME_LOC
+			 , 	CTRL_NAME_ENG
+		FROM SBAGL BAGL
+		WHERE HOUSE_CODE = {session.HOUSE_CODE}
+		AND CTRL_CODE = ${CTRL_CODE}
+		AND ( 1 = 1 )
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doQueryDeptTree">
+	<![CDATA[
+		WITH 
+         DATA AS(
+              SELECT COMPANY_NAME_LOC     TEXT
+			         ,HOUSE_CODE+'_'+COMPANY_CODE   ID
+			         ,COMPANY_CODE         CODE
+			         ,HOUSE_CODE           PARENTID
+			         ,'COMPANY'       TYPE
+			     FROM SCMGL WITH(NOLOCK)
+			    UNION ALL
+			   SELECT DEPT_NAME_LOC
+			         ,HOUSE_CODE+'_'+COMPANY_CODE+'_'+DEPT
+			         ,DEPT
+			         ,HOUSE_CODE+'_'+COMPANY_CODE
+			         ,'DEPT'
+			     FROM SDEPT WITH(NOLOCK)),
+       LINKED AS(
+              SELECT TEXT
+                    ,ID
+                    ,CODE
+                    ,PARENTID
+          	        ,TYPE
+          	        ,convert(varchar(255), right(N'00'+rtrim(CODE),10)) AS SORT
+                FROM DATA
+               WHERE CODE     = ${COMPANY_CODE}
+                 AND PARENTID = ${session.HOUSE_CODE}
+               UNION ALL
+              SELECT D.TEXT
+                    ,D.ID
+             	    ,D.CODE
+             	    ,D.PARENTID
+             	    ,D.TYPE
+             	    ,convert(varchar(255), convert(nvarchar,L.SORT) + '|' +  right(N'00'+rtrim(D.CODE),10)  ) AS SORT
+                FROM DATA D
+                JOIN LINKED L
+             	  ON D.PARENTID = L.ID)
+	   SELECT TEXT
+		      ,ID
+			  ,CODE
+			  ,PARENTID
+			  ,TYPE
+		  FROM LINKED
+		 WHERE (    1=1
+		  		AND TEXT LIKE '%'+ $S{F_KEYWORD} +'%'
+		  		 OR CODE LIKE '%'+ $S{F_KEYWORD} +'%'
+		  	   )
+		 ORDER BY SORT
+	]]>
+	</method>
+	
+	<method name="doQueryCompanyList">
+	<![CDATA[         
+		SELECT COMPANY_CODE
+		      ,COMPANY_NAME_LOC
+		  FROM SCMGL
+		 WHERE HOUSE_CODE       = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE     = $S{COMPANY_CODE}
+		   AND (    1=1
+		   		AND COMPANY_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%'
+		   		 OR COMPANY_CODE     LIKE '%' + $S{F_KEYWORD} + '%'
+		   )
+		   AND DEL_FLAG = 'N'
+	]]>
+	</method>
+	
+	<method name="doQueryCtrlGrid">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE,
+			COMPANY_CODE,
+			CTRL_CODE,
+			CTRL_TYPE,
+			CTRL_NAME_LOC,
+			CTRL_NAME_ENG,
+			CTRL_NUMBER
+		FROM
+			SBAGL BAGL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE IN ($INS{COMPANY_CODE})
+			AND ( 1=1
+				AND CTRL_CODE LIKE '%' + $S{F_KEYWORD} + '%'
+				OR CTRL_TYPE LIKE '%' + $S{F_KEYWORD} + '%'
+				OR CTRL_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%'
+				OR CTRL_NAME_ENG LIKE '%' + $S{F_KEYWORD} + '%'
+			)
+			AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doQueryCtrl">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE,
+			COMPANY_CODE,
+			CTRL_CODE,
+			CTRL_TYPE,
+			CTRL_NAME_LOC,
+			CTRL_NAME_ENG
+		FROM
+			SBAGL BAGL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND CTRL_NUMBER = ${CTRL_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doInsertCtrl">
+	<![CDATA[
+		 INSERT INTO SBAGL (
+	     	HOUSE_CODE,
+	     	COMPANY_CODE,
+	     	CTRL_CODE,
+	     	CTRL_TYPE,
+	     	ADD_DATE,
+	     	ADD_TIME,
+	     	ADD_USER_ID,
+	     	CHANGE_DATE,
+	     	CHANGE_TIME,
+	     	CHANGE_USER_ID,
+	     	DEL_FLAG,
+	     	CTRL_NAME_LOC,
+	     	CTRL_NAME_ENG,
+	     	CTRL_NUMBER
+	     ) VALUES (
+	     	${session.HOUSE_CODE},
+	     	${COMPANY_CODE},
+	     	${CTRL_CODE},
+	     	${CTRL_TYPE},
+	     	${current.date},
+	     	${current.time},
+	     	${session.ID},
+	     	${current.date},
+	     	${current.time},
+	     	${session.ID},
+	     	'N',
+	     	${CTRL_NAME_LOC},
+	     	${CTRL_NAME_ENG},
+	     	${CTRL_NUMBER}
+	     )
+	]]>
+	</method>
+	
+	<method name="doUpdateCtrl">
+	<![CDATA[
+		UPDATE SBAGL SET
+			HOUSE_CODE = ${session.HOUSE_CODE},
+			COMPANY_CODE = ${COMPANY_CODE},
+			CTRL_CODE = ${CTRL_CODE},
+			CTRL_TYPE = ${CTRL_TYPE},
+		 	CTRL_NAME_LOC = ${CTRL_NAME_LOC},
+		 	CTRL_NAME_ENG = ${CTRL_NAME_ENG},
+		 	CHANGE_DATE     = ${current.date},
+		 	CHANGE_TIME     = ${current.time},
+		 	CHANGE_USER_ID  = ${session.ID}
+		 WHERE
+		 	HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND CTRL_NUMBER = ${CTRL_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doDeleteCtrl">
+	<![CDATA[
+		DELETE FROM
+			SBAGL
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND CTRL_CODE = ${CTRL_CODE}
+			AND CTRL_NUMBER = ${CTRL_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doQueryCtrlManagerGrid">
+	<![CDATA[
+		SELECT
+		   BALN.HOUSE_CODE,
+		   BALN.COMPANY_CODE,
+		   BALN.CTRL_CODE,
+		   BALN.CTRL_PERSON_ID,
+		   USMT.USER_NAME_LOC AS CTRL_PERSON_NAME,
+		   BAGL.CTRL_TYPE,
+		   BAGL.CTRL_NAME_LOC,
+		   BALN.REPRESENT_CTRL,
+		   BALN.APP_ORDER
+		  FROM SBALN BALN
+		   JOIN SBAGL BAGL
+		     ON BAGL.HOUSE_CODE = BALN.HOUSE_CODE
+		    AND BAGL.COMPANY_CODE = BALN.COMPANY_CODE
+		    AND BAGL.CTRL_CODE = BALN.CTRL_CODE
+		   LEFT OUTER JOIN SUSMT USMT
+		     ON  BALN.HOUSE_CODE = USMT.HOUSE_CODE
+		    AND BALN.CTRL_PERSON_ID = USMT.USER_ID
+		  WHERE
+			BALN.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND BALN.COMPANY_CODE IN ($INS{COMPANY_CODE})
+			AND #DB_OWNER#NVL(BALN.DEL_FLAG, 'N') = 'N'
+			AND (BALN.CTRL_PERSON_ID 	LIKE '%' + $S{F_KEYWORD} + '%'
+			     OR USMT.USER_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%')
+			AND BALN.CTRL_CODE = $S{CTRL_CODE}
+	]]>
+	</method>
+	
+	<method name="doQueryCtrlManager">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE,
+			COMPANY_CODE,
+			CTRL_CODE,
+			CTRL_PERSON_ID,
+			#DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, CTRL_PERSON_ID, '#session.LANGUAGE#') AS CTRL_PERSON_NAME,
+			CTRL_TYPE,
+			REPRESENT_CTRL,
+			APP_ORDER
+		FROM
+			SBALN
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CTRL_CODE = ${CTRL_CODE}
+			AND CTRL_PERSON_ID = ${CTRL_PERSON_ID}
+	]]>
+	</method>
+	
+	<method name="doInsertCtrlManager">
+	<![CDATA[ 
+		 INSERT INTO SBALN (
+	     	HOUSE_CODE,
+	     	COMPANY_CODE,
+	     	CTRL_CODE,
+	     	CTRL_PERSON_ID,
+	     	ADD_DATE,
+	     	ADD_TIME,
+	     	ADD_USER_ID,
+	     	CHANGE_DATE,
+	     	CHANGE_TIME,
+	     	CHANGE_USER_ID,
+	     	DEL_FLAG,
+	     	REPRESENT_CTRL,
+	     	APP_ORDER
+	     ) VALUES (
+	     	${session.HOUSE_CODE},
+	     	${COMPANY_CODE},
+	     	${CTRL_CODE},
+	     	${CTRL_PERSON_ID},
+	     	${current.date},
+	     	${current.time},
+	     	${session.ID},
+	     	${current.date},
+	     	${current.time},
+	     	${session.ID},
+	     	'N',
+	     	${REPRESENT_CTRL},
+	     	${APP_ORDER}
+	     )
+	]]>
+	</method>
+	
+	<method name="doUpdateCtrlManager">
+	<![CDATA[
+		UPDATE SBALN SET
+			COMPANY_CODE = ${COMPANY_CODE},
+			CTRL_CODE = ${CTRL_CODE},
+			CTRL_PERSON_ID = ${CTRL_PERSON_ID},
+			REPRESENT_CTRL = ${REPRESENT_CTRL},
+		 	CHANGE_DATE     = ${current.date},
+		 	CHANGE_TIME     = ${current.time},
+		 	CHANGE_USER_ID  = ${session.ID},
+		 	APP_ORDER		= ${APP_ORDER}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CTRL_CODE = ${CTRL_CODE}
+			AND CTRL_PERSON_ID = ${CTRL_PERSON_ID}
+	]]>
+	</method>
+	
+	<method name="doDeleteCtrlManager">
+	<![CDATA[
+		DELETE FROM
+			SBALN
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND CTRL_CODE = ${CTRL_CODE}
+			AND CTRL_PERSON_ID = ${CTRL_PERSON_ID}
+	]]>
+	</method>
+	<method name="doCheckUser">
+	<![CDATA[
+		SELECT 
+			COUNT(*) AS CNT
+		FROM SUSMT 
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND USER_ID = ${PERSON_ID}
+		  AND DEL_FLAG ='N' 
+	]]>
+	</method>
+	<method name="doSelectCompanyList">
+	<![CDATA[
+		SELECT 
+			COMPANY_CODE
+			, COMPANY_NAME_LOC
+		FROM
+			SCMGL 
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}	
+	]]>
+	</method>
+	<method name="doSelectSDEPT">
+    <![CDATA[
+		 SELECT DEPT
+			, DEPT_NAME_LOC
+			FROM S0015
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+    ]]>
+    </method>
+    <method name="doInsertSDEPT">
+	<![CDATA[
+	     INSERT INTO SDEPT (
+	     	HOUSE_CODE, 
+	     	COMPANY_CODE, 
+	     	DEPT, 
+	     	DEPT_NAME_LOC, 
+	     	DEPT_NAME_ENG, 
+	     	DEPT_NAME_JP, 
+	     	DEPT_NAME_CN, 
+	     	MANAGER_NAME, 
+	     	MANAGER_POSITION, 
+	     	PR_LOCATION, 
+	     	PR_LOCATION_NAME, 
+	     	CTRL_DEPT_FLAG, 
+	     	PHONE_NO, 
+	     	FAX_NO, 
+	     	MENU_TYPE, 
+	     	WORK_TYPE, 
+	     	MENU_PROFILE_CODE, 
+	     	SIGN_ATTACH_NO, 
+	     	PARENT_DEPT, 
+	     	MANAGER_ID, 
+	     	DPC, 
+	     	DPTSNA, 
+	     	DPTCNA, 
+	     	DPTCL, 
+	     	DPTJL, 
+	     	SAUP, 
+	     	CHANGE_DATE, 
+	     	CHANGE_TIME, 
+	     	CHANGE_USER_ID, 
+	     	ADD_DATE, 
+	     	ADD_TIME, 
+	     	ADD_USER_ID
+	     ) VALUES (
+	     	${session.HOUSE_CODE}, 
+	     	${COMPANY_CODE}, 
+	     	${DEPT}, 
+	     	${DEPT_NAME_LOC}, 
+	     	${DEPT_NAME_ENG}, 
+	     	${DEPT_NAME_JP}, 
+	     	${DEPT_NAME_CN}, 
+	     	${MANAGER_NAME}, 
+	     	${MANAGER_POSITION}, 
+	     	${PR_LOCATION}, 
+	     	${PR_LOCATION_NAME}, 
+	     	${CTRL_DEPT_FLAG}, 
+	     	${PHONE_NO}, 
+	     	${FAX_NO}, 
+	     	${MENU_TYPE}, 
+	     	${WORK_TYPE}, 
+	     	${MENU_PROFILE_CODE}, 
+	     	${SIGN_ATTACH_NO}, 
+	     	${PARENT_DEPT}, 
+	     	${MANAGER_ID}, 
+	     	#{DPC}, 
+	     	${DPTSNA}, 
+	     	${DPTCNA}, 
+	     	#{DPTCL}, 
+	     	#{DPTJL}, 
+	     	${SAUP}, 
+	     	${current.date}, 
+	     	${current.time}, 
+	     	${session.ID}, 
+	     	${current.date}, 
+	     	${current.time}, 
+	     	${session.ID}
+	     ) 
+	]]>
+	</method>
+		<method name="checkDept">
+	<![CDATA[
+    	SELECT DEPT
+    	FROM SDEPT
+		WHERE
+			HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND DEPT		= ${DEPT}
+	]]>
+	</method>
+	<method name="doSelectPosition">
+	<![CDATA[
+		SELECT 
+			CODE AS POSITION,
+			TEXT1 AS POSITION_NAME,
+			SORT_SEQ
+		FROM SCODE
+			WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		AND TYPE ='UX049'
+		AND DEL_FLAG = 'N'
+		AND (
+			1=1
+			AND	TEXT1 LIKE '%' + $S{F_KEYWORD}  + '%'
+			OR	CODE LIKE '%' + $S{F_KEYWORD} + '%'
+		)
+		AND (
+			1=1
+			AND CODE = $S{POSITION}
+		)
+		ORDER BY SORT_SEQ ASC
+	]]>
+	</method>
+	<method name="doInsertPosition">
+	<![CDATA[
+		INSERT 
+		  INTO #DB_OWNER#SCODE
+	         ( HOUSE_CODE
+	         , TYPE
+	         , CODE
+	         , LANGUAGE
+	         , ADD_DATE
+	         , ADD_TIME
+	         , ADD_USER_ID
+	         , CHANGE_DATE
+	         , CHANGE_TIME
+	         , CHANGE_USER_ID
+	         , FLAG
+	         , SORT_SEQ
+	         , USE_FLAG
+	         , TEXT1
+	         , DEL_FLAG  
+	         )
+	   VALUES( 
+	           ${session.HOUSE_CODE}
+	         , 'UX049'
+	         , ${POSITION}
+	         , 'KO'
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${FLAG}
+	         , #{SORT}
+	         , 'Y'
+	         , ${POSITION_NAME}
+	         , 'N'  
+	       ) 
+	]]>
+	</method>
+	<method name="doUpdatePosition">
+	<![CDATA[
+		UPDATE SCODE SET 
+			HOUSE_CODE		= ${session.HOUSE_CODE},
+	        CHANGE_DATE 	= ${current.DATE},
+	        CHANGE_TIME 	= ${current.TIME},
+	        CHANGE_USER_ID 	= ${session.ID},
+	        TEXT1 			= ${POSITION_NAME},
+	        SORT_SEQ 		= #{SORT_SEQ}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND TYPE = 'UX049'
+		AND CODE = ${POSITION}
+	]]>
+	</method>
+	<method name="doDeletePosition">
+	<![CDATA[
+		DELETE
+		FROM SCODE
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND TYPE = 'UX049'
+		AND TEXT1 = ${POSITION_NAME}
+	]]>
+	</method>
+</service>

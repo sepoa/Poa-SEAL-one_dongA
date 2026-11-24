@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu id="0">
+	<item text="Select All" id="AllCheckLock" />
+	<item text="Select Clear" id="AllCheckUnLock" />
+	<item text="Copy" id="CellCopy" />
+	<item text="Grid settings Save" id="SaveCookie" />
+	<item text="Grid settings Clear" id="ClearCookie" />
+	<item text="Excel Download" id="ExcelSave" />
+    <item text="Selected row excel Download" id="SelectedExcelSave" />
+	<!-- <item text="Undo" id="Undo" /> -->
+	<!-- <item text="Redo" id="Redo" /> -->
+	<!-- <item text="Clear Cell" id="CellDataInit"/> -->
+</menu>

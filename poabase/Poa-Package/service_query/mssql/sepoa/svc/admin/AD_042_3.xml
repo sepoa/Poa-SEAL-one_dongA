@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryMasterData">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, FORM_ID
+			, FORM_JSON
+		FROM
+			#DB_OWNER#SFORM
+		WHERE
+			HOUSE_CODE = '000'
+		AND FORM_ID = ${FORM_ID}
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doQueryFilterData">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, FORM_ID
+			, BLOCK_NAME
+			, REQUIRED
+		FROM
+			#DB_OWNER#SFFDT
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND FORM_ID = ${FORM_ID}
+	]]>
+	</method>	
+</service>

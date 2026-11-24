@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="getAppUserData">
+		<![CDATA[
+			SELECT GWGL.HOUSE_CODE
+			     , GWGL.COMPANY_CODE
+			     , GWGL.APP_NO
+			     , GWGL.APP_NO_SEQ
+			     , GWLN.APP_LINE_SEQ
+			     , GWGL.CURRENT_STAGE
+			     , GWGL.SUX_WKEY1 
+			     , GWGL.SUX_WKEY2 
+			     , GWGL.SUX_WKEY3 
+			     , GWGL.SUX_WKEY4 
+			     , GWGL.SUX_WKEY5 
+			     , GWGL.SUX_WKEY6 
+			     , GWGL.SUX_WKEY7 
+			     , GWGL.SUX_WKEY8 
+			     , GWGL.SUX_WKEY9 
+			     , GWGL.SUX_WKEY10 
+			  FROM SGWGL GWGL 
+			   INNER JOIN SGWLN GWLN 
+			       ON GWGL.HOUSE_CODE = GWLN.HOUSE_CODE 
+			       AND GWGL.COMPANY_CODE = GWLN.COMPANY_CODE 
+			       AND GWGL.APP_NO = GWLN.APP_NO 
+			       AND GWGL.APP_NO_SEQ = GWLN.APP_NO_SEQ 
+			       AND GWGL.CURRENT_STAGE = GWLN.APP_STAGE 
+			       AND GWGL.HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND GWGL.COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND GWGL.APP_NO = ${APP_NO} 
+			       AND GWGL.APP_NO_SEQ = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="delApprovalHeader">
+		<![CDATA[
+			UPDATE SGWGL 
+			       SET DEL_FLAG   = 'Y' 
+			     , CHANGE_DATE    = ${current.DATE}
+			     , CHANGE_TIME    = ${current.TIME}
+			     , CHANGE_USER_ID = ${session.ID}  
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO = ${APP_NO} 
+			       AND APP_NO_SEQ = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="delApprovalLine">
+		<![CDATA[
+			UPDATE SGWLN 
+			       SET CHANGE_DATE     = ${current.DATE}
+			     , CHANGE_TIME         = ${current.TIME}
+			     , CHANGE_USER_ID      = ${session.ID}  
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO = ${APP_NO} 
+			       AND APP_NO_SEQ = ${APP_NO_SEQ} 
+		]]>
+	</method>
+</service>

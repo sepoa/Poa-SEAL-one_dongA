@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doList">
+	<![CDATA[
+		SELECT 
+			   DEPLOY_ID,
+			   SERVER_URL,
+			   DESCRIPTION,
+			   ADD_DATE,
+			   ADD_TIME,
+			   ADD_USER_ID,
+			   CHANGE_DATE,
+			   CHANGE_TIME,
+			   CHANGE_USER_ID
+		  FROM SDPGL
+		 ORDER BY DEPLOY_ID
+	]]>
+	</method>
+
+	<method name="doQueryHeader">
+	<![CDATA[
+		SELECT 
+			   DEPLOY_ID,
+			   SERVER_URL,
+			   DESCRIPTION,
+			   SOURCE_TEMP_DIR,
+			   TARGET_TEMP_DIR,
+			   ADD_DATE,
+			   ADD_TIME,
+			   ADD_USER_ID,
+			   CHANGE_DATE,
+			   CHANGE_TIME,
+			   CHANGE_USER_ID
+		  FROM SDPGL
+		 WHERE DEPLOY_ID = ${DEPLOY_ID}
+		 ORDER BY DEPLOY_ID
+	]]>
+	</method>
+
+	<method name="doQuery">
+	<![CDATA[
+	SELECT * FROM (
+	SELECT '*' AS TREE_PARENT_ID,
+		   MODULE_NAME AS TREE_ID,
+		   '' AS MODULE_NAME,
+		   MODULE_NAME AS MODULE_NAME_TMP,
+		   SOURCE_BASE_DIR AS "FROM",
+		   TARGET_BASE_DIR AS "TO",
+		   '' AS INCLUDE,
+		   '' AS EXCLUDE,
+		   USE_YN,
+		   '0' AS SEQ,
+		   '' AS SCRIPT
+	  FROM SDPLN
+	 WHERE DEPLOY_ID = ${DEPLOY_ID}
+	 ORDER BY TO_NUMBER("ORDER"))
+	 UNION ALL
+	SELECT * FROM (
+	SELECT DPLN.MODULE_NAME AS TREE_PARENT_ID,
+		   DPLN.MODULE_NAME || DPSE."ORDER" AS TREE_ID,
+		   '' AS MODULE_NAME,
+		   DPSE.MODULE_NAME AS MODULE_NAME_TMP,
+		   DPSE."FROM",
+		   DPSE."TO",
+		   DPSE.INCLUDE,
+		   DPSE.EXCLUDE,
+		   DPSE.USE_YN,
+		   SEQ,
+		   DPSE.SCRIPT
+	  FROM SDPLN DPLN, SDPSE DPSE
+	 WHERE DPLN.DEPLOY_ID = ${DEPLOY_ID}
+	   AND DPLN.DEPLOY_ID = DPSE.DEPLOY_ID
+	   AND DPLN.MODULE_NAME = DPSE.MODULE_NAME
+	 ORDER BY TO_NUMBER(DPLN."ORDER"), TO_NUMBER(DPSE."ORDER"))
+	]]>
+	</method>
+
+	<method name="doDelete_SDPGL">
+	<![CDATA[
+		DELETE FROM SDPGL
+		 WHERE DEPLOY_ID = ${DEPLOY_ID}
+	]]>
+	</method>
+
+	<method name="doDelete_SDPLN">
+	<![CDATA[
+		DELETE FROM SDPLN
+		 WHERE DEPLOY_ID = ${DEPLOY_ID}
+	]]>
+	</method>
+
+	<method name="doDelete_SDPSE">
+	<![CDATA[
+		DELETE FROM SDPSE
+		 WHERE DEPLOY_ID = ${DEPLOY_ID}
+	]]>
+	</method>
+	
+	<method name="doInsert_SDPGL">
+	<![CDATA[
+			INSERT INTO SDPGL (
+			       DEPLOY_ID
+			      ,SERVER_URL
+			      ,DESCRIPTION
+			      ,ADD_DATE
+			      ,ADD_TIME
+			      ,ADD_USER_ID
+			      ,CHANGE_DATE
+			      ,CHANGE_TIME
+			      ,CHANGE_USER_ID
+			      ,SOURCE_TEMP_DIR
+			      ,TARGET_TEMP_DIR
+		  )VALUES(
+        		  ${DEPLOY_ID}
+        		 ,${SERVER_URL}
+        		 ,${DESCRIPTION}
+        		 ,${current.date}
+        		 ,${current.time}
+        		 ,${session.ID}
+        		 ,${current.date}
+        		 ,${current.time}
+        		 ,${session.ID}
+        		 ,${SOURCE_TEMP_DIR}
+        		 ,${TARGET_TEMP_DIR}
+	        )
+	]]>
+	</method>
+
+	<method name="doInsert_SDPLN">
+	<![CDATA[
+			INSERT INTO SDPLN (
+			       DEPLOY_ID
+			      ,MODULE_NAME
+			      ,SOURCE_BASE_DIR
+			      ,TARGET_BASE_DIR
+			      ,`ORDER`
+			      ,USE_YN
+			      ,ADD_DATE
+			      ,ADD_TIME
+			      ,ADD_USER_ID
+			      ,CHANGE_DATE
+			      ,CHANGE_TIME
+			      ,CHANGE_USER_ID
+		  ) VALUES (
+        		  ${DEPLOY_ID}
+        		 ,${MODULE_NAME_TMP}
+        		 ,${FROM}
+        		 ,${TO}
+        		 ,${ORDER}
+			     ,(CASE WHEN ${USE_YN} = '1' THEN 'Y' ELSE 'N' END)
+        		 ,${current.date}
+        		 ,${current.time}
+        		 ,${session.ID}
+        		 ,${current.date}
+        		 ,${current.time}
+        		 ,${session.ID}
+	        )
+	]]>
+	</method>
+
+	<method name="doInsert_SDPSE">
+	<![CDATA[
+			INSERT INTO SDPSE (
+			       DEPLOY_ID
+			      ,MODULE_NAME
+			      ,SEQ
+			      ,`FROM`
+			      ,`TO`
+			      ,INCLUDE
+			      ,EXCLUDE
+			      ,SCRIPT
+			      ,`ORDER`
+			      ,USE_YN
+			      ,ADD_DATE
+			      ,ADD_TIME
+			      ,ADD_USER_ID
+			      ,CHANGE_DATE
+			      ,CHANGE_TIME
+			      ,CHANGE_USER_ID
+		  ) VALUES (
+        		  ${DEPLOY_ID}
+        		 ,${MODULE_NAME_TMP}
+        		 ,${SEQ}
+        		 ,${FROM}
+        		 ,${TO}
+        		 ,${INCLUDE}
+        		 ,${EXCLUDE}
+        		 ,${SCRIPT}
+        		 ,${ORDER}
+			     ,(CASE WHEN ${USE_YN} = '1' THEN 'Y' ELSE 'N' END)
+        		 ,${current.date}
+        		 ,${current.time}
+        		 ,${session.ID}
+        		 ,${current.date}
+        		 ,${current.time}
+        		 ,${session.ID}
+	        )
+	]]>
+	</method>
+	
+	<method name="doUpdate_SDPGL">
+	<![CDATA[
+			UPDATE  SDPGL
+			   SET  
+			   	   SERVER_URL = ${SERVER_URL}
+			      ,DESCRIPTION = ${DESCRIPTION}
+			      ,CHANGE_DATE = ${current.DATE}
+			      ,CHANGE_TIME = ${current.TIME}
+			      ,CHANGE_USER_ID = ${session.ID}
+			      ,SOURCE_TEMP_DIR = ${SOURCE_TEMP_DIR}
+			      ,TARGET_TEMP_DIR = ${TARGET_TEMP_DIR}
+			 WHERE DEPLOY_ID = ${DEPLOY_ID}
+	]]>
+	</method>
+
+</service>

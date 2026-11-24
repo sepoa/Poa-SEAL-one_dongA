@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="APM_110" header="false" pageCloseWarn="false">
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+        <function name="init">
+        <![CDATA[
+        	const pageInfo = {
+        		"PC" : "/Seal/Approval/SealApprovalViewLayout.sux",
+        		"MOBILE" : "/Seal/Approval/Mobile/MobileSealApprovalLayout.sux"
+        	}
+        	
+        	const isMobile = /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent)
+        	let deviceType = "";
+        	if(isMobile) {
+        		deviceType = "MOBILE";
+        	} else {
+        		deviceType = "PC";
+        	}
+        	
+        	var addHidden = function(form, name, value) {
+			    var input = document.createElement('input');
+			    input.type = 'hidden';
+			    input.name = name;
+			    input.value = value;
+			    form.insertBefore(input, null);
+			}
+			
+        	var pid = Sepoa.request.parameterId;
+			var form = document.body.appendChild($('<form target="sepoa-link-frame" style="display:none"></form>')[0]);
+			addHidden(form, "parameterId", pid);
+			addHidden(form, "isPopup", true);
+			addHidden(form, "onLink", true);
+			addHidden(form, "isRealPopup", true);
+			for (var idx in Sepoa.request) {
+    			addHidden(form, idx, Sepoa.request[idx]);
+			}			
+			
+			form.action = pageInfo[deviceType];
+			form.method = "post";
+			form.submit();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYTE4ODAzNjU2Njk3NGU1NjhlNjAxNjM1MTJhZWNjIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUE1fMTEwIn0sImlkIjoiYTE4ODAzNjU2Njk3NGU1NjhlNjAxNjM1MTJhZWNjIiwidHlwZSI6ImJvZHkifX0sInRyZWUiOnsiaWQiOiJhMTg4MDM2NTY2OTc0ZTU2OGU2MDE2MzUxMmFlY2MiLCJ0eXBlIjoiYm9keSJ9LCJpbmZvIjp7IlBST0pFQ1QiOiJTRUFMIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8xIjoiU2VhbCIsIlBBVEhfMiI6IiIsIlBBVEhfMyI6IkFwcHJvdmFsLyIsIk5BTUUiOiJTZWFsQXBwcm92YWxCcmlkZ2UiLCJQQVRIIjoiL1NlYWwvQXBwcm92
+        YWwvU2VhbEFwcHJvdmFsQnJpZGdlLnhtbCIsIkFSRUFfRElWSVNJT04iOm51bGwsIlBSRUZJWCI6IkFQTSIsIkNPREUiOiIxMTAiLCJTQ1JFRU5fSUQiOiJBUE1fMTEwIn19LCJodG1sIjoiPGRpdiBpZD1cImExODgwMzY1NjY5NzRlNTY4ZTYwMTYzNTEyYWVjY1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

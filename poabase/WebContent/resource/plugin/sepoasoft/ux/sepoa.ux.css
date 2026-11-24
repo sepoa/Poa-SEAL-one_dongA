@@ -1,0 +1,212 @@
+@charset "UTF-8";
+
+@import url(../../../fonts/OpenSans/OpenSans.css);
+@import url(../../../fonts/NotoSansKR/NotoSansKR.css);
+@import url(../../../fonts/Roboto/roboto.css);
+
+body *{
+	font-family: "Roboto", "Noto Sans KR" !important;
+}
+*.fas, *.far, *.fal, *.fab{
+	font-family: 'Font Awesome 5 Free' !important;
+}
+
+/* browser default */
+select:disabled{
+	opacity:1;	
+}
+textarea:focus, input:focus{
+    outline: none;
+}
+
+/* frame */
+html, body,
+.sepoaux.screen_area, 
+.sepoaux.screen_area > .container{
+	margin: 0;
+	padding: 0;
+	color: #000000;
+	height: 100%;
+	width: 100%;
+}
+.sepoaux.screen_area{
+	overflow:hidden;
+}
+.sepoaux_component_join{
+	width:100%;
+	height:100%;
+	position:relative;	
+}
+.sepoaux.screen_area > .sepoaux_screen_preset_default,
+.sepoaux_component_join.sepoaux_screen_preset_default{
+	padding: 0px 24px;
+    width: calc(100% - 48px);	
+}
+.sepoaux_component_outer_wrapper.sepoaux_container_preset_default{
+	padding: 0px 24px;
+    width: calc(100% - 48px);
+}
+.sepoaux.screen_area > .sepoaux_screen_scroll{
+	overflow-y: auto;
+}
+
+/* container */
+.sepoaux_component{
+	display:inline-block;
+	width:100%;
+}
+.sepoaux_component_outer_wrapper{
+	display:flex;
+	width:100%;
+}
+.sepoaux_component_inner_wrapper{
+	display:block;
+	width:100%;
+	max-width:100%;
+}
+.sepoaux_component_outer_wrapper.sepoaux_column_outer{
+	height:100%;
+}
+
+/* wrapper */
+.sepoaux_wrapper_style_halign_left{
+	margin-right:auto;
+/* 	width:auto; */
+}
+.sepoaux_wrapper_style_halign_center{
+	margin-left:auto;
+	margin-right:auto;
+	width:auto;
+}
+.sepoaux_wrapper_style_halign_right{
+	margin-left:auto;
+	width:auto;
+}
+.sepoaux_wrapper_style_valign_top{
+	margin-bottom:auto;
+}
+.sepoaux_wrapper_style_valign_middle{
+	margin-bottom:auto;
+	margin-top:auto;
+}
+.sepoaux_wrapper_style_valign_bottom{
+	margin-top:auto;
+}
+.sepoaux_component_column_wrapper{
+	display:flex;
+}
+
+/* filter bar */
+.sepoaux_screen_preset_list > .sepoaux_body_outer > .sepoaux_body_inner > .sepoaux_filterbar_outer .sepoaux_filterbar_inner {
+	width:calc(100% - 40px);
+	padding:0px 20px;
+}
+.sepoaux_screen_preset_list > .sepoaux_body_outer > .sepoaux_body_inner > .sepoaux_filterbar_outer .condition_container{
+	display:none;
+}
+.sepoaux_component_inner_wrapper.sepoaux_filterbar_inner{
+	margin-top:16px; 
+}
+
+
+/* button */
+.sepoaux_component_outer_wrapper.sepoaux_button_outer{
+	display:flex;
+	align-items:inherit;
+	justify-content:inherit;
+}
+.sepoaux_component_inner_wrapper.sepoaux_button_inner{
+	width:unset;
+	display:flex;
+}
+
+/* grid */
+.sepoaux_component_inner_wrapper.sepoaux_grid_inner,
+.sepoaux_component_outer_wrapper.gridbox_dhx_web,
+.sepoaux_grid_inner{
+	margin-top:16px;
+}
+
+/* list */
+.sepoaux_component_inner_wrapper.sepoaux_list_inner{
+	margin-top:16px;
+}
+
+/* accordion */
+.sepoaux_component.sepoaux_accordion{
+	display:block;
+}
+
+/* alert */
+.dhtmlx_modal_box{
+	width: auto;
+}
+.dhtmlx_modal_box.dhtmlx-alert .dhtmlx_popup_button{
+	width:inherit;
+}
+.dhtmlx_modal_box.dhtmlx-alert .dhtmlx_popup_button div{
+	text-transform: inherit;
+}
+
+/* ux page info */
+.sepoaux.screeninfo{
+	position: absolute;
+	z-index:10000;
+	border:1px solid #666;
+	border-radius:5px;
+	padding:5px;
+	background-color:#fff;
+	color:#666;
+}
+
+/* ux buttons */
+.sepoa_modify_button {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	color: #fff;
+	width: 30px;
+	height: 30px;
+	min-width: 30px;
+	min-height: 30px;
+	cursor:pointer;
+	padding: 3px;
+	box-sizing: border-box;
+	line-height: 1em;
+	z-index:100;
+	background-image: url(imgs/fg.png);
+    background-size: 90%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.sepoa_modify_button svg{
+	fill:#fff;
+}
+.page_modify_button{
+	background-image: url(imgs/builder.png);
+}
+.sepoa_modify_button_area {
+	position: absolute;
+	background-color: red;
+	opacity: 0.1;
+	z-index: 100;
+}
+.sepoa_modify_button_area.sepoa_modify_button_description {
+	position: relative;
+	background-color: black;
+	color: white;
+	opacity: 1;
+	border: 2px solid black;
+	text-align: center;
+	width: min-content;
+	height: 25px;
+	line-height: 25px;
+	border-radius: 20px;
+	padding: 0 10px;
+	float: right;
+	margin-right: 35px;
+}
+
+.sepoa-bypass-event::after{
+	pointer-events: none;
+}

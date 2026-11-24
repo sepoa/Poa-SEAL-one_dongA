@@ -1,0 +1,409 @@
+<style>
+	.sepoa-index-outer-wrapper{
+		height:calc(100% - 50px);
+		width:100%;
+		display:flex;
+		/* justify-content: center; */
+		overflow-y:auto;
+	}
+	.sepoa-index-inner-wrapper{
+		/* height:100%; */
+		width:1200px;
+		
+		display:flex;
+		flex-direction: column;
+    	/* justify-content: center; */
+		/* align-items: center; */
+		margin:auto;
+	}
+	.sepoa-index-container,
+	.sepoa-index-container > div{
+		width:100%;
+	}
+	.sepoa-index-logo-wrapper{
+		display:flex;
+	}
+	.sepoa-index-logo{
+		margin:0px 0px 23px 0px;
+	}
+	.sepoa-index-logo.sepoa-index-logo-error{
+		display:none;
+	}
+	.sepoa-index-login-wrapper{
+		min-height:530px;
+		position:relative;
+		display:flex;
+	}
+	.sepoa-index-login-image{
+		object-fit:cover;
+	}
+	.sepoa-index-login-remark-title-wrapper{
+		position:absolute;
+		left:80px;
+		top:80px;
+		
+		color: #fff;
+	}
+	.sepoa-index-login-remark-title{
+		font-size: 32px;
+		font-weight: 500;
+	}
+	.sepoa-index-login-remark-sub-title{
+		margin-top:33px;
+		
+		font-size: 20px;
+		font-weight: 500;
+	}
+	
+	.sepoa-index-login-container-wrapper,
+	.sepoa-index-login-back-color{
+		width:400px;
+		height:100%;
+		position:absolute;
+		right:0px;
+		top:0px;
+		display:flex;
+		align-itmes:center;
+		justify-content: center;
+	}
+	.sepoa-index-login-back-color{
+		opacity:0.8;
+		background-color: #0f81a9;
+	}
+	.sepoa-index-login-container{
+		width:208px;
+		display:flex;
+		flex-direction:column;
+		justify-content: center;
+	}
+	.sepoa-index-login-container > div{
+		width:100%;
+	}
+	.sepoa-index-login-title > span{
+		color:#fff;
+		font-size: 20px;
+		font-weight:500;
+	}
+	.sepoa-index-login-input-container{
+	    display: flex;
+    	flex-direction: column;
+    	
+		margin-top:5px;
+	}
+	.sepoa-index-login-input-container > input{
+		width:calc(100% - 2px);
+		height:40px;
+		
+		margin:18px 0 0 0;
+		padding:0px;
+		border:1px solid #fff;
+		border-radius:20px;
+		
+		font-size:12px;
+		font-weight:500;
+		
+		text-indent:16px;
+		
+		background-color:transparent;
+		color:#fff;
+		
+		outline: none;
+	}
+	.sepoa-index-login-input-container > input::placeholder{
+		color:#fff;
+	}
+	.sepoa-index-login-input-container .sepoa-index-capslock-warning{
+		width:100%;
+		height:30px;
+		line-height:30px;
+		text-align:center;
+	}
+	.sepoa-index-login-input-container .sepoa-index-capslock-warning > span{
+		color:#fff;
+		display:none;
+	}
+	.sepoa-index-login-input-container .sepoa-index-capslock-warning.active > span{
+		display:inherit;
+	}
+	.sepoa-index-login-input-container .sepoa-index-login-input-button{
+		width:100%;
+		background-color:#fff;
+		color:#0f81a9;
+		
+		margin-top:0px;
+		
+		font-size:14px;
+		font-weight:500;
+		text-indent:0px;
+		
+		cursor:pointer;
+	}
+	.sepoa-index-login-message{
+		width:100%;
+		height:27px;
+		color:#fff;
+		word-break: keep-all;
+		white-space: nowrap;
+		display: flex;
+    	align-items: center;
+    	justify-content: center;
+    	font-size:13px;
+	}
+	.sepoa-index-login-submenu-container{
+		display:flex;
+		
+		align-items: center;
+    	justify-content: center;
+    	flex-direction:column;
+	}
+	.sepoa-index-login-submenu-item{
+		display:none;
+	}
+	.sepoa-index-login-submenu-item:first-child{
+		border:0px;
+	}
+	.sepoa-index-login-submenu-item.show{
+		display:flex;
+		align-items: center;
+    	justify-content: center;
+	}
+	.sepoa-index-login-submenu-item span{
+		color:#fff;
+		font-size:16px;
+		margin:0px 10px;
+		
+		cursor:pointer;
+	}
+	.sepoa-index-bottom-wrapper{
+		width:100%;
+		display:flex;
+		color: #4C4C4C;
+	}
+	.sepoa-index-bottom-wrapper > div{
+		display:none;
+		flex:none;
+		max-width:300px;
+	}
+	.sepoa-index-bottom-wrapper > div:last-child{
+		margin-right: 0px;
+	}
+	.sepoa-index-bottom-wrapper > div.show{
+		margin-top:23px;
+		display:flex;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-notice{
+		flex-direction:column;
+		margin-right: 50px;
+		min-width:300px;
+	}
+	.sepoa-index-bottom-item-notice-header{
+		font-size: 16px;
+    	font-weight: 500;
+    	
+    	color:#333333;
+	}
+	.sepoa-index-bottom-item-notice-contents{
+		font-size: 12px;
+    	font-weight: normal;
+    	color: #444444;
+    	
+    	line-height:18px;
+    	list-style-type: none;
+    	
+	    padding: 0px;
+	    margin: 12px 0px 0px;
+	}
+	.sepoa-index-bottom-item-notice-contents > li{
+		cursor:pointer;
+		
+		overflow: hidden;
+    	text-overflow: ellipsis;
+    	white-space: nowrap;
+    	
+    	margin-top:8px;
+	}
+	.sepoa-index-bottom-item-notice-contents > li:first-child{
+		margin-top:0px;
+	}
+	.sepoa-index-bottom-item.show{
+		display:block;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-menu{
+		flex:1;
+		justify-content: space-evenly;
+		max-width:none;
+	}
+	.sepoa-index-bottom-item-menu-item{
+		height:100%;
+		display:none;
+		
+		cursor:pointer;
+	}
+	.sepoa-index-bottom-item-menu-item.show{
+		/* width:200px; */
+		display:flex;
+		flex-direction: column;
+	}
+	.sepoa-index-bottom-item-menu-item .sepoa-index-bottom-item-menu-item-icon-wrapper{
+		width:100%;
+		
+		display:flex;
+		align-items: center;
+    	justify-content: center;
+	}
+	.sepoa-index-bottom-item-menu-item .sepoa-index-bottom-item-menu-item-label{
+		height:25px;
+	    margin-top:20px;
+	    
+	    text-align:center;
+	    font-size: 14px;
+	    font-weight:500;
+	    
+	    display:none;
+	    
+	    color:#333333;
+	}
+	.sepoa-index-bottom-item-menu-item .sepoa-index-bottom-item-menu-item-label.show{
+		display:block;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-contact{
+		flex-direction:column;
+		max-width:400px;
+		margin-left: 50px;
+	}
+	.sepoa-index-bottom-wrapper > .sepoa-index-bottom-item-contact.show{
+	    align-items: flex-end;
+	}
+	.sepoa-index-bottom-item-contact-wrapper{
+		display:flex;
+		flex-direction: column;
+	}
+	.sepoa-index-bottom-item-contact-inner-wrapper:not(:first-child){
+		margin-top:23px;
+	}
+	.sepoa-index-bottom-item-contact-header{
+		font-size: 16px;
+    	font-weight: 450;
+    	color: #333333;
+	}
+	.sepoa-index-bottom-item-contact-contents{
+		font-size: 14px;
+    	font-weight: 400;
+    	color: #666666;
+    	
+    	line-height:1.5;
+    	
+    	margin-top:10px;
+	}
+	.sepoa-index-footer{
+		width:100%;
+		height:50px;
+		background-color:#e4e4e4;
+		
+		color: #343b3f;
+    	font-size: 12px;
+		
+		display:flex;
+		align-items: center;
+    	justify-content: center;
+	}
+	
+	/* popup mode */
+	.sepoa-index-type-popup .sepoa-index-outer-wrapper{
+		height:100%;
+		overflow-y:hidden;
+	}
+	.sepoa-index-type-popup .sepoa-index-inner-wrapper{
+		width:fit-content;
+	}
+	.sepoa-index-type-popup .sepoa-index-login-wrapper{
+		width:400px;
+		overflow:hidden;
+	}
+    .sepoa-index-type-popup .sepoa-index-login-image,
+    .sepoa-index-type-popup .sepoa-index-logo-wrapper,
+	.sepoa-index-type-popup .sepoa-index-login-remark-title-wrapper,
+	.sepoa-index-type-popup .sepoa-index-login-submenu-container-wrapper,
+	.sepoa-index-type-popup .sepoa-index-bottom-wrapper,
+	.sepoa-index-type-popup .sepoa-index-footer{
+		display:none;
+	}
+	
+	.sepoa-index-login-title > span,
+	.sepoa-index-module-type-login_submenu > span,
+	.sepoa-index-capslock-warning > span {
+		color: $.{LOGIN_FORM_LABEL_COLOR};
+	}
+	
+	input.sepoa-index-login-input,
+	div.sepoa-index-login-message {
+		border-color: $.{LOGIN_FORM_LABEL_COLOR};
+		color: $.{LOGIN_FORM_LABEL_COLOR};
+	}
+	.sepoa-index-login-input-container > input::placeholder {
+		color: $.{LOGIN_FORM_LABEL_COLOR};
+	}
+	.sepoa-index-login-input-container .sepoa-index-login-input-button {
+		background-color: $.{LOGIN_FORM_LABEL_COLOR};
+		border-color: $.{LOGIN_FORM_LABEL_COLOR};
+	}
+	
+	sepoa-index-module-target sepoa-index-module-type-login_message 
+	
+</style>
+<div class="sepoa-index-outer-wrapper">
+	<div class="sepoa-index-inner-wrapper">
+		<div class="sepoa-index-container">
+			<div class="sepoa-index-logo-wrapper">
+				<img class="sepoa-index-module-target sepoa-index-module-var-LOGIN_LOGO sepoa-index-module-type-image sepoa-index-logo"/>
+			</div>
+			<div class="sepoa-index-login-wrapper">
+				<img class="sepoa-index-module-target sepoa-index-module-var-LOGIN_MAIN sepoa-index-module-type-image sepoa-index-login-image" defsrc="/resource/plugin/sepoasoft/login/form/default/image/main.png"/>
+				<div class="sepoa-index-login-remark-title-wrapper">
+					<div class="sepoa-index-module-target sepoa-index-module-var-MAIN_REMARK_TITLE sepoa-index-module-type-remark_title sepoa-index-login-remark-title"></div>
+					<div class="sepoa-index-module-target sepoa-index-module-var-MAIN_REMARK_SUB_TITLE sepoa-index-module-type-remark_sub sepoa-index-login-remark-sub-title"></div>
+				</div>
+				<div class="sepoa-index-module-target sepoa-index-module-var-LOGIN_FORM_COLOR sepoa-index-module-type-back_color sepoa-index-login-back-color"></div>
+				<div class="sepoa-index-login-container-wrapper">
+					<div class="sepoa-index-login-container">
+						<div class="sepoa-index-login-title"><span>LOGIN</span></div>
+						<div class="sepoa-index-login-input-container">
+							<input class="sepoa-index-module-target sepoa-index-module-type-login_input sepoa-index-login-input" type="text" id="id" />
+							<input class="sepoa-index-module-target sepoa-index-module-type-login_input sepoa-index-login-input" type="password" id="password" />
+							<div class="sepoa-index-module-target sepoa-index-module-type-login_capslock_warning sepoa-index-capslock-warning"></div>
+							<input class="sepoa-index-module-target sepoa-index-module-var-LOGIN_FORM_COLOR sepoa-index-module-type-login_button sepoa-index-login-input-button" type="button" value="LOGIN"></input>
+						</div>
+						<div class="sepoa-index-module-target sepoa-index-module-type-login_message sepoa-index-login-message"></div>
+						<div class="sepoa-index-login-submenu-container-wrapper">
+							<div class="sepoa-index-login-submenu-container">
+								<div class="sepoa-index-module-target sepoa-index-module-var-FIND_ID_PW sepoa-index-module-type-login_submenu sepoa-index-login-submenu-item show"></div>
+								<div class="sepoa-index-module-target sepoa-index-module-var-LOGIN_FORM_SUB_BUTTON sepoa-index-module-type-login_submenu sepoa-index-login-submenu-item"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="sepoa-index-bottom-wrapper">
+			<div class="sepoa-index-bottom-item sepoa-index-bottom-item-notice show">
+				<div class="sepoa-index-module-target sepoa-index-module-type-notice_header sepoa-index-bottom-item-notice-header"></div>
+				<ul class="sepoa-index-module-target sepoa-index-module-type-notice_contents sepoa-index-bottom-item-notice-contents"></ul>
+			</div>
+			<div class="sepoa-index-module-target sepoa-index-module-type-menu sepoa-index-bottom-item sepoa-index-bottom-item-menu show">
+			</div>
+			<div class="sepoa-index-bottom-item sepoa-index-bottom-item-contact">
+				<div class="sepoa-index-bottom-item sepoa-index-bottom-item-contact-wrapper">
+					<div class="sepoa-index-bottom-item sepoa-index-bottom-item-contact-inner-wrapper">
+						<div class="sepoa-index-module-target sepoa-index-module-type-contact_header sepoa-index-bottom-item-contact-header"></div>
+						<div class="sepoa-index-module-target sepoa-index-module-type-contact_contents sepoa-index-bottom-item-contact-contents"></div>
+					</div>
+					<div class="sepoa-index-bottom-item sepoa-index-bottom-item-contact-inner-wrapper">
+						<div class="sepoa-index-module-target sepoa-index-module-type-contact2_header sepoa-index-bottom-item-contact-header"></div>
+						<div class="sepoa-index-module-target sepoa-index-module-type-contact2_contents sepoa-index-bottom-item-contact-contents"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="sepoa-index-module-target sepoa-index-module-var-COPYRIGHT_CONTENTS sepoa-index-module-type-footer sepoa-index-footer"></div>

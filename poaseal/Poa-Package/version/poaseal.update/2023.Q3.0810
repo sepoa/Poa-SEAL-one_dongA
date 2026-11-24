@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL MODIFY COLUMN CATEGORY varchar(10) NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ALTER COLUMN CATEGORY varchar(10)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL MODIFY(CATEGORY VARCHAR2(10))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SSCGL MODIFY COLUMN CATEGORY varchar(10) NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SSCGL ALTER COLUMN CATEGORY varchar(10)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SSCGL MODIFY(CATEGORY VARCHAR2(10))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCFGL MODIFY COLUMN CATEGORY varchar(10) NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCFGL ALTER COLUMN CATEGORY varchar(10)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCFGL MODIFY(CATEGORY VARCHAR2(10))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMDC MODIFY COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMDC ALTER COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SFMDC MODIFY(COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMFI MODIFY COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SFMFI MODIFY(COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMMT MODIFY COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMMT ALTER COLUMN COMPANY_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SFMMT MODIFY(COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL MODIFY COLUMN COMPANY_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ALTER COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL MODIFY(COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SSIGN MODIFY COLUMN SIGNER_COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SSIGN ALTER COLUMN SIGNER_COMPANY_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SSIGN MODIFY(SIGNER_COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SDCAM MODIFY COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SDCAM ALTER COLUMN COMPANY_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SDCAM MODIFY(COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SUSMT MODIFY COLUMN COMPANY_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SUSMT ALTER COLUMN COMPANY_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SUSMT MODIFY(COMPANY_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SBUPR MODIFY COLUMN BIZ_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SBUPR ALTER COLUMN BIZ_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SBUPR MODIFY(BIZ_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SBUPI MODIFY COLUMN BIZ_CODE varchar(100)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SBUPI ALTER COLUMN BIZ_CODE varchar(100) NOT NULL
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SBUPI MODIFY(BIZ_CODE VARCHAR2(100))
+		]]>
+		</query>
+	</item>
+</body>

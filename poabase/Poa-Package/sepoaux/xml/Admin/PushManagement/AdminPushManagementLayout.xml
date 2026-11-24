@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_450" header="false">
+    <link>
+    <![CDATA[
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/codemirror.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/javascript/javascript.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/css/css.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/xml/xml.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/edit/matchbrackets.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/comment/continuecomment.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/comment/comment.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/show-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/anyword-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/javascript-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/util/formatting.js"></script>
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/codemirror.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/theme/liquibyte.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/hint.css" />
+        <script type="text/javascript">
+            sUtils.cache.text.load({
+                url: CONTEXT_NAME + '/resource/ux/admin/langs/' + Sepoa.info.LANGUAGE + '/AD_450.js',
+                def: CONTEXT_NAME + '/resource/ux/admin/langs/KO/AD_450.js'
+            });
+        </script>
+    ]]>
+    </link>
+    <layout id="layoutObj" div="ZrifgResuQhrGbFhuG" pattern="2U">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="list" text="AD_450.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <width>400</width>
+            <attach file="/Admin/PushManagement/AdminPushManagementList.xml"/>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="contents"/>
+            <collapse icon="false" collapsed="false"/>
+            <attach file="/Admin/PushManagement/AdminPushManagementTabbar.xml"/>
+        </cell>
+    </layout>
+    <onloadscript/>
+    <userscript/>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWnJpZmdSZW50TWhyR2JGQlFhIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF80NTAifSwiaWQiOiJacmlmZ1JlbnRNaHJHYkZCUWEiLCJ0eXBlIjoiYm9keSJ9LCJacmlmZ1Jlc3VRaHJHYkZodUciOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMlUiLCJWQVIiOiJsYXlvdXRPYmoiLCJPQkpFQ1RfSUQiOiJacmlmZ1Jlc3VR
+        aHJHYkZodUcifSwiaWQiOiJacmlmZ1Jlc3VRaHJHYkZodUciLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX0sIlpyaWZnUmVNQ1ZockdialdIUyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJ0cnVlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJ0cnVlIiwiSEVBREVSX1RFWFQiOiJIYXMgbm90IGZvdW5kIHRleHQgOiBBRF80NTAuTEFZT1VUX0FfSEVBREVSIiwiQVRUQUNIX1RBUkdFVCI6Ii9BZG1pbi9QdXNoTWFuYWdlbWVudC9BZG1pblB1c2hNYW5hZ2VtZW50TGlzdC54bWwiLCJCQVNFX0ZJWF9TSVpFIjoidHJ1ZSx0cnVlIiwiSEVBREVSX1RZUEUi
+        OiJsaXN0IiwiQVRUQUNIX1RZUEUiOiJVIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFsc2UiLCJCQVNFX1dJRFRIIjoiNDAwIn0sImlkIjoiWnJpZmdSZU1DVmhyR2JqV0hTIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sIlpyaWZnUmVPQ1ZockdiT1hkeCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJ0cnVlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJIRUFERVJfVFlQRSI6ImNvbnRlbnRzIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFsc2UiLCJBVFRB
+        Q0hfVFlQRSI6IlMiLCJBVFRBQ0hfVEFSR0VUIjoiQURfNDUwXzIifSwiaWQiOiJacmlmZ1JlT0NWaHJHYk9YZHgiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImIifX0sInRyZWUiOnsiaWQiOiJacmlmZ1JlbnRNaHJHYkZCUWEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IlpyaWZnUmVzdVFockdiRmh1RyIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJacmlmZ1JlTUNWaHJHYmpXSFMiLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9LHsiaWQiOiJacmlmZ1JlT0NWaHJHYk9YZHgiLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL1B1c2hNYW5hZ2VtZW50L0FkbWluUHVz
+        aE1hbmFnZW1lbnRMYXlvdXQueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiNDUwIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJQdXNoTWFuYWdlbWVudCIsIlBBVEhfMyI6IkFkbWluUHVzaE1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkxheW91dCIsIlNDUkVFTl9JRCI6IkFEXzQ1MCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJacmlmZ1JlbnRNaHJHYkZCUWFcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlpyaWZnUmVzdVFockdiRmh1R1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAg
+        ICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

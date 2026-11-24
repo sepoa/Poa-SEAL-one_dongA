@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryDept">
+	<![CDATA[
+		SELECT 
+			DEPT_NAME_LOC AS TEXT
+			, #DB_OWNER#NVL(DEPT, '000') AS ID
+			, DEPT AS CODE
+			, PARENT_DEPT AS PARENTID
+			, 'DEPT' AS TYPE
+		FROM SDEPT
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND DEPT <> '0000'
+	]]>
+	<if test="${DEPT_IS_NULL}" operator="eq" value="true">
+	<![CDATA[
+			AND #DB_OWNER#NVL(PARENT_DEPT, '') = ''
+	]]>
+	</if>
+	<if test="${DEPT_IS_NULL}" operator="ne" value="true">
+	<![CDATA[
+			AND #DB_OWNER#NVL(PARENT_DEPT, '') = $S{DEPT}
+	]]>
+	</if>
+	<![CDATA[
+		ORDER BY #DB_OWNER#NVL(DEPT,0)
+	]]>
+	</method>
+
+	<method name="doQueryUser">
+	<![CDATA[
+		SELECT
+			  USMT.USER_ID
+			, USMT.USER_NAME_LOC
+			, USMT.COMPANY_CODE
+			, USMT.DEPT
+			, CASE ${session.LANGUAGE} WHEN 'EN' THEN DEPT.DEPT_NAME_ENG ELSE DEPT.DEPT_NAME_LOC END AS DEPARTMENT_NAME
+			, USMT.POSITION
+			, USMT.EMPLOYEE_NO
+			, 'EMPLOYEE' AS TYPE
+		FROM SUSMT USMT
+			INNER JOIN SDEPT DEPT
+			ON USMT.HOUSE_CODE = DEPT.HOUSE_CODE
+			AND USMT.COMPANY_CODE = DEPT.COMPANY_CODE
+			AND USMT.DEPT = DEPT.DEPT
+			AND USMT.DEL_FLAG = 'N'
+		WHERE
+			USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND USMT.DEPT IS NOT NULL
+			AND USMT.DEPT = $S{DEPT}
+			AND USMT.USER_ID IN ($INS{USER_ID})
+		ORDER BY USMT.POSITION DESC
+	]]>
+	</method>
+	
+	<method name="doSearchSDEPT">
+	<![CDATA[
+		SELECT
+			  DEPT
+		FROM SDEPT
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND DEPT_NAME_LOC LIKE '%' + ${KEYWORD} + '%'
+			AND #DB_OWNER#NVL(DEL_FLAG, 'N')	= 'N'
+	]]>
+	</method>
+
+	<method name="doSearchSUSMT">
+	<![CDATA[
+		SELECT
+			  DEPT
+		FROM SUSMT
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND (
+				USER_NAME_LOC LIKE '%' + ${KEYWORD} + '%'
+				OR #DB_OWNER#GETCODETEXT('000', 'UX049', POSITION, 'KO') LIKE '%' + ${KEYWORD} + '%'
+			)
+			AND #DB_OWNER#NVL(DEL_FLAG, 'N')	= 'N'
+	]]>
+	</method>
+	
+	<method name="doQuerySGWMG">
+	<![CDATA[
+		SELECT
+			  APP_LINE_CODE
+			, APP_LINE_NAME
+		FROM SGWMG
+		WHERE	HOUSE_CODE			= ${session.HOUSE_CODE}
+			AND COMPANY_CODE		= ${session.COMPANY_CODE}
+			AND USER_ID				= ${session.ID}
+			AND #DB_OWNER#NVL(DEL_FLAG, 'N')	= 'N'
+	]]>
+	</method>
+	
+	<method name="doQuerySGWML">
+	<![CDATA[
+		SELECT
+			  GWML.USER_ID AS APP_USER_ID
+			, GWML.LINE_SEQ AS APP_LINE_SEQ
+			, GWML.APP_STAGE
+			, GWML.APP_METHOD
+			, USMT.USER_NAME_LOC AS APP_USER_NAME
+			, USMT.COMPANY_CODE AS SELLER_CODE
+			, USMT.DEPT
+			, CASE ${session.LANGUAGE} WHEN 'EN' THEN DEPT.DEPT_NAME_ENG ELSE DEPT.DEPT_NAME_LOC END AS DEPARTMENT_NAME
+			, USMT.POSITION
+			, USMT.EMPLOYEE_NO
+			, 'EMPLOYEE' AS TYPE
+		FROM SGWML GWML
+			INNER JOIN SUSMT USMT
+			ON GWML.HOUSE_CODE = USMT.HOUSE_CODE
+			AND GWML.COMPANY_CODE = USMT.COMPANY_CODE
+			AND GWML.USER_ID = USMT.USER_ID
+			INNER JOIN SDEPT DEPT
+			ON USMT.HOUSE_CODE = DEPT.HOUSE_CODE
+			AND USMT.COMPANY_CODE = DEPT.COMPANY_CODE
+			AND USMT.DEPT = DEPT.DEPT
+		WHERE	GWML.HOUSE_CODE			= ${session.HOUSE_CODE}
+			AND GWML.COMPANY_CODE		= ${session.COMPANY_CODE}
+			AND GWML.APP_LINE_CODE		= ${APP_LINE_CODE}
+	]]>
+	</method>
+	
+	<method name="doInsertSGWMG">
+	<![CDATA[
+		INSERT INTO SGWMG
+		 ( 
+		     HOUSE_CODE
+		   , COMPANY_CODE
+		   , USER_ID
+		   , APP_LINE_CODE
+		   , APP_LINE_NAME
+		   , ADD_DATE
+		   , ADD_TIME
+		   , ADD_USER_ID
+		   , DEL_FLAG
+		 ) 
+		 VALUES
+		 ( 
+		     ${session.HOUSE_CODE}
+		   , ${session.COMPANY_CODE}
+		   , ${session.ID}
+		   , ${APP_LINE_CODE}
+		   , ${APP_LINE_NAME}
+		   , ${current.DATE}
+		   , ${current.TIME}
+		   , ${session.ID}
+		   , 'N'
+		 )  
+	]]>
+	</method>
+
+	<method name="doUpdateSGWMG">
+	<![CDATA[
+		UPDATE SGWMG SET
+			  APP_LINE_NAME		= ${APP_LINE_NAME}
+			, CHANGE_DATE		= ${current.DATE}
+			, CHANGE_TIME		= ${current.TIME}
+			, CHANGE_USER_ID	= ${session.ID}
+		WHERE	HOUSE_CODE		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE	= ${session.COMPANY_CODE}
+			AND USER_ID			= ${session.ID}
+			AND APP_LINE_CODE	= ${APP_LINE_CODE}
+	]]>
+	</method>
+	
+	<method name="doInsertSGWML">
+	<![CDATA[
+		INSERT INTO SGWML
+		(
+			 HOUSE_CODE
+		   , COMPANY_CODE
+		   , USER_ID
+		   , APP_LINE_CODE
+		   , APP_TYPE
+		   , LINE_SEQ
+		   , APP_STAGE
+		   , APP_METHOD
+		   , ADD_DATE
+		   , ADD_TIME
+		   , ADD_USER_ID
+		 ) 
+		VALUES
+		( 
+			 ${session.HOUSE_CODE}    
+		   , ${session.COMPANY_CODE} 
+		   , ${APP_USER_ID}             
+		   , ${APP_LINE_CODE}       
+		   , ${APP_TYPE}             
+		   , ${APP_LINE_SEQ}         
+		   , ${APP_STAGE}            
+		   , ${APP_METHOD}           
+		   , ${current.DATE}            
+		   , ${current.TIME}            
+		   , ${session.ID  }         
+		 ) 
+	]]>
+	</method>
+	
+	<method name="doDeleteSGWML">
+	<![CDATA[
+		DELETE FROM SGWML
+		WHERE	HOUSE_CODE    = ${session.HOUSE_CODE}
+			AND COMPANY_CODE  = ${session.COMPANY_CODE}
+			AND APP_LINE_CODE = ${APP_LINE_CODE}
+	]]>
+	</method>
+	
+	<method name="doDeleteMyApp">
+	<![CDATA[
+		UPDATE SGWMG SET
+			DEL_FLAG = 'Y'
+		WHERE	HOUSE_CODE		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE	= ${session.COMPANY_CODE}
+			AND USER_ID			= ${session.ID}
+			AND APP_LINE_CODE	= ${APP_LINE_CODE}
+	]]>
+	</method>
+	
+	<method name="doGetManageData">
+	<![CDATA[
+		SELECT DISTINCT
+		      SEAL.SEAL_MG_DEPT AS DEPT
+		    , SEAL.SEAL_MG_USER_ID AS APP_USER_ID
+			, #DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS APP_USER_NAME
+			, #DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_DEPT, ${session.LANGUAGE}) AS DEPARTMENT_NAME
+			, USMT.POSITION
+		FROM SSEAL SEAL WITH(NOLOCK)
+		   INNER JOIN SUSMT USMT
+		      ON USMT.HOUSE_CODE = SEAL.HOUSE_CODE 
+		      AND USMT.USER_ID = SEAL.SEAL_MG_USER_ID
+		WHERE SEAL.HOUSE_CODE   = ${session.HOUSE_CODE}
+		AND SEAL.COMPANY_CODE   = ${session.COMPANY_CODE}
+		AND SEAL.SEAL_STATUS  IN('C')
+		AND SEAL.MANAGE_NUMBER IN ($INS{MANAGE_NO_LIST})
+	]]>
+	</method>
+	
+	<method name="doGetBALN">
+	<![CDATA[
+		SELECT 
+		     USMT.DEPT AS DEPT
+		    , BALN.CTRL_PERSON_ID AS APP_USER_ID
+			, USMT.user_name_loc AS APP_USER_NAME
+			, DEPT.DEPT_name_loc AS DEPARTMENT_NAME
+			, USMT.position
+			, BALN.ctrl_code
+			, BALN.APP_ORDER 
+		FROM SBALN BALN 
+		   INNER JOIN SUSMT USMT
+		      ON USMT.HOUSE_CODE = BALN.HOUSE_CODE 
+		      AND USMT.COMPANY_CODE = BALN.COMPANY_CODE
+		      AND USMT.USER_ID = BALN.CTRL_PERSON_ID 
+		   INNER JOIN SDEPT DEPT
+		   	  ON DEPT.HOUSE_CODE = BALN.HOUSE_CODE 
+		      AND DEPT.COMPANY_CODE = BALN.COMPANY_CODE 
+		      AND DEPT.DEPT = USMT.DEPT 
+		WHERE BALN.HOUSE_CODE   = ${session.HOUSE_CODE}
+		AND BALN.COMPANY_CODE   = ${session.COMPANY_CODE}
+		AND BALN.CTRL_CODE ='APP_CONFIRM'
+		AND #DB_OWNER#NVL(USMT.DEL_FLAG, 'N')	= 'N'
+		ORDER BY BALN.APP_ORDER ASC;
+	]]>
+	</method>
+</service>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectOfficeLog">
+	<![CDATA[
+		SELECT
+			  INS_DT
+			, APRNOHHI
+			, APRSTEP
+			, APRCOD
+			, APRNOTE
+			, AEMPNO
+			, A_SYSKEY
+			, APRDTE
+			, IF_FLAG
+		FROM HHI_OFFICE_LOG
+	   WHERE IF_FLAG IS NULL
+	   ORDER BY INS_DT ASC
+	]]>
+	</method>
+	<method name="checkExistSGWGL">
+	<![CDATA[
+		SELECT
+			  *
+		FROM
+			SGWGL
+		WHERE
+			SUX_WKEY1 		= ${SMR_NUMBER}
+			AND APP_NO 		= ${APP_NO}
+	]]>
+	</method>
+	
+	<method name="doUpdateOfficeLog">
+	<![CDATA[
+	  UPDATE HHI_OFFICE_LOG
+		 SET IF_FLAG = ${IF_RESULT}
+	   WHERE A_SYSKEY		= ${A_SYSKEY}
+	     AND INS_DT 		= ${INS_DT}
+	]]>
+	</method>
+	
+	<method name="doRejectApprovalLine">
+	<![CDATA[
+		UPDATE SGWLN
+		SET APP_LINE_STATUS = ${APP_STATUS}
+		WHERE APP_NO = ${APP_NO}
+		AND APP_USER_ID = ${AEMPNO}
+	]]>
+	</method>
+	
+	<method name="doRejectDocument">
+	<![CDATA[
+		UPDATE SSIAD
+		SET SMR_STATUS = ${DOC_STATUS}
+		WHERE SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doWithDrawDocument">
+	<![CDATA[
+		UPDATE SSIAD
+		SET SMR_STATUS = ${DOC_STATUS}
+		WHERE SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doConfirmApprovalLine">
+	<![CDATA[
+		UPDATE SGWLN
+		SET APP_LINE_STATUS = ${APP_STATUS}
+		WHERE APP_NO = ${APP_NO}
+		AND APP_USER_ID = ${AEMPNO}
+	]]>
+	</method>
+	<method name="doConfirmApprovalHeader">
+		<![CDATA[
+			UPDATE SGWGL 
+			       SET APP_STATUS = ${APP_STATUS} 
+			 WHERE APP_NO = ${APP_NO} 
+		]]>
+	</method>
+	
+	<method name="doSelectSSIAD">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SSIAD
+		WHERE
+			SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doDeleteSPMGT">
+	<![CDATA[
+		DELETE FROM SPMGT
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CONT_NO = ${SMR_NUMBER}
+			AND ACTION = ${ACTION}
+	]]>
+	</method>
+	
+	<method name="doInsertSPMGT">
+	<![CDATA[
+	    INSERT INTO SPMGT (
+			HOUSE_CODE
+			,COMPANY_CODE
+			,CONT_NO
+			,CONT_GL_SEQ
+			,SEQ
+			,ADD_DATE
+			,ADD_TIME
+			,USER_COMPANY_CODE
+			,USER_ID
+			,ACTION
+			,IP
+	    ) VALUES (
+            ${session.HOUSE_CODE}
+            ,${COMPANY_CODE}
+            ,${SMR_NUMBER}
+            ,'1'
+            ,(SELECT COUNT(1) + 1
+                  FROM SPMGT InPMGT
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${SMR_NUMBER}
+                   AND InPMGT.CONT_GL_SEQ  = '1'
+               )
+			,${current.DATE}
+			,${current.TIME}
+			,${COMPANY_CODE}
+			,'BATCH'
+			,${ACTION}
+			,${IP}
+	    )
+	]]>
+	</method>
+	
+	<method name="doUpdateSSIAD">
+	<![CDATA[
+		UPDATE SSIAD
+		SET SMR_STATUS = ${SMR_STATUS}
+		, CHANGE_DATE = ${current.DATE}
+		, CHANGE_TIME = ${current.TIME}
+		, REJECT_REASON = ${REJECT_REASON}
+		, CONFIRM_DATE = ${current.DATE}
+		, CONFIRM_TIME = ${current.TIME}
+		, CONFIRM_USER_ID = ${CONFIRM_USER_ID}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doInsertSAPPP">
+	<![CDATA[
+		INSERT INTO SAPPP (
+			HOUSE_CODE
+			,COMPANY_CODE
+			,SMR_NUMBER
+			,SEQ
+			,RECENT
+			,APP_STATUS
+			,APPLY_FOR
+			,ADD_DATE
+			,ADD_TIME
+			,CONFIRM_USER_ID
+			,APP_COMMENT
+			,POSTPROCESSED
+			,APP_NO
+			,APP_NO_SEQ
+			,APP_LINE_SEQ
+			,RE_FLAG
+		) VALUES (
+			${session.HOUSE_CODE}
+			,${COMPANY_CODE}
+			,${SMR_NUMBER}
+			,CAST((CAST(NVL(
+		     			(SELECT PP.SEQ
+						  FROM SAPPP PP
+				 		 WHERE PP.HOUSE_CODE = ${session.HOUSE_CODE}
+				   		   AND PP.COMPANY_CODE = ${COMPANY_CODE}
+				   		   AND PP.SMR_NUMBER = ${SMR_NUMBER})
+		       , '0') as int) + 1) as varchar2(5) )
+		    ,${RECENT}
+			,${APP_STATUS}
+			,${APPLY_FOR}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${APP_COMMENT}
+			,${POSTPROCESSED}
+			,${APP_NO}
+			,${APP_NO_SEQ}
+			,${APP_LINE_SEQ}
+			,${RE_FLAG}
+		)
+	]]>
+	</method>
+</service>

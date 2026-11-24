@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectUPUSH">
+	<![CDATA[
+		SELECT CODE
+             , DESCRIPTION
+          FROM UPUSH
+         WHERE DEL_FLAG = 'N'
+           AND (   1=1
+               AND CODE        LIKE '%' || $S{F_KEYWORD} || '%'
+                OR DESCRIPTION LIKE '%' || $S{F_KEYWORD} || '%'
+             ) 
+	]]>
+	</method>
+    
+    <method name="doInsertUPUSH">
+    <![CDATA[
+		INSERT INTO UPUSH
+		(
+			  CODE
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DESCRIPTION
+			, DEL_FLAG          
+		)
+        VALUES
+		(
+			  ${CODE}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${DESCRIPTION}
+			, 'N'
+		)
+    ]]>
+    </method>
+    
+    <method name="doUpdateUPUSH">
+    <![CDATA[
+        UPDATE UPUSH
+           SET CHANGE_DATE    = ${current.DATE} 
+             , CHANGE_TIME    = ${current.TIME}
+             , CHANGE_USER_ID = ${session.ID}
+             , DESCRIPTION    = #DB_OWNER#NVL(${DESCRIPTION}, DESCRIPTION)
+             , DEL_FLAG       = #DB_OWNER#NVL(${DEL_FLAG}   , DEL_FLAG)
+         WHERE CODE           = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doDeleteUPUSH">
+    <![CDATA[
+        DELETE 
+          FROM UPUSH
+         WHERE CODE           = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doSelectUPUSO">
+    <![CDATA[
+        SELECT CODE
+             , TYPE
+             , OPTION_NAME
+             , OPTION_VALUE
+          FROM UPUSO
+         WHERE HOUSE_CODE = '000'
+           AND CODE       = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doInsertUPUSO">
+    <![CDATA[
+		INSERT INTO UPUSO
+		(
+			  HOUSE_CODE
+			, CODE
+			, TYPE
+			, OPTION_NAME
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, OPTION_VALUE
+		)
+		VALUES
+		(
+			  '000'
+			, ${CODE}
+			, ${TYPE}
+			, ${OPTION_NAME}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${OPTION_VALUE}
+		)
+    ]]>
+    </method>
+    
+    <method name="doDeleteUPUSO">
+    <![CDATA[
+		DELETE FROM
+			UPUSO
+		WHERE
+			HOUSE_CODE 	= '000'
+		AND CODE       	= ${CODE}
+		AND TYPE		= ${TYPE}
+		AND OPTION_NAME = ${OPTION_NAME}
+    ]]>
+    </method>
+    
+    <method name="doDelete">
+    <![CDATA[
+    	UPDATE
+    		UPUSH
+    	SET
+    		DEL_FLAG = ${DEL_FLAG} 
+    	WHERE
+    		CODE = ${CODE}
+    ]]>
+    </method>
+    
+    <method name="doInsertUPUSHHistory">
+    <![CDATA[
+    	INSERT INTO UPUSH_HISTORY
+		(
+			  HISTORY_KEY
+			, ACTION_MODE
+			, CODE
+			, DESCRIPTION
+			, DEL_FLAG
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+		)
+		VALUES
+		(
+			  ${HISTORY_KEY}
+			, ${ACTION_MODE}
+			, ${CODE}
+			, ${DESCRIPTION}
+			, ${DEL_FLAG}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+		)
+    ]]>
+    </method>
+    
+    <method name="doInsertUPUSOHistory">
+    <![CDATA[
+    	INSERT INTO upuso_history
+		(
+			  HISTORY_KEY
+			, ACTION_MODE
+			, HOUSE_CODE
+			, CODE
+			, TYPE
+			, OPTION_NAME
+			, OPTION_VALUE
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+		)
+		VALUES
+		(
+			  ${HISTORY_KEY}
+			, ${ACTION_MODE}
+			, '000'
+			, ${CODE}
+			, ${TYPE}
+			, ${OPTION_NAME}
+			, ${OPTION_VALUE}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+		)
+    ]]>
+    </method>
+</service>

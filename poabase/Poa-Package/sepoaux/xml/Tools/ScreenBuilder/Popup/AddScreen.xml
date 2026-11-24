@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="ADD_SCREEN_POPUP" header="false" tpl="editor.tpl">
+    <button id="btnObj">
+        <btn div="bKzzoEcEnBTdQiCwon" id="SAVE" type="save" text="{BUTTON.save}" onclick="onButtonClick( 'SAVE' )"/>
+        <btn div="bKzzoEcEnBTdQiCwon" id="CANCEL" type="cancel" text="{BUTTON.cancel}" onclick="onButtonClick( 'CANCEL' )"/>
+    </button>
+    <link>
+    <![CDATA[
+    	<link href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/screenbuilder/css/screenbuilder.css" rel="stylesheet" type="text/css" />
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+        div.multi_form_box{
+            display:table !important;
+            margin:0 auto !important;
+        }
+        div.form_area{
+        	display:inline-flex;
+        }
+        div.form_area .multi_form_box{
+        	margin:0 auto;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="PLzzoEcZRuApEcTXki" value="$($sObject._vp).find('#PLzzoEcZRuApEcTXki')[0]"/>
+        <var name="PLzzoEcYRuApEcFWAM" value="$($sObject._vp).find('#PLzzoEcYRuApEcFWAM')[0]"/>
+        <var name="formDiv" value="$($sObject._vp).find('#PLzzoEceFYApEcbFFa')[0]"/>
+        <var name="PLzzoEcdFYApEcjIEO" value="$($sObject._vp).find('#PLzzoEcdFYApEcjIEO')[0]"/>
+    </variable>
+    <onloadscript>
+        <event obj="Sepoa" type="onButtonClick" callback="onButtonClick"/>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="formObj"/>
+        <function name="init" args="">
+        <![CDATA[
+        	$sObject._vp[0].parentElement.classList.add("sepoa_form_label_top");
+        	
+            formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(formDiv, 'formObj', [Sepoa.params.formOption]);
+            formObj.attachEvent('onChange', onChange)
+            
+            formObj.dataMapper(Sepoa.params.data, "json")
+            setSize();
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if(id == 'CANCEL'){
+                selfObj.close();
+            }else if(id == 'SAVE'){
+                if(!formObj.validate()){
+                    return
+                }
+                
+                var ro = Sepoa.params.callback.apply( Sepoa.params.callObj,[{info:formObj.getFormData()}]);
+                if(ro.status){
+                    selfObj.close();
+                }else{
+                    Alert(ro.message);
+                }
+            }
+        ]]>
+        </function>
+        <function name="setSize" args="">
+        <![CDATA[
+            var s = {width:400, height:500}
+            
+            var tArray = [formObj];
+            for(var i in tArray){
+                var t = tArray[i];
+                if(t){
+                    var c = t._parent.children[0]
+                    var w = c.offsetWidth + 100;
+                    var h = c.offsetHeight + $sObject._vp.find("#PLzzoEcZRuApEcTXki").outerHeight() + 100;
+                    if(w > s.width) s.width = w;
+                    if(h > s.height) s.height = h;
+                }
+            }
+            
+            selfObj[selfObj.name].setDimension(s.width, s.height);
+            selfObj[selfObj.name].center();
+        ]]>
+        </function>
+        <function name="onChange" args="name, value">
+        <![CDATA[
+            if(name == "NONSTD_PATH"){
+                if(value == 'Y'){
+                    this.enableItem('PATH_3');
+                    this.hideItem('PATH_2')
+                    this.setItemWidth('PATH_1', '274')
+                    this.setItemValue('PATH_2', '', true)
+                    this.setItemValue('PATH_3', '')
+                }else{
+                    this.setItemWidth('PATH_1', '129')
+                    this.disableItem('PATH_3');
+                    this.showItem('PATH_2')
+                    this.setItemValue('PATH_1', '', true)
+                    this.setItemValue('PATH_2', '')
+                }
+            }else if(["PATH_1","PATH_2", "PATH_3", "NAME"].indexOf(name) + 1){
+                var PATH_1 = formObj.getValue("PATH_1").trim();
+                var PATH_2 = formObj.getValue("PATH_2").trim();
+                var PATH_3 = formObj.getValue("PATH_3").trim();
+                var NAME = formObj.getValue("NAME").trim();
+                var NONSTD_PATH = formObj.getValue('NONSTD_PATH').trim();
+                
+                var pathArray = [];
+                if(PATH_1 && PATH_2){
+                    PATH_3 = PATH_1+""+PATH_2;
+                    formObj.setValue("PATH_3", PATH_3, true)
+                    
+                    if(NAME){
+                        pathArray.push(PATH_1, PATH_2, PATH_3+NAME);
+                    }
+                }else if(PATH_1 && NONSTD_PATH == 'Y' && (PATH_3+NAME)){
+                    pathArray.push(PATH_1, PATH_3+NAME);
+                }
+                
+                if(NAME){
+                    formObj.setValue("PATH", "/"+pathArray.join("/")+".xml", true);
+                }
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYkt6em9FY0VuQlRkUWlDd29uIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0In0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJPQkpFQ1RfSUQiOiJiS3p6b0VjRW5CVGRRaUN3b24iLCJJVEVNXzBfVFlQRSI6InNhdmUiLCJJVEVNXzBfSUQiOiJTQVZFIiwiSVRFTV8wX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8wX1BBUkFNIjoiJiMzOTtTQVZFJiMzOTsiLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLnNh
+        dmUiLCJJVEVNXzBfVEVYVCI6IuyggOyepSIsIklURU1fMV9UWVBFIjoiY2FuY2VsIiwiSVRFTV8xX0lEIjoiQ0FOQ0VMIiwiSVRFTV8xX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8xX1BBUkFNIjoiJiMzOTtDQU5DRUwmIzM5OyIsIklURU1fMV9TTENPREUiOiJCVVRUT04uY2FuY2VsIiwiSVRFTV8xX1RFWFQiOiLsnbTsoIQiLCJJVEVNXzBfU09SVCI6IjEiLCJJVEVNXzFfU09SVCI6IjIifSwiaWQiOiJiS3p6b0VjRW5CVGRRaUN3b24iLCJ0eXBlIjoiYnV0dG9uIiwiYnV0dG9uIjoiYnV0dG9uIn0sImFLenpvRWNJck1NZFFpQ01QYiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiQUREX1NDUkVFTl9QT1BVUCJ9LCJpZCI6ImFLenpv
+        RWNJck1NZFFpQ01QYiIsInR5cGUiOiJib2R5In0sIlBMenpvRWNlRllBcEVjYkZGYSI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybURpdiIsIk9CSkVDVF9JRCI6IlBMenpvRWNlRllBcEVjYkZGYSJ9LCJpZCI6IlBMenpvRWNlRllBcEVjYkZGYSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJQTHp6b0VjZEZZQXBFY2pJRU8iOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiUEx6em9FY2RGWUFwRWNqSUVPIn0sImlkIjoiUEx6em9FY2RGWUFwRWNqSUVPIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJQTHp6b0VjWlJ1QXBFY1RYa2kiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6IlBMenpvRWNa
+        UnVBcEVjVFhraSJ9LCJpZCI6IlBMenpvRWNaUnVBcEVjVFhraSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJQTHp6b0VjWVJ1QXBFY0ZXQU0iOnsibGF5b3V0Ijp7Ik1BUkdJTl9MRUZUIjoiMTBweCIsIk1BUkdJTl9SSUdIVCI6IjEwcHgifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJQTHp6b0VjWVJ1QXBFY0ZXQU0iLCJPQkpFQ1RfSUQiOiJQTHp6b0VjWVJ1QXBFY0ZXQU0ifSwiaWQiOiJQTHp6b0VjWVJ1QXBFY0ZXQU0iLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiYUt6em9FY0lyTU1kUWlDTVBiIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJQTHp6b0VjWVJ1QXBFY0ZXQU0iLCJ0eXBlIjoiY29udGFp
+        bmVyIiwiY2VsbHMiOlt7ImlkIjoiUEx6em9FY1pSdUFwRWNUWGtpIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6ImJLenpvRWNFbkJUZFFpQ3dvbiIsInR5cGUiOiJidXR0b24ifV19XX0seyJpZCI6IlBMenpvRWNkRllBcEVjaklFTyIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJQTHp6b0VjZUZZQXBFY2JGRmEiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVG9vbHMvU2NyZWVuQnVpbGRlci9Qb3B1cC9BZGRTY3JlZW4ueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJUb29scy9TY3JlZW5CdWlsZGVyL1BvcHVwIiwiSEVB
+        REVSIjoiZmFsc2UiLCJOQU1FIjoiQWRkU2NyZWVuIiwiQ09ERSI6IlNDUkVFTl9QT1BVUCIsIlBSRUZJWCI6IkFERCIsIlNDUkVFTl9JRCI6IkFERF9TQ1JFRU5fUE9QVVAifX0sImh0bWwiOiI8ZGl2IGlkPVwiYUt6em9FY0lyTU1kUWlDTVBiXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4
+        X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwibWFyZ2luOm1hcmdpbi10b3A6MDttYXJnaW4tcmlnaHQ6MTBweDttYXJnaW4tYm90dG9tOjA7bWFyZ2luLWxlZnQ6MTBweDt3aWR0aDo7XCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJQTHp6b0VjWVJ1QXBFY0ZXQU1cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxl
+        PVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiUEx6em9FY1pSdUFwRWNUWGtpXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVy
+        XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImJLenpvRWNFbkJUZFFpQ3dvblwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYg
+        aWQ9XCJQTHp6b0VjZEZZQXBFY2pJRU9cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiUEx6em9FY2VGWUFwRWNiRkZhXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBv
+        bmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryModuleMaster">
+	<![CDATA[
+		SELECT
+			  MODULE
+			, MODULE AS TREE_ID
+			, PARENT AS TREE_PARENT_ID
+			, DESCRIPTION
+			, NODE
+			, "TYPE"
+			, "OPTIONS"
+			, "REMARK"
+			, SORT
+		FROM
+			SBMMA
+		ORDER BY
+			  PARENT ASC
+			, SORT ASC
+	]]>
+	</method>
+	
+	<method name="doQueryModuleFiltered">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, MODULE
+			, "OPTIONS"
+		FROM
+			SCMAM
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE FROM
+			SCMAM
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doInsert">
+	<![CDATA[
+		INSERT INTO SCMAM
+		(
+			  HOUSE_CODE
+			, MODULE
+			, "OPTIONS"
+		)
+		VALUES
+		(
+			  ${HOUSE_CODE}
+			, ${MODULE}
+			, ${EXTENSION_VALUE}
+		)
+	]]>
+	</method>
+</service>

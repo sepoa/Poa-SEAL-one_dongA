@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doList">
+	<![CDATA[
+      	SELECT PROCESS_ID
+      	  	  ,DESCRIPTION
+      	  FROM SFRWK 
+         WHERE METHOD                 = SERVICE_CLASS 
+           AND NVL(DEL_FLAG, 'N')     = 'N'
+           AND HOUSE_CODE             = ${session.HOUSE_CODE}
+           AND (    1=1
+                AND UPPER(PROCESS_ID) LIKE '%' || UPPER($S{F_KEYWORD}) || '%'
+ 		  	     OR DESCRIPTION       LIKE '%' || UPPER($S{F_KEYWORD}) || '%'
+ 			   )
+         ORDER 
+            BY PROCESS_ID
+	]]>
+	</method>
+</service>

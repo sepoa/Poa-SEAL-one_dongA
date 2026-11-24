@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE INDEX SFMFI_H_D_IDX ON SFMFI(HOUSE_CODE, DOC_NUMBER)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE INDEX SFMFI_H_D_IDX ON SFMFI(HOUSE_CODE, DOC_NUMBER)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE INDEX SFMFI_H_D_IDX ON SFMFI(HOUSE_CODE, DOC_NUMBER)
+		]]>
+		</query>
+	</item>
+</body>

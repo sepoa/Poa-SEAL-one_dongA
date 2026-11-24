@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_019_2" header="false">    <template>    <![CDATA[        <div class="container" id="container">        	<div class="buttonArea" style="float:left;width:100%;">        		<div id="buttonbox" class="buttonbox" style="float:right;padding:10px 10px 10px 0;"></div>        	</div>        	<div id="formbox"></div>        </div>    ]]>    </template>
+    <if test="Sepoa.info.LANGUAGE" operator="eq" value="'KO'">	    <form id="formObj" div="formbox" form-id="AD_019_2">	        <event type="onXLE" callback="doLoadEnd"/>	        <event type="onChange" callback="Changefn"/>	    </form>
+    </if>
+    <if test="Sepoa.info.LANGUAGE" operator="ne" value="'KO'">
+	    <form id="formObj" div="formbox" form-id="AD_019_2_{LANGUAGE}">
+	        <event type="onXLE" callback="doLoadEnd"/>
+	        <event type="onChange" callback="Changefn"/>
+	    </form>
+    </if>    <button id="btnObj">        <btn div="buttonbox" id="FORCE_LOGON" reverse="false" text="{AD_019_2.FORCE_LOGON}"/>    </button>    <usercss>    <![CDATA[        div.form_area{            float:left;        }        div.buttonArea{            float:right !important;            width:auto !important;        }    ]]>    </usercss>    <onloadscript>        <call name="callFunction" args="'parent', 'changeHeaderIcon',['b','show','add']"/>        <event obj="Sepoa" type="onButtonClick">            <function args="id">            <![CDATA[                if(id=='save'){                doFormSave();            }else if(id=='FORCE_LOGON'){                changeUserLogon();            }else if(id=='add'){                doAdd();            }else if(id == 'VENDOR_SEARCH' ){                PopupCommonPost( 'SP0018', setSeller, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);            }            ]]>            </function>        </event>        <event obj="formObj" type="onButtonClick">            <function args="id">            <![CDATA[                if(id == 'VENDOR_SEARCH' ){                PopupCommonPost( 'SP0018', setSeller, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);            }            ]]>            </function>        </event>    </onloadscript>    <scriptlet>    <![CDATA[    ]]>    </scriptlet>    <userscript>        <function name="onChange" args="name,value">        <![CDATA[            if(name == 'USER_TYPE' && value == 'B'){                formObj.hideItem("SELLER_NAME_LOC");                formObj.hideItem("VENDOR_SEARCH");                formObj.hideItem("SELLER_CODE");            } else{                formObj.showItem("SELLER_NAME_LOC");                formObj.showItem("VENDOR_SEARCH");                formObj.showItem("SELLER_CODE");            }        ]]>        </function>        //협력사 팝업 콜백         <function name="setSeller" args="code, name">        <![CDATA[            formObj.setValue('SELLER_CODE', code);            formObj.setValue('SELLER_NAME_LOC', name);        ]]>        </function>        <function name="doFormLoad" args="user_id">        <![CDATA[            //헤더버튼 제어            var formResult = doServiceAjax('sepoa.svc.admin.AD_019_2','CONNECTION','doFormLoad',{USER_ID:user_id}, function( formResult ){ 
+                if(formResult.status != 1){                    Alert(formResult.message);                    return;                }                var sf = new SepoaFormater(formResult.result[0]);                if(sf.getRowCount() > 0){                    formObj.dataMapper(sf);                }                callFunction(['parent'],'changeHeaderIcon', ['b' , 'show', 'save']);            });
+        ]]>        </function>        <function name="doLoadEnd" args="">        <![CDATA[            formObj.reloadComboBox('DEPT',['SL0015','{HOUSE_CODE}#'+formObj.getValue('COMPANY_CODE')]);            if(formObj.getValue("COMPANY_CODE")){
+          		callFunction(['AD_019_6'],'changeToCarousel1', []);                callFunction(['AD_019_3'],'TR_FN', []);            }        ]]>        </function>        <function name="doAdd" args="">        <![CDATA[            formObj.clear(true);            callFunction('parent','changeHeaderIcon',['b', 'show', 'save']);            var companyCode = formObj.getValue("COMPANY_CODE");            var userType = formObj.getValue("USER_TYPE");        ]]>        </function>        <function name="doFormSave" args="">        <![CDATA[
+        	if(formObj.getValue('PASSWORD_1').length > 0 ){
+				if(LRTrim(formObj.getValue('PASSWORD_1')) != LRTrim(formObj.getValue('PASSWORD_2'))){
+					Alert(Sepoa.cache.text.get('MESSAGE.1039'));//비밀번호가 일치하지 않습니다.
+					return;
+				}else if(checkPass(formObj.getValue('PASSWORD_1')) == false){
+					Alert(Sepoa.cache.text.get('AD_051.MESSAGE_0002'));
+					return;
+				}
+			}            Confirm(Sepoa.cache.text.get('MESSAGE.1018'),function(result){                if(result){                    var formResult = doServiceAjax('sepoa.svc.admin.AD_019_2','TRANSACTION','doFormSave', null, function( formResult ){ 
+                        if(formResult.status == 1){                            Alert(Sepoa.cache.text.get('MESSAGE.1022'));                            doFormLoad();                            callFunction(['AD_019_1'],'doQuery_standbyUserList', []);                            callFunction(['AD_019_1'],'doQuery_UserList', []);                            return;                        }else{                            Alert(formResult.message);                        }                    });
+                }            });        ]]>        </function>
+         <function name="checkPass" args="str">
+        <![CDATA[
+           var reg = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{10,20}$/;
+           return reg.test(str);
+        ]]>
+		</function>        <function name="Changefn" args="name,value">        <![CDATA[            if(name=='COMPANY_CODE'){
+            	var company_code = "";
+            	if(formObj.getValue('COMPANY_CODE') =="" || formObj.getValue('COMPANY_CODE') ==null){
+            		  company_code = Sepoa.info.COMPANY_CODE;
+           	 	}else{
+            		  company_code = formObj.getValue('COMPANY_CODE');
+           		}
+           		
+                formObj.reloadComboBox('PLANT_CODE',['SL0014',Sepoa.info.HOUSE_CODE+"#"+company_code]);                formObj.reloadComboBox('DEPT',['SL0015',Sepoa.info.HOUSE_CODE+"#"+company_code]);            }        ]]>        </function>        <function name="companyinfo" args="">        <![CDATA[            var data = [];            data.push(formObj.getValue('COMPANY_CODE'));            data.push(formObj.getSelectedOption('COMPANY_CODE'));            data.push('ctrl');            data.join(',');            return data;        ]]>        </function>        <function name="changeUserLogon" args="">        <![CDATA[            var user_id = formObj.getValue("USER_ID");            if(!user_id){                return;            }            var params = {                user_id:user_id,                force_login_flag:true,                browser_language:Sepoa.info.LANGUAGE,                language:Sepoa.info.LANGUAGE,                house_code:Sepoa.info.HOUSE_CODE            }            doServiceAjax('sepoa.svc.co.CO_004','CONNECTION','changeUserLogon',params, function( so ){ 
+                if(so.status == 0){                    Alert(so.message);                }else if(so.status == 1){                    SUX.root.location.href = "/Main.sux";                }            });
+        ]]>        </function>    </userscript></body>

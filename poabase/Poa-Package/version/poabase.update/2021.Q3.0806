@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SIFLH ADD (HOUSE_CODE VARCHAR2(10))
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SIFLH ADD HOUSE_CODE VARCHAR(10)
+		]]>
+		</query>
+	</item>
+</body>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AP_112" header="false">
+    <carousel id="carouselObj" div="lLnyypeCbBzypeTaDj">
+        <item id="MARK_CORP" render="lazy">
+            <attach file="/Seal/Document/Corp/SealDocumentCorpWrite.xml"/>
+        </item>
+        <item id="MARK_USE" render="lazy">
+            <attach file="/Seal/Document/Use/SealDocumentUseWrite.xml"/>
+        </item>
+        <item id="MARK_EXT" render="lazy">
+            <attach file="/Seal/Document/External/SealDocumentExternalWrite.xml"/>
+        </item>
+        <item id="MARK_CERT_EXT" render="lazy">
+            <attach file="/Public/CertExt/PublicCertExtWrite.xml"/>
+        </item>
+    	<item id="MANAGE_NEW" render="lazy">
+			<attach
+				file="/Seal/Manage/SealManageNewForm.xml" />
+		</item>
+		<item id="MANAGE_UP" render="lazy">
+			<attach
+				file="/Seal/Manage/SealManageUpdateForm.xml" />
+		</item>
+		<item id="MANAGE_LOSS" render="lazy">
+			<attach
+				file="/Seal/Manage/SealManageLossForm.xml" />
+		</item>
+		<item id="MANAGE_RET" render="lazy">
+			<attach
+				file="/Seal/Manage/SealManageReturnForm.xml" />
+		</item>
+		<item id="MARK_CERT" render="lazy">
+            <attach file="/Seal/Document/Cert/SealDocumentCertWrite.xml"/>
+        </item>
+        <item id="CONTRACT">
+            <attach
+                file="/Contract/Module/ContractModuleLayout.xml" />
+        </item>
+	</carousel>
+    <onloadscript/>
+    <userscript>
+        <function name="setDetailView" args="obj">
+        <![CDATA[
+        	var itemId = '';
+            switch (obj.APP_TYPE) {
+                case 'J01':	//법인인감 날인요청
+                    callFunction('SLM_211', 'doQuery', [obj.SUX_WKEY1, 'N', 'APP']);
+                    itemId = 'MARK_CORP';
+                    break;
+                case 'J02':	// 사용인감 날인요청
+                    callFunction('SLM_221', 'doQuery', [obj.SUX_WKEY1, 'N', 'APP']);
+                    itemId = 'MARK_USE';
+                    break;
+                case 'J03': // 사용인감 반출요청
+        			callFunction('SLM_501', 'doQuery', [obj.SUX_WKEY1, 'N', 'APP']);
+	            	itemId = 'MARK_EXT';
+	            	break;
+                case 'E01': // 공동인증서 반출요청
+        			callFunction('SPC_001', 'doQuery', [obj.SUX_WKEY1, 'N', 'APP']);
+	            	itemId = 'MARK_CERT_EXT';
+	            	break;
+	            case 'J04': // 법인인감 등록신청
+	            	callFunction('SLM_123', 'doLoad', [obj.SUX_WKEY2, obj.SUX_WKEY3, 'APP']);
+	            	itemId = 'MANAGE_NEW';
+	            	break;
+	            case 'J05':	// 사용인감 등록신청
+	            	callFunction('SLM_123', 'doLoad', [obj.SUX_WKEY2, obj.SUX_WKEY3, 'APP']);
+	            	itemId = 'MANAGE_NEW';
+	            	break;
+	            case 'J06':	// 인감 변경요청
+	            	callFunction('SLM_133', 'doLoad', [obj.SUX_WKEY2, obj.SUX_WKEY3]);
+	            	itemId = 'MANAGE_UP';
+	            	break;
+	            case 'J07':	// 인감 반납요청
+	            	callFunction('SLM_143', 'doLoad', [obj.SUX_WKEY2, obj.SUX_WKEY3]);
+	            	itemId = 'MANAGE_LOSS';
+	            	break;
+	            case 'J08':	// 인감 분실신고
+	            	callFunction('SLM_153', 'doLoad', [obj.SUX_WKEY2, obj.SUX_WKEY3]);
+	            	itemId = 'MANAGE_RET';
+	            	break;
+            	case 'J09':	// 증명서발급신청
+            		callFunction('SLM_251', 'doQuery', [obj.SUX_WKEY1, 'N', 'APP']);
+            		itemId = 'MARK_CERT';
+	            	break;
+                case 'C01' : // 전자계약
+                    callFunction('CT_502_L', 'doOpenDocument', [{
+                        module: {
+                            WORK_TYPE: 'C',                          // T: template, C:contract
+                            CONT_TYPE: 'B',                          // B: Business, E: Employee
+                            CONT_MODULE: 'APPROVAL'
+                        }, 
+                        document: {
+                            CONT_TYPE : 'B', //B: Business, E: Employee
+                            CONT_NO : obj.SUX_WKEY3,
+                            CONT_GL_SEQ : obj.SUX_WKEY4
+                        },
+                        editor: {
+                            header:[]
+                        }
+                    }]);
+                    
+                    itemId = 'CONTRACT';
+                    break;
+                default:
+                    break;
+            }
+            carouselObj.cells(itemId).setActive();
+        ]]>
+		</function>
+		<function name="doBack">
+        <![CDATA[
+            callFunction(['p','p'], 'doQuery', []);
+        ]]>
+		</function>
+	</userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsia09LQ2xtZWN3eHlOTWNpd3hrIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUF8xMDEifSwiaWQiOiJrT0tDbG1lY3d4eU5NY2l3eGsiLCJ0eXBlIjoiYm9keSJ9LCJsTG55eXBlQ2JCenlwZVRhRGoiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9mOWZvazVXV1VRcm8iOiJudWxsIiwiZGh4SWRfaGNIUnhUUW1yZmhN
+        IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX01ONmNualBHS094RyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzFBWWhTaGpRVWN2RyI6Im51bGwiLCJkaHhJZF8wTlVNYzJBR21jTmMiOiJudWxsIiwiZGh4SWRfNjZxMXNpZUtneHZCIjoibnVsbCIsImRoeElkX0htSGdNcld2TWp1cCI6Im51bGwiLCJkaHhJZF9rbW9pclNOa1Z1bVMiOiJudWxsIiwiZGh4SWRfc0lFRWhIUlRiRWJYIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY2Fyb3VzZWxPYmoiLCJJVEVNX1JTUlFBSkZHREtEQ0ZVUU1ZX1RZUEUiOiJVIiwiSVRFTV9SU1JRQUpGV0pDRENGVURMTV9TT1JUIjoiMiIsIk9CSkVDVF9JRCI6ImxM
+        bnl5cGVDYkJ6eXBlVGFEaiIsIklURU1fUlNSUUFKRldKQ0RDRlVETE1fSUQiOiJWSUVXIiwiSVRFTV9SU1JRQUpGV0pDRENGVURMTV9UWVBFIjoiVSIsIklURU1fUlNSUUFKRkdES0RDRlVRTVlfSUQiOiJMSVNUIiwiSVRFTV9SU1JRQUpGR0RLRENGVVFNWV9UQVJHRVQiOiIvU2VhbC9BcHByb3ZhbC9TZWFsQXBwcm92YWxMaXN0LnhtbCIsIklURU1fUlNSUUFKRldKQ0RDRlVETE1fVEFSR0VUIjoiL1NlYWwvQXBwcm92YWwvU2VhbEFwcHJvdmFsVmlld0xheW91dC54bWwiLCJJVEVNX1JTUlFBSkZHREtEQ0ZVUU1ZX1NPUlQiOiIxIn0sImlkIjoibExueXlwZUNiQnp5cGVUYURqIiwidHlwZSI6ImNhcm91c2VsIn0sIlJTUlFBSkZHREtEQ0ZVUU1ZIjp7ImxheW91
+        dCI6e30sImNvbXBvbmVudCI6eyJUWVBFIjoiVSIsIklEIjoiTElTVCIsIml0ZW1JRCI6IlJTUlFBSkZHREtEQ0ZVUU1ZIiwiVEFSR0VUIjoiL1NlYWwvQXBwcm92YWwvU2VhbEFwcHJvdmFsTGlzdC54bWwiLCJTT1JUIjoiMSJ9LCJpZCI6IlJTUlFBSkZHREtEQ0ZVUU1ZIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIiwibmFtZSI6IkxJU1QifSwiUlNSUUFKRldKQ0RDRlVETE0iOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlNPUlQiOiIyIiwiSUQiOiJWSUVXIiwiaXRlbUlEIjoiUlNSUUFKRldKQ0RDRlVETE0iLCJUWVBFIjoiVSIsIlRBUkdFVCI6Ii9TZWFsL0FwcHJvdmFsL1NlYWxBcHByb3ZhbFZpZXdMYXlvdXQueG1sIn0s
+        ImlkIjoiUlNSUUFKRldKQ0RDRlVETE0iLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJjYXJvdXNlbENlbGwiLCJuYW1lIjoiVklFVyJ9fSwidHJlZSI6eyJpZCI6ImtPS0NsbWVjd3h5Tk1jaXd4ayIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoibExueXlwZUNiQnp5cGVUYURqIiwidHlwZSI6ImNhcm91c2VsIiwiY2VsbHMiOlt7ImlkIjoiUlNSUUFKRkdES0RDRlVRTVkiLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIn0seyJpZCI6IlJTUlFBSkZXSkNEQ0ZVRExNIiwidHlwZSI6ImNhcm91c2VsQ2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL1NlYWwvQXBwcm92YWwvU2VhbEFwcHJvdmFsQ2Fyb3VzZWwueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJDT0RF
+        IjoiMTAxIiwiUFJFRklYIjoiQVAiLCJQQVRIXzIiOiJBcHByb3ZhbCIsIlBBVEhfMyI6IlNlYWxBcHByb3ZhbCIsIlBBVEhfMSI6IlNlYWwiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJDYXJvdXNlbCIsIlNDUkVFTl9JRCI6IkFQXzEwMSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJrT0tDbG1lY3d4eU5NY2l3eGtcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1c
+        IlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImxMbnl5cGVDYkJ6eXBlVGFEalwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfY2Fyb3VzZWwgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAg
+        ICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

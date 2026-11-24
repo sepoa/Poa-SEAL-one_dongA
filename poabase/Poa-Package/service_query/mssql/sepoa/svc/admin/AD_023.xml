@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryClient">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, COMPANY_NAME
+		FROM
+			USERVICE
+		WHERE HOUSE_CODE <> '000'
+        AND	COMPANY_CODE = '1000'
+		AND HOUSE_CODE = $S{HOUSE_CODE}
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		AND ( UPPER( HOUSE_CODE )  LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%' 
+      	      OR UPPER( COMPANY_CODE ) LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%' 
+      	      OR UPPER( COMPANY_NAME ) LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%') 
+	]]>
+	</method>
+	
+	<method name="doList">
+	<![CDATA[
+    	SELECT DISTINCT
+    		GRID_ID
+		FROM
+			SGRID 
+		WHERE
+			HOUSE_CODE = '000'
+		AND UPPER(GRID_ID) LIKE '%' + UPPER($S{F_KEYWORD}) + '%'
+		ORDER BY
+			GRID_ID
+	]]>
+	</method>
+	
+	<method name="getMasterGridData">
+	<![CDATA[
+		SELECT LANG.CONTENTS        AS CONTENTS
+		     , GRID.HOUSE_CODE
+		     , GRID.GRID_ID
+		     , GRID.CODE
+		     , GRID.COL_TYPE
+		     , #DB_OWNER#NVL(GRID.NOT_NULL, 0) NOT_NULL
+		     , GRID.COL_FORMAT
+		     , LANG.GRID_WIDTH       AS COL_WIDTH
+		     , GRID.COL_ALIGN
+		     , GRID.COL_VISIBLE
+		     , GRID.COL_SEQ
+		     , GRID.COL_COLOR
+		     , GRID.COL_SORT
+	      FROM SGRID GRID
+	      LEFT OUTER 
+	      JOIN SLANG LANG
+	    	ON GRID.HOUSE_CODE  = LANG.HOUSE_CODE 
+	       AND GRID.GRID_ID     = LANG.SCREEN_ID 
+	       AND GRID.CODE        = LANG.CODE
+	       AND LANG.LANGUAGE    = ${session.LANGUAGE}
+	     WHERE GRID.GRID_ID     = ${GRID_ID} 
+	       AND GRID.HOUSE_CODE  = '000'
+	       AND (   1=1
+		   	   AND upper(GRID.CODE)     like '%' + upper($S{F_KEYWORD}) + '%'
+		   	   OR  upper(LANG.CONTENTS) like '%' + upper($S{F_KEYWORD}) + '%'
+		   	   )
+	     ORDER 
+	        BY GRID.COL_SEQ, CODE
+	]]>
+	</method>
+	
+	<method name="getFilteredGridData">
+	<![CDATA[
+		SELECT 
+			  GRFT.HOUSE_CODE
+			, GRFT.GRID_ID
+			, GRFT.CODE
+			, GRFT.COL_TYPE
+			, GRFT.NOT_NULL
+			, GRFT.COL_FORMAT
+			, GRFT.COL_ALIGN
+			, GRFT.COL_SORT
+			, GRFT.COL_COLOR
+			, GRFT.COL_SEQ
+			, LANG.CONTENTS
+			, LANG.GRID_WIDTH       AS COL_WIDTH
+		FROM
+			SGRFT GRFT
+		LEFT OUTER JOIN SLANG LANG
+		on	  LANG.HOUSE_CODE = GRFT.HOUSE_CODE
+		and LANG.SCREEN_ID = GRFT.GRID_ID
+		and LANG.CODE = GRFT.CODE
+		and LANG.LANGUAGE = ${session.LANGUAGE}
+		where
+			GRFT.HOUSE_CODE = ${HOUSE_CODE}
+		AND GRFT.GRID_ID = ${GRID_ID}
+	]]>
+	</method>
+	
+	<method name="doDeleteSGRFT">
+	<![CDATA[
+		DELETE FROM 
+			SGRFT 
+		WHERE 
+			GRID_ID = ${GRID_ID}
+		AND HOUSE_CODE = ${HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doInsertSGRFT">
+	<![CDATA[
+		INSERT INTO SGRFT
+		(
+			  HOUSE_CODE
+			, GRID_ID
+			, CODE
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+			, CHANGE_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, COL_TYPE
+			, NOT_NULL
+			, COL_FORMAT
+			, COL_ALIGN
+			, COL_SORT
+			, COL_COLOR
+			, COL_SEQ
+		)
+		VALUES
+		(
+			  ${HOUSE_CODE}
+			, ${GRID_ID}
+			, ${CODE}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${COL_TYPE}
+			, ${NOT_NULL}
+			, ${COL_FORMAT}
+			, ${COL_ALIGN}
+			, ${COL_SORT}
+			, ${COL_COLOR}
+			, ${COL_SEQ}
+		)
+	]]>
+	</method>	
+	
+	<method name="doDeleteSLANG">
+	<![CDATA[
+		DELETE FROM
+			SLANG
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND SCREEN_ID = ${GRID_ID}
+		AND LANGUAGE = ${session.LANGUAGE}
+		AND CODE = ${CODE}
+	]]>
+	</method>
+	
+	<method name="doInsertSLANG">
+	<![CDATA[
+		INSERT INTO SLANG
+		(
+			  HOUSE_CODE
+			, SCREEN_ID
+			, LANGUAGE
+			, CODE
+			, CONTENTS
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+			, CHANGE_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, DEL_FLAG
+			, GRID_WIDTH
+		)
+		VALUES
+		(
+			  ${HOUSE_CODE}
+			, ${GRID_ID}
+			, ${session.LANGUAGE}
+			, ${CODE}
+			, ${CONTENTS}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, 'N'
+			, ${COL_WIDTH}
+		)
+	]]>
+	</method>
+</service>

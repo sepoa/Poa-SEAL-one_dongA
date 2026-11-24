@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT
+		       USMT.USER_ID,
+		       USMT.PASSWORD,
+		       USMT.EMAIL
+		     FROM SUSMT USMT 
+			 WHERE 1=1
+			 AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+			 AND #DB_OWNER#NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+		]]>
+	</method>
+	
+	<method name="doQuery_EMAIL">
+		<![CDATA[
+			SELECT
+		       USMT.USER_ID,
+		       USMT.USER_NAME_LOC,
+		       USMT.PASSWORD,
+		       USMT.EMAIL
+		     FROM SUSMT USMT 
+			 WHERE 1=1
+			 AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+			 AND UPPER(USMT.USER_NAME_LOC) = UPPER(${USER_NAME})
+			 AND #DB_OWNER#NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+		]]>
+	</method>
+
+	<method name="doQueryID">
+		<![CDATA[
+			SELECT
+		       USMT.USER_NAME_LOC AS USER_NAME,
+		       USMT.USER_ID,
+		       USMT.EMAIL,
+               USMT.HOUSE_CODE,
+               USMT.COMPANY_CODE
+		     FROM SUSMT USMT 
+			 WHERE UPPER(USMT.USER_NAME_LOC) = UPPER(${USER_NAME})
+			   AND UPPER(USMT.EMAIL) = UPPER(${EMAIL})
+			   AND USMT.HOUSE_CODE  = ${session.HOUSE_CODE}
+		]]>
+	</method>
+	
+	<method name="doValidateResetPW">
+		<![CDATA[
+			SELECT
+		       USMT.USER_NAME_LOC AS USER_NAME,
+		       USMT.USER_ID,
+		       USMT.EMAIL,
+               USMT.HOUSE_CODE,
+               USMT.COMPANY_CODE
+		     FROM SUSMT USMT 
+			 WHERE UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+			   AND UPPER(USMT.EMAIL) = UPPER(${EMAIL})
+			   AND USMT.HOUSE_CODE  = ${session.HOUSE_CODE}
+		]]>
+	</method>
+
+	<method name="updatePasswordResetReq">
+		<![CDATA[
+			UPDATE SUSMT SET
+				   PW_RESET_DATE = ${PW_RESET_REQ_DATE}
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			   AND UPPER(USER_ID) = UPPER(${USER_ID})
+		]]>
+	</method>
+
+	<method name="doUpdateResetPW">
+		<![CDATA[
+			UPDATE SUSMT SET 
+				   PW_RESET_REQ_DATE = '',
+				   PW_RESET_REQ_TIME = '',
+				   PASSWORD = ${ENCRYPTED_PASSWORD},
+				   CHANGE_USER_ID = ${USER_ID},
+				   CHANGE_DATE = ${current.DATE},
+				   CHANGE_TIME = ${current.TIME},
+				   PW_RESET_DATE = ${current.DATE}
+				   , PASS_CHECK_CNT = '0'
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			   AND UPPER(USER_ID) = UPPER(${USER_ID})
+			   AND PW_RESET_REQ_DATE = ${PW_RESET_REQ_DATE}
+			   AND PW_RESET_REQ_TIME = ${PW_RESET_REQ_TIME}
+		]]>
+	</method>
+    <method name="resetPassword">
+        <![CDATA[
+            UPDATE SUSMT 
+               SET  PASSWORD  = ${PASSWORD}
+                   ,PW_RESET_FLAG = 'N'
+                   ,PW_RESET_DATE = ${current.DATE} 
+                   ,PASS_CHECK_CNT = 0
+             WHERE #DB_OWNER#NVL(DEL_FLAG, 'N' ) = 'N'
+               AND HOUSE_CODE = ${HOUSE_CODE}
+               AND UPPER(USER_ID)  = UPPER(${USER_ID})
+        ]]>
+    </method>
+    <method name="setMailRequestor">
+        <![CDATA[
+            SELECT
+                   USMT.HOUSE_CODE,
+                   USMT.USER_ID,
+                   USMT.PASSWORD,
+                   USMT.EMAIL,
+                   USMT.USER_NAME_LOC AS USER_NAME
+             FROM SUSMT USMT 
+            WHERE 1=1
+              AND USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+              AND USMT.USER_ID = ${USER_ID}
+              AND UPPER(USMT.EMAIL) = UPPER(${EMAIL})
+              AND #DB_OWNER#NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+        ]]>
+    </method>
+    <method name="getLogo">
+    <![CDATA[
+        SELECT #DB_OWNER#NVL(MAX(DOC_SEQ), 0 ) AS SEQ
+            FROM SFILE
+            WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+                AND DOC_NO = ${LOGO_ATTACH_KEY}
+    ]]>
+    </method>
+</service>

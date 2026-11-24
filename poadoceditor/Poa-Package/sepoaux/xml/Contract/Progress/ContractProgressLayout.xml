@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_101" header="false" tpl="editor.tpl">
+    <layout id="layoutObj" div="pQwCyZdDkaDyZdAKwl" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="contents"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+        </cell>
+    </layout>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"></var>
+        <var name="$shareFnNames">
+        <![CDATA[
+            ['doChangeView', 'doUpdateDocumentInfo', 'doQueryDocumentExtraData', 'doDeleteDocument', 'doTerminationDocument', 'doAlterationDocument', 'doPushResend', 'doAfterProcess', 'doManualContractUpload']
+        ]]>
+        </var>
+        <function name="init">
+        <![CDATA[
+            $share.fn={};
+            for(var i in $shareFnNames){
+                var fnName = $shareFnNames[i];
+                $share.fn[fnName] = $sObject[fnName];
+            }
+            
+            SUX.attachEvent('onActive', function() {
+                $share.fn.doQuery();
+            });
+        ]]>
+        </function>
+        
+        <function name="setConfig" args="config">
+        <![CDATA[
+            $share.config = config;
+            var type = config.TYPE;
+            dataOutput.setValue('TYPE', type);
+            var splitedType = type.split('_');
+            for(var i in splitedType){
+                if(splitedType[i].length > 1){
+                    splitedType[i] = splitedType[i].charAt(0).toUpperCase()+splitedType[i].substring(1).toLowerCase();
+                }else if(splitedType[i].length == 1){
+                    splitedType[i] = splitedType[i].toUpperCase(); 
+                }
+            }
+            type = splitedType.join('');
+            layoutObj.cells('a').attachURL('/Contract/Progress/ContractProgressList'+type+'.sux');
+            setTimeout(changeHeaderText, 0, 'a', Sepoa.cache.text.get('CT_101.TITLE_'+config.TYPE));
+        ]]>
+        </function>
+        
+        <function name="onChildScreenReady" args="childShareObj">
+        <![CDATA[
+            $sObject.$share = $share = $.extend(true, childShareObj, $share);
+        ]]>
+        </function>
+        
+        <function name="doGetScreenConfig" args="">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.contract.SepoaContractService', 'CONNECTION', 'doGetScreenConfig', null, function(so) {
+                if (so.status == 1) {
+                    $share.config.VIEW_OPTIONS = JSON.parse(so.result[0]);
+                } else {
+                    AlertE(Sepoa.cache.text.get('CT_102.MESSAGE0002'));
+                }
+            }, false);
+        ]]>
+        </function>
+        
+        <function name="doUpdateDocumentInfo" args="action, data">
+        <![CDATA[
+            var result = true;
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res, config, params) {
+                        if (!res.flag) {
+                            result = false;
+                            Alert(res.message);
+                        }
+                    }
+                },
+                contentType: "json",
+                async: false
+            }
+            
+            var params = $.extend(true, {
+                module: "contract",
+                action: action
+            }, data);
+            
+            sUtils.multipart.send(config, params);
+            return result;
+        ]]>
+        </function>
+        
+        <function name="doQueryDocumentExtraData" args="gridObj, tr, callback">
+        <![CDATA[
+            var rId = tr.idd;
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res, config, params) {
+                        if(res.flag){
+                            const itemData = res.result[0];
+                            if(sUtils.string.isBlank(itemData) === false) {
+                                for(const key in itemData){
+                                    const cId = 'EXT_' + key;
+                                    if(config.gridObj.columnIds.includes(cId)){
+                                        config.gridObj.setCellValue(config.TARGET_ROW_ID, cId, itemData[key]);
+                                    }
+                                }
+                            }
+                            
+                            const rowData = gridObj.getRowDataObject(rId);
+                            const contStatus = rowData['CONT_STATUS'];
+                            if(contStatus == 'G') {
+	                            const signerList = res.result[1];
+	                            if(sUtils.string.isBlank(signerList) === false) {
+	                                const targetSigner = signerList.find(e => e['SIGNER_ID'] == Sepoa.info.ID);
+	                                if(targetSigner) {
+	                                    const signStatus = sUtils.cache.combo.get(`SL0003,${Sepoa.info.HOUSE_CODE}#${Sepoa.info.LANGUAGE}#CT002`);
+	                                    const {text, value} = signStatus.find(e => e['value'] == targetSigner['SIGN_FLAG'])
+	                                    if(text) {
+	                                        const targetCell = gridObj.cells(rId, gridObj.getColIndexById('CONT_STATUS'));
+	                                        targetCell.cell.textContent = text;
+	                                    }
+	                                }
+	                            }
+                            }
+                            
+                            
+                            if(callback){
+                                try{
+                                    callback(res, config, params);
+                                }catch(e){
+                                    console.error(e);
+                                }
+                            }
+                        }
+                    }
+                },
+                progress:false,
+                gridObj:gridObj,
+                TARGET_ROW_ID:rId
+            }
+
+            var params = {
+                module: "contract",
+                action: "doDocumentExtra",
+                CONT_NO: gridObj.getCellValue(rId, 'CONT_NO'),
+                CONT_GL_SEQ: gridObj.getCellValue(rId, 'CONT_GL_SEQ')
+            };
+    
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doChangeView" args="data">
+        <![CDATA[
+            if(data.DATA_SOURCE == "MIGRATION"){
+                sUtils.popup.modal({
+                    url:'/Contract/Migration/ContractMigrationView.sux',
+                    params:{
+                        CONT_NO:data.CONT_NO,
+                        CONT_GL_SEQ:data.CONT_GL_SEQ
+                    },
+                    title:sUtils.cache.text.get('POA_CONTRACT.TITLE_MIGRATION')
+                })
+            }else if(data.DATA_SOURCE == "NEW"){
+            	callFunction('p', 'changeView', [{
+                    data: data,
+                    view: 'EDITOR'
+                }]);            
+            }else{
+                var status = data.CONT_STATUS;
+                var view = 'VIEW';
+                if (status == 'I' || status == 'R') {
+                    view = 'APPROVAL';
+                } else if (status == 'RP') {
+                    view = 'REVIEW';
+                } else if (['RA', 'RR'].includes(status)) {
+                    view = 'EDITOR';
+                } else if (status == 'G' && data.CONT_METHOD != 'S') {
+                    view = 'SIGN';
+                } else if (status == 'G' && data.CONT_METHOD == 'S') {
+                    view = 'SIGN';
+                } else if (status == 'A') {
+                    view = 'COMPLETE';
+                } else if (status == 'X' || status == 'K') {
+                    view = 'TERMINATION';
+                } else if (status == 'T') {
+                    view = 'EDITOR';
+                    data = $.extend(true, {
+                        back: 'LIST'
+                    }, data);
+                } else if (status == 'ALTER'){
+                    view = 'EDITOR'
+                }
+                
+                callFunction('p', 'changeView', [{
+                    data: data,
+                    view: view
+                }]);
+            }
+        ]]>
+        </function>
+        
+        <function name="doDeleteDocument" args="dataArray, callback">
+        <![CDATA[
+            if (dataArray.length == 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005'));
+                return;
+            }
+            if (dataArray.length > 1) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0006'));
+                return;
+            }
+            for (var i in dataArray) {
+                var contStatus = dataArray[i].CONT_STATUS;
+                if (['T','C','G'].indexOf(contStatus) < 0) {
+                    Alert(Sepoa.cache.text.get('POA_CONTRACT.MESSAGE_0007'));
+                    return;
+                }
+            }
+            
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0008'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback: function(res, config, params) {
+                                if (!res.flag) {
+                                    Alert(res.message);
+                                } else {
+                                    Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                    callback();
+                                }
+                            }
+                        }
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doDocumentDelete",
+                        CONT_NO: dataArray[0].CONT_NO,
+                        CONT_GL_SEQ: dataArray[0].CONT_GL_SEQ
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doTerminationDocument" args="dataArray, callback">
+        <![CDATA[
+            if (dataArray.length == 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005'));
+                return;
+            }
+            if (dataArray.length > 1) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0006'));
+                return;
+            }
+            for (var i in dataArray) {
+                var contStatus = dataArray[i].CONT_STATUS;
+                if (contStatus != 'A') {
+                    Alert(Sepoa.cache.text.get('POA_CONTRACT.MESSAGE_0007'));
+                    return;
+                }
+            }
+            
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0008'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback: function(res, config, params) {
+                                if (!res.flag) {
+                                    Alert(res.message);
+                                } else {
+                                    Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                    callback();
+                                }
+                            }
+                        }
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doDocumentTermination",
+                        CONT_NO: dataArray[0].CONT_NO,
+                        CONT_GL_SEQ: dataArray[0].CONT_GL_SEQ
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doAlterationDocument" args="dataArray, callback">
+        <![CDATA[
+            if (dataArray.length == 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005'));
+                return;
+            }
+            if (dataArray.length > 1) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0006'));
+                return;
+            }
+            for (var i in dataArray) {
+                var contStatus = dataArray[i].CONT_STATUS;
+                if (contStatus != 'A') {
+                    Alert(Sepoa.cache.text.get('POA_CONTRACT.MESSAGE_0021'));
+                    return;
+                }
+            }
+            
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0023'), function(flag) {
+                if (flag) {
+                    if(dataArray[0].DATA_SOURCE == 'SRM'){
+                        //구매코드 호출
+                        dataArray[0].CONT_TYPE = 'ALTER'
+                        dataArray[0].CONT_STATUS = 'ALTER'
+                        doChangeView(dataArray[0]);
+                    }else{
+                        //내장코드 호출
+                        var config = {
+                            url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                            on: {
+                                callback: function(res, config, params) {
+                                    if (!res.flag) {
+                                        Alert(res.message);
+                                    } else {
+                                        Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                        callback();
+                                    }
+                                }
+                            }
+                        }
+                
+                        var params = {
+                            module: "contract",
+                            action: "doDocumentAlteration",
+                            CONT_NO: dataArray[0].CONT_NO,
+                            CONT_GL_SEQ: dataArray[0].CONT_GL_SEQ
+                        };
+                        sUtils.multipart.send(config, params);
+                    }
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doPushResend" args="dataArray">
+        <![CDATA[
+            if (dataArray.length == 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005'));
+                return;
+            }
+            
+            var sendArray = [];
+            for (var i in dataArray) {
+                var contStatus = dataArray[i].CONT_STATUS;
+                if (contStatus != 'G') {
+                    Alert(Sepoa.cache.text.get('POA_CONTRACT.MESSAGE_0025'));
+                    return;
+                }
+                sendArray.push({CONT_NO:dataArray[i].CONT_NO, CONT_GL_SEQ:dataArray[i].CONT_GL_SEQ, CONT_TYPE:dataArray[i].CONT_TYPE});
+            }
+            
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0026'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback: function(res, config, params) {
+                                if (!res.flag) {
+                                    Alert(res.message);
+                                } else {
+                                    Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                    callback();
+                                }
+                            }
+                        },
+                        contentType:'json'
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doPushResend",
+                        list:sendArray
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doAfterProcess" args="dataArray, callback">
+        <![CDATA[
+            if (dataArray.length == 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005'));
+                return;
+            }
+            
+            if (dataArray.length > 1) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0006'));
+                return;
+            }
+            
+            var apStatus = dataArray[0].AP_STATUS;
+            if (apStatus != 'F') {
+				Alert(Sepoa.cache.text.get('POA_CONTRACT.MESSAGE_0030'));
+				return;
+			}
+            
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0031'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback: function(res, config, params) {
+                                if (!res.flag) {
+                                    Alert(res.message);
+                                } else {
+                                    Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                    callback();
+                                }
+                            }
+                        }
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doAfterProcess",
+                        CONT_NO: dataArray[0].CONT_NO,
+                        CONT_GL_SEQ: dataArray[0].CONT_GL_SEQ
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doManualContractUpload" args="data">
+        <![CDATA[
+            var config = {
+                multiple:true,
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                ext:['pdf','ppt','pptx','doc','docx','xls','xlsx','hwp','hwpx','jpg','png','jpeg','gif'],
+                on:{
+                    callback:function(res, config, params){
+                        console.log(arguments)
+                    },
+                    beforeSend:function(config, params, files, idx){
+                        
+                    }
+                }
+            }
+            
+            var params = {
+                module:"sepoa.svc.contract.SepoaContractService",
+                action: "doManualContractUpload",
+                CONT_NO: data.CONT_NO,
+                CONT_GL_SEQ: data.CONT_GL_SEQ
+            }
+            
+            sUtils.multipart.upload(config, params);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsicFF3Q3laZHBRd0N5WmRkVGdEIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9RV0l3SlhqN0prRUgiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2g0VXk3MGVLU0dPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9nRm1SZElmUFBFVzEiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3R5VnFVM2xjM1Q5UyI6Im51bGwiLCJDTEFTUyI6
+        IiIsImRoeElkX0xtdWlNZG94cDdiUiI6Im51bGwiLCJkaHhJZF83Wkp3OExKRjducFMiOiJudWxsIiwiZGh4SWRfNHM0Z1A1dHJiQlNBIjoibnVsbCIsImRoeElkX21HdWZFcHA4TzdTSSI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQ1RfMTAxIiwiT0JKRUNUX0lEIjoicFF3Q3laZHBRd0N5WmRkVGdEIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJwUXdDeVpkcFF3Q3laZGRUZ0QiLCJ0eXBlIjoiYm9keSJ9LCJwUXdDeVpkRWthRHlaZGh0dW0iOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoidHJ1ZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwi
+        QkFTRV9NRU5VIjoidHJ1ZSIsIkFUVEFDSF9UQVJHRVQiOiIvQ29udHJhY3QvUHJvZ3Jlc3MvQ29udHJhY3RQcm9ncmVzc0xpc3QueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1ZSIsIkhFQURFUl9UWVBFIjoiY29udGVudHMiLCJBVFRBQ0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSJ9LCJpZCI6InBRd0N5WmRFa2FEeVpkaHR1bSIsIm1heENoaWxkQ291bnQiOjEsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImEifSwicFF3Q3laZERrYUR5WmRBS3dsIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJ
+        WkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfVlc4TnZRbTRWUGttIjoibnVsbCIsImRoeElkX3RPR0RCcmM4SWEzWiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF94TjM5Tm1kbEtud24iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlBBVFRFUk4iOiIxQyIsIlZBUiI6ImxheW91dE9iaiIsIk9CSkVDVF9JRCI6InBRd0N5WmREa2FEeVpkQUt3bCJ9LCJpZCI6InBRd0N5WmREa2FEeVpkQUt3bCIsInR5cGUiOiJsYXlvdXQiLCJldmVudHMiOltdfX0sInRyZWUiOnsiaWQiOiJwUXdDeVpkcFF3Q3laZGRUZ0QiLCJ0eXBlIjoi
+        Ym9keSIsImNlbGxzIjpbeyJpZCI6InBRd0N5WmREa2FEeVpkQUt3bCIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJwUXdDeVpkRWthRHlaZGh0dW0iLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L1Byb2dyZXNzL0NvbnRyYWN0UHJvZ3Jlc3NMYXlvdXQueG1sIiwiUFJPSkVDVCI6IkVBU1lTSUdOIiwiQ09ERSI6IjEwMSIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoiUHJvZ3Jlc3MiLCJQQVRIXzMiOiJDb250cmFjdFByb2dyZXNzIiwiUEFUSF8xIjoiQ29udHJhY3QiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJMYXlvdXQiLCJTQ1JFRU5fSUQiOiJDVF8xMDEifX0sImh0bWwiOiI8ZGl2IGlkPVwicFF3
+        Q3laZHBRd0N5WmRkVGdEXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVy
+        IHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInBRd0N5WmREa2FEeVpkQUt3bFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMDC ALTER COLUMN DOC_NUMBER VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMDC ALTER COLUMN DOC_NUMBER VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN FILE_ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN FILE_ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN DOC_NUMBER VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMFI ALTER COLUMN DOC_NUMBER VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMPA ALTER COLUMN FILE_ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMPA ALTER COLUMN FILE_ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMHD ALTER COLUMN DOC_NUMBER VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMHD ALTER COLUMN DOC_NUMBER VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMHF ALTER COLUMN FILE_ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMHF ALTER COLUMN FILE_ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFMMT ALTER COLUMN ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFMMT ALTER COLUMN ID VARCHAR(100) NULL;
+		]]>
+		</query>
+	</item>
+</body>

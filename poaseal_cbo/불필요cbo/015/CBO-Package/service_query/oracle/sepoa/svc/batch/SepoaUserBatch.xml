@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="NIA_doSelectUserList">
+	<![CDATA[
+		SELECT
+			USERID AS USER_ID
+			, USERNM AS USER_NAME_LOC
+			, USERDB
+			, DEPTID AS DEPT
+			, UPPER_DEPTID
+			, TITLECD AS POSITION
+			, EMAIL
+			, CASE WHEN FLAG = 'Y' THEN 'N' END AS DEL_FLAG
+		FROM
+			NIA_MIS.USERMASTER_VIEW
+	]]>
+	</method>
+	<method name="SEAL_doSelectUserList">
+	<![CDATA[
+		SELECT
+			USERID AS USER_ID
+			, USERNM AS USER_NAME_LOC
+			, USERDB
+			, DEPTID AS DEPT
+			, UPPER_DEPTID
+			, TITLECD AS POSITION
+			, EMAIL
+			, FLAG AS DEL_FLAG
+		FROM
+			NIA_MIS.USERMASTER_VIEW
+	]]>
+	</method>
+	
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+				  USER_ID
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+		FROM
+			SUSMT
+		WHERE
+			HOUSE_CODE 		    = ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND USER_ID 		= ${USER_ID}		 
+	]]>
+	</method>
+	
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${USER_NAME_LOC}
+				, DEPT		      	= ${DEPT}
+				, POSITION		  	= ${POSITION}
+				, EMAIL  		    = ${EMAIL}
+				, PHONE           	= ${PHONE}
+				, employee_no       = ${EMPLOYEE_NO}
+				, DEL_FLAG        	= ${DEL_FLAG}
+				, LANGUAGE			= 'KO'
+				, USER_TYPE			= #DB_OWNER#nvl($S{USER_TYPE}, USER_TYPE)
+		WHERE
+			  HOUSE_CODE        	= ${session.HOUSE_CODE}
+		  AND COMPANY_CODE 			= ${session.COMPANY_CODE}
+		  AND USER_ID           	= ${USER_ID}
+	]]>
+	</method>
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL		
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, PHONE
+				, LANGUAGE
+				, EMPLOYEE_NO
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${session.COMPANY_CODE}
+				, ${session.COMPANY_CODE}
+				, ${USER_NAME_LOC}
+				, ${PASSWORD}
+				, ${DEPT}
+				, ${POSITION}
+				, ${EMAIL}				
+				, ${COUNTRY}
+				, ${SIGN_STATUS}
+				, ${WORK_TYPE}
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, ${PASS_CHECK_CNT}
+				, ${PW_RESET_FLAG}
+				, ${DEL_FLAG}
+				, '%Y/%m/%d'
+				, ${PHONE}
+				, ${LANGUAGE}
+				, ${EMPLOYEE_NO}
+			)	
+	]]>
+	</method>
+	<method name="doDeleteSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+			SET	DEL_FLAG = 'Y'
+		WHERE 
+			HOUSE_CODE 		= ${session.HOUSE_CODE}
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND USER_ID 		= ${USER_ID}
+	]]>
+	</method>
+	
+</service>

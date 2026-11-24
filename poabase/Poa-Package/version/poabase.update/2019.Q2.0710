@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_014" method="doInsertDetail"/>
+		<params>
+			<list>
+				<map>
+					<entry key="TYPE" val="AD005"/>
+					<entry key="CODE" val="autocomplete"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val=""/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="AutoComplete"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="AD005"/>
+					<entry key="CODE" val="autocomplete"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val=""/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="AutoComplete"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val=""/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val=""/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

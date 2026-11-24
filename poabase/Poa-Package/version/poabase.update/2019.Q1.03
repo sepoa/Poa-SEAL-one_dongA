@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertData"/>
+		<params>
+			<map>
+				<entry key="GRID_ID"		val="AD_022_3" />
+			    <entry key="CODE"			val="APPLY_ALL" />
+			    <entry key="COL_TYPE"		val="ch" />
+			    <entry key="COL_FORMAT"		val="" />
+			    <entry key="COL_MAX_LEN"	val="10000" />
+			    <entry key="COL_ALIGN"		val="center" />
+			    <entry key="COL_VISIBLE"	val="true" />
+			    <entry key="SELECTED_YN"	val="" />
+			    <entry key="COL_SEQ"		val="20" />
+			    <entry key="TEXT_STYLE"		val="" />
+			    <entry key="COL_COLOR"		val="Rcolor" />
+			    <entry key="COL_COMBO"		val="" />
+			    <entry key="COL_SORT"		val="" />
+			    <entry key="NOT_NULL"		val="" />
+			    <entry key="TEMPLATE"		val="" />
+			</map>
+		</params>
+	</item>	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertDataSLANG"/>
+		<params>
+			<list>
+				<map>
+					<entry key="GRID_ID" val="AD_022_3"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="APPLY_ALL"/>
+					<entry key="CONTENTS" val="일괄적용"/>
+					<entry key="COL_WIDTH" val="60"/>
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_022_3"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="APPLY_ALL"/>
+					<entry key="CONTENTS" val="ApplyAll"/>
+					<entry key="COL_WIDTH" val="60"/>
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_022_3"/>
+					<entry key="LANGUAGE" val="VI"/>
+					<entry key="CODE" val="APPLY_ALL"/>
+					<entry key="CONTENTS" val="Áp dụng tất cả"/>
+					<entry key="COL_WIDTH" val="60"/>
+				</map>
+			</list>
+		</params>
+	</item>
+	<item>
+		<query vendor="common">
+		<![CDATA[
+			UPDATE SGRID
+			   SET COL_SEQ       = ${COL_SEQ},
+				   CHANGE_USER_ID = ${session.ID},
+				   CHANGE_DATE    = ${current.DATE},
+				   CHANGE_TIME    = ${current.TIME}
+			 WHERE 1=1
+			   AND GRID_ID    = ${GRID_ID}
+			   AND CODE       = ${CODE}
+		]]>
+		</query>
+		<params>
+			<list>
+				<map>
+					<entry key="COL_SEQ" val="10" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="SELECTED" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="20" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="APPLY_ALL" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="30" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="GRID_ID" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="40" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="CODE" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="50" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="CONTENTS" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="60" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_TYPE" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="70" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="NOT_NULL" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="80" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_FORMAT" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="90" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="TEXT_STYLE" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="100" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="TEMPLATE" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="110" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_WIDTH" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="120" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_MAX_LEN" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="130" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_ALIGN" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="140" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_SORT" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="150" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="SELECTED_YN" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="160" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_VISIBLE" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="170" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_COLOR" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="180" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_SEQ" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="190" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_COMBO" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="200" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="COL_SEQ" />
+				</map>
+				<map>
+					<entry key="COL_SEQ" val="99990" />
+					<entry key="GRID_ID" val="AD_022_3" />
+					<entry key="CODE" val="SAVED" />
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

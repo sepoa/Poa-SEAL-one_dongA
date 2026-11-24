@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryForm">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE AS CLIENT_CODE
+			, COMPANY_CODE
+			, COMPANY_NAME
+			, IRS_NO
+			, SERVICE_FROM
+			, SERVICE_TO
+		FROM
+			USERVICE
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE}
+		AND COMPANY_CODE = ${COMPANY_CODE}
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doUpdateForm">
+	<![CDATA[
+		UPDATE
+			USERVICE
+		SET
+			  COMPANY_NAME = ${COMPANY_NAME}
+			, SERVICE_FROM = ${SERVICE_FROM}
+			, SERVICE_TO = ${SERVICE_TO}
+			, CHANGE_USER_ID = ${session.ID}
+			, CHANGE_DATE = ${current.DATE}
+			, CHANGE_TIME = ${current.TIME}
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE}
+		AND COMPANY_CODE = '1000'
+	]]>
+	</method>
+	
+	<method name="doInsertForm">
+	<![CDATA[
+		INSERT INTO USERVICE
+		(
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, COMPANY_NAME
+			, IRS_NO
+			, SERVICE_FROM
+			, SERVICE_TO
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+			, CHANGE_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, DEL_FLAG
+		)
+		VALUES
+		(
+			  ${CLIENT_CODE}
+			, ${COMPANY_CODE}
+			, ${COMPANY_NAME}
+			, ${IRS_NO}
+			, ${SERVICE_FROM}
+			, ${SERVICE_TO}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, 'N'
+		)
+	]]>
+	</method>
+    
+    <method name="doCreateAdmin">
+    <![CDATA[
+        INSERT 
+          INTO SUSMT(
+               HOUSE_CODE
+              ,USER_ID
+              ,ADD_DATE
+              ,ADD_TIME
+              ,ADD_USER_ID
+              ,CHANGE_DATE
+              ,CHANGE_TIME
+              ,CHANGE_USER_ID
+              ,COMPANY_CODE
+              ,PLANT_CODE
+              ,USER_NAME_LOC
+              ,PASSWORD
+              ,LANGUAGE
+              ,TIME_ZONE
+              ,COUNTRY
+              ,SIGN_STATUS
+              ,WORK_TYPE
+              ,MENU_PROFILE_CODE
+              ,USER_TYPE
+              ,PASS_CHECK_CNT
+              ,PW_RESET_FLAG
+              ,PW_RESET_DATE
+              ,DEL_FLAG
+              ,DATE_FORMAT
+          )
+        VALUES(
+               ${HOUSE_CODE}
+              ,'ADMIN'
+              ,${current.DATE}
+              ,${current.TIME}
+              ,${session.ID}
+              ,${current.DATE}
+              ,${current.TIME}
+              ,${session.ID}
+              ,'1000'
+              ,'1000'
+              ,${USER_NAME}
+              ,${PASSWORD}
+              ,'KO'
+              ,'GMT9'
+              ,'KR'
+              ,'A'
+              ,'Z'
+              ,${MENU_PROFILE_CODE}
+              ,'A'
+              ,0
+              ,'N'
+              ,${current.DATE}
+              ,'N'
+              ,'%Y/%m/%d'
+        )
+    ]]>
+    </method>
+    
+    <method name="doCopyScode">
+    <![CDATA[
+        INSERT 
+          INTO SCODE(
+               HOUSE_CODE
+              ,TYPE
+              ,CODE
+              ,LANGUAGE
+              ,ADD_DATE
+              ,ADD_TIME
+              ,ADD_USER_ID
+              ,CHANGE_DATE
+              ,CHANGE_TIME
+              ,CHANGE_USER_ID
+              ,FLAG
+              ,SORT_SEQ
+              ,USE_FLAG
+              ,TEXT1
+              ,TEXT2
+              ,TEXT3
+              ,TEXT4
+              ,TEXT5
+              ,TEXT6
+              ,TEXT7
+              ,TEXT8
+          )
+        SELECT ${HOUSE_CODE}
+              ,TYPE
+              ,CODE
+              ,LANGUAGE
+              ,${current.DATE}
+              ,${current.TIME}
+              ,${session.ID}
+              ,${current.DATE}
+              ,${current.TIME}
+              ,${session.ID}
+              ,FLAG
+              ,SORT_SEQ
+              ,USE_FLAG
+              ,TEXT1
+              ,TEXT2
+              ,TEXT3
+              ,TEXT4
+              ,TEXT5
+              ,TEXT6
+              ,TEXT7
+              ,TEXT8 
+          FROM SCODE 
+         WHERE HOUSE_CODE = '000'
+    ]]>
+    </method>
+    
+    
+    
+    <method name="doQueryUCONF">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		UCONF
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertUCONF">
+    <![CDATA[
+    	INSERT INTO UCONF
+    	(
+    		  HOUSE_CODE
+    		, COMPANY_CODE
+    		, [KEY]
+    		, VALUE
+    		, [GROUP]
+    		, ADD_USER_ID
+    		, ADD_DATE
+    		, ADD_TIME
+    		, CHANGE_USER_ID
+    		, CHANGE_DATE
+    		, CHANGE_TIME
+    		, DEL_FLAG
+    	)
+    	VALUES
+    	(
+    		  ${HOUSE_CODE}
+    		, ${COMPANY_CODE}
+    		, ${KEY}
+    		, ${VALUE}
+    		, ${GROUP}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    		, 'N'
+    	)
+    ]]>
+    </method>
+    <method name="doQueryUPUSO">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		UPUSO
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertUPUSO">
+    <![CDATA[
+    	INSERT INTO UPUSO
+    	(
+    		  HOUSE_CODE
+    		, CODE
+    		, [TYPE]
+    		, OPTION_NAME
+    		, OPTION_VALUE
+    		, ADD_DATE
+    		, ADD_TIME
+    		, ADD_USER_ID
+    		, CHANGE_DATE
+    		, CHANGE_TIME
+    		, CHANGE_USER_ID
+    	)
+    	VALUES
+    	(
+    		  ${HOUSE_CODE}
+    		, ${CODE}
+    		, ${TYPE}
+    		, ${OPTION_NAME}
+    		, ${OPTION_VALUE}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    		, ${session.ID}
+    	)
+    ]]>
+    </method>
+    <method name="doQuerySFFDT">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		SFFDT
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertSFFDT">
+    <![CDATA[
+    	INSERT INTO SFFDT
+    	(
+    		  HOUSE_CODE
+    		, FORM_ID
+    		, BLOCK_NAME
+    		, BLOCK_TYPE
+    		, REQUIRED
+    		, INPUT_WIDTH
+    		, ADD_USER_ID
+    		, ADD_DATE
+    		, ADD_TIME
+    		, CHANGE_USER_ID
+    		, CHANGE_DATE
+    		, CHANGE_TIME
+    	)
+    	VALUES
+    	(
+    		  ${HOUSE_CODE}
+    		, ${FORM_ID}
+    		, ${BLOCK_NAME}
+    		, ${BLOCK_TYPE}
+    		, ${REQUIRED}
+    		, ${INPUT_WIDTH}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    	)
+    ]]>
+    </method>
+    <method name="doQuerySGRFT">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		SGRFT
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertSGRFT">
+    <![CDATA[
+    	INSERT INTO SGRFT
+    	(
+    		  HOUSE_CODE
+    		, GRID_ID
+    		, CODE
+    		, COL_TYPE
+    		, NOT_NULL
+    		, COL_FORMAT
+    		, COL_ALIGN
+    		, COL_SORT
+    		, COL_COLOR
+    		, COL_SEQ
+    		, ADD_USER_ID
+    		, ADD_DATE
+    		, ADD_TIME
+    		, CHANGE_USER_ID
+    		, CHANGE_DATE
+    		, CHANGE_TIME
+    	)
+    	VALUES
+    	(
+    		  ${HOUSE_CODE}
+    		, ${GRID_ID}
+    		, ${CODE}
+    		, ${COL_TYPE}
+    		, ${NOT_NULL}
+    		, ${COL_FORMAT}
+    		, ${COL_ALIGN}
+    		, ${COL_SORT}
+    		, ${COL_COLOR}
+    		, ${COL_SEQ}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}
+    	)
+    ]]>
+    </method>
+    <method name="doQuerySMUFP">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		SMUFP
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertSMUFP">
+    <![CDATA[
+    	INSERT INTO SMUFP
+    	(
+    		  HOUSE_CODE
+    		, MENU_PROFILE_CODE
+    		, MENU_ID
+    		, ADD_USER_ID
+    		, ADD_DATE
+    		, ADD_TIME
+    	)
+    	VALUES
+    	(
+	    	  ${HOUSE_CODE}
+    		, ${MENU_PROFILE_CODE}
+    		, ${MENU_ID}
+    		, ${session.ID}
+    		, ${current.DATE}
+    		, ${current.TIME}	
+    	)
+    ]]>
+    </method>
+    <method name="doQuerySCMAM">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		SCMAM
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertSCMAM">
+    <![CDATA[
+    	INSERT INTO SCMAM
+    	(
+    		  HOUSE_CODE
+    		, MODULE
+    		, OPTIONS
+    	)
+    	VALUES
+    	(
+    		  ${HOUSE_CODE}
+    		, ${MODULE}
+    		, ${OPTIONS}
+    	)
+    ]]>
+    </method>
+    <method name="doQuerySCODE">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		SCODE
+    	WHERE
+    		HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertSCODE">
+    <![CDATA[
+    	INSERT INTO SCODE
+		(
+			  HOUSE_CODE
+			, [TYPE]
+			, CODE
+			, [LANGUAGE]
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, FLAG
+			, SORT_SEQ
+			, USE_FLAG
+			, IF_FLAG
+			, TEXT1
+			, TEXT2
+			, TEXT3
+			, TEXT4
+			, TEXT5
+			, TEXT6
+			, TEXT7
+			, TEXT8
+			, DEL_FLAG
+			, ACC_DATE
+		)
+		VALUES
+		(
+			  ${HOUSE_CODE}
+			, ${TYPE}
+			, ${CODE}
+			, ${LANGUAGE}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, #DB_OWNER#NVL(${FLAG}, NULL)
+			, #DB_OWNER#NVL(#{SORT_SEQ}, 0)
+			, #DB_OWNER#NVL(${USE_FLAG}, NULL)
+			, #DB_OWNER#NVL(${IF_FLAG}, NULL)
+			, #DB_OWNER#NVL(${TEXT1}, NULL)
+			, #DB_OWNER#NVL(${TEXT2}, NULL)
+			, #DB_OWNER#NVL(${TEXT3}, NULL)
+			, #DB_OWNER#NVL(${TEXT4}, NULL)
+			, #DB_OWNER#NVL(${TEXT5}, NULL)
+			, #DB_OWNER#NVL(${TEXT6}, NULL)
+			, #DB_OWNER#NVL(${TEXT7}, NULL)
+			, #DB_OWNER#NVL(${TEXT8}, NULL)
+			, #DB_OWNER#NVL(${DEL_FLAG}, NULL)
+			, #DB_OWNER#NVL(${ACC_DATE}, NULL)
+		)
+    ]]>
+    </method>
+    <method name="doQuerySLANG">
+    <![CDATA[
+    	SELECT
+    		*
+    	FROM
+    		SLANG
+    	WHERE
+			HOUSE_CODE = ${COPY_CLIENT_CODE}
+    ]]>
+    </method>
+    <method name="doInsertSLANG">
+    <![CDATA[
+    	INSERT INTO SLANG
+		(
+			  HOUSE_CODE
+			, SCREEN_ID
+			, [LANGUAGE]
+			, CODE
+			, CONTENTS
+			, GRID_WIDTH
+			, FORM_WIDTH
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+			, CHANGE_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, DEL_FLAG
+		)
+		VALUES
+		(
+			  ${HOUSE_CODE}
+			, ${SCREEN_ID}
+			, ${LANGUAGE}
+			, ${CODE}
+			, #DB_OWNER#NVL(${CONTENTS}, NULL)
+			, #DB_OWNER#NVL(${GRID_WIDTH}, NULL)
+			, #DB_OWNER#NVL(${FORM_WIDTH}, NULL)
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, #DB_OWNER#NVL(${DEL_FLAG}, NULL)
+		)
+    ]]>
+    </method>
+</service>

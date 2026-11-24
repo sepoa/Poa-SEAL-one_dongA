@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="ECT_205" header="false" pageCloseWarn="false" delegate="false">
+    <button id="btnObj">
+        <btn div="RPFbNUcEmmdBHulaJH" id="SAVE" type="save" text="{BUTTON.create_contract}" onclick="onButtonClick( 'SAVE' )"/>
+<!--         <btn div="RPFbNUcEmmdBHulaJH" id="VIEW" type="save" text="{CT_205.VIEW_CONTRACT}" toggle="false" reverse="false" onclick="onButtonClick( 'VIEW' )"/> -->
+<!--         <btn div="RPFbNUcEmmdBHulaJH" id="CANCEL" type="default" text="{BUTTON.cancel}" toggle="false" reverse="false" onclick="onButtonClick( 'CANCEL' )"/> -->
+    </button>
+    <tabbar id="tabObj" div="VDQQGicYgVQGicwqtu">
+        <item id="BASIC" name="ECT_205.TABBAR_BASIC_NAME" selected="true">
+            <attach file="/EmployeeContract/setForm/EmployeeContractsetFormBasic.xml"/>
+        </item>
+        <item id="SIGNNER" name="ECT_205.TABBAR_SIGNNER_NAME">
+            <attach file="/EmployeeContract/setForm/EmployeeContractsetFormSignner.xml"/>
+        </item>
+        <item id="SINGLE_SIGNER" name="ECT_205.TABBAR_SIGNNER_NAME">
+            <attach file="/EmployeeContract/setForm/EmployeeContractsetFormSingleSignner.xml"/>
+        </item>
+    </tabbar>
+    <onloadscript>
+        <call name="init"/>
+        <call name="onReady"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{childScreen:{}}"/>
+        <var name="DEFAULT_TAB_LIST">
+        <![CDATA[
+            ['BASIC', 'SIGNNER']
+        ]]>
+        </var>
+        <var name="viewFlag" value="false"/>
+        <function name="init">
+        <![CDATA[
+            //기본탭 제외하고 숨김처리
+            for(let tab in tabObj.t){
+			    if (DEFAULT_TAB_LIST.indexOf(tab) < 0) {
+			        tabObj._hideTab(tab)
+			    }
+			}
+			
+			tabObj.attachEvent("onSelect", function(id, lastId){
+                if(lastId == 'BASIC') {
+                    if(!$share.childScreen['BASIC'].fn.doValidate()){
+                        return false;
+                    }
+                }
+			    
+			    return true;
+			});
+        ]]>
+        </function>
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name: 'FORM',
+                fn: {
+                    doOpenDocument: doOpenDocument,
+                    doClear: doClear,
+                    setViewMode: setViewMode
+                }
+            }])
+        ]]>
+        </function>
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            const child = $share.childScreen[config.name] = config;
+            if ($share?.config?.document.APP_TYPE == "C01") {
+                callFunction('p', 'childScreenReady', [{
+                    name: 'contractDoc',
+                    id: 'ECT_205_A',
+                    fn: {
+                        doOpenDocument: doOpenDocument
+                    }
+                }])
+            
+                //contractModuleEditor.xml 의 onReady 수정 하면 깔끔해지나 수정해도 되는건지 몰라 이렇게 처리
+                if (child.fn === undefined) {
+                    child.doOpenDocument($share.config);
+                } else {
+                    child.fn.doOpenDocument($share.config);
+                }
+            } else {
+                child.fn.doOpenDocument($share.config);
+                if (viewFlag === true) {
+                    if (child.fn.setViewMode) {
+                        child.fn.setViewMode(viewFlag);
+                    }
+                }
+            }
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if (id == 'VIEW') {
+                callContractEditor($share.config.data.CONT_NO, $share.config.data.CONT_GL_SEQ);
+            } else if (id == 'SAVE') {
+                doSave('INSERT');
+            } else if (id == 'CANCEL') {
+                doCancel();
+            }
+        ]]>
+        </function>
+        <function name="doCancel" args="">
+        <![CDATA[
+            callFunction(['p'], 'changeView', [{
+                view: 'LIST'
+            }]);
+        ]]>
+        </function>
+        <function name="doClear" args="">
+        <![CDATA[
+            tabObj.tabs('BASIC').setActive();
+            
+            for (var i in $share.childScreen) {
+                if (!$share.childScreen.undefined) {
+                    $share.childScreen[i].fn.doClear();
+                }
+            }
+            
+            delete $share.config;
+        ]]>
+        </function>
+        <var name="doOpenDocumentFlag" value="false"/>
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+            doClear();
+            
+            $share.config = config;
+            
+            if ($share.config.document.CONT_TYPE == 'ALTER') {
+                //변경계약 버튼 클릭시 진입점
+                var docInfo = $share.config.document;
+            } else {
+                const docInfo = $share.config.document;
+                if (docInfo.SMR_NUMBER) { // 계약 대상현황에서 진입 시 계약 서식 선택을 제한한다.
+                    hideTemplateFormItem(true);
+                }
+            
+                if ($share.config.data === undefined) {
+                    $share.config.data = {};
+                }
+            
+                if (docInfo.CONT_NO && docInfo.CONT_GL_SEQ) {
+                    const config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        async: false,
+                        contentType: "json"
+                    }
+                    
+                    const params = $.extend(true, {
+                        module: 'sepoa.svc.ct.ECT_205',
+                        action: 'doQueryContract'
+                    }, docInfo);
+            
+                    const res = sUtils.multipart.send(config, params);
+                    if (res.status == 1) {
+                        if (res.result.length > 0) {
+                            const docData = res.result[0];
+                            if (docData instanceof Object) {
+                                $share.config.data = $.extend(true, {}, docData);
+                            }
+                            
+                            setViewMode(docData.STATUS != "T" ? true : false);
+                        }
+                    } else {
+                        Alert(res.message);
+                    }
+                }
+            }
+            
+            for (let i in $share.childScreen) {
+                $share.childScreen[i].fn.doOpenDocument($share.config);
+            }
+        ]]>
+        </function>
+        <function name="setViewMode" args="flag">
+        <![CDATA[
+            viewFlag = flag;
+            btnObj.showButton('SAVE', !flag);
+            btnObj.showButton('VIEW', flag);
+            if ($share.config.data.CONT_METHOD != 'S' || Sepoa.info.USER_TYPE == 'S') {
+                btnObj.showButton('MANUAL_COMPLETE', false);
+            }
+            
+        ]]>
+        </function>
+        
+        <function name="onChangeData" args="type, name, value">
+        <![CDATA[
+            if(name == 'RADIO_BTN') {
+                $share.config.data['SIGNER_GROUP'] = [];
+            }
+            
+            for(const [screen, child] of Object.entries($share.childScreen)) {
+                child.fn?.onScreenDataUpdate?.(type, name, value);
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="mode">
+        <![CDATA[
+            if (!doValidate()) {
+                return;
+            }
+            
+            const data = $share.config.data;
+            
+            data.grid = $share.config.grid;
+            data.SAVE_MODE = mode;
+            data.ALTER_TYPE = $share.config.document.CONT_TYPE;
+            
+            if ($share.config.document) {
+                data.SMR_NUMBER = $share.config.document.SMR_NUMBER;
+                data.NEXT_STEP = 'MODULE';
+            }
+            
+            const radioBtn = $share.config.data['RADIO_BTN'];
+            if(radioBtn == 'TEMPLATE') {
+                data.NEXT_STEP = 'EMPLOYEE_CREATE';
+            }
+            
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res, config, params) {
+                        if (res.status == 1) {
+                            if (res.result.length > 0) {
+                                let docData;
+                                for (let i in res.result) {
+                                    docData = res.result[i];
+                                    if (docData instanceof Object) {
+                                        $.extend(true, $share.config.data, docData)
+                                    }
+                                }
+                                
+                                if(radioBtn == 'TEMPLATE') {
+                                    // 계약진행현황 페이지로 이동
+                                    Alert(sUtils.cache.text.get('MESSAGE.0054'), () => {
+                                        callFunction('p', 'changeView', [{view:'LIST'}]);
+                                    });
+                                } else if(radioBtn == 'UPLOAD') {
+                                    callContractEditor(docData.CONT_NO, docData.CONT_GL_SEQ);
+                                }
+                            } else {
+                                console.error('Document Create Failed.')
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                },
+                contentType: "json"
+            }
+            
+            var params = $.extend(true, {
+                module: 'sepoa.svc.ct.ECT_205',
+                action: 'doSaveContract'
+            }, data);
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="doValidate">
+        <![CDATA[
+            for(const i in $share.childScreen) {
+                if(tabObj._isTabVisible(i) && $share.childScreen[i].fn.doValidate() === false) {
+                    tabObj.tabs($share.childScreen[i].name).setActive();
+                    return false;
+                }
+            }
+            
+            return true;
+        ]]>
+        </function>
+        <function name="callContractEditor" args="contNo, contGlSeq">
+        <![CDATA[
+            var options = {
+                url: window.CONTEXT_NAME + '/EmployeeContract/Module/EmployeeContractModuleLayout.sux',
+                params: {
+                    CONT_NO: contNo,
+                    CONT_GL_SEQ: contGlSeq,
+                    PARENT: $sObject.getOAObject('p', 'changeView'),
+                    CONFIG: $share.config,
+                    CONT_TYPE : $share.config.data['CONT_TYPE']
+                },
+                title: sUtils.cache.text.get('POA_CONTRACT.TITLE_EDITOR')
+            }
+            if (["T", "P"].indexOf($share.config.data.STATUS) >= 0) {
+                options.params.CONT_MODULE = 'EDITOR'
+            } else if ($share.config.data.STATUS == 'R') {
+                options.params.CONT_MODULE = 'APPROVAL_REJECT'
+            } else if ($share.config.data.STATUS == 'RP') {
+                options.params.CONT_MODULE = 'REVIEW';
+            } else if (['RA', 'RR'].includes($share.config.data.STATUS)) {
+                options.params.CONT_MODULE = 'REVIEW_DONE';
+            } else if ($share.config.data.STATUS == "G") {
+                options.params.CONT_MODULE = 'SIGN'
+            } else if (["X", "K"].indexOf($share.config.data.STATUS) >= 0) {
+                options.params.CONT_MODULE = 'TERMINATION'
+            } else if (["F", "C", "A"].indexOf($share.config.data.STATUS) >= 0) {
+                options.params.CONT_MODULE = 'COMPLETE'
+            } else {
+                options.params.CONT_MODULE = 'VIEW'
+            }
+            
+            options.params.CONT_WRITE_FLAG = true; // 계약서 작성에서 진입하는 경우 CONT_WRITE_FLAG 를 true 로 설정
+            
+            const popup = sUtils.popup.modal(options);
+            let limit = 0;
+            const intarvalId = setInterval(() => {
+                limit++;
+                
+                if(limit > 1000) {
+                    clearInterval(intarvalId);
+                }
+                
+                if(popup.attachURL === null) {
+                    callFunction('p', 'changeView', [{view:'LIST'}]);
+                    clearInterval(intarvalId);
+                }
+            }, 100);
+            
+            
+        ]]>
+        </function>
+        <function name="setTabbar" args="value">
+        <![CDATA[
+            const targetTab = {
+                TEMPLATE : 'SIGNNER',
+                UPLOAD : 'SINGLE_SIGNER'
+            };
+            
+            const alias = Sepoa.request.alias;
+            if(alias == 'B') {
+                targetTab['UPLOAD'] = 'SIGNNER';
+            }
+            
+            if(value == 'TEMPLATE'){
+                tabObj.tabs(targetTab['UPLOAD']).hide();
+                tabObj.tabs(targetTab['TEMPLATE']).show();
+            }else if(value == 'UPLOAD'){
+                tabObj.tabs(targetTab['TEMPLATE']).hide();
+                tabObj.tabs(targetTab['UPLOAD']).show();
+            }
+        ]]>
+        </function>
+        <function name="doDownloadContract">
+        <![CDATA[
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res, config, params) {
+                        if (res.flag) {
+            
+                        } else {
+                            console.log(arguments);
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            
+            var params = {
+                module: "contract",
+                action: "doDocumentDownload",
+                CONT_NO: $share.config.data.CONT_NO,
+                CONT_GL_SEQ: $share.config.data.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.data.CONT_TYPE
+            }
+            
+            sUtils.multipart.download(config, params);
+        ]]>
+        </function>
+        <function name="onManualComplete">
+        <![CDATA[
+            callFunction('ECT_101', 'doManualContractUpload', [$share.config.data]);
+        ]]>
+        </function>
+        <function name="hideTemplateFormItem" args="flag">
+        <![CDATA[
+            if (flag) {
+            
+            } else {
+            
+            }
+        ]]>
+        </function>
+        <function name="onBeforeChange" args="id,oValue,nValue">
+        <![CDATA[
+            if (id == 'SELECT_CFGL' && oValue != nValue) {
+                $share.config.data.TEMPLATE_CHANGE_FLAG = true;
+            }
+            
+            return true;
+        ]]>
+        </function>
+        <function name="onComboLoaded" args="id, value">
+        <![CDATA[
+            if (id == 'SELECT_CFGL') {
+                if ($share['_PENDING_SELECT_CFGL']) {
+                    formObj.setValue('SELECT_CFGL', $share['_PENDING_SELECT_CFGL']);
+                    delete $share['_PENDING_SELECT_CFGL'];
+                }
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiUlBGYk5VY0VtbWRCSHVsYUpIIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6Im1haW5fYnRuIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJPQkpFQ1RfSUQiOiJSUEZiTlVjRW1tZEJIdWxhSkgiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fMF9JRCI6IlNBVkUiLCJJVEVNXzBfVFlQRSI6InNhdmUiLCJJVEVNXzBfT05DTElDSyI6Im9uQnV0dG9u
+        Q2xpY2siLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLmNyZWF0ZV9jb250cmFjdCIsIklURU1fMF9QQVJBTSI6IiYjMzk7U0FWRSYjMzk7IiwiSVRFTV8wX1RFWFQiOiLqs4Tslb0g7IOd7ISxIiwiSVRFTV8wX1NPUlQiOiIxIn0sImlkIjoiUlBGYk5VY0VtbWRCSHVsYUpIIiwidHlwZSI6ImJ1dHRvbiIsImJ1dHRvbiI6ImJ1dHRvbiJ9LCJSUEZiTlVjZ1JkZEJIdWxYdWwiOnsibGF5b3V0Ijp7IlNDUk9MTCI6IiIsIlNDUk9MTF9WIjoiIiwiU0NSRUVOX1NDUk9MTCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTlRFTlRfTUlOX1dJRFRIIjoiIiwiZGh4SWRfTTV3bHI1MU1BSXE4IjoibnVsbCIsIlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJkaHhJZF8wV3Zn
+        YnpXS1F5MjgiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJFQ1RfMjA1IiwiT0JKRUNUX0lEIjoiUlBGYk5VY2dSZGRCSHVsWHVsIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiUlBGYk5VY2dSZGRCSHVsWHVsIiwidHlwZSI6ImJvZHkifSwiVkRRUUdpY1lnVlFHaWN3cXR1Ijp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwi
+        ZGh4SWRfcTh2azZaSlBjTmdUIjoibnVsbCIsImRoeElkX1l1UXlLU2ZibDRhNSI6Im51bGwiLCJkaHhJZF9QSzFKQ1Q3S3FBUkoiOiJudWxsIiwiZGh4SWRfSUV5dEQ3ck04cW9nIjoibnVsbCIsImRoeElkX2FaTVFZNzIwZFhUdSI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9WRjBpcHlzcHk0YksiOiJudWxsIiwiQ0xBU1MiOiJDT05UX1RBQiIsImRoeElkXzEyRGxLMUw1QVlCbSI6Im51bGwiLCJkaHhJZF9tWEtrU05DR0VPZUUiOiJudWxsIiwiZGh4SWRfZlVNYmhVckROcFZSIjoibnVsbCIsImRoeElkX0xwaVRwelFQb0t0ZiI6Im51bGwiLCJkaHhJZF95MXlVSVY5TDlNa0QiOiJudWxsIiwiZGh4SWRf
+        UHl0NHM5TnVRSlVCIjoibnVsbCIsImRoeElkX0drQXQ4MUFIV0RRZCI6Im51bGwiLCJkaHhJZF9JVWpRZXBRRjBKbkIiOiJudWxsIiwiZGh4SWRfcGoxT3RDODB0UmhuIjoibnVsbCIsImRoeElkX01OMGZZekZIc213MiI6Im51bGwiLCJkaHhJZF9mWkJvOTdpUlhFZk0iOiJudWxsIiwiZGh4SWRfc25jbFhJV1J2NklrIjoibnVsbCIsImRoeElkX1VyTVR0bEdRS0wzaCI6Im51bGwiLCJkaHhJZF9YbllnWWdWSVZ6cmsiOiJudWxsIiwiZGh4SWRfbWNidHBoRE8wNEE1IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGFiT2JqIiwiSVRFTV9CUEdSUENKV0RMWVZaVFdWWVhfTkFNRSI6IuydvOuwmOygleuztCIsIklURU1fR1NHUlBDSlFOS1VSWlRXWkhJX1RB
+        UkdFVCI6Ii9FbXBsb3llZUNvbnRyYWN0L3NldEZvcm0vRW1wbG95ZWVDb250cmFjdHNldEZvcm1TaWdubmVyLnhtbCIsIklURU1fR1NHUlBDSlFOS1VSWlRXWkhJX1NPUlQiOiIyIiwiSVRFTV9HU0dSUENKUU5LVVJaVFdaSElfVFlQRSI6IlUiLCJJVEVNX0dTR1JQQ0pRTktVUlpUV1pISV9JRCI6IlNJR05ORVIiLCJJVEVNX0JQR1JQQ0pXRExZVlpUV1ZZWF9TT1JUIjoiMSIsIklURU1fQlBHUlBDSldETFlWWlRXVllYX1RBUkdFVCI6Ii9FbXBsb3llZUNvbnRyYWN0L3NldEZvcm0vRW1wbG95ZWVDb250cmFjdHNldEZvcm1CYXNpYy54bWwiLCJPQkpFQ1RfSUQiOiJWRFFRR2ljWWdWUUdpY3dxdHUiLCJJVEVNX0JQR1JQQ0pXRExZVlpUV1ZZWF9JRCI6IkJBU0lD
+        IiwiSVRFTV9CUEdSUENKV0RMWVZaVFdWWVhfU0VMRUNURUQiOiJ0cnVlIiwiSVRFTV9CUEdSUENKV0RMWVZaVFdWWVhfVFlQRSI6IlUiLCJJVEVNX0dTR1JQQ0pRTktVUlpUV1pISV9OQU1FIjoi6rOE7JW97J6QIn0sImlkIjoiVkRRUUdpY1lnVlFHaWN3cXR1IiwidHlwZSI6InRhYmJhciIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvblRhYkNsaWNrIiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0tfVFlQRSI6Im5hbWUiLCJOQU1FIjoib25UYWJDbGljayJ9XX0sIkJQR1JQQ0pXRExZVlpUV1ZZWCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiTkFNRSI6IuydvOuwmOygleuztCIsIlNPUlQiOiIxIiwiVEFSR0VUIjoiL0VtcGxveWVlQ29udHJhY3Qvc2V0Rm9y
+        bS9FbXBsb3llZUNvbnRyYWN0c2V0Rm9ybUJhc2ljLnhtbCIsIklEIjoiQkFTSUMiLCJpdGVtSUQiOiJCUEdSUENKV0RMWVZaVFdWWVgiLCJTRUxFQ1RFRCI6InRydWUiLCJUWVBFIjoiVSJ9LCJpZCI6IkJQR1JQQ0pXRExZVlpUV1ZZWCIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6InRhYmJhckNlbGwiLCJuYW1lIjoiQkFTSUMifSwiR1NHUlBDSlFOS1VSWlRXWkhJIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJUQVJHRVQiOiIvRW1wbG95ZWVDb250cmFjdC9zZXRGb3JtL0VtcGxveWVlQ29udHJhY3RzZXRGb3JtU2lnbm5lci54bWwiLCJTT1JUIjoiMiIsIlRZUEUiOiJVIiwiSUQiOiJTSUdOTkVSIiwiaXRlbUlEIjoiR1NHUlBDSlFOS1VSWlRXWkhJ
+        IiwiTkFNRSI6IuqzhOyVveyekCJ9LCJpZCI6IkdTR1JQQ0pRTktVUlpUV1pISSIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6InRhYmJhckNlbGwiLCJuYW1lIjoiU0lHTk5FUiJ9fSwidHJlZSI6eyJpZCI6IlJQRmJOVWNnUmRkQkh1bFh1bCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiUlBGYk5VY0VtbWRCSHVsYUpIIiwidHlwZSI6ImJ1dHRvbiJ9LHsiaWQiOiJWRFFRR2ljWWdWUUdpY3dxdHUiLCJ0eXBlIjoidGFiYmFyIiwiY2VsbHMiOlt7ImlkIjoiQlBHUlBDSldETFlWWlRXVllYIiwidHlwZSI6InRhYmJhckNlbGwifSx7ImlkIjoiR1NHUlBDSlFOS1VSWlRXWkhJIiwidHlwZSI6InRhYmJhckNlbGwifV19XX0sImluZm8iOnsiUEFUSCI6
+        Ii9FbXBsb3llZUNvbnRyYWN0L3NldEZvcm0vRW1wbG95ZWVDb250cmFjdFNldEZvcm0ueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJDT0RFIjoiMjA1IiwiUFJFRklYIjoiRUNUIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiRW1wbG95ZWVDb250cmFjdC9zZXRGb3JtIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiRW1wbG95ZWVDb250cmFjdFNldEZvcm0iLCJTQ1JFRU5fSUQiOiJFQ1RfMjA1In19LCJodG1sIjoiPGRpdiBpZD1cIlJQRmJOVWNnUmRkQkh1bFh1bFwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250
+        YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgbWFpbl9idG5cIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8
+        ZGl2IGlkPVwiUlBGYk5VY0VtbWRCSHVsYUpIXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIENPTlRfVEFCXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiVkRRUUdpY1lnVlFHaWN3cXR1
+        XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF90YWJiYXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

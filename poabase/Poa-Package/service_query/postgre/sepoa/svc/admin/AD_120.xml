@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryADMIN">
+	<![CDATA[
+		WITH RECURSIVE LINKED
+		   AS (
+		      SELECT HOUSE_CODE
+		            ,MODULE
+	           	    ,PARENT::TEXT            AS TREE_PARENT_ID
+	           	    ,PARENT
+	           	    ,COMBO
+	                ,PARENT  || '_' || SORT  AS TREE_ID
+	            FROM SBMMA
+	           WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+				 AND PARENT     = '*'
+	           UNION ALL
+	          SELECT BMMA.HOUSE_CODE
+	                ,BMMA.MODULE
+	          		,L.TREE_ID::TEXT
+	          		,BMMA.PARENT
+	           	    ,BMMA.COMBO
+	                ,L.TREE_ID  || '_' || BMMA.SORT
+	            FROM SBMMA BMMA
+	            JOIN LINKED L
+	              ON L.HOUSE_CODE = BMMA.HOUSE_CODE 
+	             AND L.MODULE     = BMMA.PARENT
+			   )
+	   SELECT L.TREE_ID      	AS TREE_ID
+	   		 ,L.TREE_PARENT_ID  AS TREE_PARENT_ID
+	         ,LANG.CONTENTS  	AS TREE_VALUE
+             ,L.MODULE
+             ,L.PARENT
+             ,L.COMBO
+	         ,LANG.CONTENTS  	AS MODULE_NAME
+             ,LANG2.CONTENTS 	AS DESCRIPTION 
+		 FROM LINKED L
+		 JOIN SLANG LANG
+		   ON L.HOUSE_CODE   = LANG.HOUSE_CODE
+		  AND LANG.SCREEN_ID = 'BUSINESS_MODULE'
+		  AND LANG.LANGUAGE  = ${session.LANGUAGE}
+		  AND LANG.CODE      = L.MODULE
+		 LEFT OUTER
+		 JOIN SLANG LANG2
+		   ON L.HOUSE_CODE    = LANG2.HOUSE_CODE
+		  AND LANG2.SCREEN_ID = 'BUSINESS_MODULE_DES'
+		  AND LANG2.LANGUAGE  = ${session.LANGUAGE}
+		  AND LANG2.CODE      = L.MODULE
+		ORDER 
+		   BY TREE_ID
+	]]>
+	</method>
+	
+	<method name="doDeleteADMIN">
+	<![CDATA[
+		DELETE
+		  FROM SBMMA
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doSaveADMIN">
+	<![CDATA[
+		INSERT 
+		  INTO SBMMA 
+		  	( 
+		  	   HOUSE_CODE
+		  	  ,MODULE
+		  	  ,PARENT
+		  	  ,COMBO
+		  	  ,SORT
+		   ) 
+	  VALUES (
+	  		   ${session.HOUSE_CODE}
+	  		  ,${MODULE}
+	  		  ,${PARENT}
+	  		  ,${COMBO}
+	  		  ,#{SORT}
+	  	)
+	]]>
+	</method>
+	
+	<method name="doInsertSLANG">
+	<![CDATA[
+		INSERT 
+		  INTO SLANG
+		  	( 
+		  	   HOUSE_CODE
+		  	  ,SCREEN_ID
+		  	  ,LANGUAGE
+		  	  ,CODE
+		  	  ,CONTENTS
+		  	  ,ADD_USER_ID
+		  	  ,ADD_DATE
+		  	  ,ADD_TIME
+		   ) 
+	  VALUES (
+	  		   ${session.HOUSE_CODE}
+		  	  ,${SCREEN_ID}
+		  	  ,${session.LANGUAGE}
+		  	  ,${CODE}
+		  	  ,${CONTENTS}
+		  	  ,${session.ID}
+		  	  ,${current.DATE}
+		  	  ,${current.TIME}
+	  	)
+	]]>
+	</method>
+	
+	<method name="doUpdateSLANG">
+	<![CDATA[
+		UPDATE SLANG
+		   SET CONTENTS       = ${CONTENTS}           
+		  	  ,CHANGE_USER_ID = ${session.ID}       
+		  	  ,CHANGE_DATE    = ${current.DATE}     
+		  	  ,CHANGE_TIME    = ${current.TIME}     
+		  	  ,DEL_FLAG       = 'N'
+		 WHERE HOUSE_CODE     = ${session.HOUSE_CODE} 
+		   AND SCREEN_ID      = ${SCREEN_ID}          
+		   AND LANGUAGE       = ${session.LANGUAGE}
+		   AND CODE           = ${CODE}    
+	]]>
+	</method>
+	
+	<method name="doCheckSLANG">
+	<![CDATA[
+		SELECT COUNT(*) CNT
+		  FROM SLANG 
+		 WHERE HOUSE_CODE     = ${session.HOUSE_CODE} 
+		   AND SCREEN_ID      = ${SCREEN_ID}          
+		   AND LANGUAGE       = ${session.LANGUAGE}
+		   AND CODE           = ${CODE}    
+	]]>
+	</method>
+	
+	<method name="doQuery">
+	<![CDATA[
+		WITH RECURSIVE LINKED
+		   AS (
+		      SELECT HOUSE_CODE
+		            ,MODULE
+	           	    ,PARENT::TEXT            AS TREE_PARENT_ID
+	           	    ,PARENT
+	           	    ,COMBO
+	                ,PARENT  || '_' || SORT  AS TREE_ID
+	            FROM SBMMA
+	           WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+				 AND PARENT     = '*'
+	           UNION ALL
+	          SELECT BMMA.HOUSE_CODE
+	                ,BMMA.MODULE
+	          		,L.TREE_ID::TEXT
+	          		,BMMA.PARENT
+	           	    ,BMMA.COMBO
+	                ,L.TREE_ID  || '_' || BMMA.SORT
+	            FROM SBMMA BMMA
+	            JOIN LINKED L
+	              ON L.HOUSE_CODE = BMMA.HOUSE_CODE 
+	             AND L.MODULE     = BMMA.PARENT
+			   )
+	   SELECT L.TREE_ID      	AS TREE_ID
+	   		 ,L.TREE_PARENT_ID  AS TREE_PARENT_ID
+	         ,LANG.CONTENTS  	AS TREE_VALUE
+             ,L.MODULE
+             ,L.PARENT
+             ,L.COMBO
+	         ,LANG.CONTENTS  	AS MODULE_NAME
+             ,LANG2.CONTENTS 	AS DESCRIPTION
+             ,CASE WHEN NVL(CMAM.MODULE, '_NOT_SELECTED_') = '_NOT_SELECTED_' 
+             	   THEN 0 
+             	   ELSE 1 
+               END              AS USE_FLAG 
+             ,CMAM.OPTION
+		 FROM LINKED L
+		 JOIN SLANG LANG
+		   ON L.HOUSE_CODE   = LANG.HOUSE_CODE
+		  AND LANG.SCREEN_ID = 'BUSINESS_MODULE'
+		  AND LANG.LANGUAGE  = ${session.LANGUAGE}
+		  AND LANG.CODE      = L.MODULE
+		 LEFT OUTER
+		 JOIN SLANG LANG2
+		   ON L.HOUSE_CODE    = LANG2.HOUSE_CODE
+		  AND LANG2.SCREEN_ID = 'BUSINESS_MODULE_DES'
+		  AND LANG2.LANGUAGE  = ${session.LANGUAGE}
+		  AND LANG2.CODE      = L.MODULE
+		 LEFT OUTER
+		 JOIN SCMAM CMAM
+		   ON CMAM.MODULE       = L.MODULE 
+		  AND CMAM.COMPANY_CODE = ${COMPANY_CODE}
+		ORDER 
+		   BY TREE_ID
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE
+		  FROM SCMAM
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${COMPANY_CODE} 
+	]]>
+	</method>
+	
+	<method name="doSave">
+	<![CDATA[
+		INSERT
+		  INTO SCMAM
+		  	(
+		  	   HOUSE_CODE
+		  	  ,COMPANY_CODE
+		  	  ,MODULE
+		  	  ,OPTION
+		  	  ,CHANGE_DATE
+		  	  ,CHANGE_TIME
+		  	  ,CHANGE_USER_ID
+		  	)
+	   VALUES(
+	   		   ${session.HOUSE_CODE}
+		  	  ,${COMPANY_CODE}
+		  	  ,${MODULE}
+		  	  ,${OPTION}
+		  	  ,${current.date}
+		  	  ,${current.time}
+		  	  ,${session.ID}
+	   		)
+	]]>
+	</method>
+	
+	<method name="getActiveModule">
+	<![CDATA[
+		SELECT MODULE 
+		      ,OPTION
+		  FROM SCMAM
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${COMPANY_CODE} 
+	]]>
+	</method>
+</service>

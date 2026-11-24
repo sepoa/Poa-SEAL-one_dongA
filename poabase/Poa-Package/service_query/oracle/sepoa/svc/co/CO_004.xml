@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="svcSetLogin">
+		SELECT NVL(PW_RESET_FLAG,'Y') AS PW_RESET_FLAG, NVL(PASS_CHECK_CNT,'0') AS PASS_CHECK_CNT
+		  FROM SUSMT
+		 WHERE NVL(DEL_FLAG,'N') = 'N'
+		   AND USER_ID = upper(${user_id})
+		   AND HOUSE_CODE = ${house_code}
+	</method>
+
+	<method name="svcSetLogin_SELECT_userType">
+		SELECT COMPANY_CODE , PASSWORD, USER_TYPE
+          FROM SUSMT
+         WHERE NVL(DEL_FLAG,'N') = 'N'
+           AND NVL(SIGN_STATUS,'R') = 'A'
+		   AND upper(USER_ID) = upper(${user_id})
+		   AND HOUSE_CODE = ${house_code}
+	</method>
+
+	<method name="svcSetLogin_UPDATE_language">
+		update susmt
+	       set language = ${language}
+	     where user_id = upper(${user_id})
+		   AND HOUSE_CODE = ${house_code}
+	</method>
+
+	<method name="svcSetLogin_Login">
+	select 
+ 	(SELECT MAX(CASE WHEN NVL(X.DEL_FLAG, 'N') = 'Y' 
+ 	                 THEN DEL_FLAG                                        
+ 	                 ELSE NVL(PURCHASE_BLOCK_FLAG, 'N') END)     	  
+ 	   FROM SSUGL X                                                       
+ 	  WHERE X.SELLER_CODE = USMT.COMPANY_CODE) AS PURCHASE_BLOCK_FLAG,    
+	(SELECT MIN(COMPANY_CODE)       
+     FROM SSUGL X                                                       
+    WHERE X.SELLER_CODE = USMT.COMPANY_CODE) AS BUYER_COMPANY_CODE,  
+	(SELECT NVL(MAX(TAX_BILLS_ISSUED_TYPE),'BI') AS  TAX_BILLS_ISSUED_TYPE       
+     FROM SSUGL X                                                       
+    WHERE X.SELLER_CODE = USMT.COMPANY_CODE) AS TAX_BILLS_ISSUED_TYPE,
+  	 usmt.company_code as company_code, 
+  	 usmt.dept as department, 
+  	 usmt.user_name_loc as name_loc, 
+  	 usmt.user_name_eng as name_eng, 
+  	 usmt.plant_code as plant_code, 
+  	 GETPLANTNAMELOC(usmt.house_code,usmt.company_code,usmt.plant_code) as plant_name_loc,
+  	NVL(usmt.language, '#session.LANGUAGE#') as language, 
+  	NVL(usmt.country, '#session.LANGUAGE#') as country, 
+  	usmt.employee_no as employee_no, 
+  	GETADDRATTR(USMT.USER_ID,'USER','PHONE_NO1') as tel, 
+  	usmt.user_id as id, 
+  	usmt.position as position, 
+  	GETADDRATTR(USMT.USER_ID,'SELLER','EMAIL') as company_email, 
+  	NVL(GETADDRATTR(USMT.USER_ID,'USER','EMAIL'),USMT.EMAIL) as email, 
+  	GETADDRATTR(USMT.USER_ID,'USER','PHONE_NO2') as MOBILE_NO, 
+  	(select baln.ctrl_code 
+  	 from sbaln  baln 
+  	 where baln.company_code = usmt.company_code 
+  	   and baln.ctrl_person_id = usmt.user_id 
+  	   and baln.house_code = usmt.house_code 
+  	   and NVL(baln.del_flag, 'N') = 'N' 
+  	   and rownum = 1
+  	 ) as ctrl_code, 
+  	(select bagl.ctrl_name_loc 
+  	 from sbaln  baln , sbagl bagl
+  	 where baln.company_code = usmt.company_code 
+  	   and baln.ctrl_person_id = usmt.user_id 
+  	   and baln.house_code = usmt.house_code 
+  	   and NVL(baln.del_flag, 'N') = 'N' 
+  	   and baln.company_code = bagl.company_code
+  	   and baln.ctrl_code = bagl.ctrl_code
+  	   and NVL(bagl.del_flag, 'N') = 'N' 
+  	   and rownum = 1
+  	 ) as ctrl_name, 
+  	usmt.user_type, 
+  	case when usmt.work_type = 'Z' then 'true' else 'false' end is_admin_user, 
+  	usmt.menu_profile_code, 
+     usmt.last_login_date, 
+     usmt.last_login_time, 
+     usmt.last_login_ip, 
+     usmt.sign_status, 
+     usmt.house_code,
+     usmt.theme, 
+     usmt.date_format,
+     getOwnCtrlCode(usmt.company_code, 'P', usmt.user_id) own_ctrl_code_list, 
+     getOwnCtrlCode(usmt.company_code, 'G', usmt.user_id) self_ctrl_code, 
+     NVL(usmt.pw_reset_flag, 'N') as pw_reset_flag 
+  ,(SELECT COMPANY_NAME_ENG FROM SCMGL X WHERE X.COMPANY_CODE = USMT.COMPANY_CODE AND X.HOUSE_CODE = USMT.HOUSE_CODE) as  company_name 
+  ,usmt.WORK_TYPE 
+  ,NVL(usmt.PASS_CHECK_CNT,'0') pass_check_cnt
+  ,GETDEPTNAME(usmt.HOUSE_CODE, usmt.COMPANY_CODE, usmt.dept, 'KO') AS DEPARTMENT_NAME_LOC
+  ,GETDEPTNAME(usmt.HOUSE_CODE, usmt.COMPANY_CODE, usmt.dept, 'ENG') AS DEPARTMENT_NAME_ENG
+  ,dept.public_email
+  , usmt.PROFILE_ATTACHE_NO
+  , usmt.MANAGER_POSITION
+ from susmt usmt left outer join sdept dept 
+    on usmt.company_code = dept.company_code and 
+    usmt.house_code = dept.house_code and 
+       usmt.dept = dept.dept and NVL(dept.del_flag, 'N') = 'N' 
+ where NVL(usmt.del_flag, 'N') = 'N' 
+   and upper(usmt.user_id) = upper(${user_id})
+<if test="${force_login_flag}" operator="ne" value="true">
+   and upper(usmt.password) = upper(${password})
+</if>
+   and upper(usmt.house_code) = ${house_code}
+	</method>
+		
+	<method name = "updatePassCheckCnt">
+	<![CDATA[
+		UPDATE SUSMT 
+		   SET PASS_CHECK_CNT = nvl(${pass_check_cnt},PASS_CHECK_CNT+1)
+		 WHERE HOUSE_CODE = ${house_code}
+		   AND USER_ID    = upper(${user_id})
+	]]>
+	</method>
+	
+	<method name = "selectCTRLCodeList">
+	<![CDATA[
+		SELECT BALN.CTRL_CODE 
+		  FROM SUSMT USMT 
+		   LEFT OUTER JOIN 
+		       SBALN BALN 
+		       ON BALN.COMPANY_CODE = USMT.COMPANY_CODE 
+		       AND BALN.CTRL_PERSON_ID = USMT.USER_ID 
+		       AND BALN.HOUSE_CODE     = USMT.HOUSE_CODE 
+		       AND NVL( BALN.DEL_FLAG, 'N' ) = 'N' 
+		 WHERE NVL( USMT.DEL_FLAG, 'N' ) = 'N' 
+		       AND UPPER( USMT.USER_ID ) = UPPER( ${user_id} )
+	]]>
+	</method>
+</service>

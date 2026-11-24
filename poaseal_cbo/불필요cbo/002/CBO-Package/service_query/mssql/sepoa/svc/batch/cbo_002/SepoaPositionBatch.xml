@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryPositionData">
+	<![CDATA[
+		SELECT
+			  TITLE_CD 	 AS GRADECODE
+			, TITLE_NM 	 AS GRADENAME
+			, TITLE_E_NM AS GRADENAMEEN
+			, COM_CD	 AS COMCODE
+			, COM_NM	 AS COMNAME
+			, '0' 		 AS SORT_SEQ
+		FROM
+			[#GW_DATABASE#].[dbo].[DZZV_BASE_TITLE]
+		WHERE TITLE_CD IS NOT NULL 
+		  AND TITLE_NM IS NOT NULL
+		  AND COM_CD   IS NOT NULL
+		GROUP BY
+			TITLE_CD, TITLE_NM, TITLE_E_NM , COM_CD, COM_NM
+	]]>
+	</method>
+
+	<method name="checkExistPositionCode">
+	<![CDATA[
+		SELECT
+			CODE
+		FROM
+			SCODE
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND TYPE 			= 'UX049'
+			AND CODE            = ${GRADECODE}
+			AND LANGUAGE        = 'KO' 				 
+	]]>
+	</method>
+	
+	<method name="doUpdatePositionCode">
+	<![CDATA[
+		UPDATE SCODE
+			SET
+				  TEXT1		      = ${GRADENAME}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}	
+				, SORT_SEQ		  = ${SORT_SEQ}
+				, DEL_FLAG		  = ${DEL_FLAG}		  
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+			AND CODE              = ${GRADECODE}
+			AND LANGUAGE 		  = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="doInsertPositionCode">
+	<![CDATA[
+		INSERT INTO SCODE
+			(
+				  HOUSE_CODE
+				, TYPE 
+				, CODE
+				, LANGUAGE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, SORT_SEQ
+				, USE_FLAG
+				, TEXT1
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, 'UX049'
+				, ${GRADECODE}
+				, ${LANGUAGE}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, ${SORT_SEQ}
+				, 'Y'
+				, ${GRADENAME}
+				, 'N'
+			)	
+	]]>
+	</method>
+	
+	<method name="DEL_FLAG_Y">
+	<![CDATA[
+		UPDATE SCODE
+			SET
+				  DEL_FLAG	      = 'Y'
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}			  
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+	]]>
+	</method>	
+</service>

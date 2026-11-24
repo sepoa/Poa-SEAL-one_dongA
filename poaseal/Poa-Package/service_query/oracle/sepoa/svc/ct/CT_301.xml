@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQuerySBUPR">
+    <![CDATA[
+        SELECT
+              HOUSE_CODE
+            , BIZ_CODE
+            , BIZ_CATEGORY
+            , BIZ_TYPE
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , CHANGE_DATE
+            , CHANGE_TIME
+            , CHANGE_USER_ID
+            , DEL_FLAG
+            , SELLER_NAME_LOC
+            , IRS_NO
+            , ZIP_CODE
+            , ADDRESS_LOC
+            , PHONE_NO
+            , EMAIL
+            , CEO_NAME_LOC
+            , FOUNDATION_DATE
+            , IF_FLAG
+        FROM SBUPR
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+          AND BIZ_CATEGORY = ${BIZ_CATEGORY}
+          AND BIZ_TYPE = $S{BIZ_TYPE}
+    ]]>
+     <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+             SELLER_NAME_LOC LIKE CONCAT(CONCAT('%', $S{F_KEYWORD}), '%')
+             OR IRS_NO LIKE CONCAT(CONCAT('%', $S{F_KEYWORD}), '%')
+             OR CEO_NAME_LOC LIKE CONCAT(CONCAT('%', $S{F_KEYWORD}), '%')
+            OR CEO_NAME_LOC LIKE CONCAT(CONCAT('%', $S{F_KEYWORD}), '%')
+          )
+          
+    ]]>
+    </if>
+    </method>
+    
+    
+    <method name="doQuerySBUPI">
+    <![CDATA[
+        SELECT
+              HOUSE_CODE
+            , BIZ_CODE
+            , SEQ
+            , USER_ID
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , CHANGE_DATE
+            , CHANGE_TIME
+            , CHANGE_USER_ID
+            , DEL_FLAG
+            , USER_NAME
+            , EMAIL
+            , PHONE_NO
+            , IF_FLAG
+        FROM SBUPI
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND BIZ_CODE = ${BIZ_CODE}
+          AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+    ]]>
+     <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            USER_ID LIKE '%' || $S{F_KEYWORD} || '%'
+            OR USER_NAME LIKE '%' || $S{F_KEYWORD} || '%'
+            OR EMAIL LIKE '%' || $S{F_KEYWORD} || '%'
+            OR PHONE_NO LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    </method>
+</service>

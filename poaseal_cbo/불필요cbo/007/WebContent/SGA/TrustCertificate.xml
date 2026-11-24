@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>TrustCertificate info</comment>
+
+<!--TrustSign Config-->
+<entry key="PublicKey">signCert.der</entry>
+<entry key="PrivateKey">signPri.key</entry>
+<entry key="CertificatePath">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\cert\\</entry>
+<entry key="CertPass">KCqJkMzLCsZy93L9n8Kudg==</entry>
+<entry key="LicensePath">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\license\\license.dat</entry>
+
+
+<!-- SmartCert Config -->
+<entry key="SiteKey">973067124D2FE1BB5EF4C2F98A68EDD63A67AFC6FD7DF6CF49D21347866CF3B7110D8F9DC74797F88448FFF9D30C3970F9CC6A3F2B9535D18C21A5FF78250DAD</entry>
+<entry key="SiteID">에스지에이솔루션즈^위변조방지시스템^에스지에이솔루션즈</entry>
+<entry key="Document_type">10</entry>
+<entry key="SmartCertResult">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\barcode\\smart\\</entry>
+<entry key="Vertical_Width">180</entry>
+<entry key="Vertical_HeightMin">15</entry>
+<entry key="Vertical_HeightMax">100</entry>
+<entry key="horizontal_Width">240</entry>
+<entry key="horizontal_HeightMin">20</entry>
+<entry key="horizontal_HeightMax">20</entry>
+<entry key="CertCode_dpi">450</entry>
+<entry key="showInfo"></entry>
+
+<!-- MSP Convert Config -->
+<entry key="execConvert">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\exec\\sgaimage20.exe</entry>
+<entry key="CovertDPI">100</entry>
+<entry key="MSPResult">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\barcode\\msp\\</entry>
+
+<!-- Util Config -->
+<entry key="Compress">true</entry>
+<entry key="deletefile">true</entry>
+<entry key="appPath">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\</entry>
+<entry key="startX">45</entry>
+<entry key="startY">45</entry>
+
+<!-- Log Config -->
+<entry key="LogDebug">true</entry>
+<entry key="LogPath">D:\\Dev\\03.WorkSpace\\Poa-SEAL-one\\poaseal_cbo\\007\\WebContent\\SGA\\logs\\</entry>
+
+</properties>

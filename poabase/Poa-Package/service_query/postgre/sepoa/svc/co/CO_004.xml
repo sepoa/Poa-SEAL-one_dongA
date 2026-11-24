@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="svcSetLogin">
+		SELECT NVL(PW_RESET_FLAG,'Y') AS PW_RESET_FLAG, PASS_CHECK_CNT
+		  FROM SUSMT
+		 WHERE NVL(DEL_FLAG,'N') = 'N'
+		   AND USER_ID = upper(${user_id})
+		   AND HOUSE_CODE = ${house_code}
+	</method>
+
+	<method name="svcSetLogin_SELECT_userType">
+		SELECT COMPANY_CODE , PASSWORD, USER_TYPE
+          FROM SUSMT
+         WHERE NVL(DEL_FLAG,'N') = 'N'
+           AND NVL(SIGN_STATUS,'R') = 'A'
+		   AND upper(USER_ID) = upper(${user_id})
+		   AND HOUSE_CODE = ${house_code}
+	</method>
+
+	<method name="svcSetLogin_UPDATE_language">
+		update susmt
+	       set language = ${language}
+	     where user_id = upper(${user_id})
+		   AND HOUSE_CODE = ${house_code}
+	</method>
+
+	<method name="svcSetLogin_Login">
+		SELECT USMT.COMPANY_CODE AS COMPANY_CODE 
+	     , USMT.DEPT AS DEPARTMENT 
+	     , (SELECT DEPT_NAME_LOC
+			  FROM SDEPT
+			 WHERE HOUSE_CODE = USMT.HOUSE_CODE
+			   AND COMPANY_CODE = USMT.COMPANY_CODE
+			   AND DEPT = USMT.DEPT
+			) DEPARTMENT_NAME_LOC
+	     , (SELECT DEPT_NAME_ENG
+			  FROM SDEPT
+			 WHERE HOUSE_CODE = USMT.HOUSE_CODE
+			   AND COMPANY_CODE = USMT.COMPANY_CODE
+			   AND DEPT = USMT.DEPT
+			) DEPARTMENT_NAME_END
+	     , USMT.USER_NAME_LOC AS NAME_LOC 
+	     , USMT.USER_NAME_ENG AS NAME_ENG 
+	     , USMT.PLANT_CODE AS PLANT_CODE 
+	     , NVL( USMT.LANGUAGE, '' ) AS LANGUAGE 
+	     , NVL( USMT.COUNTRY, '' ) AS COUNTRY 
+	     , USMT.EMPLOYEE_NO AS EMPLOYEE_NO 
+	     , USMT.PHONE_NO1 AS TEL 
+	     , USMT.USER_ID AS ID 
+	     , USMT.POSITION AS POSITION 
+	     , USMT.PHONE_NO2 AS MOBILE_NO 
+	     , 
+	       (SELECT BALN.CTRL_CODE 
+	         FROM SBALN BALN 
+	        WHERE BALN.COMPANY_CODE = USMT.COMPANY_CODE 
+	              AND BALN.CTRL_PERSON_ID = USMT.USER_ID 
+	              AND BALN.HOUSE_CODE = USMT.HOUSE_CODE 
+	              AND NVL( BALN.DEL_FLAG, 'N' ) = 'N' LIMIT 1  
+	       ) AS CTRL_CODE 
+	     , 
+	       (SELECT BAGL.CTRL_NAME_LOC 
+	         FROM SBALN BALN 
+	            , SBAGL BAGL 
+	        WHERE BALN.COMPANY_CODE = USMT.COMPANY_CODE 
+	              AND BALN.CTRL_PERSON_ID = USMT.USER_ID 
+	              AND BALN.HOUSE_CODE = USMT.HOUSE_CODE 
+	              AND NVL( BALN.DEL_FLAG, 'N' ) = 'N' 
+	              AND BALN.COMPANY_CODE = BAGL.COMPANY_CODE 
+	              AND BALN.CTRL_CODE = BAGL.CTRL_CODE 
+	              AND NVL( BAGL.DEL_FLAG, 'N' ) = 'N' LIMIT 1  
+	       ) AS CTRL_NAME 
+	     , USMT.USER_TYPE 
+	     , CASE 
+	           WHEN USMT.WORK_TYPE = 'Z' 
+	           THEN 'TRUE' 
+	           ELSE 'FALSE' 
+	       END IS_ADMIN_USER 
+	     , USMT.MENU_PROFILE_CODE 
+	     , USMT.LAST_LOGIN_DATE 
+	     , USMT.LAST_LOGIN_TIME 
+	     , USMT.LAST_LOGIN_IP 
+	     , USMT.SIGN_STATUS 
+	     , USMT.HOUSE_CODE 
+	     , USMT.THEME 
+	     , USMT.DATE_FORMAT 
+	     , NVL( USMT.PW_RESET_FLAG, 'N' ) AS PW_RESET_FLAG 
+	     , CMGL.COMPANY_NAME_ENG COMPANY_NAME 
+	     , USMT.WORK_TYPE 
+	     , NVL( USMT.PASS_CHECK_CNT::VARCHAR, '0' ) PASS_CHECK_CNT 
+	     , USMT.PROFILE_ATTACHE_NO
+	     , USMT.MANAGER_POSITION
+	  FROM SUSMT USMT 
+	  LEFT OUTER JOIN SDEPT DEPT 
+	    ON USMT.COMPANY_CODE = DEPT.COMPANY_CODE 
+	   AND USMT.HOUSE_CODE = DEPT.HOUSE_CODE 
+	   AND USMT.DEPT = DEPT.DEPT 
+	   AND NVL( DEPT.DEL_FLAG, 'N' ) = 'N' 
+	  LEFT OUTER JOIN SCMGL CMGL
+	    ON CMGL.COMPANY_CODE = USMT.COMPANY_CODE 
+	   AND CMGL.HOUSE_CODE = USMT.HOUSE_CODE  
+	  WHERE NVL( USMT.DEL_FLAG, 'N' ) = 'N' 
+       AND UPPER(USMT.USER_ID) = UPPER(${user_id})
+	   <if test="${force_login_flag}" operator="ne" value="true">
+       AND UPPER(USMT.PASSWORD) = UPPER(${password})
+	   </if>
+	   AND UPPER(USMT.HOUSE_CODE) = ${house_code}
+	</method>
+	
+	<method name = "updatePassCheckCnt">
+	<![CDATA[
+		UPDATE SUSMT 
+		   SET PASS_CHECK_CNT = NVL(${pass_check_cnt},(PASS_CHECK_CNT+1)::VARCHAR)::bigint
+		 WHERE HOUSE_CODE = ${house_code}
+		   AND USER_ID    = upper(${user_id})
+	]]>
+	</method>
+	<method name = "selectCTRLCodeList">
+	<![CDATA[
+		SELECT BALN.CTRL_CODE 
+		  FROM SUSMT USMT 
+		   LEFT OUTER JOIN 
+		       SBALN BALN 
+		       ON BALN.COMPANY_CODE = USMT.COMPANY_CODE 
+		       AND BALN.CTRL_PERSON_ID = USMT.USER_ID 
+		       AND BALN.HOUSE_CODE     = USMT.HOUSE_CODE 
+		       AND NVL( BALN.DEL_FLAG, 'N' ) = 'N' 
+		 WHERE NVL( USMT.DEL_FLAG, 'N' ) = 'N' 
+		       AND UPPER( USMT.USER_ID ) = UPPER( ${user_id} )
+	]]>
+	</method>
+</service>

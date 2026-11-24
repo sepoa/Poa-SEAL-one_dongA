@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectSealInfo">
+	<![CDATA[
+		SELECT
+			SEAL_MG_USER_ID
+			, GETUSERNAME(HOUSE_CODE, COMPANY_CODE, SEAL_MG_USER_ID, 'KO') AS SEAL_MG_USER_NAME
+			, GETUSERDEPTNAME(HOUSE_CODE, COMPANY_CODE, SEAL_MG_USER_ID, 'KO') AS SEAL_MG_DEPT_NAME
+			, ( select `position` from SUSMT where USER_ID = SEAL_MG_USER_ID and HOUSE_CODE = ${session.HOUSE_CODE}
+					AND COMPANY_CODE = ${session.COMPANY_CODE}
+			  ) AS SEAL_MG_USER_POSITION
+			, ( select `employee_no` from SUSMT where USER_ID = SEAL_MG_USER_ID and HOUSE_CODE = ${session.HOUSE_CODE}
+					AND COMPANY_CODE = ${session.COMPANY_CODE}
+			  ) AS SEAL_MG_EMPLOYEE_NO 
+			, SUB_MG_USER_ID 
+			, GETUSERNAME(HOUSE_CODE, COMPANY_CODE, SUB_MG_USER_ID, 'KO') AS SUB_MG_USER_NAME
+			, GETUSERDEPTNAME(HOUSE_CODE, COMPANY_CODE, SUB_MG_USER_ID, 'KO') AS SUB_MG_DEPT_NAME
+			, ( select `position` from SUSMT where USER_ID = SUB_MG_USER_ID and HOUSE_CODE = ${session.HOUSE_CODE}
+					AND COMPANY_CODE = ${session.COMPANY_CODE}
+			  ) AS SUB_MG_USER_POSITION
+		  	, ( select `employee_no` from SUSMT where USER_ID = SUB_MG_USER_ID and HOUSE_CODE = ${session.HOUSE_CODE}
+					AND COMPANY_CODE = ${session.COMPANY_CODE}
+			  ) AS SUB_MG_EMPLOYEE_NO
+		FROM
+			SSEAL 
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND MANAGE_NUMBER IN ($INS{manageNo_Arr})
+			AND SEAL_TYPE = $S{SEAL_TYPE}
+	]]>
+	</method>
+	<method name="doSelectReqInfo">
+	<![CDATA[
+		SELECT 
+			 USMT.USER_ID ,
+			 USMT.USER_NAME_LOC ,
+			 USMT.POSITION ,
+			 USMT.EMPLOYEE_NO,
+			 DEPT.DEPT_NAME_LOC 
+		FROM SUSMT USMT
+		LEFT OUTER JOIN SDEPT DEPT
+		  ON DEPT.HOUSE_CODE = USMT.HOUSE_CODE 
+		 AND DEPT.COMPANY_CODE = USMT.COMPANY_CODE 
+		 AND DEPT.DEPT = USMT.DEPT
+		WHERE
+			 USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+		 AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+		 AND USMT.USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doSelectUse">
+	<![CDATA[
+		SELECT
+			SUBJECT
+		FROM
+			SUDGL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND USE_NUMBER = ${SEAL_USE_TYPE}
+	]]>
+	</method>
+	
+	<method name="doSelectAttachDocHeaders">
+	<![CDATA[
+		SELECT
+			SRAD.SUBJECT
+		FROM SSISD SISD
+		INNER JOIN SSRAD SRAD
+			ON SISD.HOUSE_CODE = SRAD.HOUSE_CODE 
+			AND SISD.COMPANY_CODE = SRAD.COMPANY_CODE
+			AND SISD.SMI_NUMBER = SRAD.SMI_NUMBER
+		WHERE
+			SISD.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND SISD.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SISD.SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doSelectAttachDoc">
+	<![CDATA[
+		SELECT
+			SMI_NUMBER
+			, SUBJECT
+		FROM
+			SSRAD
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMI_NUMBER = ${SMI_NUMBER}
+	]]>
+	</method>
+
+	<method name="doSelectExtraInfo">
+	<![CDATA[
+		SELECT
+			SMR_NUMBER
+			,DATA
+		FROM
+			SSIAD_EXTRA_INFO
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doSelectExtraFiles">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SFILE
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND DOC_NO = ${DOC_NO}
+			AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doSelectApprovalInfo">
+	<![CDATA[
+		SELECT 
+			APP_NO
+		FROM 
+			SGWGL 
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SUX_WKEY1 = ${SMR_NUMBER}
+		ORDER BY
+			APP_NO DESC
+	]]>
+	</method>
+	
+	<method name="doSelectUseSealApproverSummary">
+	<![CDATA[
+		SELECT
+			 TEXT1 AS SLM_NUMBER
+			,TEXT2 AS USE_NUMBER
+			,TEXT3 AS APPROVAL_SORT
+			,TEXT4 AS USER_ID
+			,TEXT5 AS ROLE
+		FROM
+			SCODE
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND TYPE = ${TYPE}
+			AND LANGUAGE = 'KO'
+		ORDER BY SLM_NUMBER ASC, APPROVAL_SORT ASC
+	]]>
+	</method>
+	<method name="doQueryReqSealHeaerInfo">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SSIAD
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doQueryExtSealHeaderInfo">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SSETL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectExternalDocList">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SFILE
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND DOC_NO = ${ATTACH_NO}
+			AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+</service>

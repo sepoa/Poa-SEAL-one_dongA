@@ -1,0 +1,187 @@
+/* container */
+div.gridbox div.ftr{
+	background : white none repeat scroll 0 0;
+}
+div.gridbox_dhx_web.gridbox{
+	border:1px solid #e1e1e1;
+	position: relative;
+}
+
+/* header */
+div.gridbox_dhx_web.gridbox .xhdr {
+	background: #ffffff;
+    border: none;
+    border-collapse:separate;
+    border-spacing:0px;
+}
+div.gridbox_dhx_web.gridbox table.hdr td {
+	padding: 5px 0px;
+	
+	border: 1px solid #dddddd;
+	border-top:0px;
+	border-left:0px;
+	
+	background-color: transparent;
+	
+	vertical-align: middle;
+	position: relative;
+	box-sizing:border-box;
+}
+div.gridbox_dhx_web.gridbox table.hdr tr:nth-child(2) td{
+	border-top: 0px solid #dddddd;
+}
+div.gridbox_dhx_web.gridbox table.hdr tr td div.hdrcell{
+	padding-left:0px;
+	
+	background-color:#f1f1f1;
+	
+	color:#222222;
+	line-height:30px;
+	text-align:center;
+	
+	text-overflow: ellipsis;
+    word-break: keep-all;
+}
+
+/* flow button */
+div.imgButton{
+	display:block;
+	float:left;
+	margin:2px;
+	cursor:pointer;
+}
+div.imgButton img{
+	width: 100%;
+}
+
+/* header - sort */
+.dhxgrid_sort_desc, .dhxgrid_sort_asc {
+	width: 9px;
+	height: 8px;
+	background-image: url("../../../dhtmlx/dhtmlxSuite_v501_pro/skins/web/imgs/dhxgrid_web/sort_desc.gif");
+	background-repeat: no-repeat;
+	z-index: 10;
+}
+.dhxgrid_sort_asc {
+	background-image: url("../../../dhtmlx/dhtmlxSuite_v501_pro/skins/web/imgs/dhxgrid_web/sort_asc.gif");
+	background-repeat: no-repeat;
+}
+
+/* row */
+div.gridbox_dhx_web.gridbox table.obj tr > th{
+	border-bottom : 1px solid #dddddd;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr td:last-child{
+	border-right:1px solid #dddddd;
+}
+
+/* cells */
+div.gridbox_dhx_web.gridbox table.obj.row20px tr td{
+	height: 30px;
+	padding: 4px;
+    border-bottom: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+    
+    font-size:12px;
+    line-height: 20px;
+    color:#222222;
+}
+
+/* cell - combo */
+div.gridbox_dhx_web.gridbox .dhx_combo_edit{
+	padding:0px;
+}
+div.dhxcombo_material input.dhxcombo_input{
+	font-size: 12px;
+	cursor: pointer;
+}
+div.dhxcombolist_material div.dhxcombo_option div.dhxcombo_option_text{
+	font-size: 12px;
+}
+
+/* cell - subrow */
+.gridbox_dhx_web.gridbox .dhx_sub_row{
+	 border: 1px solid #ddd;
+}
+
+/* cell - img button */
+div.gridbox_dhx_web.gridbox table.obj.row20px tr td img{
+	max-height:16px;
+	filter: grayscale(100%);
+}
+
+/* row selected */
+div.gridbox_dhx_web.gridbox table.obj.row20px tr.preselected > td,
+div.gridbox_dhx_web.gridbox table.obj.row20px tr.preselected > th{
+	border-bottom : 1px solid #0288D1;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr.rowselected > td{
+	border-bottom : 1px solid #0288D1;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr.rowselected > td.lastCell{
+	border-right : 1px solid #0288D1;
+}
+div.gridbox_dhx_web.gridbox > .objbox table.obj.row20px tr.rowselected > td:not( [style*='display: none'] ){
+	border-left : 1px solid #0288D1;
+}
+div.gridbox_dhx_web.gridbox > .objbox table.obj.row20px tr.rowselected > td:not( [style*='display: none'] ) ~ td:not( [style*='display: none'] ){
+	border-left : none;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr.rowselected {
+	background: none;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr.rowselected td {
+	border-right-color: #dddddd;
+    background-color: transparent;
+    
+ 	line-height: 20px;
+    color: #616161;  
+}
+td.dhtmlx_validation_error{
+	border-bottom: 1px solid red !important;
+}
+
+/* custom cell design */
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_lcolor{
+	color:#1879B9;
+	font-weight: 550;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_mcolor{
+	
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_ocolor{
+	
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_primary{
+	color:#FF5252;
+	font-weight: 500;
+	font-size:16px;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_secondary{
+	color:#0288D1;
+	font-weight: 500;
+	font-size:14px;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_tertiary{
+	color:#0AB169;
+	font-weight: 500;
+	font-size:14px;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_bold{
+	font-weight: 500;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_italic{
+	font-style: italic;
+}
+div.gridbox_dhx_web.gridbox table.obj.row20px tr .sepoa_grid_column_type_small{
+	font-size:10px;
+}
+
+/* filter */
+div.gridbox .filter input,
+div.gridbox .filter select{
+	border:solid 1px #dddddd;
+	font-size:12px;
+	width:calc(100% - 10px) !important;
+	height: 22px;
+}    

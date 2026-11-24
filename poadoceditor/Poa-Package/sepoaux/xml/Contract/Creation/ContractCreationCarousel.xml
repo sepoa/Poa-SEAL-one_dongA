@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_002" header="false">
+    <carousel id="carouselObj" div="cmumDxcUfEiQTyWkpo">
+        <item id="UPLOAD">
+            <attach file="/Contract/Common/ContractCommonFileUpload.xml"/>
+        </item>
+        <item id="MODULE" render="lazy">
+            <attach file="/Contract/Module/ContractModuleLayout.xml"/>
+        </item>
+    </carousel>
+    <variable>
+        <var name="flowControllerBox" value="$($sObject._vp).find('#VZkgYrdqepgYrdGXtS')[0]"/>
+        <var name="VZkgYrdqepgYrdWMlh" value="$($sObject._vp).find('#VZkgYrdqepgYrdWMlh')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+        <call name="drawFlowView"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <var name="flowViewObj"/>
+        <function name="init">
+        <![CDATA[
+            $share.childScreen = {};
+            $share.config = {
+                module: {
+                    WORK_TYPE: "C", // T: template, C:contract
+                    CONT_TYPE: (Sepoa.request.alias || "B"), //B: Business, E: Employee
+                    CONT_MODULE: "EDITOR"
+                },
+                document: {
+                    CONT_TYPE: (Sepoa.request.alias || "B"), //B: Business, E: Employee
+                },
+                editor:{
+                    header:[]
+                }
+            }
+            
+            if(Sepoa.request.CONT_NO){
+                $share.config.document.CONT_NO = Sepoa.request.CONT_NO
+                $share.config.document.CONT_GL_SEQ =  Sepoa.request.CONT_GL_SEQ
+                $share.config.document.isReady = false;
+                doQuery();
+            }else{
+                $share.config.document.isReady = true;
+            }
+            
+            // sign method
+            if ($share.config.module.CONT_TYPE == "E") {
+                // Employee
+                $share.config.module.AVAILABLE_CONT_METHOD = sUtils.workflow.getOptions('CT1625189958748', true);
+                $share.config.module.AVAILABLE_FILE_TYPE = sUtils.workflow.getOptions('CT1625200711940', true);
+            } else {
+                // Bussiness
+                $share.config.module.AVAILABLE_CONT_METHOD = sUtils.workflow.getOptions('CT1625190016754', true);
+                $share.config.module.AVAILABLE_FILE_TYPE = sUtils.workflow.getOptions('CT1625200717734', true);
+            }
+            
+            // Before Module settings
+            $share.config.module.AVAILABLE_CONT_METHOD = ['0', 'S', 'D', 'C']
+            $share.config.module.AVAILABLE_FILE_TYPE = ['C', 'E']
+        ]]>
+        </function>
+        
+        <function name="drawFlowView" args="">
+        <![CDATA[
+            $share.config.editor.flowview = {
+                options: [{
+                        view: 'step'
+                    },
+                    [
+                        {
+                            id: 'UPLOAD',
+                            label: Sepoa.cache.text.get('CT_002.FILE')
+                        },
+                        {
+                            id: 'MODULE',
+                            label: Sepoa.cache.text.get('CT_002.EDIT')
+                        },
+                        {
+                            id: 'END',
+                            label: Sepoa.cache.text.get('CT_002.SAVE')
+                        }
+                    ]
+                ]
+            };
+            
+            flowViewObj = $share.config.editor.flowview.origin = $sObject.flowViewObj = Object.create(SepoaFlowView.prototype);
+            SepoaFlowView.apply(flowViewObj, [flowControllerBox].concat($share.config.editor.flowview.options));
+            flowViewObj.attachEvent('onBeforeActive', onBeforeActive);
+            flowViewObj.attachEvent('onActive', onActive);
+        ]]>
+        </function>
+        
+        <function name="onBeforeActive" args="id, before, btn">
+        <![CDATA[
+            if(btn == "prev"){
+                return true;
+            }else if (id == 'MODULE' || id == 'END') {
+                var beforeInfo = $share.childScreen[before.id];
+                if (beforeInfo && beforeInfo.events && beforeInfo.events.onBeforeNext) {
+                    var flag = beforeInfo.events.onBeforeNext(id);
+                    if(flag){
+                        doDocumentUpdate(id);
+                    }
+                }
+            }        
+            return false;
+        ]]>
+        </function>
+        
+        <function name="onActive" args="id">
+        <![CDATA[
+            if (id == 'MODULE') {
+                flowViewObj._vp.classList.add('hidden');
+                $share.childScreen[id].events.refresh();
+            } else {
+                flowViewObj._vp.classList.remove('hidden');
+            }
+            carouselObj.cells(id).setActive();
+            sUtils.ux.setSizes();
+        ]]>
+        </function>
+        
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            var screenInfo = $share.childScreen[config.name] = config;
+            if (screenInfo.events && screenInfo.events.onRegistration && $share.config.document.isReady) {
+                screenInfo.events.onRegistration($share.config);
+            }
+        ]]>
+        </function>
+        
+        <function name="doQuery">
+        <![CDATA[
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res){
+                        if(res.status == "1"){
+                            $share.config.document = $.extend(true, $share.config.document, res.result[0]);
+                            for(var i in $share.childScreen){
+                                var screenInfo = $share.childScreen[i];
+                                if (screenInfo.events && screenInfo.events.onRegistration) {
+                                    screenInfo.events.onRegistration($share.config);
+                                }
+                            }
+                            $share.config.document.isReady = true;
+                        }else{
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0002'));
+                        }
+                    }
+                }
+            }
+        
+            var params = {
+                module:"contract",
+                action: "doDocumentDetail",
+                CONNECTION: "CONNECTION",
+                CONT_TYPE: $share.config.module.CONT_TYPE,
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doDocumentUpdate" args="nextStep">
+        <![CDATA[
+             var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.flag){
+                            if(params.NEXT_STEP != "END"){
+                                flowViewObj.setActive(params.NEXT_STEP, true);
+                            }else{
+                                
+                            }
+                        }
+                    }
+                },
+                contentType:"json"
+            }
+            var params = {
+                module:"contract",
+                action: "doDocumentUpdate",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ:  $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.document.CONT_TYPE,
+                NEXT_STEP: nextStep
+            }
+            
+            switch(nextStep){
+            case "MODULE":
+                params.DOC_INFO_DATA=$share.config.document.DOC_INFO_DATA;
+                break;
+            case "END":
+                params.DOC_INFO_DATA=$share.config.document.DOC_INFO_DATA;
+                params.DOC_ITEM=$share.config.document.DOC_ITEM;
+                break;
+            case "APPROVAL":
+                //미구현
+                break;
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doDocumentCreate" args="">
+        <![CDATA[
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                async:false
+            }
+            
+            var params = {
+                module:"contract",
+                action: "doDocumentCreate",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.document.CONT_TYPE
+            }
+            
+            return (sUtils.multipart.send(config, params).status == "1")
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVG11bUR4Y01SS1pQVHlXWWZaIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJDVF8wMDIifSwiaWQiOiJUbXVtRHhjTVJLWlBUeVdZZloiLCJ0eXBlIjoiYm9keSJ9LCJjbXVtRHhjVWZFaVFUeVdrcG8iOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF8yYTBBUlBJdmRKYUIiOiJudWxsIiwiZGh4SWRfVllpdHFRRDk1bW81
+        IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX3lyMmJFcDA2V09JTiI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX2R0a3JaODRJVWw2dSI6Im51bGwiLCJkaHhJZF91amVLV2t6V2xBeGoiOiJudWxsIiwiZGh4SWRfeHY1T1VUS3AyeGY1IjoibnVsbCIsImRoeElkX2tXbU14cWl0RzlyMCI6Im51bGwiLCJkaHhJZF94a2FuME5SUHRNcXIiOiJudWxsIiwiZGh4SWRfSVdycTdhWnh6dWtwIjoibnVsbCIsImRoeElkX3N4SlFkQllZbUJxTiI6Im51bGwiLCJkaHhJZF94azJMZkVZU2J3YVgiOiJudWxsIiwiZGh4SWRfbHpRS3czZEpYdE5sIjoibnVsbCIsImRoeElkXzc5NU1IMEc2TUJGQSI6Im51bGwiLCJkaHhJ
+        ZF9IZWRtaW4xVHEwQ1oiOiJudWxsIiwiZGh4SWRfSkZZRVhwSFVrN3NvIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY2Fyb3VzZWxPYmoiLCJJVEVNX1ZHQ1BPTkVLTElRRVBJR1BJQV9UQVJHRVQiOiIvQ29udHJhY3QvQ29tbW9uL0NvbnRyYWN0Q29tbW9uRmlsZVVwbG9hZC54bWwiLCJPQkpFQ1RfSUQiOiJjbXVtRHhjVWZFaVFUeVdrcG8iLCJJVEVNX1ZHQ1BPTkVZS01RRVBJR1FGSV9UWVBFIjoiVSIsIklURU1fVkdDUE9ORUtMSVFFUElHUElBX1RZUEUiOiJVIiwiSVRFTV9WR0NQT05FWUtNUUVQSUdRRklfVEFSR0VUIjoiL0NvbnRyYWN0L01vZHVsZS9Db250cmFjdE1vZHVsZVRhYmJhci54bWwiLCJJVEVNX1ZHQ1BPTkVLTElRRVBJR1BJQV9JRCI6
+        IlVQTE9BRCIsIklURU1fVkdDUE9ORVlLTVFFUElHUUZJX1NPUlQiOiIyIiwiSVRFTV9WR0NQT05FS0xJUUVQSUdQSUFfU09SVCI6IjEiLCJJVEVNX1ZHQ1BPTkVZS01RRVBJR1FGSV9JRCI6Ik1PRFVMRSJ9LCJpZCI6ImNtdW1EeGNVZkVpUVR5V2twbyIsInR5cGUiOiJjYXJvdXNlbCIsImNhcm91c2VsIjoiY2Fyb3VzZWwifSwiVlprZ1lyZHFlcGdZcmRHWHRTIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfY1kzajdJSEpvOUpHIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfdnJXNzJVd1BiWVY4IjoibnVsbCJ9LCJjb21wb25l
+        bnQiOnsiVkFSIjoiZmxvd0NvbnRyb2xsZXJCb3giLCJPQkpFQ1RfSUQiOiJWWmtnWXJkcWVwZ1lyZEdYdFMifSwiaWQiOiJWWmtnWXJkcWVwZ1lyZEdYdFMiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiVlprZ1lyZHFlcGdZcmRXTWxoIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiVlprZ1lyZHFlcGdZcmRXTWxoIn0sImlkIjoiVlprZ1lyZHFlcGdZcmRXTWxoIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJWR0NQT05FS0xJUUVQSUdQSUEiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlRBUkdFVCI6Ii9Db250cmFjdC9Db21tb24vQ29udHJhY3RDb21tb25GaWxlVXBsb2FkLnhtbCIsIlRZUEUiOiJVIiwiSUQiOiJV
+        UExPQUQiLCJpdGVtSUQiOiJWR0NQT05FS0xJUUVQSUdQSUEiLCJTT1JUIjoiMSJ9LCJpZCI6IlZHQ1BPTkVLTElRRVBJR1BJQSIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImNhcm91c2VsQ2VsbCIsIm5hbWUiOiJVUExPQUQifSwiVkdDUE9ORVlLTVFFUElHUUZJIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJUWVBFIjoiVSIsIlRBUkdFVCI6Ii9Db250cmFjdC9Nb2R1bGUvQ29udHJhY3RNb2R1bGVUYWJiYXIueG1sIiwiU09SVCI6IjIiLCJJRCI6Ik1PRFVMRSIsIml0ZW1JRCI6IlZHQ1BPTkVZS01RRVBJR1FGSSJ9LCJpZCI6IlZHQ1BPTkVZS01RRVBJR1FGSSIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImNhcm91c2VsQ2VsbCIsIm5hbWUi
+        OiJNT0RVTEUifX0sInRyZWUiOnsiaWQiOiJUbXVtRHhjTVJLWlBUeVdZZloiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IlZaa2dZcmRxZXBnWXJkV01saCIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJWWmtnWXJkcWVwZ1lyZEdYdFMiLCJ0eXBlIjoiY29sdW1uIn1dfSx7ImlkIjoiY211bUR4Y1VmRWlRVHlXa3BvIiwidHlwZSI6ImNhcm91c2VsIiwiY2VsbHMiOlt7ImlkIjoiVkdDUE9ORUtMSVFFUElHUElBIiwidHlwZSI6ImNhcm91c2VsQ2VsbCJ9LHsiaWQiOiJWR0NQT05FWUtNUUVQSUdRRkkiLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQ29udHJhY3QvQ3JlYXRpb24vQ29udHJhY3RDcmVh
+        dGlvbkNhcm91c2VsLnhtbCIsIlBST0pFQ1QiOiJDT05UUkFDVCIsIkNPREUiOiIwMDIiLCJQUkVGSVgiOiJDVCIsIlBBVEhfMiI6IkNyZWF0aW9uIiwiUEFUSF8zIjoiQ29udHJhY3RDcmVhdGlvbiIsIlBBVEhfMSI6IkNvbnRyYWN0IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQ2Fyb3VzZWwiLCJTQ1JFRU5fSUQiOiJDVF8wMDIifX0sImh0bWwiOiI8ZGl2IGlkPVwiVG11bUR4Y01SS1pQVHlXWWZaXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBv
+        bmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJWWmtnWXJkcWVwZ1lyZFdNbGhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5f
+        Y2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlZaa2dZcmRxZXBnWXJkR1h0U1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAg
+        IDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiY211bUR4Y1VmRWlRVHlXa3BvXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9jYXJvdXNlbCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAg
+        IDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SMUID ADD (ATTACH_NO VARCHAR2(20)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SMUID ADD ATTACH_NO VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			ALTER TABLE SMUID ADD ATTACH_NO VARCHAR(20)
+		]]>
+		</query>
+	</item>
+		<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertData"/>
+		<params>
+			<list>
+				<map>
+					<entry key="GRID_ID"		val="AD_021_1"/>
+					<entry key="CODE"			val="MANUAL"/>
+					<entry key="COL_TYPE"   	val="icon"/>
+					<entry key="COL_FORMAT"		val=""/>
+					<entry key="COL_MAX_LEN"	val="10000"/>
+					<entry key="COL_ALIGN"		val=""/>
+					<entry key="COL_VISIBLE"	val="true"/>
+					<entry key="SELECTED_YN"	val=""/>
+					<entry key="COL_SEQ"		val="110.00"/>
+					<entry key="TEXT_STYLE"		val=""/>
+					<entry key="COL_COLOR"		val="Rcolort"/>
+					<entry key="COL_COMBO"		val=""/>
+					<entry key="COL_SORT"		val=""/>
+					<entry key="NOT_NULL"		val="0"/>
+					<entry key="TEMPLATE"		val="ATTACH_IMG"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_021_1"/>
+					<entry key="CODE"			val="ATTACH_CNT"/>
+					<entry key="COL_TYPE"   	val="ro"/>
+					<entry key="COL_FORMAT"		val=""/>
+					<entry key="COL_MAX_LEN"	val="10000"/>
+					<entry key="COL_ALIGN"		val="center"/>
+					<entry key="COL_VISIBLE"	val="true"/>
+					<entry key="SELECTED_YN"	val=""/>
+					<entry key="COL_SEQ"		val="109.00"/>
+					<entry key="TEXT_STYLE"		val=""/>
+					<entry key="COL_COLOR"		val="Rcolort"/>
+					<entry key="COL_COMBO"		val=""/>
+					<entry key="COL_SORT"		val=""/>
+					<entry key="NOT_NULL"		val="0"/>
+					<entry key="TEMPLATE"		val=""/>
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_021_1"/>
+					<entry key="CODE"			val="ATTACH_NO"/>
+					<entry key="COL_TYPE"   	val="ro"/>
+					<entry key="COL_FORMAT"		val=""/>
+					<entry key="COL_MAX_LEN"	val="10000"/>
+					<entry key="COL_ALIGN"		val="center"/>
+					<entry key="COL_VISIBLE"	val="false"/>
+					<entry key="SELECTED_YN"	val=""/>
+					<entry key="COL_SEQ"		val="115.00"/>
+					<entry key="TEXT_STYLE"		val=""/>
+					<entry key="COL_COLOR"		val="Rcolort"/>
+					<entry key="COL_COMBO"		val=""/>
+					<entry key="COL_SORT"		val=""/>
+					<entry key="NOT_NULL"		val="0"/>
+					<entry key="TEMPLATE"		val=""/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

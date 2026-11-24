@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT PROCESS_ID
+			  ,METHOD
+			  ,SERVICE_CLASS
+			  ,DESCRIPTION
+			  ,'Y'           SAVED
+			  ,HOUSE_CODE
+		  FROM SFRWK 
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND PROCESS_ID = ${PROCESS_ID}
+		   AND (   1=1
+		       AND upper(METHOD)      like '%' || upper($S{F_KEYWORD}) || '%'
+		   	   OR  upper(DESCRIPTION) like '%' || upper($S{F_KEYWORD}) || '%'
+		   	   )
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE 
+		  FROM #DB_OWNER#SFRWK 
+		 WHERE PROCESS_ID    = ${PROCESS_ID} 
+		   AND METHOD        = ${METHOD}
+		   AND HOUSE_CODE    = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	<method name="doQueryExistRow">
+	<![CDATA[
+		SELECT COUNT(*) CNT
+		  FROM #DB_OWNER#SFRWK 
+		 WHERE PROCESS_ID    = ${PROCESS_ID} 
+		   AND METHOD        = ${METHOD}
+		   AND HOUSE_CODE    = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdateData">
+	<![CDATA[
+		UPDATE #DB_OWNER#SFRWK
+		   SET PROCESS_ID    = ${PROCESS_ID}
+		      ,METHOD        = ${METHOD}
+			  ,SERVICE_CLASS = ${SERVICE_CLASS}
+			  ,DESCRIPTION   = ${DESCRIPTION}
+		 WHERE PROCESS_ID    = ${PROCESS_ID} 
+		   AND METHOD        = ${METHOD}
+		   AND HOUSE_CODE    = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	<method name="doInsertData">
+	<![CDATA[
+		INSERT 
+		  INTO #DB_OWNER#SFRWK
+		     ( HOUSE_CODE,
+			   PROCESS_ID,
+			   METHOD,
+			   ADD_DATE,
+			   ADD_TIME,
+			   USER_ID,
+			   URL,
+			   SERVICE_CLASS,
+			   VERSION,
+			   USE_FLAG,
+			   DESCRIPTION,
+			   AUTHO_OBJECT_CODE,
+			   FIELD_CODE,
+			   START_DATE,
+			   END_DATE,
+			   AUTHO_APPLY_FLAG,
+			   DEL_FLAG,
+			   ACC_DATE
+		     ) 
+	  VALUES ( ${session.HOUSE_CODE},
+			   ${PROCESS_ID},
+			   ${METHOD},
+			   ${current.DATE},
+			   ${current.TIME},
+			   ${session.ID},
+			   'sepoaserviceclasses',
+			   ${SERVICE_CLASS},
+			   '1.0.0',
+			   'Y',
+			   ${DESCRIPTION},
+			   NULL,
+			   NULL,
+			   NULL,
+			   NULL,
+			   'N',
+			   'N',
+			   NULL
+		     )
+	]]>
+	</method>
+</service>

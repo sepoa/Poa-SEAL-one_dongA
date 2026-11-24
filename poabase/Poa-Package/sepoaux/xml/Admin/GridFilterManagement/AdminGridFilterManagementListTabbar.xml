@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_023_T" header="false" tpl="editor.tpl">
+    <tabbar id="tabbarObj" div="WSKbVudFPMbVudNlXq">
+        <item id="CLIENT" name="AD_023_T.TABBAR_CLIENT_NAME" selected="true">
+            <attach file="/Admin/GridFilterManagement/AdminGridFilterManagementClientList.xml"/>
+        </item>
+        <item id="GRID" name="" selected="false">
+            <attach file="/Admin/GridFilterManagement/AdminGridFilterManagementList.xml"/>
+        </item>
+        <event type="onSelect" callback="onTabChange" />
+    </tabbar>
+    <onloadscript>
+    	<call name="pageInit"/>
+    </onloadscript>
+    <userscript>
+        <var name="$clientData">
+        <![CDATA[
+            {house_code:Sepoa.info.HOUSE_CODE}
+        ]]>
+        </var>
+    	<function name="pageInit" args="">
+        <![CDATA[
+            if(Sepoa.info.HOUSE_CODE == "000"){
+                tabbarObj.tabs('GRID').hide();
+                callFunction('AD_023_3', 'doQuery', []);
+            }else{
+                tabbarObj.tabs('GRID').setActive();
+                tabbarObj.hideTabsArea();
+            }
+        ]]>
+        </function>
+        <function name="onSelectItem" args="type, item">
+        <![CDATA[
+            if(type == "CLIENT"){
+                tabbarObj.tabs('GRID').setText(item.company_name);
+                tabbarObj.tabs('GRID').show();
+                tabbarObj.tabs('GRID').setActive();
+                $.extend($clientData, item);
+                callFunction('p', 'onSelectItem', [$clientData]);
+            }else{
+                callFunction(['p'], 'onSelectItem', [$.extend({}, item, $clientData)]);
+            }
+        ]]>
+        </function>
+        <function name="onTabChange" args="id, before">
+        <![CDATA[
+            if(before){
+                if(id == "CLIENT"){
+                    tabbarObj.tabs('GRID').hide();
+                    callFunction('p', 'onSelectItem', []);
+                }else if(id == "GRID"){
+                    callFunction('AD_023_1', 'doQuery', []);
+                }
+            }
+            return true;
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiV1NLYlZ1ZFhTS2JWdWRSTEVNIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQURfMDIzX1QifSwiaWQiOiJXU0tiVnVkWFNLYlZ1ZFJMRU0iLCJ0eXBlIjoiYm9keSJ9LCJXU0tiVnVkRlBNYlZ1ZE5sWHEiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9NVVFtWjdnVWZER0oiOiJudWxsIiwiZGh4SWRfUGxzVThHQ200S0RM
+        IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzRGNjIxSUVnVXFqSCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiV1NLYlZ1ZEZQTWJWdWRObFhxIiwiSVRFTV9OUk1TVlVEQ1dBQ0pWWEdaSFdfVEFSR0VUIjoiL0FkbWluL0dyaWRGaWx0ZXJNYW5hZ2VtZW50L0FkbWluR3JpZEZpbHRlck1hbmFnZW1lbnRMaXN0LnhtbCIsIklURU1fTlJNU1ZVRFFYUkJKVlhHQ1haX0lEIjoiQ0xJRU5UIiwiSVRFTV9OUk1TVlVEQ1dBQ0pWWEdaSFdfU0VMRUNURUQiOiJmYWxzZSIsIklURU1fTlJNU1ZVRFFYUkJKVlhHQ1haX1NFTEVDVEVEIjoidHJ1ZSIsIklURU1fTlJNU1ZVRFFYUkJKVlhHQ1ha
+        X1RZUEUiOiJVIiwiSVRFTV9OUk1TVlVEUVhSQkpWWEdDWFpfTkFNRSI6IsWstvPAzL7wxq4iLCJJVEVNX05STVNWVURDV0FDSlZYR1pIV19TT1JUIjoiMiIsIklURU1fTlJNU1ZVRFFYUkJKVlhHQ1haX1NPUlQiOiIxIiwiSVRFTV9OUk1TVlVEQ1dBQ0pWWEdaSFdfVFlQRSI6IlUiLCJJVEVNX05STVNWVURDV0FDSlZYR1pIV19JRCI6IkdSSUQiLCJPQkpFQ1RfSUQiOiJXU0tiVnVkRlBNYlZ1ZE5sWHEiLCJJVEVNX05STVNWVURDV0FDSlZYR1pIV19OQU1FIjoisde4rrXlIiwiSVRFTV9OUk1TVlVEUVhSQkpWWEdDWFpfVEFSR0VUIjoiL0FkbWluL0dyaWRGaWx0ZXJNYW5hZ2VtZW50L0FkbWluR3JpZEZpbHRlck1hbmFnZW1lbnRDbGllbnRMaXN0LnhtbCJ9LCJp
+        ZCI6IldTS2JWdWRGUE1iVnVkTmxYcSIsInR5cGUiOiJ0YWJiYXIiLCJldmVudHMiOm51bGx9LCJOUk1TVlVEUVhSQkpWWEdDWFoiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IklEIjoiQ0xJRU5UIiwiaXRlbUlEIjoiTlJNU1ZVRFFYUkJKVlhHQ1haIiwiU0VMRUNURUQiOiJ0cnVlIiwiVFlQRSI6IlUiLCJOQU1FIjoixay288DMvvDGriIsIlNPUlQiOiIxIiwiVEFSR0VUIjoiL0FkbWluL0dyaWRGaWx0ZXJNYW5hZ2VtZW50L0FkbWluR3JpZEZpbHRlck1hbmFnZW1lbnRDbGllbnRMaXN0LnhtbCJ9LCJpZCI6Ik5STVNWVURRWFJCSlZYR0NYWiIsIm1heENoaWxkQ291bnQiOjEsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6IkNMSUVOVCJ9LCJOUk1TVlVE
+        Q1dBQ0pWWEdaSFciOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlRBUkdFVCI6Ii9BZG1pbi9HcmlkRmlsdGVyTWFuYWdlbWVudC9BZG1pbkdyaWRGaWx0ZXJNYW5hZ2VtZW50TGlzdC54bWwiLCJTRUxFQ1RFRCI6ImZhbHNlIiwiU09SVCI6IjIiLCJUWVBFIjoiVSIsIklEIjoiR1JJRCIsIml0ZW1JRCI6Ik5STVNWVURDV0FDSlZYR1pIVyIsIk5BTUUiOiKx17iuteUifSwiaWQiOiJOUk1TVlVEQ1dBQ0pWWEdaSFciLCJtYXhDaGlsZENvdW50IjoxLCJ0eXBlIjoidGFiYmFyQ2VsbCIsIm5hbWUiOiJHUklEIn19LCJ0cmVlIjp7ImlkIjoiV1NLYlZ1ZFhTS2JWdWRSTEVNIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJXU0tiVnVkRlBNYlZ1ZE5sWHEi
+        LCJ0eXBlIjoidGFiYmFyIiwiY2VsbHMiOlt7ImlkIjoiTlJNU1ZVRFFYUkJKVlhHQ1haIiwidHlwZSI6InRhYmJhckNlbGwifSx7ImlkIjoiTlJNU1ZVRENXQUNKVlhHWkhXIiwidHlwZSI6InRhYmJhckNlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9HcmlkRmlsdGVyTWFuYWdlbWVudC9BZG1pbkdyaWRGaWx0ZXJNYW5hZ2VtZW50TGlzdFRhYmJhci54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiIwMjNfVCIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiR3JpZEZpbHRlck1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbkdyaWRGaWx0ZXJNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJMaXN0VGFi
+        YmFyIiwiU0NSRUVOX0lEIjoiQURfMDIzX1QifX0sImh0bWwiOiI8ZGl2IGlkPVwiV1NLYlZ1ZFhTS2JWdWRSTEVNXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAg
+        ICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJXU0tiVnVkRlBNYlZ1ZE5sWHFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X3RhYmJhciBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

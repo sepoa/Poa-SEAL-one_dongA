@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<crontab>
+<crontabentry id="1">
+	<seconds>*/10</seconds>
+	<minutes>*</minutes>
+	<hours>*</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaUserBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SEPOA_USER_BATCH</description>
+</crontabentry>
+<crontabentry id="2">
+	<seconds>0</seconds>
+	<minutes>15</minutes>
+	<hours>3</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaDeptBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SEPOA_DEPT_BATCH</description>
+</crontabentry>
+<crontabentry id="3">
+	<seconds>0</seconds>
+	<minutes>30</minutes>
+	<hours>3</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaPositionBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SEPOA_POSITION_BATCH</description>
+</crontabentry>
+<crontabentry id="4">
+	<seconds>0</seconds>
+	<minutes>45</minutes>
+	<hours>3</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaVendorBatch</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SEPOA_VENDOR_BATCH</description>
+</crontabentry>
+<crontabentry id="5">
+	<seconds>0</seconds>
+	<minutes>20</minutes>
+	<hours>19</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SepoaRealSealAfter</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SEPOA_REAL_SEAL_AFTER_BATCH</description>
+</crontabentry>
+</crontab>
+

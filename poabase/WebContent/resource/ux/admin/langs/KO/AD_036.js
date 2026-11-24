@@ -1,0 +1,25 @@
+{
+	"AD_036":{
+		"SELECTED":"선택",
+		"PROCESS_ID":"PROCESS_ID",
+		"METHOD":"METHOD",
+		"SERVICE_CLASS":"CLASS",
+		"VERSION":"VERSION",
+		"AUTHO_APPLY_FLAG":"권한적용",
+		"DESCRIPTION":"DESCRIPTION",
+		"SAVED":"저장된데이터"
+	},
+	"AD_036_GRID_LENGTH": {
+		"SELECTED": "40",
+		"PROCESS_ID": "90",
+		"METHOD": "250",
+		"SERVICE_CLASS": "250",
+		"VERSION": "90",
+		"AUTHO_APPLY_FLAG": "40",
+		"DESCRIPTION": "300",
+		"SAVED": "90"
+	},
+	"AD_036_2":{
+		"LAYOUT_A_HEADER":"서비스관리"
+	}
+}

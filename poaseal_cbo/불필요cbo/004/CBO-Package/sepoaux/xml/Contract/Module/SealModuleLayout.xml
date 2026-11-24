@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_502_L" header="false">
+    <layout id="layoutObj" div="lhmSjOeVGuSjOemxye" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false" type="contents" />
+            <collapse icon="false" collapsed="false"/>
+        </cell>
+    </layout>
+    <onloadscript>
+        selfObj[selfObj.name].button('close').hide();
+        <call name="init" />
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        
+        <function name="init">
+        <![CDATA[
+            $share.editor = { 
+                frame:$(layoutObj.cells('a').cell).find('.dhx_cell_cont_layout')[0].appendChild($('<iframe class="contract-editor-frame" style="width:100%;height:100%;border:0px;padding:0px;margin:0px;"></iframe>')[0])
+            }
+            
+            if(Sepoa.request.isPopup && $sObject._vp.parents('.sepoaux.screen_area').length <= 0){
+            	if (Sepoa.request.NEW_FLAG) {
+            		var config = {
+            			module:{
+            				WORK_TYPE : Sepoa.request.SMR_STATUS == 'T' || Sepoa.request.SMR_STATUS == 'R' || Sepoa.request.SMR_STATUS == 'F' || Sepoa.request.SMR_STATUS == 'N' ? 'T' : 'C',
+	                        CONT_MODULE : (Sepoa.request.SMR_STATUS == 'T' || Sepoa.request.SMR_STATUS == 'R' || Sepoa.request.SMR_STATUS == 'F' || Sepoa.request.SMR_STATUS == 'N') && Sepoa.request.REAL_FLAG != 1 ? 'EDITOR' : 'VIEW',
+	                        MODE : Sepoa.request.SMR_STATUS == 'T' ? 'NONE' : 'COMPLETE',
+	                        SMR_STATUS : Sepoa.request.SMR_STATUS,
+	                        REAL_FLAG : Sepoa.request.REAL_FLAG,
+	                        NEW_FLAG : Sepoa.request.NEW_FLAG
+            			},
+            			document: {
+            				DOC_DATA : {
+            					PATH : Sepoa.request.PATH,
+            					SELECT_SEAL_LIST : Sepoa.request.SELECT_SEAL_LIST
+            				}
+            			},
+            			editor : {}
+            		}
+            	} else {
+	            	if (Sepoa.request.DOC_DATA) {
+		            	var docData = Sepoa.request.DOC_DATA.replaceAll('&#34;', '"');
+	            	} else {
+	            		var docData = JSON.stringify({
+			                SMR_NUMBER: Sepoa.request.SMR_NUMBER,
+			                SMD_NUMBER: Sepoa.request.SMD_NUMBER,
+			                TARGET : Sepoa.request.TARGET
+			            });
+	            	}
+	                var config = {
+	                    module:{
+	                        WORK_TYPE : Sepoa.request.SMR_STATUS == 'T' || Sepoa.request.SMR_STATUS == 'R' || Sepoa.request.SMR_STATUS == 'F' || Sepoa.request.SMR_STATUS == 'N' ? 'T' : 'C',
+	                        CONT_MODULE : (Sepoa.request.SMR_STATUS == 'T' || Sepoa.request.SMR_STATUS == 'R' || Sepoa.request.SMR_STATUS == 'F'|| Sepoa.request.SMR_STATUS == 'N' )&& Sepoa.request.REAL_FLAG != 1 && Sepoa.request.VIEW_MODE_CHK !='VIEW' ? 'EDITOR' : 'VIEW', 
+	                        MODE : Sepoa.request.SMR_STATUS == 'T' || Sepoa.request.SMR_STATUS == 'R' || Sepoa.request.SMR_STATUS == 'F' ? 'NONE' : 'COMPLETE',
+	                        SMR_STATUS : Sepoa.request.SMR_STATUS,
+	                        REAL_FLAG : Sepoa.request.REAL_FLAG
+	                    },
+	                    document : {
+	                        DOC_DATA : JSON.parse(docData)
+	                    },
+	                    editor:{}
+	                }
+	            }
+                doOpenDocument(config);
+            }else {
+                callFunction('p', 'childScreenReady', [{
+                    name:"MODULE",
+                    id: $sObject.aliasCode,
+                    fn:{
+                        doOpenDocument:doOpenDocument,
+                        doUpdateShare:doUpdateShare,
+                        doClear:doClear
+                    }
+                }])
+            }
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="data, flag">
+        <![CDATA[
+        	adjustConfiguration(data);
+        	loadEditor();
+        ]]>
+        </function>
+        
+        <function name="doClear">
+        <![CDATA[
+            $share.config = {};
+            if($share.editor && $share.editor.isReady){
+                $share.editor.frame.src = "";    
+                $share.editor.isReady = false;
+                delete $share.editor.fn;
+            }
+        ]]>
+        </function>
+        <function name="loadEditor">
+        <![CDATA[
+        	$share.editor.frame.src = window.CONTEXT_NAME+"/Contract/Module/Seal"+(Sepoa.config.get('sepoa.seal.process') || "")+"ModuleEditor.sux?s-token="+window.sTokenString;
+        ]]>
+        </function>
+        
+        <function name="childScreenReady" args="fn">
+        <![CDATA[
+            $share.editor.fn = fn;
+            $share.editor.isReady=true;
+            fn.doOpenDocument($share.config);
+        ]]>
+        </function>
+        
+        <function name="doUpdateShare">
+        <![CDATA[
+            return $share.editor.fn.doUpdateShare();
+        ]]>
+        </function>
+        
+        <function name="adjustConfiguration" args="config">
+        <![CDATA[
+            $share.config = config;
+            if("T" == config.module.WORK_TYPE){
+            	if("EDITOR" == config.module.CONT_MODULE){//임시저장, 전자
+                    config.editor.header=[
+                        {
+                            type:'button',
+                            position:'float',
+                            list:[
+                                {id:"SAVE"  , text:"{BUTTON.save}"  	, type:"save"   	, onclick:function(){onButtonClick('SAVE')}},
+                                {id:"DELETE", text:"{BUTTON.delete}"	, type:"delete"		, onclick:function(){onButtonClick('DELETE')}}
+                            ]
+                        }
+                    ]
+             	} else if(Sepoa.request.VIEW_MODE_CHK !='VIEW' && "VIEW" == config.module.CONT_MODULE && "R" == config.module.SMR_STATUS){
+             		//반려 ,수정버튼클릭시, 실물
+             		config.editor.header=[
+                        {
+                            type:'button',
+                            position:'float',
+                            list:[
+                                {id:"IN"	, text:"{BUTTON.ZOOM_IN}"	, type:"default"   	, onclick:function(){onButtonClick('IN')}},
+                                {id:"OUT"	, text:"{BUTTON.ZOOM_OUT}"	, type:"default"   	, onclick:function(){onButtonClick('OUT')}},
+                                {id:"DELETE", text:"{BUTTON.delete}"	, type:"delete"		, onclick:function(){onButtonClick('DELETE')}},
+                                {id:"CLOSE"	, text:"{BUTTON.close}"		, type:"back"   	, onclick:function(){onButtonClick('CLOSE')}}
+                            ]
+                        }
+                    ]
+             	} else {
+             		config.editor.header=[
+                        {
+                            type:'button',
+                            position:'float',
+                            list:[
+                                {id:"IN"	, text:"{BUTTON.ZOOM_IN}"	, type:"default"   	, onclick:function(){onButtonClick('IN')}},
+                                {id:"OUT"	, text:"{BUTTON.ZOOM_OUT}"	, type:"default"   	, onclick:function(){onButtonClick('OUT')}},
+                                {id:"CLOSE"	, text:"{BUTTON.close}"		, type:"back"   	, onclick:function(){onButtonClick('CLOSE')}}
+                            ]
+                        }
+                    ]
+             	}
+            } else if("VIEW" == config.module.CONT_MODULE && "C" != config.module.SMR_STATUS){//결재진행중,반려,승인,
+        		config.editor.header=[
+                    {
+                        type:'button',
+                        position:'float',
+                        list:[
+                            {id:"IN"	, text:"{BUTTON.ZOOM_IN}"	, type:"default"   	, onclick:function(){onButtonClick('IN')}},
+                            {id:"OUT"	, text:"{BUTTON.ZOOM_OUT}"	, type:"default"   	, onclick:function(){onButtonClick('OUT')}},
+                            {id:"CLOSE"	, text:"{BUTTON.close}"		, type:"back"   	, onclick:function(){onButtonClick('CLOSE')}}
+                        ]
+                    }
+                ]
+            } else if("EDITOR" == config.module.CONT_MODULE && "R" == config.module.SMR_STATUS){//반려의 수정
+            	config.editor.header=[
+                    {
+                        type:'button',
+                        position:'float',
+                        list:[
+                            {id:"IN"	, text:"{BUTTON.ZOOM_IN}"	, type:"default"   	, onclick:function(){onButtonClick('IN')}},
+                            {id:"OUT"	, text:"{BUTTON.ZOOM_OUT}"	, type:"default"   	, onclick:function(){onButtonClick('OUT')}},
+                            {id:"DELETE", text:"{BUTTON.delete}"	, type:"delete"		, onclick:function(){onButtonClick('DELETE')}},
+                            {id:"CLOSE"	, text:"{BUTTON.close}"		, type:"back"   	, onclick:function(){onButtonClick('CLOSE')}}
+                        ]
+                    }
+                ]
+            } else {
+            	if("C" == config.module.SMR_STATUS){
+            		if (Sepoa.request.LINK == 'QR') {	// QR코드로 들어온 경우엔 다운로드 없음
+	            		config.editor.header=[
+	                        {
+	                            type:'button',
+	                            position:'float',
+	                            list:[
+	                                {id:"IN"	, text:"{BUTTON.ZOOM_IN}"	, type:"default"   	, onclick:function(){onButtonClick('IN')}},
+	                                {id:"OUT"	, text:"{BUTTON.ZOOM_OUT}"	, type:"default"   	, onclick:function(){onButtonClick('OUT')}},
+	                                {id:"CLOSE"	, text:"{BUTTON.close}"		, type:"back"   	, onclick:function(){onButtonClick('CLOSE')}}
+	                            ]
+	                        }
+	                    ]
+            		} else {
+	            		config.editor.header=[
+	                        {
+	                            type:'button',
+	                            position:'float',
+	                            list:[
+	                                {id:"DOWNLOAD"	, text:"{BUTTON.download}"	, type:"secondary"	, onclick:function(){onButtonClick('DOWNLOAD')}},
+	                                {id:"IN"	, text:"{BUTTON.ZOOM_IN}"	, type:"default"   	, onclick:function(){onButtonClick('IN')}},
+	                                {id:"OUT"	, text:"{BUTTON.ZOOM_OUT}"	, type:"default"   	, onclick:function(){onButtonClick('OUT')}},
+	                                {id:"CLOSE"	, text:"{BUTTON.close}"		, type:"back"   	, onclick:function(){onButtonClick('CLOSE')}}
+	                            ]
+	                        }
+	                    ]
+            		}
+            	}
+            } 
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if(id == "SAVE"){
+                if(!$share.editor.fn.doUpdateShare(id)){
+                    return;
+                }
+                doDocumentUpdate((id == "SAVE")?"MODULE":"END");
+            } else if(id == "DELETE") {
+            	doDelete();
+            } else if(id == "CLOSE") {
+	            	doCloseEnd();
+            } else if(id == "IN" || id == "OUT") {
+                doZoom(id);   
+            } else if(id == "DOWNLOAD") {
+                doDownload();
+            }
+        ]]>
+        </function>
+        <function name="doCloseEnd">
+        <![CDATA[
+        	if(Sepoa.request.isPopup && Sepoa.request.isRealPopup){
+                if(!Sepoa.request.onLink){
+                    window.close();
+                }else{
+                    document.location.reload();
+                }
+            }else if(Sepoa.request.isPopup){
+                selfObj.close();
+            }else{
+                doClear();
+                callFunction('p', 'changeView', [{view:'LIST'}])
+            }
+        ]]>
+        </function>
+        <function name="doZoom" args="mode">
+        <![CDATA[        	
+        	callFunction('CT_503', 'doZoom', [mode]);
+        ]]>
+        </function>
+        <function name="doDownload">
+        <![CDATA[
+             var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionControllerDRM.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.flag){
+                            
+                        }else{
+                        	console.log(arguments);
+                            Alert(Sepoa.cache.text.get('POA_CONTRACT.STATUS_' + res.status));
+                        }
+                    }
+                }
+            }
+            
+            var params = {
+                module:"seal"+(Sepoa.config.get('sepoa.seal.process') || "")+".req",
+                action: "doDocumentDownload",
+                KEY : $share.config.document.DOC_DATA.SMR_NUMBER + "_" + ($share.config.document.DOC_DATA.SMD_NUMBER || $share.config.document.DOC_DATA.SD_NUMBER),
+                SMR_NUMBER : $share.config.document.DOC_DATA.SMR_NUMBER,
+                SMD_NUMBER : $share.config.document.DOC_DATA.SMD_NUMBER,
+                SD_NUMBER : $share.config.document.DOC_DATA.SD_NUMBER,
+                TARGET : $share.config.document.DOC_DATA.TARGET
+            }
+            
+            sUtils.multipart.download(config, params);
+        ]]>
+        </function>
+        
+        <function name="doDocumentUpdate" args="nextStep">
+        <![CDATA[
+        	var seals = $share.config.document.DOC_DATA.SELECT_SEAL_LIST[0];
+        	var editor_htmls = $share.config.document.EDITOR_HTMLS;
+        	var items_list = callFunction('CT_503', 'getItemsList', []);
+        	var markObj = {};
+           	var allMarkCount = 0;
+            
+            
+            //날인인감 개수 설정
+            for (var i=0; i<editor_htmls.length; i++) {          	
+            	var pos = 0;
+            	//공통인감 설정
+            	while (true) {
+            		pos = editor_htmls[i].FIX_HTML.indexOf('contract-item-box-seal-code-CI', pos);
+					if (pos == -1)
+						break;
+					
+					var manage_number = editor_htmls[i].FIX_HTML.substr(pos+28, 13);
+					if (markObj[manage_number] == undefined) {
+						markObj[manage_number] = 0;
+					}
+					markObj[manage_number]++;
+					allMarkCount++;
+					pos += 13;
+            	}
+            	
+            	//사용인감 설정
+            	pos = 0;
+				while (true) {
+					pos = editor_htmls[i].FIX_HTML.indexOf('contract-item-box-seal-code-SLM', pos);
+					if (pos == -1)
+						break;
+					
+					var manage_number = editor_htmls[i].FIX_HTML.substr(pos+28, 15);
+					if (markObj[manage_number] == undefined) {
+						markObj[manage_number] = 0;
+					}
+					markObj[manage_number]++;
+					allMarkCount++;
+					pos += 15;
+				}
+            }
+            
+            
+            // 법인인감만 있는 경우면 통털어 하나라도 썼는지 체크
+            // 그외엔 모든 사용인감을 사용했는지 체크
+            var sealTypeAllArr = seals.map(function(seal, index, array) { return seal.SEAL_TYPE; });
+            const sealTypeSet = new Set(sealTypeAllArr);
+            const sealTypeArr = [...sealTypeSet];
+       
+            if (sealTypeArr.length == 1 && sealTypeArr[0] == 'C') {	// 법인인감 뿐이면
+            	const sealArr = seals.filter(function(seal, idx, arr) { return markObj[seal.MANAGE_NUMBER] });
+            	if (sealArr.length == 0) {
+            		Alert(Sepoa.cache.text.get('CT_502_L.NOT_SEAL_USED'));
+            		return;
+            	}
+            } else {
+	            //사용인감을 1개라도 1번 이상 사용하지 않았을 경우 오류메시지
+	            for (var i=0; i < seals.length; i++) {
+	            	if (seals[i].SEAL_TYPE != 'C' && !markObj[seals[i].MANAGE_NUMBER]) {
+	            		Alert(Sepoa.cache.text.get('CT_502_L.NOT_SEAL_USED'));
+	            		return;
+	            	}
+	            }
+            }
+            
+            /*
+            //사용인감을 1개라도 1번 이상 사용하지 않았을 경우 오류메시지
+            for (var i=0; i<seals.length; i++) {
+            	var seal = seals[i];
+            	if (!(items_list.TOTAL[seal.SEAL_TYPE] && items_list.TOTAL[seal.SEAL_TYPE].length)) {
+            		Alert(Sepoa.cache.text.get('CT_502_L.NOT_SEAL_USED'));
+            		return;
+            	}
+            }
+            */
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.flag){
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0001'), function(){
+                            	Sepoa.params.setMarkCount(JSON.stringify(markObj).replace(/\"/gi, '~REPTOQM~'), allMarkCount);
+                                doCloseEnd();
+                            });
+                        }else{
+                            Alert(res.message);
+                        }
+                    }
+                },
+                contentType:"json"
+            }
+            
+            var params = {
+                module:"seal"+(Sepoa.config.get('sepoa.seal.process') || "")+".req",
+                action: "doDocumentUpdate",
+                SMR_NUMBER : $share.config.document.DOC_DATA.SMR_NUMBER,
+                SMD_NUMBER : $share.config.document.DOC_DATA.SMD_NUMBER,
+                NEXT_STEP: nextStep
+            }
+                       
+            switch(nextStep){
+            case "MODULE":
+            case "END":
+                params.EDITOR_HTMLS=$share.config.document.EDITOR_HTMLS;
+                params.DOC_INFO_DATA=$share.config.document.DOC_INFO_DATA;
+                break;
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="doDelete">
+        <![CDATA[
+        	Confirm(Sepoa.cache.text.get('MESSAGE.1015'), function(result) {
+        		if (result) {
+		        	var config = {
+		                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+		                on:{
+		                    callback:function(res, config, params){
+		                        if(res.flag){
+		                        	Sepoa.params.deleteDoc();
+		                        	Alert(Sepoa.cache.text.get('MESSAGE.5107'));
+		                            doCloseEnd();
+		                        }else{
+		                            Alert(Sepoa.cache.text.get('POA_CONTRACT.STATUS_' + res.status));
+		                        }
+		                    }
+		                }
+		            }
+		            
+		            var params = {
+		                module:"seal"+(Sepoa.config.get('sepoa.seal.process') || "")+".req",
+		                action: "doDeleteDocumentFile",
+		                KEY : $share.config.document.DOC_DATA.SMR_NUMBER + "_" + ($share.config.document.DOC_DATA.SMD_NUMBER || $share.config.document.DOC_DATA.SD_NUMBER),
+		                SMR_NUMBER : $share.config.document.DOC_DATA.SMR_NUMBER,
+		                SMD_NUMBER : $share.config.document.DOC_DATA.SMD_NUMBER,
+		                SD_NUMBER : $share.config.document.DOC_DATA.SD_NUMBER,
+		                TARGET : $share.config.document.DOC_DATA.TARGET
+		            }
+		            
+		            sUtils.multipart.send(config, params);
+		    	}
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVHdaUk5aY1R3WlJOWmNiUkl2Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9yOUQwSGE3R1Q2U3AiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsImRoeElkXzd5dUhvczE4bzJPYSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNUXzUwMF9BIiwiT0JKRUNUX0lEIjoiVHdaUk5aY1R3WlJOWmNiUkl2IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJGVUxMIn0sImlkIjoiVHdaUk5aY1R3WlJOWmNiUkl2IiwidHlwZSI6
+        ImJvZHkifSwibGhtU2pPZVZHdVNqT2VGWmZHIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6ImZhbHNlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJ0cnVlIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9nUGdzTm9HZndwOEsiOiJudWxsIn0sImlkIjoibGhtU2pPZVZHdVNqT2VGWmZHIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sImxobVNqT2VWR3VTak9lbXh5ZSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RP
+        UCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX2ZCMmNYRUVDcXdQZiI6Im51bGwiLCJkaHhJZF90MjZDdHNCVFQ0dWkiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfcEhaZGIxZDN2MlJVIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMUMiLCJWQVIiOiJsYXlvdXRPYmoiLCJPQkpFQ1RfSUQiOiJsaG1Tak9lVkd1U2pPZW14eWUiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlBBVFRFUk5fU0FNUExFIjoiMSJ9LCJpZCI6ImxobVNqT2VWR3VTak9lbXh5ZSIsInR5
+        cGUiOiJsYXlvdXQiLCJldmVudHMiOltdfX0sInRyZWUiOnsiaWQiOiJUd1pSTlpjVHdaUk5aY2JSSXYiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImxobVNqT2VWR3VTak9lbXh5ZSIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJsaG1Tak9lVkd1U2pPZUZaZkciLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L0FkYXB0ZXIvQ29udHJhY3RBZGFwdGVyTW9kdWxlLnhtbCIsIlBST0pFQ1QiOiJDT05UUkFDVCIsIkNPREUiOiI1MDBfQSIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoiQWRhcHRlciIsIlBBVEhfMyI6IkNvbnRyYWN0QWRhcHRlciIsIlBBVEhfMSI6IkNvbnRyYWN0IiwiSEVBREVSIjoi
+        ZmFsc2UiLCJOQU1FIjoiTW9kdWxlIiwiU0NSRUVOX0lEIjoiQ1RfNTAwX0EifX0sImh0bWwiOiI8ZGl2IGlkPVwiVHdaUk5aY1R3WlJOWmNiUkl2XCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlciBcIiBzdHls
+        ZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImxobVNqT2VWR3VTak9lbXh5ZVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

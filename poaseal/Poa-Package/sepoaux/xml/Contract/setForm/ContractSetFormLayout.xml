@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_206" header="false">
+    <layout id="vtrDHacTRREHacieyl" div="vtrDHacTRREHacieyl" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="contents" text="CT_206.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <attach file="/Contract/setForm/ContractSetForm.xml"/>
+        </cell>
+    </layout>
+    <onloadscript>
+        <call name="onReady"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{childScreen:{}}"/>
+        <function name="onReady">
+        <![CDATA[
+            if(Sepoa.request.isPopup){
+                var config = {
+                    document: {
+                        CONT_TYPE: (Sepoa.request.CONT_TYPE || "B"),
+                        CONT_NO:Sepoa.request.CONT_NO,
+                        CONT_GL_SEQ:Sepoa.request.CONT_GL_SEQ
+                    }
+                }
+                doOpenDocument(config);
+            }else{
+                const parents = $sObject._vp.parents('div.sepoaux.screen_area');
+                if(parents.length > 0) {
+                    callFunction('p', 'childScreenReady', [{
+                        name:"FORM",
+                        id: $sObject.aliasCode,
+                        fn:{
+                            doOpenDocument:doOpenDocument,
+                            doClear:doClear
+                        }
+                    }]);
+                } else {
+                    $share.config = {
+                        document : {},
+                        data : {}
+                    };
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            $share.childScreen[config.name] = config;
+            if ($share.config && $share.config.data) {
+                $share.childScreen[config.name].fn.doOpenDocument($share.config);
+            }
+        ]]>
+        </function>
+    
+        <function name="doOpenDocument" args="data">
+        <![CDATA[
+            callFunction('CT_205', 'doOpenDocument', [data]);
+        ]]>
+        </function>
+        <function name="doClear" args="">
+        <![CDATA[
+            callFunction('CT_205', 'doClear', []);
+        ]]>
+        </function>
+        <function name="changeView" args="data">
+        <![CDATA[
+            const parents = $sObject._vp.parents('div.sepoaux.screen_area');
+            if(parents.length > 0) {
+                callFunction('p', 'changeView', [data]);
+            } else {
+                const option = {
+                    id : 'CT_100_CONTRACT',
+                    seq : '3',
+                    label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT'),
+                    url : '/Contract/Progress/ContractProgressCarousel.sux?alias=CONTRACT',
+                    summary : 'N'
+                };
+                linkTo(option);
+                SUX.root.getContentsCell(window).close();
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsidnRyREhhY3Z0ckRIYWNsZEhBIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJDVF8yMDYifSwiaWQiOiJ2dHJESGFjdnRyREhhY2xkSEEiLCJ0eXBlIjoiYm9keSJ9LCJ2dHJESGFjVVJSRUhhY0hSbm8iOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoidHJ1ZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSIsIkhFQURFUl9URVhUIjoi6rOE7JW97KCV67O07J6F66ClIiwiQVRUQUNIX1RBUkdFVCI6Ii9Db250cmFjdC9zZXRGb3JtL0NvbnRyYWN0U2V0Rm9ybS54
+        bWwiLCJCQVNFX0ZJWF9TSVpFIjoidHJ1ZSx0cnVlIiwiSEVBREVSX1RZUEUiOiJjb250ZW50cyIsIkFUVEFDSF9UWVBFIjoiVSIsIkNPTExBUFNFX0JVVFRPTiI6ImZhbHNlIn0sImlkIjoidnRyREhhY1VSUkVIYWNIUm5vIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sInZ0ckRIYWNUUlJFSGFjaWV5bCI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEifSwiY29tcG9uZW50Ijp7IlBBVFRFUk4iOiIxQyIsIlZBUiI6InZ0
+        ckRIYWNUUlJFSGFjaWV5bCIsIk9CSkVDVF9JRCI6InZ0ckRIYWNUUlJFSGFjaWV5bCJ9LCJpZCI6InZ0ckRIYWNUUlJFSGFjaWV5bCIsInR5cGUiOiJsYXlvdXQifX0sInRyZWUiOnsiaWQiOiJ2dHJESGFjdnRyREhhY2xkSEEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6InZ0ckRIYWNUUlJFSGFjaWV5bCIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJ2dHJESGFjVVJSRUhhY0hSbm8iLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L3NldEZvcm0vQ29udHJhY3RTZXRGb3JtTGF5b3V0LnhtbCIsIlBST0pFQ1QiOiJTUk0iLCJDT0RFIjoiMjA2IiwiUFJFRklYIjoiQ1QiLCJQQVRIXzIiOiIiLCJO
+        T05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJDb250cmFjdC9zZXRGb3JtIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQ29udHJhY3RTZXRGb3JtTGF5b3V0IiwiU0NSRUVOX0lEIjoiQ1RfMjA2In19LCJodG1sIjoiPGRpdiBpZD1cInZ0ckRIYWN2dHJESGFjbGRIQVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAg
+        ICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwidnRyREhhY1RSUkVIYWNpZXlsXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9sYXlvdXQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwv
+        ZGl2PiJ9
+    </template>
+</body>

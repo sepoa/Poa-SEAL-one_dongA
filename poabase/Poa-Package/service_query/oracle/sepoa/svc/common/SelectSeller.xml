@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+		    SELECT T.HOUSE_CODE									
+         , T.COMPANY_CODE									
+         , T.SELLER_CODE									
+         , T.SELLER_NAME_LOC									
+         , T.IRS_NO									
+      FROM (									
+             SELECT '999' HOUSE_CODE,'' COMPANY_CODE,'' SELLER_CODE,'' SELLER_NAME_LOC,'' IRS_NO FROM DUAL									
+    ]]>									
+    <if test="${COMPANY}" operator="eq" value="FILTER_SE">									
+    <![CDATA[									
+            UNION ALL									
+            /*일반*/									
+            SELECT HOUSE_CODE									
+                 , COMPANY_CODE									
+                 , SELLER_CODE									
+                 , SELLER_NAME_LOC									
+                 , SUBSTR(IRS_NO,1,3) || '-' || SUBSTR(IRS_NO,4,2) || '-' || SUBSTR(IRS_NO,6,5) AS IRS_NO									
+              FROM SSUGL									
+             WHERE HOUSE_CODE = ${session.HOUSE_CODE}									
+               AND COMPANY_CODE = ${session.COMPANY_CODE}									
+               AND (									
+                     UPPER(SELLER_CODE) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(SELLER_NAME_LOC) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(IRS_NO) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' AND									
+                     1=1									
+                   )									
+               AND NVL(DEL_FLAG,'N') = 'N'									
+               AND NVL(PURCHASE_BLOCK_FLAG,'N') = 'N'									
+               AND SELLER_COND IN ('P','R')									
+               AND ROWNUM <= 10									
+    ]]>									
+    </if>									
+    <if test="${COMPANY}" operator="eq" value="FILTER_PO">									
+    <![CDATA[									
+            UNION ALL									
+            /*발주*/									
+            SELECT SUGL.HOUSE_CODE  									
+                 , SUGL.COMPANY_CODE                                      									
+                 , SUGL.SELLER_CODE                                                                          									
+                 , SUGL.SELLER_NAME_LOC   									
+                 , SUGL.IRS_NO									
+              FROM SSUGL SUGL									
+             INNER JOIN SPOLN LN									
+                ON LN.HOUSE_CODE = SUGL.HOUSE_CODE									
+             WHERE SUGL.HOUSE_CODE = ${session.HOUSE_CODE}									
+               AND SUGL.COMPANY_CODE = ${session.COMPANY_CODE}									
+               AND SUGL.SELLER_CODE = LN.SELLER_CODE									
+               AND LN.MATERIAL_NUMBER  IN ($INS{MATERIAL_NUMBERS})									
+               AND SUGL.PURCHASE_BLOCK_FLAG  = 'N'									
+               AND SUGL.SELLER_COND IN ('P','R')									
+               AND (									
+                     UPPER(SUGL.SELLER_CODE) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(SUGL.SELLER_NAME_LOC) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(SUGL.IRS_NO) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' AND									
+                     1=1									
+                   )									
+             GROUP BY SUGL.HOUSE_CODE 									
+                 , SUGL.COMPANY_CODE									
+                 , SUGL.SELLER_CODE									
+                 , SUGL.SELLER_NAME_LOC									
+                 , SUGL.IRS_NO									
+    ]]>									
+    </if>									
+    <if test="${COMPANY}" operator="eq" value="RFQ">									
+    <![CDATA[									
+            UNION ALL									
+            /*견적*/			 
+            SELECT GL.HOUSE_CODE 									
+                 , GL.COMPANY_CODE                                                                    									
+                 , GL.SELLER_CODE									
+                 , GL.SELLER_NAME_LOC									
+                 , GL.IRS_NO	
+                 								
+              FROM SRQSE SE, SRQLN LN, SSUGL GL, SADDR DR                                                                                         									
+             WHERE SE.HOUSE_CODE = ${session.HOUSE_CODE}									
+               AND SE.COMPANY_CODE = ${session.COMPANY_CODE}									
+               AND SE.RFQ_NUMBER = LN.RFQ_NUMBER                                                                                 									
+               AND SE.RFQ_COUNT = LN.RFQ_COUNT                                                                                									
+               AND SE.COMPANY_CODE = LN.COMPANY_CODE									
+               AND SE.COMPANY_CODE = GL.COMPANY_CODE									
+               AND SE.SELLER_CODE = GL.SELLER_CODE									
+               --AND LN.MATERIAL_NUMBER  IN ($INS{MATERIAL_NUMBERS})									
+               AND NVL(GL.DEL_FLAG,'N') = 'N'									
+               AND NVL(GL.PURCHASE_BLOCK_FLAG,'N') = 'N'									
+               AND GL.SELLER_COND IN ('P','R')									
+               AND (									
+                     UPPER(GL.SELLER_CODE) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(GL.SELLER_NAME_LOC) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(GL.IRS_NO) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' AND									
+                     1=1									
+                   )									
+             GROUP BY									
+                   GL.HOUSE_CODE 									
+                 , GL.COMPANY_CODE                                                                     									
+                 , GL.SELLER_CODE									
+                 , GL.SELLER_NAME_LOC									
+                 , GL.IRS_NO  									
+    ]]>									
+    </if>
+     <if test="${COMPANY}" operator="eq" value="RAQ">									
+    <![CDATA[									
+             
+            UNION ALL       
+            /*역경매*/         
+            SELECT RAGL.HOUSE_CODE         
+                 , RAGL.COMPANY_CODE         
+                 , RABD.SELLER_CODE
+                 , SUGL.SELLER_NAME_LOC
+                 , SUGL.IRS_NO
+                  FROM SSUGL SUGL , SRAGL RAGL , SRABD RABD ,SRALN RALN
+			WHERE RAGL.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND RAGL.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND NVL(SUGL.DEL_FLAG,'N') = 'N'
+			AND NVL(SUGL.PURCHASE_BLOCK_FLAG,'N') = 'N' 
+			AND RALN.SETTLE_FLAG = 'Y'
+			AND SUGL.HOUSE_CODE = RAGL.HOUSE_CODE
+			AND RABD.SELLER_CODE = SUGL.SELLER_CODE
+			AND RALN.COMPANY_CODE = SUGL.COMPANY_CODE
+			AND RALN.SETTLE_FLAG = RABD.SETTLE_FLAG
+			 AND (									
+                     UPPER(GL.SELLER_CODE) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(GL.SELLER_NAME_LOC) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' OR									
+                     UPPER(GL.IRS_NO) LIKE '%' || UPPER($S{F_KEYWORD}) || '%' AND									
+                     1=1									
+                   )			
+			AND SUGL.SELLER_COND IN ('P','R')
+    		
+    ]]>									
+    </if>
+     <if test="${COMPANY}" operator="eq" value="BID">								
+    <![CDATA[			/*SBDGL,SBDLN,SBDAP,SBDPI,SBDSE*/							
+          UNION ALL									
+            /*입찰*/												
+           			
+            SELECT BDAP.HOUSE_CODE									
+                 , SUGL.COMPANY_CODE									
+                 , SUGL.SELLER_CODE									
+                 , SUGL.SELLER_NAME_LOC									
+                 , SUGL.IRS_NO
+              FROM SSUGL SUGL , SBDAP BDAP									
+             WHERE SUGL.HOUSE_CODE ='000'								
+               AND SUGL.COMPANY_CODE = '1000'	
+               AND BDAP.BID_CANCEL = 'N'
+               AND BDAP.FINAL_FLAG = 'Y'								
+               AND NVL(SUGL.DEL_FLAG,'N') = 'N'									
+               AND NVL(SUGL.PURCHASE_BLOCK_FLAG,'N') = 'N'									
+               AND SUGL.SELLER_COND IN ('P','R')							
+               AND BDAP.HOUSE_CODE = SUGL.HOUSE_CODE			
+    ]]>									
+    </if>															
+    <![CDATA[									
+    ) T									
+    WHERE T.HOUSE_CODE <> '999'									
+    GROUP BY T.HOUSE_CODE 									
+        , T.COMPANY_CODE									
+        , T.SELLER_CODE									
+        , T.SELLER_NAME_LOC									
+        , T.IRS_NO									
+    ]]>									
+
+	</method>
+	<method name="doQuery2">
+	<![CDATA[
+	 SELECT  				
+       SEQ, USER_NAME, MOBILE_NO, EMAIL ,SELLER_CODE				
+  FROM 				
+       SSUPI 				
+ WHERE 				
+       HOUSE_CODE = ${session.HOUSE_CODE} 				
+       AND COMPANY_CODE = ${session.COMPANY_CODE} 				
+       AND SELLER_CODE  = ${SELLER_CODE}  				
+	
+	 ]]>									
+		
+	</method>
+</service>

@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_406" header="false">
+    <button id="btnObj">
+        <btn div="XIoYWVexEqYWVeyRFT" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(  )"/>
+    </button>
+    <tabbar id="tabbarObj" div="XIoYWVerRrYWVetzzC"/>
+    <onloadscript>
+    	<call name="init" args=""/>
+    </onloadscript>
+    <userscript>
+    	<var name="$options">
+        <![CDATA[
+			[
+				{
+	                type: 'group',
+	                id: 'SMTP',
+	                items: [{
+	                        type: "block",
+	                        list: [
+	                        	{
+	                                type: 's-mail',
+	                                name: 'SMTP'
+								}
+	                        ]
+	                    }
+	                ]
+				},
+				{
+					type: 'group',
+					id: 'KAKAO',
+					items: [
+						{
+							type: 'block',
+							list: [
+								{
+									type: 'select',
+									name: 'KAKAO_USE',
+									options: [
+										{
+					                        text: "N",
+					                        value: "false"
+					                    },
+					                    {
+					                        text: "Y",
+					                        value: "true"
+					                    }
+									]
+								},
+								{
+									type: 'newcolumn'
+								},
+								{
+									type: 'input',
+									name: 'KAKAO_FORCE_RECEIVER',
+									inputWidth: 256
+								}
+							]
+						},
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'select',
+                                    name: 'KAKAO_CUSTOM_USE',
+                                    options: [
+                                        {
+                                            text: "N",
+                                            value: "false"
+                                        },
+                                        {
+                                            text: "Y",
+                                            value: "true"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+						{
+							type: 'block',
+							list: [
+								{
+									type: 's-kakao-bizplus',
+									name: 'KAKAO_BIZPLUS'
+								}
+							]
+						},
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 's-kakao-custom',
+                                    name: 'KAKAO_CUSTOM'
+                                }
+                            ]
+                        }
+					]
+				},
+                {
+                    type: 'group',
+                    id: 'SMS',
+                    items: [
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'select',
+                                    name: 'SMS_USE',
+                                    options: [
+                                        {
+                                            text: "N",
+                                            value: "false"
+                                        },
+                                        {
+                                            text: "Y",
+                                            value: "true"
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: 'newcolumn'
+                                },
+                                {
+                                    type: 'input',
+                                    name: 'SMS_FORCE_RECEIVER',
+                                    inputWidth: 256
+                                }
+                            ]
+                        },
+                        {
+                            type : 'block',
+                            list : [
+                                {
+                                    type: 'select',
+                                    name: 'SMS_MODULE',
+                                    options:[
+                                        {
+                                            text: "Sepoa-API",
+                                            value: "sepoaapi"
+                                        },
+                                        {
+                                            text: "Custom-Service",
+                                            value: "customservice"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            type: 'block',
+                            name: 'SMS_SEPOA_API_OPTIONS',
+                            list: [
+                                {
+                                    type : 'fieldset',
+                                    name : 'SMS_DEFAULT_OPTIONS',
+                                    list : [
+                                        {
+                                            type: 'input',
+                                            name: 'SMS_CALLBACK',
+                                            inputWidth: 256
+                                        },
+                                        {
+                                            type: 'input',
+                                            name: 'SMS_SEPOA_API_USER_CODE',
+                                            inputWidth: 256
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            type : 'block',
+                            name : 'SMS_CUSTOM_OPTION',
+                            list : [
+                                {
+                                    type : 'fieldset',
+                                    name : 'SMS_CUSTOM_OPTIONS',
+                                    list : [
+                                        {
+                                            type : 'input',
+                                            name : 'SMS_CUSTOM_INFO',
+                                            inputWidth : 256
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+			]
+        ]]>
+        </var>
+    	<function name="init" args="">
+    	<![CDATA[
+    		for (var i in $options) {
+                var tabOptions = $options[i];
+                tabbarObj.addTab(tabOptions.id, Sepoa.cache.text.get('AD_406.' + tabOptions.id));
+                if (i == 0) {
+                    tabbarObj.tabs(tabOptions.id).setActive();
+                }
+            
+                if (tabOptions.items) {
+                    var formOptions = [{
+                            type: "settings",
+                            position: "label-top",
+                            inputWidth: 120
+                        },
+                        {
+                            type: "block",
+                            width: "auto",
+                            list: tabOptions.items
+                        }
+                    ]
+            
+                    for (var i in tabOptions.items) {
+                        formOptionBuilder(tabOptions.items[i]);
+                    }
+                    
+                    var formObj = tabbarObj.tabs(tabOptions.id).attachForm(formOptions);
+                    
+                    if(tabOptions.id == 'SMS'){
+                        formObj.attachEvent('onChange', function(id, v){
+                            if(id == 'SMS_USE') {
+                                if(v == 'true') {
+                                    this.showItem('SMS_MODULE');
+                                    this.showItem('SMS_SEPOA_API_OPTIONS');
+                                } else {
+                                    this.hideItem('SMS_MODULE');
+                                    this.hideItem('SMS_SEPOA_API_OPTIONS');
+                                    this.hideItem('SMS_CUSTOM_OPTIONS');
+                                }
+                            } else if(id == 'SMS_MODULE'){
+                                if(v == 'sepoaapi'){
+                                    this.showItem('SMS_SEPOA_API_OPTIONS');
+                                    this.hideItem('SMS_CUSTOM_OPTIONS');
+                                }else{
+                                    this.showItem('SMS_CUSTOM_OPTIONS');
+                                    this.hideItem('SMS_SEPOA_API_OPTIONS');
+                                }
+                            }
+                        });
+                    } else if(tabOptions.id == 'KAKAO') {
+                        formObj.attachEvent('onChange', function(id, v){
+                            if(id == 'KAKAO_USE') {
+                                if(v == 'true') {
+                                    this.showItem('KAKAO_CUSTOM_USE');
+                                    this.showItem('KAKAO_BIZPLUS');
+                                } else {
+                                    this.hideItem('KAKAO_CUSTOM_USE');
+                                    this.hideItem('KAKAO_BIZPLUS');
+                                    this.hideItem('KAKAO_CUSTOM');
+                                }
+                            } else if(id == 'KAKAO_CUSTOM_USE') {
+                                if(v == 'true') {
+                                    this.showItem('KAKAO_CUSTOM');
+                                    this.hideItem('KAKAO_BIZPLUS');
+                                } else {
+                                    this.showItem('KAKAO_BIZPLUS');
+                                    this.hideItem('KAKAO_CUSTOM');
+                                }
+                            }
+                        });
+                    } else if(tabOptions.id == 'SMTP') {
+                        formObj.attachEvent('onChange', function(id, v){
+                            if(id == 'SMTP_USE') {
+                                if(v == 'true') {
+                                    this.showItem('SMTP_CUSTOM_USE');
+                                    this.showItem('SMTP_DEFAULT_OPTIONS');
+                                } else {
+                                    this.hideItem('SMTP_CUSTOM_USE');
+                                    this.hideItem('SMTP_DEFAULT_OPTIONS');
+                                    this.hideItem('SMTP_CUSTOM_OPTIONS');
+                                }
+                            } else if(id == 'SMTP_CUSTOM_USE') {
+                                if(v == 'true') {
+                                    this.showItem('SMTP_CUSTOM_OPTIONS');
+                                    this.hideItem('SMTP_DEFAULT_OPTIONS');
+                                } else {
+                                    this.showItem('SMTP_DEFAULT_OPTIONS');
+                                    this.hideItem('SMTP_CUSTOM_OPTIONS');
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+    	]]>
+    	</function>
+    	
+    	<function name="doQuery" args="clientCode, companyCode">
+        <![CDATA[
+            clear();
+
+			var groupArray = [];
+			for(var i in tabbarObj.t) {
+            	groupArray.push(i);
+            }
+
+            dataOutput.setValue("CLIENT_CODE", clientCode);
+            dataOutput.setValue("COMPANY_CODE", companyCode);
+            dataOutput.setValue("GROUPS", groupArray.join(','));
+            
+            doServiceAjax('sepoa.svc.admin.AD_406', 'CONNECTION', 'doQuery', null, function(so) {
+                if (so.status != 1) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+                if (sf.getRowCount() > 0) {
+                    var tabs = tabbarObj.getAllTabs();
+                    for (var i in tabs) {
+                        var formObj = tabbarObj.tabs(tabs[i]).dataObj;
+                        if (formObj) {
+                            formObj.forEachItem(function(id) {
+                                var type = formObj.getItemType(id);
+                                if (["block", "fieldset", "container"].indexOf(type) < 0) {
+                                    var value = sf.getValue(id, 0);
+                                    if (value) {
+                                        formObj.setItemValue(id, value);
+                                        formObj.callEvent('onChange', [id, value])
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            })
+        ]]>
+        </function>
+        
+        <function name="clear" args="">
+        <![CDATA[
+            dataOutput.setValue("CLIENT_CODE", "");
+            dataOutput.setValue("COMPANY_CODE", "");
+            dataOutput.setValue("GROUPS", "");
+        
+            var tabs = tabbarObj.getAllTabs();
+            for (var i in tabs) {
+                var formObj = tabbarObj.tabs(tabs[i]).dataObj;
+                if (formObj) {
+                    formObj.clear();
+                }
+            }
+        ]]>
+        </function>
+    	
+    	<function name="formOptionBuilder" args="item">
+        <![CDATA[
+            if (item.type != "block" && item.name && !item.label) {
+                item.label = Sepoa.cache.text.get('AD_406.' + item.name);
+            }
+            
+            if (item.type == "block" || item.type == "fieldset") {
+                item.width = 'auto';
+                if (item.list) {
+                    for (var i in item.list) {
+                        formOptionBuilder(item.list[i]);
+                    }
+                }
+            } else if(item.type == 's-mail') {
+            	var key = item.name;
+            	var width = item.inputWidth || '';
+            	
+            	item.type = 'block';
+                item.inputWidth = 'auto';
+                item.list=[
+            		{
+            			type: 'block',
+            			list: [
+            				{
+            					type: 'select',
+		                		name: key + '_USE',
+		                		label:Sepoa.cache.text.get('AD_406.'+ key +'_USE'),
+		                		inputWidth: width,
+		                		options: [
+		                        	{
+				                        text: "N",
+				                        value: "false"
+				                    },
+				                    {
+				                        text: "Y",
+				                        value: "true"
+				                    }
+				                ]
+            				},
+            				{
+            					type: 'newcolumn'
+            				},
+            				{
+		                        type: 'input',
+		                        name: key + '_FORCE_RECEIVER',
+		                        label:Sepoa.cache.text.get('AD_406.'+ key +'_FORCE_RECEIVER'),
+		                        inputWidth: 256
+		                    }
+            			]
+            		},
+                    {
+                        type: 'block',
+                        list: [
+                            {
+                                type: 'select',
+                                name: key + '_CUSTOM_USE',
+                                label:Sepoa.cache.text.get('AD_406.'+ key +'_CUSTOM_USE'),
+                                inputWidth: width,
+		                		options: [
+		                        	{
+				                        text: "N",
+				                        value: "false"
+				                    },
+				                    {
+				                        text: "Y",
+				                        value: "true"
+				                    }
+				                ]
+                            }
+                        ]
+                    },
+                    {
+                        type : 'block',
+                        list : [
+                            {
+                                type : 'fieldset',
+                                name : 'SMTP_DEFAULT_OPTIONS',
+                                list : [
+                                    {
+                                        type : 'block',
+                                        list : [
+                                            {
+                                                type: 'input',
+                                                name: key + '_SERVER',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_SERVER'),
+                                                inputWidth: 256
+                                            },
+                                            {
+                                                type: 'newcolumn'
+                                            },
+                                            {
+                                                type: 'input',
+                                                name: key + '_PORT',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_PORT'),
+                                                inputWidth: width
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        type : 'block',
+                                        list : [
+                                            {
+                                                type: 'select',
+                                                name: key + '_SSL',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_SSL'),
+                                                inputWidth: width,
+                                                options: [
+                                                    {
+                                                        text: "N",
+                                                        value: "N"
+                                                    },
+                                                    {
+                                                        text: "Y",
+                                                        value: "Y"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                type: 'newcolumn'
+                                            },
+                                            {
+                                                type: 'input',
+                                                name: key + '_ENCODING',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_ENCODING'),
+                                                inputWidth: width
+                                            },
+                                        ]
+                                    },
+                                    {
+                                        type : 'block',
+                                        list : [
+                                            {
+                                                type: 'select',
+                                                name: key + '_AUTH',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_AUTH'),
+                                                inputWidth: width,
+                                                options: [
+                                                    {
+                                                        text: "N",
+                                                        value: "N"
+                                                    },
+                                                    {
+                                                        text: "Y",
+                                                        value: "Y"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                type: 'newcolumn'
+                                            },
+                                            {
+                                                type: 'input',
+                                                name: key + '_AUTH_ID',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_AUTH_ID'),
+                                                inputWidth: 256
+                                            },
+                                            {
+                                                type: 'newcolumn'
+                                            },
+                                            {
+                                                type: 'password',
+                                                name: key + '_AUTH_PASS',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_AUTH_PASS'),
+                                                inputWidth: 192
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        type : 'block',
+                                        list : [
+                                            {
+                                                type: 'input',
+                                                name: key + '_SENDER_NAME',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_SENDER_NAME'),
+                                                inputWidth: width
+                                            },
+                                            {
+                                                type: 'newcolumn'
+                                            },
+                                            
+                                            {
+                                                type: 'input',
+                                                name: key + '_SENDER_MAIL',
+                                                label:Sepoa.cache.text.get('AD_406.'+ key +'_SENDER_MAIL'),
+                                                inputWidth: 256
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                type : 'fieldset',
+                                name : 'SMTP_CUSTOM_OPTIONS',
+                                list : [
+                                    {
+                                        type : 'input',
+                                        name : 'SMTP_CUSTOM_INFO',
+                                        label:Sepoa.cache.text.get('AD_406.'+ key +'_CUSTOM_INFO'),
+                                        inputWidth : 256
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            } else if(item.type == 's-kakao-bizplus') {
+            	var key = item.name; // GROUP_VENDOR_xxx (ex) KAKAO_BIZPLUS_xxx)
+            	var width = item.inputWidth || '';
+            	
+            	item.type = 'fieldset';
+                item.inputWidth = 'auto';
+                item.list=[
+                    {
+                        type: 'input',
+                        name: key + '_CLIENT_ID',
+                        label:Sepoa.cache.text.get('AD_406.'+ key +'_CLIENT_ID'),
+                        inputWidth: width
+                    },
+                    {
+                        type: 'input',
+                        name: key + '_CLIENT_PASSWORD',
+                        label:Sepoa.cache.text.get('AD_406.'+ key +'_CLIENT_PASSWORD'),
+                        inputWidth: 256
+                    },
+                    {
+                        type: 'input',
+                        name: key + '_SENDER_KEY',
+                        label:Sepoa.cache.text.get('AD_406.'+ key +'_SENDER_KEY'),
+                        inputWidth: 256
+                    }
+                ]
+            } else if(item.type == 's-kakao-custom') {
+                item.type = 'fieldset';
+                item.inputWidth = 'auto';
+                item.list = [
+                    {
+                        type: 'input',
+                        name: 'KAKAO_CUSTOM_INFO',
+                        inputWidth: 256
+                    }
+                ]
+            }
+            
+            if(item.list){
+                for (var i in item.list) {
+                    formOptionBuilder(item.list[i]);
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="doSave" args="">
+        <![CDATA[
+        	Confirm(Sepoa.cache.text.get('BASE_MESSAGE.0001'), function(result) {
+                if (result) {
+                    doServiceAjax('sepoa.svc.admin.AD_406', 'TRANSACTION', 'doSave', null, function(so) {
+                        if (so.status != 1) {
+                            Alert(Sepoa.cache.text.get('BASE_MESSAGE.0003'));
+                            return;
+                        }
+            
+                        Alert(Sepoa.cache.text.get('BASE_MESSAGE.0002'));
+                    })
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWFZrTVdWZVhWa01XVmVNVWN6Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8xU04xNGhpb1JRM3oiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1NpUXp5T1oyRXh6QyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQwNiIsIk9CSkVDVF9JRCI6IlhWa01XVmVYVmtNV1ZlTVVjeiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6IlhWa01XVmVYVmtNV1ZlTVVjeiIsInR5cGUi
+        OiJib2R5In0sIlhJb1lXVmV4RXFZV1ZleVJGVCI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV8wX1RZUEUiOiJzYXZlIiwiT0JKRUNUX0lEIjoiWElvWVdWZXhFcVlXVmV5UkZUIiwiSVRFTV8wX0lEIjoiU0FWRSIsIklURU1fMF9UT0dHTEUi
+        OmZhbHNlLCJJVEVNXzBfVEVYVCI6IuyggOyepSIsIklURU1fMF9TT1JUIjoiMSJ9LCJpZCI6IlhJb1lXVmV4RXFZV1ZleVJGVCIsInR5cGUiOiJidXR0b24ifSwiWElvWVdWZXJScllXVmV0enpDIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiMTYiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9QbVpxbnBJRGFlMjkiOiJudWxsIiwiZGh4SWRfd3EybWJBWHZoY3d0IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRo
+        eElkX0xLdzE0Qno5M0ROOCI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX1AxSmsxZ3BkbnprMSI6Im51bGwiLCJkaHhJZF9VWldQMGFnb2toeEgiOiJudWxsIiwiZGh4SWRfM2NSb1cyZ3k0NEhOIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGFiYmFyT2JqIiwiT0JKRUNUX0lEIjoiWElvWVdWZXJScllXVmV0enpDIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJYSW9ZV1ZlclJyWVdWZXR6ekMiLCJ0eXBlIjoidGFiYmFyIiwiZXZlbnRzIjpbXX19LCJ0cmVlIjp7ImlkIjoiWFZrTVdWZVhWa01XVmVNVWN6IiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJYSW9ZV1ZleEVxWVdWZXlSRlQiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6IlhJ
+        b1lXVmVyUnJZV1ZldHp6QyIsInR5cGUiOiJ0YWJiYXIifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vU3lzdGVtQ2xpZW50TWFuYWdlbWVudC9BZG1pblN5c3RlbUNsaWVudE1hbmFnZW1lbnROb3RpZmljYXRpb24ueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiNDA2IiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJTeXN0ZW1DbGllbnRNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5TeXN0ZW1DbGllbnRNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJOb3RpZmljYXRpb24iLCJTQ1JFRU5fSUQiOiJBRF80MDYifX0sImh0bWwiOiI8ZGl2IGlkPVwiWFZrTVdWZVhWa01XVmVNVWN6XCIgY2xhc3M9XCJjb250
+        YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhf
+        d3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiWElvWVdWZXhFcVlXVmV5UkZUXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9
+        XCJtYXJnaW4tdG9wOjE2cHg7bWFyZ2luLXJpZ2h0OjA7bWFyZ2luLWJvdHRvbTowO21hcmdpbi1sZWZ0OjA7aGVpZ2h0OmNhbGMoMTAwJSAtIDE2cHgpO1wiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiWElvWVdWZXJScllXVmV0enpDXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF90YWJiYXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

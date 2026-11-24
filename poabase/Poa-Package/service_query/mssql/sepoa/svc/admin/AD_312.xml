@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT
+			 USER_ID
+			,USER_NAME_LOC
+			,PROCESS_ID
+			,METHOD_NAME
+			,PROGRAM_DESC
+			,JOB_TYPE
+			,JOB_DATE
+			,JOB_TIME
+			,IP
+		FROM SULOG
+		WHERE 1=1 
+		AND JOB_DATE >= $S{F_PR_DATE_FROM}
+		AND JOB_DATE <= $S{F_PR_DATE_TO}
+		AND JOB_TYPE IN ($INS{F_TYPE})
+		AND UPPER(PROCESS_ID)  LIKE '%' + UPPER($S{F_PROCESS_ID}) + '%'
+		AND UPPER(METHOD_NAME) LIKE '%' + UPPER($S{F_METHOD_NAME}) + '%'
+		AND ( 1=1
+			AND UPPER(USER_ID)      LIKE '%' + UPPER($S{F_USER}) + '%'
+			OR UPPER(USER_NAME_LOC) LIKE '%' + UPPER($S{F_USER}) + '%'
+			)
+		AND (1=1
+			 AND UPPER(USER_ID)      LIKE '%' + UPPER($S{KEYWORD}) + '%' 
+			 OR UPPER(USER_NAME_LOC) LIKE '%' + UPPER($S{KEYWORD}) + '%'
+			 OR UPPER(PROCESS_ID)    LIKE '%' + UPPER($S{KEYWORD}) + '%'
+			 OR UPPER(METHOD_NAME)   LIKE '%' + UPPER($S{KEYWORD}) + '%'
+			 OR UPPER(PROGRAM_DESC)  LIKE '%' + UPPER($S{KEYWORD}) + '%'
+			)
+		ORDER BY JOB_DATE DESC, JOB_TIME DESC
+	]]>
+	</method>
+</service>

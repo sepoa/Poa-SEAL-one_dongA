@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="GP_006" header="false" pageCloseWarn="false">
+    <grid id="widthGridObj" div="bbd6aa492a9b462f8699a0e70816ea" grid-id="file:///resource/ux/grid_personalization/grid/WIDTH_GRID.js" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onEditCell" callback="onEditCell"/>
+    </grid>
+    <variable>
+        <var name="$share" value="{}" />
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="setGridInfo" args="obj">
+        <![CDATA[
+            $share.gridObj = obj;
+        ]]>
+        </function>
+        <function name="init">
+        <![CDATA[
+            widthGridObj.attachEvent("onBeforeContextMenu", ()=>{
+                return false;
+            });
+            
+            widthGridObj.attachEvent("onHeaderClick", () => {
+                return false;
+            });
+            
+            widthGridObj.disableHeaderFilter();
+            
+            callFunction('GP_003', 'setObj', ['WIDTH', widthGridObj]);
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, value">
+        <![CDATA[
+            if(stage == 2) {
+                var originalWidth = widthGridObj.cells(rId, widthGridObj.getColIndexById("STANDARD_WIDTH")).getValue();
+                var columnId = widthGridObj.cells(rId, widthGridObj.getColIndexById("COLUMN_ID")).getValue();
+                
+                if(value == originalWidth) {
+                    Alert(Sepoa.cache.text.get('GP_006.MESSAGE_SET_WIDTH'));
+                    
+                    return;
+                }
+                
+                callFunction('GP_007', 'setGridWidth', [columnId, value]);
+                
+                return true;
+            }
+        ]]>
+        </function>
+        <function name="setColumnWidth">
+        <![CDATA[
+            var allData = widthGridObj.getAllDataObject();
+            
+            for(var data of allData) {
+                var colId = data.COLUMN_ID;
+                var customWidth = data.CUSTOM_WIDTH;
+                
+                if(customWidth != '') {
+                    callFunction('GP_007', 'setGridWidth', [colId, customWidth]);
+                }
+            }
+        ]]>
+        </function>
+        <function name="doMoveColumn" args="data">
+        <![CDATA[
+            var originalGridData = widthGridObj.getAllDataObject();
+            
+            widthGridObj.clearAll(false);
+            
+            for(var row of data) {
+                var colId = row.COLUMN_ID;
+                var colName = row.COLUMN_NAME;
+                var hideFlag = false;
+                
+                if(colName == '#cspan') {
+                    hideFlag = true;
+                }
+                
+                var originalData = originalGridData.filter(x => x.COLUMN_ID == colId);
+                callFunction('GP_003', 'addData', [widthGridObj, row.gr_id, widthGridObj.getRowsNum(), row, false, hideFlag]);
+                if(originalData.length > 0 && originalData[0].CUSTOM_WIDTH != '') {
+                    widthGridObj.cells(row.gr_id, widthGridObj.getColIndexById('CUSTOM_WIDTH')).setValue(originalData[0].CUSTOM_WIDTH);
+                }
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYTRjMzdmYjkzZTBlNDA1OTg4ZjAwYTZhYWZlZTE0Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9XSnJmdUw4OUNuVm0iOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2pDOWRIakVBWHczQSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkdQXzAwNiIsIk9CSkVDVF9JRCI6ImE0YzM3ZmI5M2UwZTQwNTk4OGYwMGE2YWFmZWUxNCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6ImE0
+        YzM3ZmI5M2UwZTQwNTk4OGYwMGE2YWFmZWUxNCIsInR5cGUiOiJib2R5In0sImJiZDZhYTQ5MmE5YjQ2MmY4Njk5YTBlNzA4MTZlYSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiI5MDAiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX2taeDFuaXpEQmhacCI6Im51bGwiLCJkaHhJZF9tYnUzQnVIZVpjNnYiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfWldZeFNGakxta1pOIjoibnVsbCIsIkNMQVNTIjoi
+        IiwiZGh4SWRfOWhqd29rR0hEOFJBIjoibnVsbCIsImRoeElkX29iU0RBN1FZRlFzbyI6Im51bGwiLCJkaHhJZF9iSk5JSU5RMHZQaUoiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJ3aWR0aEdyaWRPYmoiLCJNRVJHRSI6ImZhbHNlIiwiRFJBRyI6ImZhbHNlIiwiRFlOQU1JQyI6ImZhbHNlIiwiRVhDRUxET1dOTE9BRCI6InRydWUiLCJPQkpFQ1RfSUQiOiJiYmQ2YWE0OTJhOWI0NjJmODY5OWEwZTcwODE2ZWEiLCJHUklEX0lEIjoiZmlsZTovLy9yZXNvdXJjZS91eC9ncmlkX3BlcnNvbmFsaXphdGlvbi9ncmlkL1dJRFRIX0dSSUQuanMiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6ImJiZDZhYTQ5MmE5YjQ2MmY4Njk5YTBlNzA4MTZlYSIsInR5
+        cGUiOiJncmlkIn19LCJ0cmVlIjp7ImlkIjoiYTRjMzdmYjkzZTBlNDA1OTg4ZjAwYTZhYWZlZTE0IiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJiYmQ2YWE0OTJhOWI0NjJmODY5OWEwZTcwODE2ZWEiLCJ0eXBlIjoiZ3JpZCJ9XX0sImluZm8iOnsiUEFUSCI6Ii9Ub29scy9HcmlkUGVyc29uYWxpemF0aW9uL0dyaWRQZXJzb25hbGl6YXRpb25XaWR0aEdyaWQueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiMDA2IiwiUFJFRklYIjoiR1AiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJUb29scy9HcmlkUGVyc29uYWxpemF0aW9uIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiR3JpZFBlcnNvbmFs
+        aXphdGlvbldpZHRoR3JpZCIsIlNDUkVFTl9JRCI6IkdQXzAwNiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJhNGMzN2ZiOTNlMGU0MDU5ODhmMDBhNmFhZmVlMTRcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9vdXRlciBcIiBz
+        dHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJiYmQ2YWE0OTJhOWI0NjJmODY5OWEwZTcwODE2ZWFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2dyaWQgbG93ZXJEaXZcIiBzdHlsZT1cIndpZHRoOjkwMHB4O1wiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

@@ -1,0 +1,32 @@
+{
+	"FILTERBAR" : {
+		"STATUS" : "STATUS",
+		"CONFIRM" : "Confirm",
+		"SEARCH" : "Search",
+		"CONDITION" : "Condition",
+		"CONDITION_RESET" : "Reset Condition(s)",
+		"ALL" : "All",
+		"YEAR" : "Year",
+		"MONTH" : "Month",
+		"WEEK" : "Week(s)",
+		"WEEKS_AGO" : "Week(s) ago",
+		"WEEKS_AFTER" : "Week(s) +",
+		"THIS_WEEK" : "This week",
+		"MONTHS" : "Month(s)",
+		"MONTHS_AGO" : "Month(s) ago",
+		"MONTHS_AFTER" : "Month(s) +",
+		"DAYS_AGO" : "day(s) ago",
+		"DAYS" : "day(s)",
+		"TODAY" : "Today",
+		"DAY" : "",
+		"QUARTER" : "Quarter",
+		"HALF" : "Half",
+		"RESET" : "Reset",
+		"FILTER" : "FILTER",
+		"ADVANCED_SEARCH" : "Advanced Filter",
+		"SEARCH_2" : "Confirm",
+		"MESSAGE_01" : "Select a date.",
+		"SELECT_ALL" : "Select All",
+		"CHECKED" : "Checked"
+	}
+}

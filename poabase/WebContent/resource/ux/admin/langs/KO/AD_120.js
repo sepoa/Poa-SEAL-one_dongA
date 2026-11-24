@@ -1,0 +1,43 @@
+{
+	"AD_120":{
+		"LAYOUT_A_HEADER":"모듈관리",
+		"MESSAGE_0002":"모듈코드는 중복될 수 없습니다.",
+		"MESSAGE_0003":"하위모듈을 추가할 상위 모듈을 선택하세요.",
+		"MESSAGE_0004":"하위모듈을 추가할 상위모듈은 하나만 선택 하세요.",
+		"MESSAGE_0005":"상위모듈 코드가 삽입되지 않았습니다.",
+		"MESSAGE_0006":"선택된 모듈(하위모듈 포함)을 삭제하시겠습니까?",
+		"MESSAGE_0007":"선택된 모듈을 저장하시겠습니까?",
+		"BTN_ADD_NODE":"노드추가",
+		"BTN_ADD_CHILD_NODE":"자식노드추가",
+		"SELECTED":"선택",
+		"USE_FLAG":"사용",
+		"STORAGE":"저장",
+		"TREE_ID":"구조",
+		"MODULE":"코드",
+		"PARENT":"상위코드",
+		"DESCRIPTION":"모듈명",
+		"SORT":"정렬",
+		"OPTIONS":"옵션",
+		"NODE":"노드",
+		"TYPE":"타입",
+		"REMARK":"설명",
+		"ALIAS":"별칭",
+		"DEFAULT_OPTION_VALUE":"기본 옵션"
+	},
+	"AD_120_GRID_LENGTH": {
+		"SELECTED": "40",
+		"USE_FLAG": "40",
+		"STORAGE":"40",
+		"TREE_ID": "500",
+		"MODULE": "120",
+		"PARENT": "100",
+		"DESCRIPTION": "155",
+		"SORT": "60",
+		"OPTIONS": "300",
+		"NODE": "100",
+		"TYPE": "100",
+		"REMARK":"300",
+		"ALIAS":"100",
+		"DEFAULT_OPTION_VALUE":"300"
+	}
+}

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="ECT_102" header="false" pageCloseWarn="false" delegate="false">
+    <link>
+    <![CDATA[
+        <%
+            List<String> ctrlCodeList = Arrays.asList(info.getSession("CTRL_CODE").split(","));
+            boolean hasEmpContCreate = ctrlCodeList.contains("EMP_CONT_CREATE");
+        %>
+    ]]>
+    </link>
+    <filterbar id="filterObj" div="MCtsZhdfjwsZhdSknL">
+        <calendar id="F_CALENDAR" button="year:0,month:0,week:-4,day:0" default="ADD_DATE#week:-4" combo="SL0001,{HOUSE_CODE}#{LANGUAGE}#ECT102"/>
+        <status id="F_STATUS"/>
+        <keyword id="F_KEYWORD"/>
+        <filter>
+            <option id="F_CONT_CATEGORY" type="select" combo="ECT0004,{HOUSE_CODE}#{LANGUAGE}"/>
+        </filter>
+        <event type="onSearch" callback="onSearch"/>
+        <event type="onComboLoad" callback="onComboLoad"/>
+    </filterbar>
+    <button id="btnObj">
+    </button>
+    <grid id="gridObj" div="ASYDyZdgLzEyZdMSyF" grid-id="ECT_102_C" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onXLE" callback="doQueryEnd"/>
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onEditCell" callback="onEditCell"/>
+        <event type="onRowInserted" callback="onRowInserted"/>
+    </grid>
+    <usercss>
+    <![CDATA[
+        .attach-status-box {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .attach-status-box div {
+            float: left;
+        }
+        
+        .attach-status-attach-icon {
+            display: none;
+        }
+        
+        .attach-status-attach-icon-G {
+            display: block;
+            width: 29px;
+            height: 29px;
+            margin-left: 10px;
+            background: center / cover url(/resource/design/imgs/grid/ATTAH_IMG.png);
+        }
+        
+        .expired-bold-flag-Y {
+            font-weight: bold;
+            color: #d12832;
+        }
+        
+        .contract-sign-status-G:after,
+        .contract-sign-status-K:after,
+        .contract-sign-status-C:after {
+            content: "O"
+        }
+        
+        .contract-sign-status-G.contract-sign-count-:after,
+        .contract-sign-status-K.seller:after,
+        .contract-sign-status-C.contract-sign-count-:after {
+            content: "X"
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="EtvofadWPxofadpUNx" value="$($sObject._vp).find('#EtvofadWPxofadpUNx')[0]"/>
+        <var name="EtvofadAXSpfadiCyX" value="$($sObject._vp).find('#EtvofadAXSpfadiCyX')[0]"/>
+        <var name="EtvofadWPxofaddSxt" value="$($sObject._vp).find('#EtvofadWPxofaddSxt')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <var name="$shareFnNames">
+        <![CDATA[
+            ['doQuery']
+        ]]>
+        </var>
+        <function name="init">
+        <![CDATA[
+            $share.fn = {};
+            for (var i in $shareFnNames) {
+                var fnName = $shareFnNames[i];
+                $share.fn[fnName] = $sObject[fnName];
+            }
+            
+            callFunction('p', 'doGetScreenConfig', [$share]);
+            callFunction('p', 'onChildScreenReady', [$share]);
+            dataOutput.setValue('TYPE', $share.config.TYPE);
+            initFilter();
+            initButton();
+            doQuery();
+        ]]>
+        </function>
+        <function name="initFilter" args="">
+        <![CDATA[
+            filterObj.getItemById("F_STATUS").reloadCombo("SL0001," + Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.LANGUAGE + "#ECT002");
+            
+            if ($share.config.FILTER && $share.config.FILTER.F_EXPIRED_VIEW) {
+                filterObj.getItemById("F_EXPIRED_VIEW").setDefault("checked");
+                filterObj.getItemById("F_EXPIRED_VIEW").setValue(true);
+            }
+        ]]>
+        </function>
+        <function name="onComboLoad" args="id, domList">
+        <![CDATA[
+            if (id == "F_STATUS") {
+                domList.forEach(function(dom) {
+                    dom.style.display = "none";
+                    if (dom.comboText != "" && dom.comboText != undefined) {
+                        if (dom.comboValue == "ALL" || $share.config.VIEW_OPTIONS[dom.comboValue]?.FILTER) {
+                            dom.style.display = "flex";
+                        }
+                    }
+                });
+            
+                if ($share.config.FILTER.F_STATUS) {
+                    filterObj.getItemById("F_STATUS").setDefault($share.config.FILTER.F_STATUS);
+                    filterObj.getItemById("F_STATUS").setValue($share.config.FILTER.F_STATUS);
+                    doQuery();
+                }
+            }
+        ]]>
+        </function>
+        <function name="initButton">
+        <![CDATA[
+            <% if(hasEmpContCreate) { %>
+                btnObj.addButton({
+                    "div": EtvofadQkWpfadeRTN,
+                    "id": "SIGN_REQUEST",
+                    "text": "{POA_CONTRACT.SIGN_NEXT}",
+                    "type": "save",
+                    onclick: doSignRequest
+                });
+            
+                btnObj.addButton({
+                    "div": EtvofadQkWpfadeRTN,
+                    "id": "PUSH_RE_SEND",
+                    "text": "{POA_CONTRACT.BUTTON_PUSH_RE_SEND}",
+                    "type": "secondary",
+                    onclick: doPushReSend
+                });
+                
+                btnObj.addButton({
+                    "div": EtvofadQkWpfadeRTN,
+                    "id": "DELETE",
+                    "text": "{POA_CONTRACT.BUTTON_DELETE}",
+                    "type": "delete",
+                    onclick: doDelete
+                });
+            <% } else { %>
+            <% } %>
+        ]]>
+        </function>
+        <function name="onSearch" args="id">
+        <![CDATA[
+            doQuery();
+        ]]>
+        </function>
+        <function name="doQuery" args="">
+        <![CDATA[
+            dataOutput.addFilter(filterObj);
+            gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'PROCESS_ID=sepoa.svc.contract.SepoaEmployeeContractService', 'METHOD=doDocumentList']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCnt">
+        <![CDATA[
+            var status = obj.getUserData("", "status");
+            var message = obj.getUserData("", "message");
+            if (status != 'true') {
+                Alert(message);
+            }
+        ]]>
+        </function>
+        <function name="onRowSelect" args="id, cind">
+        <![CDATA[
+            var header = gridObj.getColumnId(cind);
+            var gridData = gridObj._getRowData(id);
+            
+            if (!(['SELECTED', 'EXPIRED_ALARM', 'CATEGORY'].indexOf(header) + 1)) {
+                $share.fn.doChangeView(gridData);
+            }
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage,rowId,cellInd,nValue,oValue">
+        <![CDATA[
+            var header = gridObj.getColumnId(cellInd);
+            var gridData = gridObj.getRowDataObject(rowId);
+            if (stage == 0) {} else if (stage == 1) {} else if (stage == 2) {}
+            return true;
+        ]]>
+        </function>
+        <function name="onRowInserted" args="tr">
+        <![CDATA[
+            $share.fn.doQueryDocumentExtraData(gridObj, tr);
+        ]]>
+        </function>
+        <function name="doDelete">
+        <![CDATA[
+            var selectedRow = gridObj.getSelectedRows("SELECTED");
+            var dataArray = [];
+            for (var i in selectedRow) {
+                dataArray.push(gridObj.getRowDataObject(selectedRow[i]));
+            }
+            $share.fn.doDeleteDocument(dataArray, doQuery);
+        ]]>
+        </function>
+        <function name="doPushReSend">
+        <![CDATA[
+            var selectedRow = gridObj.getSelectedRows("SELECTED");
+            var dataArray = [];
+            for (var i in selectedRow) {
+                dataArray.push(gridObj.getRowDataObject(selectedRow[i]));
+            }
+            $share.fn.doPushResend(dataArray);
+        ]]>
+        </function>
+        <function name="doAfterProcess">
+        <![CDATA[
+            var selectedRow = gridObj.getSelectedRows("SELECTED");
+            var dataArray = [];
+            for (var i in selectedRow) {
+                dataArray.push(gridObj.getRowDataObject(selectedRow[i]));
+            }
+            
+            $share.fn.doAfterProcess(dataArray, doQuery);
+        ]]>
+        </function>
+        <function name="doNewContract" args="">
+        <![CDATA[
+            $share.fn.doChangeView({
+                DATA_SOURCE: 'NEW'
+            });
+        ]]>
+        </function>
+        <function name="doSignRequest" args="">
+        <![CDATA[
+        	var selectedRow = gridObj.getSelectedRows("SELECTED");
+            var dataArray = [];
+            for (var i in selectedRow) {
+                dataArray.push(gridObj.getRowDataObject(selectedRow[i]));
+            }
+        	
+        	if(dataArray.length == 0) {
+        		Alert(Sepoa.cache.text.get("POA_CONTRACT.MESSAGE_0005"));
+        		return false;
+        	}
+        	
+        	if(dataArray.filter(e => e.CONT_STATUS != "EW").length > 0) {
+        		Alert(Sepoa.cache.text.get("POA_CONTRACT.MESSAGE_0036"));
+        		return false;
+        	}
+        	
+			const data = {
+				TARGET_DATA: dataArray
+			};
+
+			const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                async: true,
+                contentType: "json",
+                on: {
+					callback: (res, config, params) => {
+						if(res.status == '1') {
+							Alert(Sepoa.cache.text.get("POA_CONTRACT.MESSAGE_0037"), function(flag){
+								if(flag) {
+									doQuery();
+								}
+							})
+						} else {
+							Alert(Sepoa.cache.text.get("POA_CONTRACT.MESSAGE_0038"));
+							return false;
+						}					
+					}
+				}
+            }
+            
+            const params = $.extend(true, {
+                module: 'sepoa.svc.ct.ECT_205',
+                action: 'doRequestSigning'
+            }, data);
+            
+            sUtils.multipart.send(config, params)           
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQVNZRHlaZEFTWUR5WmRHeWhqIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9IcGZWaEdHNXY2czIiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1ZSamVhZWFaODJZYiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9iNGN6ekowQ2FnY20iOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IjIwcHgiLCJNQVJHSU5fUklHSFQiOiIyMHB4IiwiZGh4SWRfVm5KTmZsTEM0UlVwIjoibnVsbCIs
+        IkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiRUNUXzEwMiIsIk9CSkVDVF9JRCI6IkFTWUR5WmRBU1lEeVpkR3loaiIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiQVNZRHlaZEFTWUR5WmRHeWhqIiwidHlwZSI6ImJvZHkifSwiQVNZRHlaZGdMekV5WmRNU3lGIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfOEdOVFRUcTd3YUNSIjoibnVsbCIsImRoeElkX1VQT2FoeTlQ
+        WWY0VCI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF8wM0FPZlZ3blRVd3QiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9EUDE3dThOS3dwRG0iOiJudWxsIiwiZGh4SWRfc3RiRm5JRDJjV25IIjoibnVsbCIsImRoeElkX2RjWFBMVnp1RkR2eiI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImdyaWRPYmoiLCJNRVJHRSI6ImZhbHNlIiwiRFJBRyI6ImZhbHNlIiwiRFlOQU1JQyI6ImZhbHNlIiwiRVhDRUxET1dOTE9BRCI6InRydWUiLCJPQkpFQ1RfSUQiOiJBU1lEeVpkZ0x6RXlaZE1TeUYiLCJHUklEX0lEIjoiRUNUXzEwMl9DIn0sImlkIjoiQVNZRHlaZGdMekV5WmRNU3lGIiwidHlwZSI6ImdyaWQi
+        fSwiRXR2b2ZhZFdQeG9mYWRwVU54Ijp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJFdHZvZmFkV1B4b2ZhZHBVTngifSwiaWQiOiJFdHZvZmFkV1B4b2ZhZHBVTngiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiRXR2b2ZhZFdQeG9mYWRkU3h0Ijp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9GMDQwNzkzYXdNSFUiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkXzNWWFhLU1RISmppQyI6Im51bGwiLCJBTElHTl9I
+        T1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9tOUhkYUZqTXgwOVQiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjIiLCJWQVIiOiJFdHZvZmFkV1B4b2ZhZGRTeHQiLCJPQkpFQ1RfSUQiOiJFdHZvZmFkV1B4b2ZhZGRTeHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIiwiQ09MVU1OX0lURU1fMSI6IjEifSwiaWQiOiJFdHZvZmFkV1B4b2ZhZGRTeHQiLCJ0eXBlIjoiY29udGFpbmVyIn0sIkV0dm9mYWRBWFNwZmFkaUN5WCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiRXR2b2ZhZEFYU3BmYWRpQ3lYIn0sImlkIjoiRXR2b2ZhZEFYU3BmYWRpQ3lYIiwidHlw
+        ZSI6ImNvbHVtbiIsIm5hbWUiOiJiIn0sIkV0dm9mYWRRa1dwZmFkZVJUTiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIk9CSkVDVF9JRCI6IkV0dm9mYWRRa1dwZmFkZVJUTiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiSVRFTV9CQTcxMTkwOUEwMjk0NUI0ODcwQ0NEMDAzMTA1OTNfSUQiOiJTSUdOX1JFUVVFU1QiLCJJVEVNX0JBNzExOTA5
+        QTAyOTQ1QjQ4NzBDQ0QwMDMxMDU5M19UWVBFIjoic2F2ZSIsIklURU1fQkE3MTE5MDlBMDI5NDVCNDg3MENDRDAwMzEwNTkzX01PRFVMRSI6IkNUMTY4MTA5MjI5NTExNSIsIklURU1fQkE3MTE5MDlBMDI5NDVCNDg3MENDRDAwMzEwNTkzX09OQ0xJQ0siOiJkb1NpZ25SZXF1ZXN0IiwiSVRFTV9CQTcxMTkwOUEwMjk0NUI0ODcwQ0NEMDAzMTA1OTNfU0xDT0RFIjoiUE9BX0NPTlRSQUNULlNJR05fTkVYVCIsIklURU1fQkE3MTE5MDlBMDI5NDVCNDg3MENDRDAwMzEwNTkzX1RFWFQiOiLshJzrqoXsmpTssq0iLCJJVEVNX0IxRURENjhDNkQ1NzQ1NDM4MEYxMTFGMzE1QzFGQ19JRCI6IlBVU0hfUkVfU0VORCIsIklURU1fQjFFREQ2OEM2RDU3NDU0MzgwRjExMUYz
+        MTVDMUZDX1RZUEUiOiJzZWNvbmRhcnkiLCJJVEVNX0IxRURENjhDNkQ1NzQ1NDM4MEYxMTFGMzE1QzFGQ19PTkNMSUNLIjoiZG9QdXNoUmVTZW5kIiwiSVRFTV9CMUVERDY4QzZENTc0NTQzODBGMTExRjMxNUMxRkNfU0xDT0RFIjoiUE9BX0NPTlRSQUNULkJVVFRPTl9QVVNIX1JFX1NFTkQiLCJJVEVNX0IxRURENjhDNkQ1NzQ1NDM4MEYxMTFGMzE1QzFGQ19URVhUIjoi7JWM66a8IOyerOyghOyGoSIsIklURU1fMF9JRCI6IkRFTEVURSIsIklURU1fMF9UWVBFIjoiZGVsZXRlIiwiSVRFTV8wX09OQ0xJQ0siOiJkb0RlbGV0ZSIsIklURU1fMF9TTENPREUiOiJQT0FfQ09OVFJBQ1QuQlVUVE9OX0RFTEVURSIsIklURU1fMF9URVhUIjoi7IKt7KCcIiwiSVRFTV9C
+        QTcxMTkwOUEwMjk0NUI0ODcwQ0NEMDAzMTA1OTNfU09SVCI6IjEiLCJJVEVNX0IxRURENjhDNkQ1NzQ1NDM4MEYxMTFGMzE1QzFGQ19TT1JUIjoiMiIsIklURU1fMF9TT1JUIjoiMyJ9LCJpZCI6IkV0dm9mYWRRa1dwZmFkZVJUTiIsInR5cGUiOiJidXR0b24ifSwiTUN0c1poZGZqd3NaaGRTa25MIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF93TzY0b0lwamR1SWEiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX09DMlQ3WWdlZ3lF
+        NyI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9NS0kwb3BhWDFLRXQiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9WeEdSaDBGcFA4ajAiOiJudWxsIiwiZGh4SWRfSkNWbGp0dUpZM3ZFIjoibnVsbCIsImRoeElkX2JybHlIc3hGQWJlRCI6Im51bGwiLCJkaHhJZF9CdnlBS1M1V1VBZFIiOiJudWxsIiwiZGh4SWRfc2dVeEdERmYzWFA3IjoibnVsbCIsImRoeElkX0N2bUhNeUtWdExESiI6Im51bGwiLCJkaHhJZF9UMDVzb3JwT0prdUgiOiJudWxsIiwiZGh4SWRfMjRUdUpZUDc2OHdFIjoibnVsbCIsImRoeElkX2YyU0F1eVhhUUVKaCI6Im51bGwiLCJkaHhJZF9ZV3RVMzZ3ZnVLN3giOiJudWxsIiwiZGh4
+        SWRfUVhORjAxWVlickhIIjoibnVsbCIsImRoeElkX0ZySlpkanR4WkpNVCI6Im51bGwiLCJkaHhJZF9Xc05FdENIWjN1MWQiOiJudWxsIiwiZGh4SWRfeUtQdUNYSkFzV2NZIjoibnVsbCIsImRoeElkX2N1bGEyaGRidjdqNSI6Im51bGwiLCJkaHhJZF9yOXFjT1cwa090Y1oiOiJudWxsIiwiZGh4SWRfbVdxUHpFZTQwaEI1IjoibnVsbCIsImRoeElkX2xidHljNWFIRUVUayI6Im51bGwiLCJkaHhJZF93cDkwSGZzS2hCRkwiOiJudWxsIiwiZGh4SWRfSzZscXhaVm1TSDdWIjoibnVsbCIsImRoeElkX0lPbVdabjFXWThXaCI6Im51bGwiLCJkaHhJZF9ZNGZHYnp1TXNLVmMiOiJudWxsIiwiZGh4SWRfUEh6bFJ4S0JYQ0hDIjoibnVsbCIsImRoeElkX1UwVGxzU1Z0
+        Y1Y5NCI6Im51bGwiLCJkaHhJZF83RzR6cnpwdWVzeXUiOiJudWxsIiwiZGh4SWRfSFJFc0tPRTlIdXpSIjoibnVsbCIsImRoeElkX3dLY0Q2NWFoNk5hMiI6Im51bGwiLCJkaHhJZF9DczlZOExhSWM2QXkiOiJudWxsIiwiZGh4SWRfTDVLbzlpTE5oQ0N6IjoibnVsbCIsImRoeElkX29aQzhSVk00UERKdiI6Im51bGwiLCJkaHhJZF9XQXBlR0pDM3BRbXMiOiJudWxsIiwiZGh4SWRfbmpQZkZRd3ZodVFoIjoibnVsbCIsImRoeElkXzlsOGptRzdFNFdnUCI6Im51bGwiLCJkaHhJZF9xTTB6UjRrQXpnU2IiOiJudWxsIiwiZGh4SWRfUnZDNlA4MkVJZmpvIjoibnVsbCIsImRoeElkX05pbUhyNFZ0dkZKRSI6Im51bGwiLCJkaHhJZF9mcWtlblI2SUtIcnEiOiJudWxs
+        IiwiZGh4SWRfNzVqcWxIWmtkWnBCIjoibnVsbCIsImRoeElkX3dYdndWMDd0cGIzTyI6Im51bGwiLCJkaHhJZF9vdlNoYnZ4WmVMZWciOiJudWxsIiwiZGh4SWRfQVJRMDk4U3d5SmE2IjoibnVsbCIsImRoeElkX2hGNjRJNHBwWnpIWSI6Im51bGwiLCJkaHhJZF9RYkJLYnZCcUFYdVAiOiJudWxsIiwiZGh4SWRfdUxhS05FWVEyMzNCIjoibnVsbCIsImRoeElkX2NkWno1djNkTWdTYiI6Im51bGwiLCJkaHhJZF9OWkF6cmdUY3ZUQ20iOiJudWxsIiwiZGh4SWRfQkNPMFhXVjB3aHNSIjoibnVsbCIsImRoeElkX09yWHB2ZnQ3eVM2MCI6Im51bGwiLCJkaHhJZF84c2xlZTliNzdhWFgiOiJudWxsIiwiZGh4SWRfZkdTd1BhZ2RKV1hRIjoibnVsbCIsImRoeElkX1Bp
+        U0ZxTVNkRms4aSI6Im51bGwiLCJkaHhJZF9CSjlkWXdEeU5acXgiOiJudWxsIiwiZGh4SWRfTXpzNEhEM2Rad1pKIjoibnVsbCIsImRoeElkX3FIYjRvSVNqR2o3RiI6Im51bGwiLCJkaHhJZF9WNGdzN3ZBYmphSEEiOiJudWxsIiwiZGh4SWRfU3paUmhxd3hIem1RIjoibnVsbCIsImRoeElkX3NsUnRQNk5kUkhSMSI6Im51bGwiLCJkaHhJZF90OHJpQmJFM2xvR3UiOiJudWxsIiwiZGh4SWRfZWxrWnk5OHhyVGh5IjoibnVsbCIsImRoeElkX1N1RmY3ZjdUOEZtSiI6Im51bGwiLCJkaHhJZF9MdGNoMlhSNFUyMnMiOiJudWxsIiwiZGh4SWRfc0hORDNGdTdqRDg1IjoibnVsbCIsImRoeElkX0lpZnRYR1RCWG1wQSI6Im51bGwiLCJkaHhJZF9nekJ4NXJ3M1FVQ0ci
+        OiJudWxsIiwiZGh4SWRfdUkwVlJvRGJ6VWJtIjoibnVsbCIsImRoeElkX2Y0Qklsa0I3RFRCWCI6Im51bGwiLCJkaHhJZF9JSlo1c0lOREY4WjQiOiJudWxsIiwiZGh4SWRfRWd5a0dlUGN1UWF5IjoibnVsbCIsImRoeElkXzM1RENXUXEwSUNvSSI6Im51bGwiLCJkaHhJZF8xUTFha044YmdvMUoiOiJudWxsIiwiZGh4SWRfRkdTem04dFVBVEZuIjoibnVsbCIsImRoeElkX1kyd0hxTWNJUjJFVyI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZpbHRlck9iaiIsIktFWVdPUkRfQUNUSVZFIjoidHJ1ZSIsIktFWVdPUkRfSUQiOiJGX0tFWVdPUkQiLCJTVEFUVVNfQUNUSVZFIjoidHJ1ZSIsIlNUQVRVU19JRCI6IkZfU1RBVFVTIiwiQ0FMRU5EQVJfQUNUSVZF
+        IjoidHJ1ZSIsIkNBTEVOREFSX0lEIjoiRl9DQUxFTkRBUiIsIkZJTFRFUl9BQ1RJVkUiOiJ0cnVlIiwiQ0FMRU5EQVJfQlVUVE9OIjoieWVhcjowLG1vbnRoOjAsd2VlazotNCxkYXk6MCIsIkZJTFRFUl9JVEVNXzBfVFlQRSI6InNlbGVjdCIsIkNBTEVOREFSX0RFRkFVTFQiOiJBRERfREFURSN3ZWVrOi00IiwiQ0FMRU5EQVJfQ09NQk8iOiJTTDAwMDEse0hPVVNFX0NPREV9I3tMQU5HVUFHRX0jRUNUMTAyIiwiRklMVEVSX0lURU1fMF9DT01CTyI6IkVDVDAwMDQse0hPVVNFX0NPREV9I3tMQU5HVUFHRX0iLCJPQkpFQ1RfSUQiOiJNQ3RzWmhkZmp3c1poZFNrbkwiLCJGSUxURVJfSVRFTV8wX0lEIjoiRl9DT05UX0NBVEVHT1JZIn0sImlkIjoiTUN0c1poZGZq
+        d3NaaGRTa25MIiwidHlwZSI6ImZpbHRlcmJhciJ9fSwidHJlZSI6eyJpZCI6IkFTWUR5WmRBU1lEeVpkR3loaiIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiRXR2b2ZhZFdQeG9mYWRkU3h0IiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IkV0dm9mYWRXUHhvZmFkcFVOeCIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJNQ3RzWmhkZmp3c1poZFNrbkwiLCJ0eXBlIjoiZmlsdGVyYmFyIn1dfSx7ImlkIjoiRXR2b2ZhZEFYU3BmYWRpQ3lYIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6IkV0dm9mYWRRa1dwZmFkZVJUTiIsInR5cGUiOiJidXR0b24ifV19XX0seyJpZCI6IkFTWUR5WmRnTHpFeVpkTVN5RiIsInR5
+        cGUiOiJncmlkIn1dfSwiaW5mbyI6eyJQQVRIIjoiL0VtcGxveWVlQ29udHJhY3QvUHJvZ3Jlc3MvRW1wbG95ZWVDb250cmFjdFByb2dyZXNzTGlzdENvbnRyYWN0LnhtbCIsIlBST0pFQ1QiOiJTRUFMIiwiQ09ERSI6IjEwMiIsIlBSRUZJWCI6IkVDVCIsIlBBVEhfMiI6IlByb2dyZXNzIiwiUEFUSF8zIjoiRW1wbG95ZWVDb250cmFjdFByb2dyZXNzIiwiUEFUSF8xIjoiRW1wbG95ZWVDb250cmFjdCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6Ikxpc3RDb250cmFjdCIsIlNDUkVFTl9JRCI6IkVDVF8xMDIifX0sImh0bWwiOiI8ZGl2IGlkPVwiQVNZRHlaZEFTWUR5WmRHeWhqXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1
+        eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwibWFyZ2luLXRvcDowO21hcmdpbi1yaWdodDoyMHB4O21hcmdpbi1ib3R0b206MDttYXJnaW4tbGVmdDoyMHB4O3dpZHRoOmNhbGMoMTAwJSAtIDIwcHggLSAyMHB4KTtcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lu
+        bmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiRXR2b2ZhZFdQeG9mYWRkU3h0XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJF
+        dHZvZmFkV1B4b2ZhZHBVTnhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9maWx0ZXJiYXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2ZpbHRlcmJhcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgIDxkaXYgaWQ9XCJNQ3RzWmhkZmp3c1poZFNrbkxcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50IHNlcG9hdXhfZmlsdGVyYmFyIHNzZmlsdGVyX2NvbnRcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVt
+        bl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiRXR2b2ZhZEFYU3BmYWRpQ3lYXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291
+        dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJFdHZvZmFkUWtXcGZhZGVSVE5cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfaW5u
+        ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiQVNZRHlaZGdMekV5WmRNU3lGXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

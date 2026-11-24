@@ -1,0 +1,198 @@
+.sepoa_menumanagement > div{
+	float:left;
+	width:100%;
+}
+.sepoa_menumanagement .sepoa_menumanagement_info{
+	padding:10px 0;
+	display: inline-block;
+	width: 100%;
+}
+.sepoa_menumanagement .sepoa_menumanagement_info *{
+	float:left;
+}
+.sepoa_menutreenode_info .dhxform_obj_material > .dhxform_base{
+	left:0px;
+}
+.sepoa_menumanagement .sepoa_manumanagement_profile_button{
+	display:none;
+}
+.sepoa_menumanagement.sepoa_menumanagement_profile_show .sepoa_manumanagement_profile_button{
+	display:inherit;
+}
+.sepoa_menumanagement .sepoa_menumanagement_tree{
+	height:calc(100% - 81px);
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_left.ui-sortable > .dhxtabbar_tab.sepoa_menumanagement_tabs_placeholder{
+	background-color:#FAED7D;
+}
+.sepoa_menutreenode_base {
+	width:calc(100% - 20px);
+	min-height:70px;
+	padding:2px 10px 10px 10px;
+	margin-top:10px;
+	border:1px solid #afafaf;
+	display:inline-block;
+	background-color:#fff;
+}
+.sepoa_menutabcell_base > .sepoa_menutreenode_base {
+	width:calc(100% - 20px);
+	padding:2px 10px 10px 10px;
+	margin-top:0px;
+	border:0px;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_placeholder{
+	background-color:#FAED7D;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly{
+	border-color:#dfdfdf;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_dummy{
+	border-style:dash;
+	border-color:#dfdfdf;
+}
+.sepoa_menutreenode_base:hover{
+	border-color:#ff0000;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_button {
+	width:62px;
+	height:62px;
+	margin-top:8px;
+	display:none;
+	cursor:pointer;
+}
+.sepoa_menutreenode_base:not(.sepoa_menutreenode_readonly) > .sepoa_menutreenode_button.sepoa_button_itemtype{
+	background:url(icon/modify.png) no-repeat center / 60%;
+	float:left;
+	display:block;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly > .sepoa_menutreenode_button.sepoa_button_itemtype{
+	background:url(icon/plus.png) no-repeat center / 60%;
+	float:left;
+	display:block;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly.sepoa_menutreenode_show_child > .sepoa_menutreenode_button.sepoa_button_itemtype{
+	background:url(icon/minus.png) no-repeat center / 60%;
+}
+.sepoa_menutreenode_base:not(.sepoa_menutreenode_readonly) > .sepoa_menutreenode_button.sepoa_button_save{
+	background:url(icon/save.png) no-repeat center / 60%;
+	float:right;
+	display:block;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly.sepoa_menutreenode_builder_on > .sepoa_menutreenode_button.sepoa_button_builder{
+	background:url(icon/builder.png) no-repeat center / 60%;
+	float:right;
+	display:block;
+}
+.sepoa_menutreenode_base:not(.sepoa_menutreenode_readonly) > .sepoa_menutreenode_button.sepoa_button_cancel{
+	background:url(icon/back.png) no-repeat center / 60%;
+	float:right;
+	display:block;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly > .sepoa_menutreenode_button.sepoa_button_delete{
+	background:url(icon/trash.png) no-repeat center / 60%;
+	float:right;
+	display:block;
+}
+
+.sepoa_menutreenode_base .sepoa_menutreenode_icon{
+	float:left;
+	height:62px;
+	width:62px;
+	margin:8px 10px 0px 10px;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_icon > div{
+	display:none;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly > .sepoa_menutreenode_icon > div:nth-child(1)
+,.sepoa_menutreenode_base:not(.sepoa_menutreenode_readonly) > .sepoa_menutreenode_icon > div:nth-child(2)
+{
+	display:block;
+	float:left;
+	height:100%;
+	width:100%;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_icon textarea{
+	height:calc(100% - 6px);
+	width:calc(100% - 6px);
+	resize:none;
+	border:1px solid #afafaf;
+	padding:2px;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_icon textarea::-webkit-input-placeholder{
+	color:#b6b6b6;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_icon textarea:-ms-input-placeholder{
+	color:#b6b6b6;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_icon textarea::placeholder{
+	color:#b6b6b6;
+}
+.sepoa_menutreenode_base > .sepoa_menutreenode_info > .dhxform_obj_material div.dhxcombo_material{
+	border-top:1px solid #afafaf;
+    border-left:1px solid #afafaf;
+    border-right:1px solid #afafaf;
+}
+.sepoa_menutreenode_base > .sepoa_menutreenode_info > .dhxform_obj_material div.dhxcombo_material:not(.dhxcombo_actv){
+	border:solid 1px #afafaf;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_readonly > .sepoa_menutreenode_info > .dhxform_obj_material div.disabled div.dhxcombo_material{
+	border-top:1px solid transparent;
+    border-left-color:transparent;
+    border-right-color:transparent;
+    border-bottom-style:solid;
+    border-bottom-color:#dfdfdf;
+    
+}
+.sepoa_menutreenode_base .dhxform_obj_material div.dhxform_control div.dhxcombo_material div.dhxcombo_select_button{
+	display:none;
+}
+.sepoa_menutreenode_base .dhxform_obj_material .dhxform_textarea.dhxform_readonly
+, .sepoa_menutreenode_base .dhxform_obj_material div.dhxform_control div.dhxcombo_material input.dhxcombo_input{
+	border-top-color:transparent;
+    border-left-color:transparent;
+    border-right-color:transparent;
+    border-bottom-color:#dfdfdf;
+}
+.sepoa_menutreenode_base div.dhxcombo_material.dhxcombo_disabled input.dhxcombo_input{
+	color:#404040;
+}
+.sepoa_menutreenode_base .dhxform_obj_material input.dhxform_textarea, .dhxform_obj_material textarea.dhxform_textarea{
+	color:#404040;
+} 
+.sepoa_menutreenode_base .dhxform_obj_material div.disabled .dhxform_select{
+	color:#404040;
+	border-top-color:transparent;
+    border-left-color:transparent;
+    border-right-color:transparent;
+    border-bottom-color:#dfdfdf;
+}
+.sepoa_menutreenode_base .dhxform_obj_material input.dhxform_textarea.dhxform_readonly:focus, .dhxform_obj_material textarea.dhxform_textarea.dhxform_readonly:focus{
+	border-bottom-width:1px;
+	padding-bottom:4px !important;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_child_area{
+	margin-top:10px;
+	width: calc(100% - 31px);
+    float: left;
+    border-top: 1px dashed #dfdfdf;
+    display: none;
+    padding-left:30px;
+}
+.sepoa_menutreenode_base.sepoa_menutreenode_show_child > .sepoa_menutreenode_child_area{
+	display: inline-block;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_svg{
+	width:100%;
+	height:100%;
+}
+.sepoa_menutreenode_base .sepoa_menutreenode_svg path{
+	fill:#4b555b;
+}
+.sepoa_menutabcell_base > .sepoa_menutreenode_base{
+	border:0px;
+}
+.sepoa_menutabcell_base > .sepoa_menutreenode_base > .sepoa_menutreenode_button.sepoa_button_delete
+, .sepoa_menutabcell_base > .sepoa_menutreenode_base > .sepoa_menutreenode_button.sepoa_button_itemtype
+, .sepoa_menutreenode_base.sepoa_menutreenode_dummy > .sepoa_menutreenode_button.sepoa_button_cancel{
+	display:none;
+}

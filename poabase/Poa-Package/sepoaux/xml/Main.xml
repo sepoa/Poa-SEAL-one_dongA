@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="MAINFRAME" header="false" tpl="editor.tpl">
+    <link>
+    <![CDATA[
+		<%@ page import="javax.servlet.RequestDispatcher"%>
+        <%
+        String f = org.apache.commons.lang.StringUtils.defaultIfBlank(Cache.client.get("DESIGN.BASIC_MAIN_F_TYPE"), "Default");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/UxDefault/Main/"+f+"/Main.sux");
+        dispatcher.forward(request, response);
+        %>
+    ]]>
+    </link>
+    <usercss/>
+    <onloadscript/>
+    <userscript/>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiakJ4bmVFY0lKQ0lOTXVobXhZIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJNQUlORlJBTUUifSwiaWQiOiJqQnhuZUVjSUpDSU5NdWhteFkiLCJ0eXBlIjoiYm9keSJ9fSwidHJlZSI6eyJpZCI6ImpCeG5lRWNJSkNJTk11aG14WSIsInR5cGUiOiJib2R5In0sImluZm8iOnsiUEFUSCI6Ii8vTWFpbi54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6Ik1haW4iLCJDT0RFIjoiTUFJTkZSQU1FIiwiUFJFRklYIjoiIiwiU0NSRUVOX0lEIjoiTUFJTkZSQU1FIn19LCJodG1sIjoiPGRp
+        diBpZD1cImpCeG5lRWNJSkNJTk11aG14WVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

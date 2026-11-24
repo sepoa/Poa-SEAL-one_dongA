@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD COLUMN T_ID VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD COLUMN T_NAME VARCHAR(100)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD COLUMN T_IP VARCHAR(255)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD COLUMN T_MESSAGE VARCHAR(2000)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_ID VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_NAME VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_IP VARCHAR(255)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_MESSAGE VARCHAR(2000)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_ID VARCHAR2(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_NAME VARCHAR2(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_IP VARCHAR2(255)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD T_MESSAGE VARCHAR2(2000)
+		]]>
+		</query>
+	</item>
+</body>

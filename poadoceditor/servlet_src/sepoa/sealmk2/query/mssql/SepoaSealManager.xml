@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectSUSMT">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+			,COMPANY_CODE
+			,USER_ID
+		FROM
+			SUSMT WITH(NOLOCK)
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doSelectSPMGT">
+    <![CDATA[
+        SELECT COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+              ,#DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, USER_ID, ${session.LANGUAGE}) AS USER_NAME_LOC
+              ,#DB_OWNER#GETUSERDEPTNAME(HOUSE_CODE, COMPANY_CODE, USER_ID, ${session.LANGUAGE}) AS DEPT_NAME_LOC
+          FROM SPMGT WITH(NOLOCK)
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+           AND ACTION		= $S{ACTION}
+         ORDER
+            BY SEQ
+    ]]>
+    </method>	
+    <method name="doInsertSPMGT">
+    <![CDATA[
+        INSERT
+          INTO SPMGT
+             ( HOUSE_CODE       
+              ,COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}       
+              ,${session.COMPANY_CODE}     
+              ,${SMR_NUMBER}        
+              ,'1'      
+              ,(SELECT COUNT(*) + 1
+                  FROM SPMGT InPMGT WITH(NOLOCK)
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${session.COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${SMR_NUMBER}
+                   AND InPMGT.CONT_GL_SEQ  = '1'
+               )
+              ,${current.DATE}         
+              ,${current.TIME}         
+              ,${session.COMPANY_CODE}
+              ,${session.ID}
+              ,${ACTION}           
+              ,${IP}
+             )
+    ]]>
+    </method>
+    <method name="doDeleteSPMGT">
+    <![CDATA[
+        DELETE
+          FROM SPMGT
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+    ]]>
+    </method>
+</service>

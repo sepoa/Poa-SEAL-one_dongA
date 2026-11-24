@@ -1,0 +1,1337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_404" header="false">
+    <button id="btnObj">
+        <btn div="xhbDYrdLIhDYrdlFDR" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(  )"/>
+    </button>
+    <tabbar id="tabbarObj" div="HooRgxdeNqRgxdRtGO"/>
+    <usercss>
+    <![CDATA[
+        .client-manager-colorpicker input,
+        .dhxform_obj_material div.readonly.client-manager-colorpicker-view input.dhxform_textarea{
+            cursor: pointer;
+        }
+        
+        .client-manager-file-attach-view .dhxform_control,
+        .client-manager-icon-view .dhxform_control {
+            
+        }
+        
+        .client-manager-file-attach-view .dhxform_container,
+        .client-manager-icon-view .dhxform_container {
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            height: calc(100% - 2px);
+            width: calc(100% - 2px);
+            cursor: pointer;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .client-manager-textarea .dhxform_control {
+        	height: 60px;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}" />
+        <var name="$vault">
+        <![CDATA[
+            (function() {
+                var v = new SepoaDhtmlXVaultObject({
+                    container: document.createElement('div'),
+                    type: "CBO",
+                    callback: function(data) {
+                        if (data.uploaded) {
+                            for (var e in this.file_data) {
+                                if (this.file_data[e].state == "added") {
+                                    return;
+                                }
+                            }
+                            var t = (SUX.getModuleTop().Sepoa.request.isPopup) ? SUX.getModuleTop().selfObj : SUX.root;
+                            var w = (SUX.getModuleTop().Sepoa.request.isPopup) ? SUX.getModuleTop().parent.SUX.getModuleTop() : SUX.getModuleTop();
+                            if (t.progressOff)
+                                t.progressOff(undefined, w);
+                            this._afterCallback.fn(data);
+                            this.setAttachKey();
+                        }
+                    }
+                });
+                v.attachEvent('onBeforeFileAdd', function(file) {
+                    var allowExtension = ['JPG', 'JPEG', 'GIF', 'PNG', 'BMP'];
+                    var extension = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length).toUpperCase();
+                    if (allowExtension.indexOf(extension) + 1) {
+                        return true;
+                    } else {
+                        Alert(Sepoa.cache.text.get('AD_404.MESSAGE0001'));
+                        return false;
+                    }
+                });
+                v.attachEvent('onUploadFail', function(e, a) {
+                    var t = (SUX.getModuleTop().Sepoa.request.isPopup) ? SUX.getModuleTop().selfObj : SUX.root;
+                    var w = (SUX.getModuleTop().Sepoa.request.isPopup) ? SUX.getModuleTop().parent.SUX.getModuleTop() : SUX.getModuleTop();
+                    if (t.progressOff)
+                        t.progressOff(undefined, w);
+                })
+                v.f.onchange = function() {
+                    v._parseFilesInInput(this.files);
+                    if (window.dhx4.isOpera || window.dhx4.isIE10) {
+                        v._addFileInput()
+                    } else {
+                        this.value = ""
+                    }
+                    var t = (SUX.getModuleTop().Sepoa.request.isPopup) ? SUX.getModuleTop().selfObj : SUX.root;
+                    var w = (SUX.getModuleTop().Sepoa.request.isPopup) ? SUX.getModuleTop().parent.SUX.getModuleTop() : SUX.getModuleTop();
+                    if (t.progressOn)
+                        t.progressOn(w);
+                }
+                v.conf.orgUrl = v.conf.url
+                return v;
+            })()
+        ]]>
+        </var>
+        <var name="$options">
+        <![CDATA[
+            [
+                {
+                    type: 'group',
+                    id: 'LOGIN',
+                    items: [
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'select',
+                                    name: 'LOGIN_DESIGN_TYPE',
+                                    options: [{
+                                            text: "default",
+                                            value: "default"
+                                        },
+                                        {
+                                            text: "renew",
+                                            value: "renew"
+                                        },
+                                        {
+                                            text: "custom",
+                                            value: "custom"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },                    
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'input',
+                                    name: 'PORTAL_PAGE_URL',
+                                    inputWidth: 256
+                                }
+                            ]
+                        },
+                    	{
+                    		type: 'block',
+                    		list: [{
+		                        type: 'fileattach',
+		                        name: 'LOGIN_LOGO'
+		                    },
+		                    {
+		                    	type: 'newcolumn'
+		                    },
+		                    {
+		                    	type: 'fileattach',
+		                    	name: 'LOGIN_MAIN'
+	                   		}]
+                    	},
+                        {
+                    		type: 'block',
+                    		list: [
+                    			{
+	                    			type: 'input',
+	                    			name: 'MAIN_REMARK_TITLE',
+	                    			inputWidth: 256
+	                    		},
+	                    		{
+	                    			type: 'newcolumn'
+	                    		},
+	                    		{
+	                    			type: 's-colorpicker',
+	                    			name: 'MAIN_REMARK_TITLE_TEXT_COLOR'
+	                    		}
+                    		]
+                    	},
+                    	{
+                    		type: 'block',
+                    		list: [
+                    			{
+	                    			type: 'input',
+	                    			name: 'MAIN_REMARK_SUB_TITLE',
+	                    			inputWidth: 256
+	                    		},
+	                    		{
+	                    			type: 'newcolumn'
+	                    		},
+	                    		{
+	                    			type: 's-colorpicker',
+	                    			name: 'MAIN_REMARK_SUB_TITLE_TEXT_COLOR'
+	                    		}
+                    		]
+                    	},
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'LOGIN_FORM_COLOR'
+                                },
+                                {
+                                    type: 'newcolumn'
+                                },
+                                {
+                                    type: 'input',
+                                    name: 'LOGIN_FORM_LABEL'
+                                },
+                                {
+                                	type: 'newcolumn'
+                                },
+                                {
+                                	type: 's-colorpicker',
+                                	name: 'LOGIN_FORM_LABEL_COLOR'
+                                }
+                            ]
+                        },
+                    	{
+                    		type: 'block',
+                    		list: [{
+                    			type: 'select',
+                    			name: 'LOGIN_FORM_SUB_BUTTON_USE',
+                                value: 'Noto Sans KR',
+                                options: [
+                                	{
+	                                	text: "Y",
+	                                    value: "Y"
+	                                },
+	                                {
+	                                	text: "N",
+	                                    value: "N"
+	                                }
+                               	]
+                    		},
+                    		{
+                    			type: 'newcolumn'
+                    		},
+                    		{
+                    			type: 'input',
+                    			name: 'LOGIN_FORM_SUB_BUTTON_LABEL',
+                    		},
+                    		{
+	                    		type: 'newcolumn'
+                    		},
+                    		{
+                    			type: 'input',
+                    			name: 'LOGIN_FORM_SUB_BUTTON_LINK',
+                    			inputWidth: 256
+                    		}]
+                    	},
+                    	{
+                    		type: 'block',
+                    		list: [{
+                    			type: 'input',
+                    			name: 'GUIDE_ITEM_COUNT',
+                                value: 0,
+                                validate:'ValidInteger'
+                    		}]
+                    	},
+                    	{
+                    		type: 'block',
+                            name: 'GUIDE_AREA',
+                            list:[
+                                {type:"newcolumn"}
+                            ]
+                    	},
+                    	{
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'input',
+                                    name: 'RIGHT_CUSTOM_PATH',
+                                    inputWidth: 256
+                                }
+                            ]
+                        },
+                    	{
+                    		type: 'block',
+                    		list: [{
+                    			type: 'input',
+                    			name: 'CONTACT_HEADER',
+                                inputWidth: 256
+                    		},
+                            {
+                                type: 'input',
+                                name: 'CONTACT_CONTENTS',
+                                rows: 2,
+                                inputWidth: 256
+                            },
+                            {
+                                type: 'newcolumn'
+                            },
+                            {
+                                type: 'input',
+                                name: 'CONTACT2_HEADER',
+                                inputWidth: 256
+                            },
+                            {
+                                type: 'input',
+                                name: 'CONTACT2_CONTENTS',
+                                rows: 2,
+                                inputWidth: 256
+                            }
+                            ]
+                    	},
+                        {
+                            type: 'input',
+                            name: 'COPYRIGHT_CONTENTS',
+                            inputWidth: 256
+                        }
+                    ]
+                },
+                {
+                    type: 'group',
+                    id: 'BASIC',
+                    items: [{
+                            type: "block",
+                            list: [{
+                                    type: 's-colorpicker',
+                                    name: 'BASIC_COLOR'
+                                },
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'BASIC_TEXT_COLOR'
+                                },
+                                {
+                                    type: "newcolumn"
+                                },
+                                {
+                                    type: 'select',
+                                    name: 'BASIC_FONT_FAMILY_KR',
+                                    value: 'Noto Sans KR',
+                                    options: [{
+                                            text: "Noto Sans KR",
+                                            value: "Noto Sans KR"
+                                        },
+                                        {
+                                            text: "Open Sans",
+                                            value: "Open Sans"
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: 'select',
+                                    name: 'BASIC_FONT_FAMILY_EN',
+                                    value: 'Roboto',
+                                    options: [{
+                                            text: "Roboto",
+                                            value: "Roboto"
+                                        },
+                                        {
+                                            text: "Open Sans",
+                                            value: "Open Sans"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'select',
+                                    name: 'BASIC_MAIN_TABBAR_POSITION',
+                                    value: 'bottom',
+                                    options: [
+                                        {
+                                            text: 'Bottom',
+                                            value: 'bottom'
+                                        },
+                                        {
+                                            text: 'Top',
+                                            value: 'top'
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: "newcolumn"
+                                },
+                                {
+                                    type: 'select',
+                                    name: 'BASIC_MAIN_F_TYPE',
+                                    value: '',
+                                    options: [
+                                        {
+                                            text: 'basic',
+                                            value: ''
+                                        },
+                                        {
+                                            text: 'fixed menu',
+                                            value: 'FixedMenu'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'input',
+                                    name: 'BASIC_SYSTEM_TITLE'
+                                },
+                                {
+                                    type: "newcolumn"
+                                },
+                                {
+                                    type: 'input',
+                                    name: 'BASIC_USER_INFO'
+                                },
+                                {
+                                    type: "newcolumn"
+                                },
+                                {
+                                    type: 'select',
+                                    name: 'BASIC_USER_INFO_UPDATE_FLAG',
+                                    value: '',
+                                    options: [
+                                        {
+                                            text: 'USE',
+                                            value: ''
+                                        },
+                                        {
+                                            text: 'NOT USED',
+                                            value: 'false'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            type: 'block',
+                            list: [
+                                {
+                                    type: 'fileattach',
+                                    name: 'BASIC_LOGO',
+                                    className: 'fill-background'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    type: 'group',
+                    id: 'DASHBOARD',
+                    items: [
+                        {
+                            type: 'block',
+                            list: [{
+                                type: 's-colorpicker',
+                                name: 'DASHBOARD_GROUPBOX-LABEL-COLOR'
+                            },
+                            {type:'newcolumn'},
+                            {
+                                type: 's-colorpicker',
+                                name: 'DASHBOARD_GROUPBOX-LABEL-FONT-COLOR'
+                            }]
+                        },{
+                            type: 'block',
+                            list: [{
+                                type: 's-colorpicker',
+                                name: 'DASHBOARD_FLOW-STEP-LABEL-COLOR'
+                            },
+                            {type:'newcolumn'},
+                            {
+                                type: 's-colorpicker',
+                                name: 'DASHBOARD_FLOW-STEP-LABEL-FONT-COLOR'
+                            }]
+                        },{
+                            type: 's-colorpicker',
+                            name: 'DASHBOARD_LABEL-FONT-COLOR'
+                        },{
+                            type: 's-colorpicker',
+                            name: 'DASHBOARD_TABBAR-TAB-FONT-COLOR'
+                        },{
+                            type: 's-colorpicker',
+                            name: 'DASHBOARD_GRID-HEADER-FONT-COLOR'
+                        }
+                    ]
+                },
+                {
+                    type: 'group',
+                    id: 'LAYOUT',
+                    items: [{
+                            type: 's-colorpicker',
+                            name: 'LAYOUT_HEADER_COLOR'
+                        },
+                        {
+                            type: 's-colorpicker',
+                            name: 'LAYOUT_HEADER_TEXT_COLOR'
+                        }
+                    ]
+                },
+                {
+                    type: 'group',
+                    id: 'TABBAR',
+                    items: [{
+                            type: 's-colorpicker',
+                            name: 'TABBAR_TAB_COLOR'
+                        },
+                        {
+                            type: 's-colorpicker',
+                            name: 'TABBAR_TAB_TEXT_COLOR'
+                        },
+                        {
+                            type: 's-colorpicker',
+                            name: 'TABBAR_ACTIVE_TAB_COLOR'
+                        },
+                        {
+                            type: 's-colorpicker',
+                            name: 'TABBAR_ACTIVE_TAB_TEXT_COLOR'
+                        }
+                    ]
+                },
+                {
+                    type: 'group',
+                    id: 'GRID',
+                    items: [
+                        {
+                            type:'block',
+                            list: [
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'GRID_HEADER_COLOR'
+                                },
+                                {
+                                    type: 'newcolumn'
+                                },
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'GRID_HEADER_TEXT_COLOR'
+                                }
+                            ]
+                        },
+                        {
+                            type:'block',
+                            list:[
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'GRID_ROW_COLOR'
+                                },
+                                {
+                                    type: 'newcolumn'
+                                },
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'GRID_ROW_TEXT_COLOR'
+                                },
+                            ]
+                        },
+                        {
+                            type: 'block',
+                            list:[
+                                 {
+                                     type: 's-colorpicker',
+                                     name: 'GRID_BORDER_COLOR'
+                                 }
+                            ]
+                        },
+                        {
+                        	type: 'block',
+                        	list: [
+                        		{
+                        			type: 's-style',
+                        			name: 'GRID_CELL_TYPE_PRIMARY',
+                        			className: 'grid_cell_type'
+                        		},
+                        		{
+                        			type: 'newcolumn'
+                        		},
+                        		{
+                        			type: 's-style',
+                        			name: 'GRID_CELL_TYPE_SECONDARY',
+                        			className: 'grid_cell_type'
+                        		},
+                        		{
+                        			type: 'newcolumn'
+                        		},
+                        		{
+                        			type: 's-style',
+                        			name: 'GRID_CELL_TYPE_TERTIARY',
+                        			className: 'grid_cell_type'
+                        		}
+                        	]
+                        },
+                        {
+                            type: 'block',
+                            list:[
+                                {
+                                    type: 's-style',
+                                    name: 'GRID_CELL_TYPE_MCOLOR',
+                                    className: 'grid_cell_type'
+                                },
+                                {
+                                	type: 'newcolumn'
+                                },
+                                {
+                                    type: 's-style',
+                                    name: 'GRID_CELL_TYPE_OCOLOR',
+                                    className: 'grid_cell_type'
+                                },
+                                {
+                                	type: 'newcolumn'
+                                },
+                                {
+                                    type: 's-style',
+                                    name: 'GRID_CELL_TYPE_LCOLOR',
+                                    className: 'grid_cell_type'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                //{
+                //    type: 'group',
+                //    id: 'FORM'
+                //},
+                {
+                    type: 'group',
+                    id: 'BUTTON',
+                    items:[
+                        {
+                            type:'button',
+                            name:'BUTTON_DEFAULT'
+                        },
+                        {
+                            type:'button',
+                            name:'BUTTON_PRIMARY'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_SECONDARY'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_NEW'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_INQUERY'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_SAVE'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_DELETE'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_BACK'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_LINK'
+                        }, 
+                        {
+                            type:'button', 
+                            name:'BUTTON_ACCEPT'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_REJECT'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_EXCELUPLOAD'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_EXCELDOWNLOAD'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_TEMPLATE'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_FILEATTACH'
+                        },
+                        {
+                            type:'button', 
+                            name:'BUTTON_REMARK'
+                        },
+                        {
+                            type:'button',
+                            name:'BUTTON_GRIDROW'
+                        },
+                        {
+                            type:'button',
+                            name:'BUTTON_ICON'
+                        }
+                    ]
+                },
+                {
+                    type: 'group',
+                    id: 'LIST',
+                    items: [
+                    	{
+                    		type: 'block',
+                    		list: [
+                    			{
+		                        	type: 's-style',
+		                        	name: 'LIST_PRIMARY'
+		                        },
+		                        {
+		                        	type: 'newcolumn'
+		                        },
+		                        {
+		                        	type: 's-style',
+		                        	name: 'LIST_SECONDARY'
+		                        },
+		                        {
+		                        	type: 'newcolumn'
+		                        },
+		                        {
+		                        	type: 's-style',
+		                        	name: 'LIST_TERTIARY'
+		                        }
+                    		]
+                    	}
+                    ]
+                },
+                {
+                	type: 'group',
+                	id: 'FORM',
+                	items: [
+                		{
+                            type:'block',
+                            list: [
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'FORM_ITEM_BORDER_COLOR'
+                                },
+                                {
+                                    type: 'newcolumn'
+                                },
+                                {
+                                    type: 's-colorpicker',
+                                    name: 'FORM_ITEM_TEXT_COLOR'
+                                }
+                            ]
+                        },
+                        {
+                        	type: 'block',
+                        	list: [
+                        		{
+                        			type: 's-colorpicker',
+                        			name: 'FORM_READONLY_BORDER_COLOR'
+                        		},
+                        		{
+                        			type: 'newcolumn'
+                        		},
+                        		{
+                        			type: 's-colorpicker',
+                        			name: 'FORM_READONLY_TEXT_COLOR'
+                        		}
+                        	]
+                        },
+                        {
+                        	type: 'block',
+                        	list: [
+                        		{
+                        			type: 's-colorpicker',
+                        			name: 'FORM_REQUIRED_BORDER_COLOR'
+                        		},
+                        		{
+                        			type: 'newcolumn'
+                        		},
+                        		{
+                        			type: 's-colorpicker',
+                        			name: 'FORM_REQUIRED_TEXT_COLOR'
+                        		}
+                        	]
+                        },
+                        {
+                        	type: 'block',
+                        	list: [
+                        		{
+                        			type: 's-colorpicker',
+                        			name: 'FORM_VALIDATE_COLOR'
+                        		}
+                        	]
+                        },
+                        {
+                        	type: 'block',
+                        	list: [
+                        		{
+		                        	type: 's-style',
+		                        	name: 'FORM_PRIMARY'
+		                        },
+		                        {
+		                        	type: 'newcolumn'
+		                        },
+		                        {
+		                        	type: 's-style',
+		                        	name: 'FORM_SECONDARY'
+		                        },
+		                        {
+		                        	type: 'newcolumn'
+		                        },
+		                        {
+		                        	type: 's-style',
+		                        	name: 'FORM_TERTIARY'
+		                        }
+                        	]
+                        }
+                	]
+                },
+                {
+                    type: 'group',
+                    id: 'POPUP',
+                    items: [
+                        {
+                            type: 's-colorpicker',
+                            name: 'POPUP_HEADER_COLOR'
+                        },
+                        {
+                            type: 's-colorpicker',
+                            name: 'POPUP_HEADER_TITLE_ICON_COLOR'
+                        }                       
+                    ]
+                }
+            ]
+        ]]>
+        </var>
+        <function name="init">
+        <![CDATA[
+            for (var i in $options) {
+                var tabOptions = $options[i];
+                tabbarObj.addTab(tabOptions.id, Sepoa.cache.text.get('AD_404.' + tabOptions.id));
+                if (i == 0) {
+                    tabbarObj.tabs(tabOptions.id).setActive();
+                }
+            
+                if (tabOptions.items) {
+                    var formOptions = [{
+                            type: "settings",
+                            position: "label-top",
+                            inputWidth: 120
+                        },
+                        {
+                            type: "block",
+                            width: "auto",
+                            list: tabOptions.items
+                        }
+                    ]
+            
+                    for (var i in tabOptions.items) {
+                        formOptionBuilder(tabOptions.items[i]);
+                    }
+            
+                    var formObj = tabbarObj.tabs(tabOptions.id).attachForm(formOptions);
+                    formObj.attachEvent('onChange', onChange);
+                    formObj.base[0].addEventListener('click', onItemClick.bind(formObj));
+                }
+            }
+            onLoadEnd();
+        ]]>
+        </function>
+        <function name="formOptionBuilder" args="item">
+        <![CDATA[
+            if (item.type != "block" && item.name && !item.label) {
+                item.label = Sepoa.cache.text.get('AD_404.' + item.name);
+            }
+            
+            if (item.type == "block" || item.type == "fieldset") {
+                item.width = 'auto';
+                if (item.list) {
+                    for (var i in item.list) {
+                        formOptionBuilder(item.list[i]);
+                    }
+                }
+            } else if (item.type == "s-colorpicker") {
+                item.type="block";
+                item.width="auto";
+                item.list=[
+                    {
+                        name: item.name + "_VIEW",
+                        label: item.label,
+                        className: "client-manager-colorpicker-view",
+                        type: "input",
+                        inputWidth: 32,
+                        readonly:true
+                    },
+                    {type:"newcolumn"},
+                    {
+                        name: item.name,
+                        type: "colorpicker",
+                        label:"#NO_LABEL#",
+                        className: "client-manager-colorpicker",
+                        labelWidth:88,
+                        inputWidth: 88,
+                        offsetTop:34,
+                        offsetLeft:0,
+                        readonly:true
+                    }
+                ]
+                delete item.name;
+                delete item.label;
+            } else if(item.type == 's-font') {
+            	item.type = 'block',
+            	item.width = 'auto',
+            	item.list = [
+            		{
+            			name: item.name + '_FONT_SIZE',
+            			type: 'input',
+            			label: Sepoa.cache.text.get('AD_404.FONT_SIZE')
+            		},
+            		{
+            			name: item.name + '_FONT_WEIGHT',
+            			type: 'input',
+            			label: Sepoa.cache.text.get('AD_404.FONT_WEIGHT')
+            		},
+            		{
+            			name: item.name + '_FONT_STYLE',
+            			type: 'select',
+            			options: [{
+                                text: "",
+                                value: ""
+                            },
+                            {
+                                text: "Underline",
+                                value: "underline"
+                            },
+                            {
+                                text: "Italic",
+                                value: "italic"
+                            }
+                        ],
+            			label: Sepoa.cache.text.get('AD_404.FONT_STYLE')
+            		}
+            	]
+            	
+            	delete item.name;
+            } else if (item.type == "fileattach") {
+            	var fill = (item.className == 'fill-background') ? item.className : '';
+            	delete item.className;
+
+                item.type = "block";
+                item.width = "auto";
+                item.list = [{
+                        name: item.name + "_VIEW",
+                        type: "container",
+                        label: item.label?((item.label.indexOf('Has not found text') == 0)?undefined:item.label):undefined, 
+                        className: "client-manager-file-attach-view " + fill,
+                        inputWidth: 256,
+                        inputHeight: 60
+                    },
+                    {
+                        name: item.name,
+                        className: "client-manager-file-attach-input",
+                        type: "input",
+                        hidden: true
+                    }
+                ]
+                delete item.name;
+            } else if (item.type == "button"){
+                var style = item.name.replace(/^BUTTON_/,'');
+                item.type = "fieldset";
+                item.inputWidth = "auto";
+                item.list = [{
+                        type: 's-colorpicker',
+                        name:item.name+'_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_COLOR')
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_HOVER_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_HOVER_COLOR')
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_ACTIVE_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_ACTIVE_COLOR')
+                    },
+                    {type:'newcolumn'},
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_TEXT_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_TEXT_COLOR')
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_HOVER_TEXT_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_HOVER_TEXT_COLOR')
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_ACTIVE_TEXT_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_ACTIVE_TEXT_COLOR')
+                    },
+                    {type:'newcolumn'},
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_BORDER_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_BORDER_COLOR')
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_HOVER_BORDER_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_HOVER_BORDER_COLOR')
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+'_ACTIVE_BORDER_COLOR',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_ACTIVE_BORDER_COLOR')
+                    },
+                    {type:'newcolumn'}
+                ]
+                if(style != 'ICON'){
+                    item.list = item.list.concat([
+                    {
+                        name:item.name+'_ICON_BLOCK',
+                        type:"block",
+                        width:"auto",
+                        list:[
+                            //{
+                            //    name: item.name+'_ICON_VIEW',
+                            //    label: Sepoa.cache.text.get('AD_404.BUTTON_ICON_VIEW'),
+                            //    type: "container",
+                            //    className: "client-manager-icon-view" 
+                            //},
+                            {
+                                name: item.name+'_ICON',
+                                label: 'ICON',
+                                className: "client-manager-icon-input",
+                                type: "input",
+                            //    hidden: true
+                            }
+                        ]
+                    },
+                    {
+                        type:'select',
+                        name:item.name+'_POSITION',
+                        label:Sepoa.cache.text.get('AD_404.BUTTON_POSITION'),
+                        options:[
+                            {
+                                text:"",
+                                value:""
+                            },
+                            {
+                                text:"icon-left",
+                                value:"left"
+                            },
+                            {
+                                text:"icon-right",
+                                value:"right"
+                            }
+                        ]
+                    }])
+                }
+            } else if(item.type == 'textarea') {
+            	item.type = 'input'
+            	item.className = 'client-manager-textarea';
+            	item.rows = 1;
+            } else if(item.type == 'gridcelltype'){
+                item.type = 'fieldset';
+                item.inputWidth = "auto";
+                item.list=[
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+"_COLOR",
+                        label:Sepoa.cache.text.get('AD_404.GRID_CELL_TYPE_COLOR'),
+                    },
+                    {
+                        type: 's-colorpicker',
+                        name:item.name+"_TEXT_COLOR",
+                        label:Sepoa.cache.text.get('AD_404.GRID_CELL_TYPE_TEXT_COLOR'),
+                    }
+                ]
+            } else if(item.type == 's-style') {
+            	item.type = 'fieldset';
+            	item.inputWidth = 'auto';
+            	
+            	var list = [];
+            	if(item.className == 'grid_cell_type') {
+            		list.push(
+            			{
+	                        'type': 's-colorpicker',
+	                        'name':item.name+"_COLOR",
+	                        'label':Sepoa.cache.text.get('AD_404.GRID_CELL_TYPE_COLOR'),
+	                    },
+	                    {
+	                        'type': 's-colorpicker',
+	                        'name':item.name+"_TEXT_COLOR",
+	                        'label':Sepoa.cache.text.get('AD_404.GRID_CELL_TYPE_TEXT_COLOR'),
+	                    }
+            		);
+            	} else {
+            		list.push(
+            			{
+            				'type': 's-colorpicker',
+		            		'name': item.name+'_TEXT_COLOR',
+		            		'label': Sepoa.cache.text.get('AD_404.SEPOA_STYLE_TEXT_COLOR')
+            			}
+            		);
+            	}
+            	
+            	list.push({'type': 's-font', 'name': item.name});
+            	
+            	item.list = list;
+            	delete item.className;
+            } else if(item.type == 'guidesubitem') {
+            	var key = item.name.split('_')[0];
+            	var seq = item.name.split('_')[1];
+            	var width = item.inputWidth || '';
+            	item.type = 'fieldset';
+                item.inputWidth = "auto";
+                item.list=[
+                    {
+                        type: 'fileattach',
+                        name:key + '_SUB_ITEM_' + seq,
+                        label:Sepoa.cache.text.get('AD_404.GUIDE_SUB_ITEM_VIEW')
+                    },
+                    {
+                        type: 'input',
+                        name:key + '_SUB_ITEM_' + seq + '_LABEL',
+                        label:Sepoa.cache.text.get('AD_404.GUIDE_SUB_ITEM_LABEL'),
+                        inputWidth: width
+                    },
+                    {
+                    	type: 'input',
+                    	name:key + '_SUB_ITEM_' + seq + '_LINK',
+                    	label:Sepoa.cache.text.get('AD_404.GUIDE_SUB_ITEM_LINK'),
+                    	inputWidth: width
+                    }
+                ]
+            }
+            
+            if(item.list){
+                for (var i in item.list) {
+                    formOptionBuilder(item.list[i]);
+                }
+            }
+        ]]>
+        </function>
+        <function name="onItemClick" args="e">
+        <![CDATA[
+            if (e.srcElement.classList.contains('dhxform_container')) {
+                if ($(e.srcElement).parents('.client-manager-file-attach-view').length > 0) {
+                    var id = e.srcElement.name;
+                    var item = id.replace(/_VIEW$/, '');
+                    var attachKey = ['D',dataOutput.getValue("CLIENT_CODE"),item].join("").replaceAll("_", "").toUpperCase();
+                    $vault.conf.url = $vault.conf.orgUrl + '?HOUSE_CODE=' + dataOutput.getValue("CLIENT_CODE");
+                    $vault.setAttachKey(attachKey);
+                    $vault._afterCallback = {
+                        form: this,
+                        item: item,
+                        fn: _afterCallback = function(data) {
+                            var newImage = $vault.getAttachKey() + ":" + data.serverName;
+                            $vault._afterCallback.form.setItemValue(item, newImage);
+                            $vault._afterCallback.form.callEvent('onChange', [item, newImage])
+                            $vault._afterCallback = {};
+                        }
+                    }
+                    $vault.buttons.browse.click();
+                }
+            }
+        ]]>
+        </function>
+        <function name="onChange" args="id, value">
+        <![CDATA[
+            var type = this.getItemType(id);
+            if (type == 'colorpicker') {
+                var input = this.getInput(id+"_VIEW");
+                var v = value || this.getItemValue(id);;
+                input.style.backgroundColor = v;
+                if(v != "#ffffff"){
+                    input.style.borderColor = v;
+                }
+            } else if (type == "input") {
+                if ($(this.getInput(id)).parents('.client-manager-file-attach-input').length > 0) {
+                    var sv = (value || "").split(":");
+                    if (sv.length == 2) {
+                    	this.getContainer(id + "_VIEW").style.backgroundImage = sUtils.string.dataReplacer('url("$CONFIG{CONTEXT_NAME}/SepoaImage.sux?attach_key=$.{KEY}&attach_seq=$.{SEQ}&HOUSE_CODE=$.{HOUSE_CODE}")', {
+                            KEY: sv[0],
+                            SEQ: sv[1],
+                            HOUSE_CODE: sv[0].replace(/[^D0-9]+/, '').replace('D', '') || dataOutput.getValue('CLIENT_CODE')
+                        })
+                    } else {
+                        this.getContainer(id + "_VIEW").style.backgroundImage = "";
+                    }
+                }else if (id == 'GUIDE_ITEM_COUNT'){
+                    var maxCnt = value || 0;
+                    var w = ['FIRST', 'SECOND', 'THIRD']
+                    
+                    if($share.beforeGuideItemCount){
+                        if(maxCnt < $share.beforeGuideItemCount){
+                            for(var i=maxCnt ; i<$share.beforeGuideItemCount;i++){
+                                this.removeItem('GUIDE_'+(w[i] || i))
+                                this.removeItem('GUIDE_'+(w[i] || i)+"_COLUMN");
+                            }
+                            $share.beforeGuideItemCount = maxCnt;
+                        }
+                    }
+                    
+                    for(var i=($share.beforeGuideItemCount || 0) ; i<maxCnt ; i++){
+                        var newItemID = w[i] || i;
+                        var newItemOptions = {
+                            type: 'guidesubitem',
+                            name: 'GUIDE_'+newItemID,
+                            label: sUtils.cache.text.get('AD_404.GUIDE_SUB_ITEM_FIELD_LABEL') + ' ' + (parseInt(i) + 1),
+                            inputWidth: 256
+                        }
+                        formOptionBuilder(newItemOptions)
+                        this.addItem('GUIDE_AREA', newItemOptions);
+                        this.addItem('GUIDE_AREA', {
+                            type:'newcolumn',
+                            name:'GUIDE_'+newItemID+"_COLUMN"
+                        });
+                    }
+                    
+                    $share.beforeGuideItemCount = maxCnt;
+                }
+            }else if (type == 'select') {
+            	if(id == 'LOGIN_DESIGN_TYPE'){
+            		var hideItemArr = ['LOGIN_LOGO_VIEW', 'LOGIN_MAIN_VIEW', 'LOGIN_FORM_SUB_BUTTON_USE', 'LOGIN_FORM_SUB_BUTTON_LABEL'
+            							, 'LOGIN_FORM_SUB_BUTTON_LINK', 'GUIDE_ITEM_COUNT', 'GUIDE_AREA', 'CONTACT_HEADER', 'CONTACT2_HEADER', 
+            							'CONTACT2_CONTENTS'];
+            		
+            		var itemForRenew = ['RIGHT_CUSTOM_PATH'];
+            		if(value == '' || value == undefined || value == 'default'){
+	            		hideItemArr.forEach(function(item){
+	            			this.showItem(item);
+	            		}, this);
+	            							
+	            		itemForRenew.forEach(function(item){
+	            			this.hideItem(item);
+	            		}, this);					
+            		}else if(value == 'renew'){
+	            		hideItemArr.forEach(function(item){
+	            			this.hideItem(item);
+	            		}, this)
+	            		
+	            		itemForRenew.forEach(function(item){
+	            			this.showItem(item);
+	            		}, this);						            		
+            		}
+            	}
+            }
+        ]]>
+        </function>
+        <function name="onLoadEnd">
+        <![CDATA[
+            var tabs = tabbarObj.getAllTabs();
+            for (var i in tabs) {
+                var formObj = tabbarObj.tabs(tabs[i]).dataObj;
+                if (formObj) {
+                    formObj.forEachItem(function(id) {
+                        onChange.apply(formObj, [id]);
+                    })
+                }
+            }
+        ]]>
+        </function>
+        <function name="doQuery" args="clientCode, companyCode">
+        <![CDATA[
+            clear();
+            
+            dataOutput.setValue("CLIENT_CODE", clientCode);
+            dataOutput.setValue("COMPANY_CODE", companyCode);
+            
+            doServiceAjax('sepoa.svc.admin.AD_404', 'CONNECTION', 'doQuery', null, function(so) {
+                if (so.status != 1) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+                if (sf.getRowCount() > 0) {
+                    var tabs = tabbarObj.getAllTabs();
+                    for (var i in tabs) {
+                        var formObj = tabbarObj.tabs(tabs[i]).dataObj;
+                        if (formObj) {
+                            if(tabs[i] == 'LOGIN' && sf.getValue('GUIDE_ITEM_COUNT', 0) > 0){
+                                formObj.callEvent("onChange", ['GUIDE_ITEM_COUNT', sf.getValue('GUIDE_ITEM_COUNT', 0)]);
+                            }
+                        
+                            formObj.forEachItem(function(id) {
+                                var type = formObj.getItemType(id);
+                                if (["block", "fieldset", "container"].indexOf(type) < 0) {
+                                    var value = sf.getValue(id, 0);
+                                    if (value) {
+                                        formObj.setItemValue(id, value);
+                                        formObj.callEvent("onChange", [id, value]);
+                                    }
+                                }
+                            })
+                        }
+                    }
+                    
+                    var basicColor = sf.getValue('BASIC_COLOR', 0);
+                    if(basicColor) {
+                    	var fillElement = $('.fill-background .dhxform_container');
+                    	
+                    	for(var i = 0; i < fillElement.length; i++) {
+                    		fillElement[i].style.backgroundColor = basicColor;
+                    	}
+                    }
+                }
+            })
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('BASE_MESSAGE.0001'), function(result) {
+                if (result) {
+                    doServiceAjax('sepoa.svc.admin.AD_404', 'TRANSACTION', 'doSave', null, function(so) {
+                        if (so.status != 1) {
+                            Alert(Sepoa.cache.text.get('BASE_MESSAGE.0003'));
+                            return;
+                        }
+            
+                        Alert(Sepoa.cache.text.get('BASE_MESSAGE.0002'));
+                    })
+                }
+            });
+        ]]>
+        </function>
+        <function name="clear" args="">
+        <![CDATA[
+            dataOutput.setValue("CLIENT_CODE", "");
+            dataOutput.setValue("COMPANY_CODE", "");
+        
+            var tabs = tabbarObj.getAllTabs();
+            for (var i in tabs) {
+                var formObj = tabbarObj.tabs(tabs[i]).dataObj;
+                if (formObj) {
+                    formObj.clear();
+                }
+            }
+            onLoadEnd();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiV1Brd1hyZFdQa3dYcmRHRklCIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9JRzFCZllPSXdEWkkiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX0tKdXZPMlZ1ZzZjSyI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9HZnQ3emNXNm1pa1QiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3JvMWoyd2xsV0hCSyI6Im51bGwiLCJDTEFTUyI6
+        IiIsImRoeElkX0pxVzFZRklQZGlwSSI6Im51bGwiLCJkaHhJZF8yN2xvOEp3V1NqTlgiOiJudWxsIiwiZGh4SWRfaXRaRnRzM1JEcDU4IjoibnVsbCIsImRoeElkX2c2STl0OVBmWUZPbiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF80MDQiLCJPQkpFQ1RfSUQiOiJXUGt3WHJkV1Brd1hyZEdGSUIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJXUGt3WHJkV1Brd1hyZEdGSUIiLCJ0eXBlIjoiYm9keSJ9LCJ4aGJEWXJkTEloRFlyZGxGRFIiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9U
+        T1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJJVEVNXzBfUkVWRVJTRSI6ZmFsc2UsIklURU1fMF9TTENPREUiOiJCVVRUT04uc2F2ZSIsIklURU1fMF9UWVBFIjoic2F2ZSIsIklURU1fMF9QQVJBTSI6IiIsIk9CSkVDVF9JRCI6InhoYkRZcmRMSWhEWXJkbEZEUiIsIklURU1fMF9PTkNMSUNLIjoiZG9TYXZlIiwiSVRFTV8wX0lEIjoiU0FWRSIsIklURU1fMF9UT0dHTEUiOmZhbHNlLCJJVEVNXzBfVEVYVCI6IuyggOyepSIsIklURU1fMF9TT1JUIjoiMSJ9LCJpZCI6InhoYkRZ
+        cmRMSWhEWXJkbEZEUiIsInR5cGUiOiJidXR0b24ifSwiSG9vUmd4ZGVOcVJneGRSdEdPIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiMTYiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9kVWlGVE9ESlNYelkiOiJudWxsIiwiZGh4SWRfM1NlcjVDNUZxUjN0IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2FxNzBNMXBzUllRTCI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzVhTloxdWs0TEg2MSI6Im51
+        bGwiLCJkaHhJZF9CTlh5WU9aYWxNNWYiOiJudWxsIiwiZGh4SWRfQXpob05kYnlOaElsIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGFiYmFyT2JqIiwiT0JKRUNUX0lEIjoiSG9vUmd4ZGVOcVJneGRSdEdPIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJIb29SZ3hkZU5xUmd4ZFJ0R08iLCJ0eXBlIjoidGFiYmFyIiwiZXZlbnRzIjpbXX19LCJ0cmVlIjp7ImlkIjoiV1Brd1hyZFdQa3dYcmRHRklCIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJ4aGJEWXJkTEloRFlyZGxGRFIiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6Ikhvb1JneGRlTnFSZ3hkUnRHTyIsInR5cGUiOiJ0YWJiYXIifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4v
+        U3lzdGVtQ2xpZW50TWFuYWdlbWVudC9BZG1pblN5c3RlbUNsaWVudE1hbmFnZW1lbnREZXNpZ24ueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiNDA0IiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJTeXN0ZW1DbGllbnRNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5TeXN0ZW1DbGllbnRNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJEZXNpZ24iLCJTQ1JFRU5fSUQiOiJBRF80MDQifX0sImh0bWwiOiI8ZGl2IGlkPVwiV1Brd1hyZFdQa3dYcmRHRklCXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRh
+        aW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwi
+        eGhiRFlyZExJaERZcmRsRkRSXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJtYXJnaW4tdG9wOjE2cHg7bWFyZ2luLXJpZ2h0OjA7bWFyZ2luLWJvdHRvbTowO21hcmdpbi1sZWZ0OjA7aGVpZ2h0OmNh
+        bGMoMTAwJSAtIDE2cHgpO1wiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiSG9vUmd4ZGVOcVJneGRSdEdPXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF90YWJiYXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

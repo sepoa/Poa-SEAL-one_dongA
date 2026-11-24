@@ -1,0 +1,166 @@
+[
+	{
+		"type":"fieldset",
+		"width":"auto",
+		"label": "$LANG{AD_025.DEPT_INFO}",
+		"list":[
+			{
+				"type":"select",
+				"value":"",
+				"name":"COUNTRY",
+				"label" : "$LANG{AD_025.COUNTRY}",
+				"userdata":{
+					"combo":"SL0001,{HOUSE_CODE}#{LANGUAGE}#AD002"
+				},
+				"required":true,
+				"inputWidth":"150"
+			},
+			{
+				"type":"newcolumn"
+			},
+			{
+				"type":"select",
+				"value":"",
+				"name":"DEPT",
+				"label" : "$LANG{AD_025.DEPT}",
+				"userdata":{
+					"combo":"SL0015,{HOUSE_CODE}#{COMPANY_CODE}"
+				},
+				"required":true,
+				"inputWidth":"150"
+			},
+			{
+				"type":"newcolumn"
+			},
+			{
+				"type":"select",
+				"value":"",
+				"name":"POSITION",
+				"label" : "$LANG{AD_025.POSITION}",
+				"userdata":{
+					"combo":"SL0001,{HOUSE_CODE}#{LANGUAGE}#UX049"
+				},
+				"required":true,
+				"inputWidth":"150"
+			}
+		]
+	},
+	{
+		"type":"fieldset",
+		"width":"auto",
+		"label" : "$LANG{AD_025.ACCOUNT_INFO}",
+		"list":[
+			{
+				"type":"input",
+				"value":"",
+				"name":"USER_ID",
+				"label" : "$LANG{AD_025.USER_ID}",
+				"required":true,
+				"inputWidth":"150"
+			},
+			{
+				"type":"password",
+				"value":"",
+				"name":"PASSWORD",
+				"label" : "$LANG{AD_025.PASSWORD}",
+				"inputWidth":"150"
+			},
+			{
+				"type":"newcolumn"
+			},
+			{
+				"type":"input",
+				"value":"",
+				"name":"EMAIL",
+				"label" : "$LANG{AD_025.EMAIL}",
+				"required":true,
+				"inputWidth":"325"
+			},
+			{
+				"type":"password",
+				"value":"",
+				"name":"PASSWORD_CONFIRM",
+				"label" : "$LANG{AD_025.PASSWORD_CONFIRM}",
+				"validate":"",
+				"inputWidth":"150"
+			}
+		]
+	},
+	{
+		"type":"fieldset",
+		"width":"auto",
+		"label" : "$LANG{AD_025.USER_INFO}",
+		"list":[
+			{
+				"type":"block",
+				"width":"auto",
+				"list":[
+					{
+						"type":"input",
+						"value":"",
+						"name":"USER_NAME_LOC",
+						"label" : "$LANG{AD_025.USER_NAME_LOC}",
+						"required":true,
+						"inputWidth":"150"
+					},
+					{
+						"type":"newcolumn"
+					},
+					{
+						"type":"input",
+						"value":"",
+						"name":"PHONE_NO2",
+						"label" : "$LANG{AD_025.PHONE_NO2}",
+						"inputWidth":"150",
+						"className":"inputLeft"
+					},
+					{
+						"type":"newcolumn"
+					},
+					{
+						"type":"input",
+						"value":"",
+						"name":"PHONE_NO1",
+						"label" : "$LANG{AD_025.PHONE_NO1}",
+						"inputWidth":"150",
+						"className":"inputLeft"
+					}
+				]
+			},
+			{
+				"type":"block",
+				"width":"auto",
+				"list":[
+					{
+						"type":"input",
+						"value":"123456",
+						"name":"ZIP_CODE",
+						"label" : "$LANG{AD_025.ZIP_CODE}",
+						"inputWidth":"75"
+					},
+					{
+						"type":"input",
+						"value":"",
+						"name":"ADDRESS_LOC",
+						"label" : "$LANG{AD_025.ADDRESS_LOC}",
+						"inputWidth":"500"
+					}
+				]
+			}
+		]
+	},
+	{
+		"type":"block",
+		"width":"auto",
+		"list":[
+			{
+				"type":"input",
+				"value":"",
+				"name":"HOUSE_CODE",
+				"disabled":true,
+				"hidden":true,
+				"readonly":true
+			}
+		]
+	}
+]

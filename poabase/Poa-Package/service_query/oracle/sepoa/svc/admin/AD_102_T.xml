@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryPlantTree">
+	<![CDATA[
+         WITH DATA AS 
+		       (SELECT COMPANY_NAME_LOC TEXT 
+		            , HOUSE_CODE||'_'||COMPANY_CODE ID 
+		            , COMPANY_CODE CODE 
+		            , HOUSE_CODE PARENTID 
+		            , 'COMPANY' TYPE 
+		         FROM SCMGL 
+		           UNION ALL 
+		       SELECT PLANT_NAME_LOC 
+		            , HOUSE_CODE||'_'||COMPANY_CODE||'_'||PLANT_CODE 
+		            , PLANT_CODE 
+		            , HOUSE_CODE||'_'||COMPANY_CODE 
+		            , 'PLANT' 
+		         FROM SPLNT 
+		       ) 
+		     , LINKED AS 
+		       (SELECT TEXT 
+		            , ID 
+		            , CODE 
+		            , PARENTID 
+		            , TYPE 
+		         FROM DATA START 
+		       WITH PARENTID = ${session.HOUSE_CODE} 
+		              AND CODE = ${COMPANY_CODE} CONNECT BY PRIOR ID = PARENTID  
+		          ) 
+		   SELECT TEXT 
+		        , ID 
+		        , CODE 
+		        , PARENTID 
+		        , TYPE 
+		     FROM LINKED 
+		    WHERE( 
+		              1 = 1 
+		              AND TEXT LIKE '%'|| $S{F_KEYWORD} ||'%' 
+		              OR CODE LIKE '%'|| $S{F_KEYWORD} ||'%'  
+		          ) 
+		 ORDER BY ID
+	]]>
+	</method>
+	<method name="doQueryDeptTree">
+	<![CDATA[
+		WITH DATA AS 
+		       (SELECT COMPANY_NAME_LOC TEXT 
+		            , HOUSE_CODE||'_'||COMPANY_CODE ID 
+		            , COMPANY_CODE CODE 
+		            , HOUSE_CODE PARENTID 
+		            , 'COMPANY' TYPE 
+		         FROM SCMGL 
+		           UNION ALL 
+		       SELECT DEPT_NAME_LOC 
+		            , HOUSE_CODE||'_'||COMPANY_CODE||'_'||DEPT 
+		            , DEPT 
+		            , HOUSE_CODE||'_'||COMPANY_CODE 
+		            , 'DEPT' 
+		         FROM SDEPT  
+		       ) 
+		     , LINKED AS 
+		       (SELECT TEXT 
+		            , ID 
+		            , CODE 
+		            , PARENTID 
+		            , TYPE 
+		         FROM DATA START 
+		       WITH PARENTID = ${session.HOUSE_CODE} 
+		              AND CODE = ${COMPANY_CODE} CONNECT BY PRIOR ID = PARENTID  
+		          ) 
+		   SELECT TEXT 
+		        , ID 
+		        , CODE 
+		        , PARENTID 
+		        , TYPE 
+		     FROM LINKED 
+		    WHERE( 
+		              1 = 1 
+		              AND TEXT LIKE '%'|| $S{F_KEYWORD} ||'%' 
+		              OR CODE LIKE '%'|| $S{F_KEYWORD} ||'%'  
+		          ) 
+		 ORDER BY ID
+	]]>
+	</method>
+	<method name="doQueryBaTree">
+	<![CDATA[         
+         WITH DATA AS 
+		       (SELECT COMPANY_NAME_LOC TEXT 
+		            , HOUSE_CODE||'_'||COMPANY_CODE ID 
+		            , COMPANY_CODE CODE 
+		            , HOUSE_CODE PARENTID 
+		            , 'COMPANY' TYPE 
+		         FROM SCMGL 
+		           UNION ALL 
+		       SELECT CTRL_NAME_LOC 
+		            , HOUSE_CODE||'_'||COMPANY_CODE||'_'||CTRL_CODE 
+		            , CTRL_CODE 
+		            , HOUSE_CODE||'_'||COMPANY_CODE 
+		            , 'CTRL' 
+		         FROM SBAGL  
+		       ) 
+		     , LINKED AS 
+		       (SELECT TEXT 
+		            , ID 
+		            , CODE 
+		            , PARENTID 
+		            , TYPE 
+		         FROM DATA START 
+		       WITH PARENTID = ${session.HOUSE_CODE} 
+		              AND CODE = ${COMPANY_CODE} CONNECT BY PRIOR ID = PARENTID  
+		          ) 
+		   SELECT TEXT 
+		        , ID 
+		        , CODE 
+		        , PARENTID 
+		        , TYPE 
+		     FROM LINKED 
+		    WHERE( 
+		              1 = 1 
+		              AND TEXT LIKE '%'|| $S{F_KEYWORD} ||'%' 
+		              OR CODE LIKE '%'|| $S{F_KEYWORD} ||'%'  
+		          ) 
+		 ORDER BY ID 
+	]]>
+	</method>
+	
+	<method name="doQueryCompanyList">
+	<![CDATA[         
+		SELECT COMPANY_CODE
+		      ,COMPANY_NAME_LOC
+		  FROM SCMGL
+		 WHERE HOUSE_CODE       = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE     = $S{COMPANY_CODE}
+		   AND (    1=1
+		   		AND COMPANY_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'
+		   		 OR COMPANY_CODE     LIKE '%' || $S{F_KEYWORD} || '%'
+		   )
+	]]>
+	</method>
+</service>

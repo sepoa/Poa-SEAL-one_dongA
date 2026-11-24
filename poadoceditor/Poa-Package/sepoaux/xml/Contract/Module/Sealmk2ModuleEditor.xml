@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_503" header="false" tpl="editor.tpl">
+    <link>
+    <![CDATA[
+        <script type="text/javascript" src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/contract/sepoa.contract.toolkit.js" ></script>
+    
+        <script type="text/javascript">
+            sUtils.cache.text.load({
+                url: CONTEXT_NAME + '/resource/plugin/sepoasoft/contract/lang/sepoa.contract.lang.' + Sepoa.info.LANGUAGE + '.js',
+                def: CONTEXT_NAME + '/resource/plugin/sepoasoft/contract/lang/sepoa.contract.lang.KO.js'
+            });
+        </script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/contract/sepoa.sealmk2.module.js" type="text/javascript"></script>
+        <link href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/contract/sepoa.contract.module.css" rel="stylesheet" type="text/css" />
+        
+        <!-- PDF.js -->
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/pdfjs/pdf.js" type="text/javascript"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/pdfjs/pdf.worker.js" type="text/javascript"></script>
+        <script>
+        	window.cMapUrl = "<%=CONTEXT_NAME%>/resource/plugin/pdfjs/cmaps/"
+        </script>
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+        div.dhx_cell_layout .dhx_cell_hdr_text .dhx_cell_hdr_text_icon:first-child{
+            background: url();
+        }
+        .cont-info-box{
+            padding: 0px !important;
+            margin: 0px !important;
+        }
+        
+        .contract-editor-list-item-img{
+        	max-width: 100%;
+        	height : auto !important;
+        }
+    ]]>
+    </usercss>
+    <layout id="layoutObj" div="SwmaNZcZnoaNZctxHd" pattern="3W" autosize="b,a;b;c">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <fix_size>true,true</fix_size>
+            <width>250</width>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <fix_size>true,true</fix_size>
+        </cell>
+        <cell>
+            <id>c</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <fix_size>true,true</fix_size>
+            <width>200</width>
+        </cell>
+    </layout>
+    <onloadscript>
+        <call name="onReady"/>
+        <![CDATA[
+        	$('#SwmaNZcZnoaNZctxHd')[0].addEventListener('contextmenu', function(){
+				event.preventDefault();
+			});
+        ]]>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                doOpenDocument:doOpenDocument,
+                doUpdateShare:doUpdateShare
+            }]);
+            
+            if($share.config.module.CONT_MODULE == "VIEW"){
+               	layoutObj.cells('a').setMinWidth(0);
+                layoutObj.cells('a').setWidth(0);
+            }
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+            $share.config = config;
+            drawEditor();
+            sUtils.ux.setSizes();
+            doQueryImageList();
+        ]]>
+        </function>
+        
+        <function name="drawEditor">
+        <![CDATA[
+            $share.contObj = new SepoaContractObject(getEditorOptions());
+            $share.contObj.draw();
+            if($share.config.module.SMR_STATUS == "C"){
+            	//$share.contObj.setWatermark("전자날인문서");
+            } 
+        ]]>
+        </function>
+        
+        <function name="setScreenMode">
+        <![CDATA[
+            $share.contObj.setMode($share.config.module.CONT_MODULE);
+        ]]>
+        </function>
+        
+        <function name="doQueryImageList">
+        <![CDATA[
+        	//PDF 정보 조회로 변경필요
+        	console.log($share);
+        	var imageServlet = sUtils.url.toQueryString({
+                module:$share.config.editor.options.SERVICE,
+                action:'doImage',
+                KEY : $share.config.document.DOC_DATA.KEY,
+                FILE_ID:'$.{FILE_ID}',
+                id:'$.{FILE_ID}__',
+                ran:'$CURRENT{TIME_STRING}',
+                's-token':'$CONFIG{TOKEN}'
+            }, false);
+            
+            $share.contObj.setImageServlet(window.CONTEXT_NAME+'/SepoaActionController.sux?'+imageServlet)
+        
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.status == "1" && res.result){
+                            for(let data of res.result[0]) {
+                                data.FILE_TYPE = 'doc';
+                            }
+                        	if ($share.config.module.CONT_MODULE == 'VIEW') {
+                            	$share.contObj.load(res.result[0], "json", true);
+                            } else {
+                            	$share.contObj.load(res.result[0], "json", false);
+                            }
+                            doDataMapping();
+                        }else{
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            var params = {
+            	module:$share.config.editor.options.SERVICE,
+                action: "doImageList",
+                CONNECTION: "CONNECTION"
+            };
+            params.KEY = $share.config.document.DOC_DATA.KEY,
+            params.LAYER = $share.config.document.DOC_DATA.TARGET,
+            params.REQ_SEAL_INFO = $share.config.document.DOC_DATA.REQ_SEAL_INFO
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doDataMapping">
+        <![CDATA[
+            var data = {};
+            if($share.config.document.DOC_INFO_DATA){
+                data.data = $.extend(true, {}, $share.config.document.DOC_ITEM, $share.config.document.DOC_INFO_DATA);
+            }
+            if($share.config.document.SIGNER){
+                data.signer = $share.config.document.SIGNER;
+            }
+            
+            $share.contObj.setData(data);
+        ]]>
+        </function>
+           
+        <function name="doUpdateShare" args="">
+        <![CDATA[
+            $share.config.document.EDITOR_HTMLS = $share.contObj.getHtml();
+            
+            if($share.config.editor.header){
+                for(var i in $share.config.editor.header){
+                    var headerItem = $share.config.editor.header[i];
+                    switch(headerItem.type){
+                    case "form":
+                        if(!headerItem.obj.validate()){
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0003'));
+                            return false;
+                        }
+                        $share.config.document.DOC_INFO_DATA = $.extend(true, {}, $share.config.document.DOC_INFO_DATA, headerItem.obj.getFormData(true));
+                        break;
+                    }
+                }
+            }
+            
+            if($share.config.module.WORK_TYPE == "C"){
+                if(!$share.config.document.DOC_INFO_DATA){
+                    $share.config.document.DOC_INFO_DATA={}
+                }
+                $share.config.document.DOC_INFO_DATA.SIGNER_CODE = $share.contObj.getSignNumber()
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="getEditorOptions">
+        <![CDATA[
+            $share.config.editor.options = {
+                T:{
+                    SERVICE:'seal'+(Sepoa.config.get('sepoa.seal.process')||'')+'.req',
+                    SEAL:{
+                        CONTORL:true
+                    }
+                }, 
+                C:{
+                    SERVICE:'seal'+(Sepoa.config.get('sepoa.seal.process')||'')+'.req',
+                    SEAL:{
+                        CONTROL:false
+                    },
+                    COMMON:{
+                    	CONTROL:false
+                    }
+                }
+            }[$share.config.module.WORK_TYPE];
+        
+        
+        	var moduleItems = {
+                editor:{
+                    layout:"b",
+                    config:{
+                        mapping:{                             //if the key value of the data is different, change
+                            ID:'$.{FILE_ID}__$.{PART_ID}',    //default : ID
+                            IMAGE:"$.{FILE_ID}__$.{PART_ID}"                        //default : ID ; enter to use a different key
+                        },
+                        view: $share.config.module.CONT_MODULE == 'EDITOR' ? false : true 
+                    }
+                },
+                preview:[{
+                    layout:"c",
+                    config:{
+                        mapping:{		//if the key value of the data is different, change
+                            ID:"$.{FILE_ID}__$.{PART_ID}",	//default : ID
+                            IMAGE:"$.{FILE_ID}__$.{PART_ID}"  //default : ID ; enter to use a different key
+                        },
+                        dynamic:true,	//default : true
+                        type:['doc']
+                    }
+                }]
+            }
+            
+            if($share.config.screenType == "MOBILE"){
+            	moduleItems.preview = [];
+            	layoutObj.cells('c').setMinWidth(0);
+                layoutObj.cells('c').setWidth(0);
+            	
+            }
+        	var useContItem = false;
+            if($share.config.module.CONT_MODULE == "EDITOR"){
+                if($share.config.module.WORK_TYPE == "T"){
+                    useContItem = true;    
+                }   
+            }
+            
+            if(useContItem){
+	        	moduleItems=$.extend(true, moduleItems, {
+                    items:{
+                        layout:"a",   		//contract item draw location
+                        item:{
+                            service:{ 		//custom item query service
+                                PROCESS_ID:"sepoa.svc.seal"+(Sepoa.config.get('sepoa.seal.process')||'')+".SepoaReqSealService",
+                                METHOD:"doSelectSignItem",
+                                PARAMS:{
+                                    ITEM_TYPE: $share.config.module.ITEM_TYPE || 'COMMON',
+                                    CATEGORY: $share.config.module.ITEM_CATEGORY || 'COMMON',
+                                    VIEW_ITEMS : $share.config.module.VIEW_ITEMS || 'EDIT'
+                                }
+                            }
+                            ,basicItem:false
+                            ,title:"항목"
+                            ,resizeable : {
+                            	seal : false
+                            }
+                        },
+                        extraItem:{
+	                        service:{
+	                            PROCESS_ID:"sepoa.svc.seal"+(Sepoa.config.get('sepoa.seal.process')||'')+".SepoaReqSealService",
+	                            METHOD:"doSelectSealItem",
+	                            PARAMS:{
+	                                ITEM_TYPE:'SEAL',
+	                                CATEGORY: 'SEAL'
+	                            }
+	                            ,basicItem:false
+	                            ,title:"날인"
+	                            ,resizeable : {
+	                            	seal : false
+	                            }
+	                        }
+	                    }
+	                }
+                });
+	            
+	            if($share.config.document.DOC_DATA.SELECT_SEAL_LIST) {
+	            	moduleItems.items.extraItem = {
+						data : $share.config.document.DOC_DATA.SELECT_SEAL_LIST[0]
+						,title : '날인'
+	            	};
+	            }
+	        }
+            
+            return {
+                layout:layoutObj,
+                workType:$share.config.module.WORK_TYPE,
+                module:moduleItems,
+                header:$share.config.editor.header
+            }
+        ]]>
+        </function>
+        <function name="doZoom" args="mode">
+        <![CDATA[
+        	//var $wrapper = $('.contract-editor-list-item-img');
+        	var $wrapper = $('.contract-editor-list-item-wrapper');
+        	$('.contract-item-layer').css('height', '100%');
+        	$('.contract-item-layer').css('width', '100%');
+        	
+            var width = $wrapper.css('width').replace('px', '')*1;
+            if (mode == 'OUT') {
+            	var goalWidth = width - 120;
+            	if (goalWidth <= 120) return false;
+            } else {	// mode == 'IN'
+            	var goalWidth = width + 120;
+            	var widthLimit = $wrapper.parent().width();
+            	if (widthLimit < goalWidth) return false;
+            }
+            $wrapper.css('width', goalWidth+'px');
+            $('.contract-editor-list-item-wrapper > *').css('width', goalWidth+'px');
+        ]]>
+        </function>
+        
+        <function name="getItemsList">
+        <![CDATA[
+        	var itemsObj = {
+        		TOTAL : {},
+        		PAGES : {}
+        	};
+        	var keyClsStart = 'contract-item-box-code-';
+        	var valClsStart = 'contract-item-box-seal-code-';
+            _vp.find('.contract-item-box').each(function(idx,el) {
+            	let key;
+            	let val;
+            	Array.from(el.classList).find(function(clsName) { 
+            		if (clsName.startsWith(keyClsStart)) {
+            			key = clsName.replace(keyClsStart, '');
+            		} else if (clsName.startsWith(valClsStart)) {
+            			val = clsName.replace(valClsStart, '');
+            		}
+            		if (key && val) return true;
+            	});
+            	if (!itemsObj.TOTAL[key]) itemsObj.TOTAL[key] = new Array();
+            	itemsObj.TOTAL[key].push(val);
+            	
+            	let page = $(el).parents('.contract-editor-list-li').index() + 1;
+            	if (!itemsObj.PAGES[page]) itemsObj.PAGES[page] = new Object();
+            	if (!itemsObj.PAGES[page][key]) itemsObj.PAGES[page][key] = new Array();
+            	itemsObj.PAGES[page][key].push(val);
+            });
+            
+            return itemsObj;
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiU3dtYU5aY1N3bWFOWmNIT0xUIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQ1RfNTAyX0wifSwiaWQiOiJTd21hTlpjU3dtYU5aY0hPTFQiLCJ0eXBlIjoiYm9keSJ9LCJTd21hTlpjWm5vYU5aY3BkdWwiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoidHJ1ZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSIsIkhFQURFUl9URVhUIjoiSGFzIG5vdCBmb3VuZCB0ZXh0IDogQ1RfNTAyX0wuTEFZT1VUX0FfSEVBREVSIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1
+        ZSIsIkhFQURFUl9UWVBFIjoibGlzdCIsIkNPTExBUFNFX0JVVFRPTiI6ImZhbHNlIiwiQkFTRV9XSURUSCI6IjI1MCJ9LCJpZCI6IlN3bWFOWmNabm9hTlpjcGR1bCIsIm1heENoaWxkQ291bnQiOjEsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImEifSwiU3dtYU5aY1pub2FOWmN0eEhkIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfVmpselhIRThFVVMyIjoibnVsbCIsImRoeElkX1dYNXBrOGkyRG5EbSI6
+        Im51bGwiLCJkaHhJZF9xZ2tRWkU1SmgySU0iOiJudWxsIiwiZGh4SWRfVVpvNXNrRXQyNXpQIjoibnVsbCIsImRoeElkX2NWbldCNWJzR1o4bCI6Im51bGwiLCJkaHhJZF9INmJZTXJEWmV3SWUiOiJudWxsIiwiZGh4SWRfSm1GMWlIVUlncHlIIjoibnVsbCIsImRoeElkX3M5dFZ4QkRobEQ5NyI6Im51bGwiLCJkaHhJZF80R1d0NkhreGQ1OUkiOiJudWxsIiwiZGh4SWRfYWg1MnM4dldPWkpVIjoibnVsbCIsImRoeElkX2FUYVBYdVhxczVjRCI6Im51bGwiLCJkaHhJZF9sOG5WSzdGa0lleVYiOiJudWxsIiwiZGh4SWRfNGpEVWtOT1pDSXdPIjoibnVsbCIsImRoeElkX1IwcjJsaVpoWVR0cyI6Im51bGwiLCJkaHhJZF9kQjhJUWlBS1dBS08iOiJudWxsIiwiZGh4
+        SWRfRWRvUzBZVjlkNm9oIjoibnVsbCIsImRoeElkX0kwaEhWRkVyNGJQUiI6Im51bGwiLCJkaHhJZF9pZ1pCcDk1M0gxNHIiOiJudWxsIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiM1ciLCJWQVIiOiJsYXlvdXRPYmoiLCJPQkpFQ1RfSUQiOiJTd21hTlpjWm5vYU5aY3R4SGQifSwiaWQiOiJTd21hTlpjWm5vYU5aY3R4SGQiLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX0sImRBSm1YWmNVdU9tWFpjU2lTbCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJ0cnVlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkFUVEFDSF9UQVJHRVQiOiIv
+        Q29udHJhY3QvTW9kdWxlL0NvbnRyYWN0TW9kdWxlRWRpdC54bWwiLCJCQVNFX0ZJWF9TSVpFIjoidHJ1ZSx0cnVlIiwiSEVBREVSX1RZUEUiOiJjb250ZW50cyIsIkFUVEFDSF9UWVBFIjoiVSIsIkNPTExBUFNFX0JVVFRPTiI6ImZhbHNlIn0sImlkIjoiZEFKbVhaY1V1T21YWmNTaVNsIiwibWF4Q2hpbGRDb3VudCI6MSwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYiJ9LCJrb1NVWVpjalhqcHRwY0hRZVgiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoidHJ1ZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoiZmFsc2UiLCJIRUFERVJfVEVYVCI6IkhhcyBu
+        b3QgZm91bmQgdGV4dCA6IENUXzUwMl9MLkxBWU9VVF9DX0hFQURFUiIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJIRUFERVJfVFlQRSI6ImNvbnRlbnRzIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFsc2UiLCJCQVNFX1dJRFRIIjoiMjAwIn0sImlkIjoia29TVVlaY2pYanB0cGNIUWVYIiwibWF4Q2hpbGRDb3VudCI6MSwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYyIsImxheW91dENlbGwiOiJsYXlvdXRDZWxsIn19LCJ0cmVlIjp7ImlkIjoiU3dtYU5aY1N3bWFOWmNIT0xUIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJTd21hTlpjWm5vYU5aY3R4SGQiLCJ0eXBlIjoibGF5b3V0IiwiY2VsbHMiOlt7ImlkIjoiU3dtYU5aY1pub2FOWmNw
+        ZHVsIiwidHlwZSI6ImxheW91dENlbGwifSx7ImlkIjoiZEFKbVhaY1V1T21YWmNTaVNsIiwidHlwZSI6ImxheW91dENlbGwifSx7ImlkIjoia29TVVlaY2pYanB0cGNIUWVYIiwidHlwZSI6ImxheW91dENlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9Nb2R1bGUvQ29udHJhY3RNb2R1bGVFZGl0TGF5b3V0LnhtbCIsIlBST0pFQ1QiOiJFQVNZU0lHTiIsIkNPREUiOiI1MDJfTCIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoiTW9kdWxlIiwiUEFUSF8zIjoiQ29udHJhY3RNb2R1bGUiLCJQQVRIXzEiOiJDb250cmFjdCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkVkaXRMYXlvdXQiLCJTQ1JFRU5fSUQiOiJDVF81MDJfTCJ9fSwiaHRtbCI6Ijxk
+        aXYgaWQ9XCJTd21hTlpjU3dtYU5aY0hPTFRcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5l
+        cl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlN3bWFOWmNabm9hTlpjdHhIZFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

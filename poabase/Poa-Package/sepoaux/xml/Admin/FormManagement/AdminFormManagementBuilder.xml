@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_041_2" header="false" tpl="editor.tpl">
+    <link>
+    <![CDATA[
+        <link href="<%= CONTEXT_NAME %>/resource/plugin/dhtmlx/dhtmlxFormBuilder/dhtmlxfbext.css" rel="stylesheet" type="text/css">
+        <link href="<%= CONTEXT_NAME %>/resource/plugin/dhtmlx/dhtmlxFormBuilder/formbuilder.css" rel="stylesheet" type="text/css">
+        <script src="<%= CONTEXT_NAME %>/resource/plugin/dhtmlx/dhtmlxFormBuilder/dhtmlxfbext.js" type="text/javascript"></script>
+        <script src="<%= CONTEXT_NAME %>/resource/plugin/dhtmlx/dhtmlxFormBuilder/formbuilder.js" type="text/javascript"></script>
+    ]]>
+    </link>
+    <variable>
+        <var name="formBuilderBox" value="$($sObject._vp).find('#DMpoPvdJBzoPvdzRGv')[0]"/>
+        <var name="formContainer" value="$($sObject._vp).find('#DMpoPvdIBzoPvdcJLT')[0]"/>
+    </variable>
+    <usercss>
+    <![CDATA[
+        .changeFormId {
+            background:url('/resource/ux/formbuilder/default/images/bg.png') repeat scroll center 0 / auto 100%;
+            display:none;
+            position:absolute;
+            z-index:50;
+        }
+        .changeFormId input {
+            border: 0 none;
+            color: #333;
+            font-size: 1em;
+            font-weight: 500;
+            line-height: 40px;
+            padding: 0 0 0 15px;
+            width: 216px;
+        }
+        
+        .changeFormId .button{
+            cursor: pointer;
+            display: block;
+            float: right;
+        }
+        
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init" />
+    </onloadscript>
+    <userscript>
+        <var name="app" />
+        <function name="init">
+        <![CDATA[
+        	SUX.root = SUX.getModuleTop().SUX.root;
+			
+            if(Sepoa.request.form_id){
+                window.defaultJsonData = JSON.stringify(Sepoa.cache.form.get(Sepoa.request.form_id));
+            }
+            
+            app = $sObject.app = dhtmlxApp.start("formbuilder", formBuilderBox);
+            dhtmlxEvent(window, "unload", function() {
+                app.unload();
+            });
+            
+            Sepoa.attachEvent("onWindowResize", resize);
+			resize();
+			this.readyStatus = true;
+			
+			if(Sepoa.request.form_id){
+				doQuery(Sepoa.request.form_id);
+			}
+			
+			var changeFormId = document.createElement("div");
+			changeFormId.setAttribute("class", "changeFormId");
+			
+			var keyword = document.createElement("input");
+			keyword.setAttribute("type", "text");
+			keyword.setAttribute("id", "keyword");
+			keyword.setAttribute("name", "keyword");
+			keyword.setAttribute("placeholder", "insert FORM ID");
+			
+			changeFormId.appendChild(keyword);
+			
+			var inputFormIdCloseDiv = document.createElement("div");
+			inputFormIdCloseDiv.setAttribute("class", "dhx_cell_hdr_icon dhx_cell_hdr_icon_cancel button cancelImg");
+			inputFormIdCloseDiv.setAttribute("id", "inputFormIdClose");
+			
+			changeFormId.appendChild(inputFormIdCloseDiv);
+			
+			var setFormIdDiv = document.createElement("div");
+			setFormIdDiv.setAttribute("class", "dhx_cell_hdr_icon dhx_cell_hdr_icon_add button okImg");
+			setFormIdDiv.setAttribute("id", "setFormId");
+			
+			changeFormId.appendChild(setFormIdDiv);
+			formBuilderBox.appendChild(changeFormId);
+			
+			$("#inputFormIdClose").on("click", function(){
+				inputFormIdClose();
+			});
+			
+			$("#setFormId").on("click", function(){
+				setFormId();
+			});
+			
+        ]]>
+        </function>
+        
+        <function name="doSave">
+        <![CDATA[
+            if(Sepoa.info.HOUSE_CODE != "000"){
+                Alert("not have permission");
+                return;
+            }
+        	if($(".changeFormId").css("display") != "none"){
+				Alert(Sepoa.cache.text.get("AD_041_2.NOT_CONFIRM_FORM_ID"));
+				return;	
+			}
+			
+			if(myLayout.cells("a").getText() == ""){
+				Alert(Sepoa.cache.text.get("AD_041_2.NOT_FOUND_ID"));
+				return;
+			}
+			
+			Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(flag){
+				if(flag){
+					var e = myMockup.exportToFormSepoaMode(null, {hideIds:true});
+					
+		            var jsonData = e.data;
+		            blockNameReplacer(jsonData);
+		            
+					dataOutput.setValue("FORM_ID", myLayout.cells("a").getText());
+					dataOutput.setValue("FORM_JSON",JSON.stringify(jsonData));
+					if(!!e.slang){
+			        	dataOutput.setValue("form_slang",JSON.stringify(e.slang));
+			        }
+					
+					doServiceAjax("sepoa.svc.admin.AD_041_2", "TRANSACTION", "doSave", null, function(so){
+						if(so.status == "1"){
+							Sepoa.cache.clear();
+							Message(Sepoa.cache.text.get("MESSAGE.0001"));
+							jsonDataImoprt({form_id:dataOutput.getValue("FORM_ID")});
+							callFunction(['p'],'refreshList');
+						}else{
+							Alert(so.message);
+						}
+						dataOutput.setValue("FORM_JSON","");
+					});
+				}
+			});
+			
+			
+        ]]>
+        </function>
+        
+        <function name="jsonDataImoprt" args="data">
+        <![CDATA[
+        	inputFormIdClose();
+			if(!data){
+				app.callEvent("onDataImport", ["[]"]);
+			}else{
+				app.callEvent("onDataImport", [JSON.stringify(Sepoa.cache.form.get(data.form_id))]);
+			}
+			
+			myLayout.cells("a").setText((!data)?"":data.form_id);
+        ]]>
+        </function>
+        
+        <function name="clearApp">
+        <![CDATA[
+        	jsonDataImoprt();
+        ]]>
+        </function>
+        
+        <function name="resize">
+        <![CDATA[
+	        var hdr = $('#DMpoPvdIBzoPvdcJLT').find(".dhx_cell_hdr");
+	        
+			$(".changeFormId").height(hdr.height());
+			$(".changeFormId").width(hdr.width());
+			$(".changeFormId").css("left", hdr.offset().left+1);
+			$(".changeFormId").css("top", hdr.offset().top+1);
+		]]>
+        </function>
+        
+        <function name="renameForm">
+        <![CDATA[
+        	$(".changeFormId #keyword").val(myLayout.cells("a").getText());
+			$(".changeFormId").css("display","block");
+			$(".changeFormId #keyword").focus();
+        ]]>
+        </function>
+        
+        <function name="inputFormIdClose">
+        <![CDATA[
+        	$(".changeFormId").css("display","none");
+			$(".changeFormId #keyword").val("");
+        ]]>
+        </function>
+        
+        <function name="setFormId">
+        <![CDATA[
+        	myLayout.cells("a").setText($(".changeFormId #keyword").val());
+			$(".changeFormId").css("display","none");
+			$(".changeFormId #keyword").val("");
+        ]]>
+        </function>
+        
+        <function name="deleteForm">
+        <![CDATA[
+        	if(myLayout.cells("a").getText() == ""){
+				Alert(Sepoa.cache.text.get("AD_041_2.NOT_FOUND_ID"));
+				return;
+			}
+			dataOutput.setValue("FORM_ID", myLayout.cells("a").getText());
+			Confirm(Sepoa.cache.text.get("MESSAGE.1015"), function(status){
+				if(status){
+					var nickName = "sepoa.svc.admin.AD_041_2";
+					var conType = "TRANSACTION";
+					var methodName = "doDelete";
+					doServiceAjax( nickName, conType, methodName, null,function(so){
+						if(so.status == "1"){
+							Message(Sepoa.cache.text.get("MESSAGE.0001"));
+							callFunction(['p'],'refreshList');
+							clearApp(false);
+						}else{
+							Alert(so.message);
+						}		
+					});
+				}
+			})
+        ]]>
+        </function>
+        
+        <function name="setMultiLanuage">
+        <![CDATA[
+        	var form_id = myLayout.cells("a").getText();
+			if(form_id == "") return;
+			
+			PopupOpenPostReal(window.CONTEXT_NAME + '/Admin/MultiLanguageManagement/AdminMultiLanguageManagementLayout.sux'
+							, window.screen.width
+							, window.screen.height
+							, form_id
+							, {LANGUAGE_ID:form_id}
+							, true);
+        ]]>
+        </function>
+        
+        <function name="doQuery" args="formId">
+        <![CDATA[
+            inputFormIdClose();
+            var jsonData = Sepoa.cache.form.get(formId);
+            blockNameReplacer(jsonData);
+            app.callEvent("onDataImport", [JSON.stringify(jsonData || [])]);
+            myLayout.cells("a").setText(formId);
+        ]]>
+        </function>
+        
+        <function name="blockNameReplacer" args="data">
+        <![CDATA[
+            var finder = ['block', 'fieldset'];
+
+            for (var idx in data) {
+                if (finder.indexOf(data[idx].type) + 1) {
+                    if (data[idx].list) {
+                        blockNameReplacer(data[idx].list);
+                    }
+                    
+                    if (!data[idx].name) {
+                        data[idx].name = createNewID();
+                    }
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="createNewID" args="">
+        <![CDATA[
+            return convert52digits(new Date().getTime()) + convert52digits(Math.random() * 380204032 | 0); 
+        ]]>
+        </function>
+        
+        <function name="convert52digits" args="i">
+        <![CDATA[
+            var x52 = function(n){
+                if(n > 25){
+                    n += 6;
+                }
+                return String.fromCharCode(65+n);
+            }
+            
+            var a = i % 52
+            var b = (i - a) / 52
+            if(b > 51){
+                return x52(a) + convert52digits(b);
+            }else{
+                return x52(a);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiRE1wb1B2ZERNcG9QdmRPZWZVIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQURfMDQxXzIifSwiaWQiOiJETXBvUHZkRE1wb1B2ZE9lZlUiLCJ0eXBlIjoiYm9keSJ9LCJETXBvUHZkSkJ6b1B2ZHpSR3YiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF93ZnVBQVIzRVlEN28iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1CdWlsZGVyQm94IiwiT0JKRUNUX0lEIjoiRE1wb1B2ZEpCem9QdmR6Ukd2In0sImlk
+        IjoiRE1wb1B2ZEpCem9QdmR6Ukd2IiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIkRNcG9QdmRJQnpvUHZkY0pMVCI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfRUlpdld2SU5iNDB5IjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF8xOElkNzVXYU9KR0kiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfYWlPZDZNM0lDMFI4IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBv
+        bmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiRE1wb1B2ZElCem9QdmRjSkxUIiwiT0JKRUNUX0lEIjoiRE1wb1B2ZElCem9QdmRjSkxUIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJETXBvUHZkSUJ6b1B2ZGNKTFQiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiRE1wb1B2ZERNcG9QdmRPZWZVIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJETXBvUHZkSUJ6b1B2ZGNKTFQiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiRE1wb1B2ZEpCem9QdmR6Ukd2IiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQUk9KRUNUIjoiRlJXSyIsIlBBVEhfMSI6IkFkbWluIiwiUEFUSF8zIjoiQWRtaW5Gb3JtTWFu
+        YWdlbWVudCIsIlBBVEhfMiI6IkZvcm1NYW5hZ2VtZW50IiwiTkFNRSI6IkJ1aWxkZXIiLCJQQVRIIjoiL0FkbWluL0Zvcm1NYW5hZ2VtZW50L0FkbWluRm9ybU1hbmFnZW1lbnRCdWlsZGVyLnhtbCIsIlBSRUZJWCI6IkFEIiwiQ09ERSI6IjA0MV8yIiwiU0NSRUVOX0lEIjoiQURfMDQxXzIifX0sImh0bWwiOiI8ZGl2IGlkPVwiRE1wb1B2ZERNcG9QdmRPZWZVXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9h
+        dXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiRE1wb1B2ZElCem9QdmRjSkxUXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlciBsb3dlckRpdlwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1c
+        ImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJETXBvUHZkSkJ6b1B2ZHpSR3ZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAg
+        ICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

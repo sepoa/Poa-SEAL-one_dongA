@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_042_2" header="false">
+    <layout id="containerLayout" div="TKDnsndEpXosndWQLv" pattern="3T">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false" text="AD_042_2.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <height>100</height>
+            <attach file="/Admin/FormFilterManagement/AdminFormFilterManagementInfoTabbar.xml"/>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <attach file="/Admin/FormFilterManagement/AdminFormFilterManagementWriteTabbar.xml"/>
+        </cell>
+        <cell>
+            <id>c</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <width>700</width>
+            <attach file="/Admin/FormFilterManagement/AdminFormFilterManagementConfig.xml"/>
+        </cell>
+    </layout>
+    <onloadscript/>
+    <userscript>
+        <function name="pageInit" args="">
+        <![CDATA[
+            var layoutSize = containerLayout.cont.offsetWidth;
+            var divisionSize = layoutSize / 2;
+            
+            var cellArray = containerLayout.cdata;
+            for (var key in cellArray) {
+                cellArray[key].setWidth(divisionSize);
+            }
+            
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVEtEbnNuZFRLRG5zbmRtWml5Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF8wNDJfMiJ9LCJpZCI6IlRLRG5zbmRUS0Ruc25kbVppeSIsInR5cGUiOiJib2R5In0sIlRLRG5zbmRFcFhvc25kV1FMdiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX2p4c0FqU1dhYWszeiI6Im51bGwiLCJkaHhJZF9FVkRwWXF1b29L
+        MlciOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfTjNjNGw4c3o3Yk96IjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfYkFBRHY0YVd4Tkp6IjoibnVsbCIsImRoeElkX3piYnVuR2NxUXU5MiI6Im51bGwiLCJkaHhJZF9HeEVZb3BrMEliSksiOiJudWxsIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiM1QiLCJWQVIiOiJjb250YWluZXJMYXlvdXQiLCJPQkpFQ1RfSUQiOiJUS0Ruc25kRXBYb3NuZFdRTHYifSwiaWQiOiJUS0Ruc25kRXBYb3NuZFdRTHYiLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX0sIlRLRG5zbmRlS2Jvc25kVGhBYiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJ
+        RVciOiJmYWxzZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSIsIkhFQURFUl9URVhUIjoiLSIsIkFUVEFDSF9UQVJHRVQiOiIvQWRtaW4vRm9ybUZpbHRlck1hbmFnZW1lbnQvQWRtaW5Gb3JtRmlsdGVyTWFuYWdlbWVudEluZm9UYWJiYXIueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1ZSIsIkFUVEFDSF9UWVBFIjoiVSIsIkJBU0VfSEVJR0hUIjoiMTUwIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFsc2UiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkXzI1QzQybXZKRTZyRCI6Im51bGwifSwiaWQiOiJUS0Ruc25kZUtib3NuZFRoQWIiLCJtYXhDaGlsZENvdW50Ijox
+        LjAsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImEifSwiVEtEbnNuZGZLYm9zbmROalBLIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6ImZhbHNlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkFUVEFDSF9UQVJHRVQiOiIvQWRtaW4vRm9ybUZpbHRlck1hbmFnZW1lbnQvQWRtaW5Gb3JtRmlsdGVyTWFuYWdlbWVudFdyaXRlVGFiYmFyLnhtbCIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJBVFRBQ0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSJ9LCJpZCI6IlRLRG5zbmRmS2Jvc25kTmpQSyIsIm1heENoaWxkQ291
+        bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYiJ9LCJaWVhKcUFld3pyTHFBZUZFbVUiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoiZmFsc2UiLCJDT0xMQVBTRV9DT0xMQVBTRUQiOiJmYWxzZSIsIkNPTExBUFNFX0lDT04iOiJmYWxzZSIsIkJBU0VfTUVOVSI6ImZhbHNlIiwiQVRUQUNIX1RBUkdFVCI6Ii9BZG1pbi9Gb3JtRmlsdGVyTWFuYWdlbWVudC9BZG1pbkZvcm1GaWx0ZXJNYW5hZ2VtZW50Q29uZmlnLnhtbCIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJBVFRBQ0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSIsIkJBU0VfV0lEVEgiOiI1MDAifSwiaWQiOiJaWVhKcUFld3pyTHFB
+        ZUZFbVUiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImMifX0sInRyZWUiOnsiaWQiOiJUS0Ruc25kVEtEbnNuZG1aaXkiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IlRLRG5zbmRFcFhvc25kV1FMdiIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJUS0Ruc25kZUtib3NuZFRoQWIiLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9LHsiaWQiOiJUS0Ruc25kZktib3NuZE5qUEsiLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9LHsiaWQiOiJaWVhKcUFld3pyTHFBZUZFbVUiLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL0Zvcm1GaWx0ZXJNYW5hZ2VtZW50L0FkbWluRm9ybUZpbHRl
+        ck1hbmFnZW1lbnRXcml0ZS54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiIwNDJfMiIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiRm9ybUZpbHRlck1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbkZvcm1GaWx0ZXJNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJXcml0ZSIsIlNDUkVFTl9JRCI6IkFEXzA0Ml8yIn19LCJodG1sIjoiPGRpdiBpZD1cIlRLRG5zbmRUS0Ruc25kbVppeVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNs
+        YXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlRLRG5zbmRFcFhvc25kV1FMdlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5
+        bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

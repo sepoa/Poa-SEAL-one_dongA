@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, USER_ID
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, DEL_FLAG
+				, DES_FILE_NAME
+				, SRC_FILE_NAME
+				, SIGN_TYPE
+				, SIGN_SEQ
+				, ATTACH_NO
+                , ROOT_PATH_TYPE
+			FROM
+			  	SUDSM
+			WHERE
+				HOUSE_CODE   = ${session.HOUSE_CODE}
+				AND COMPANY_CODE = ${session.COMPANY_CODE}
+				AND USER_ID      = ${session.ID}
+				AND DEL_FLAG     = 'N'
+				AND ATTACH_NO	= $S{ATTACH_NO}
+		]]>
+	</method>
+    
+    <method name="doQueryExistSign">
+    <![CDATA[
+        SELECT 
+              HOUSE_CODE
+            , COMPANY_CODE
+            , USER_ID
+            , ADD_DATE
+            , ADD_TIME
+            , ADD_USER_ID
+            , DEL_FLAG
+            , DES_FILE_NAME
+            , SRC_FILE_NAME
+            , SIGN_TYPE
+            , SIGN_SEQ
+            , ATTACH_NO
+            , ROOT_PATH_TYPE
+        FROM
+            SUDSM
+        WHERE
+            HOUSE_CODE   = ${session.HOUSE_CODE}
+            AND COMPANY_CODE = ${session.COMPANY_CODE}
+            AND USER_ID      = ${session.ID}
+            AND SIGN_SEQ   = ${SIGN_SEQ}
+            AND DEL_FLAG     = 'N'
+    ]]>
+    </method>
+	
+	<method name="doQueryCorpSign">
+		<![CDATA[
+			SELECT 
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, USER_ID
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, DEL_FLAG
+				, DES_FILE_NAME
+				, SRC_FILE_NAME
+				, SIGN_TYPE
+				, SIGN_SEQ
+				, ATTACH_NO
+				, ROOT_PATH_TYPE
+			FROM
+			  	SUDSM
+			WHERE
+				HOUSE_CODE   		= ${session.HOUSE_CODE}
+				AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+				AND USER_ID			= ${session.ID}
+				AND SIGN_TYPE		= $S{SIGN_TYPE}
+				AND DEL_FLAG     	= 'N'
+                AND SIGN_SEQ        = ${SIGN_SEQ}
+		]]>
+	</method>
+	
+	<method name="doQuerySUDSM">
+		<![CDATA[
+			SELECT NVL(MAX(TO_NUMBER(SIGN_SEQ)),0) + 1 AS SIGN_SEQ
+  			 FROM SUDSM
+			WHERE HOUSE_CODE 	= ${session.HOUSE_CODE}
+   			 AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+   			 AND USER_ID 		= ${session.ID}
+		]]>
+	</method>
+	
+	<method name="doSave">
+		<![CDATA[
+			INSERT INTO SUDSM (
+				 HOUSE_CODE
+				,COMPANY_CODE
+				,USER_ID
+				,SIGN_SEQ
+				,ADD_DATE
+				,ADD_TIME
+				,ADD_USER_ID
+				,DEL_FLAG
+				,DES_FILE_NAME
+				,SRC_FILE_NAME
+				,SIGN_TYPE
+				,ATTACH_NO
+				,ROOT_PATH_TYPE
+			) VALUES (
+				 ${session.HOUSE_CODE}
+				,${session.COMPANY_CODE}
+				,${session.ID}
+				,${SIGN_SEQ}
+				,${current.DATE}
+				,${current.TIME}
+				,${session.ID}
+				,'N'
+				,${DES_FILE_NAME}
+				,${SRC_FILE_NAME}
+				,${SIGN_TYPE}
+				,${SIGN_ATTACH_NO}
+				,${ROOT_PATH_TYPE}
+			)
+		]]>
+	</method>
+	
+	<method name="getMaxSeq">
+		<![CDATA[
+			SELECT NVL(MAX(CAST(SIGN_SEQ AS SIGNED)),0) MAX_SEQ
+			  FROM SUDSM
+			 WHERE 1=1 
+			   AND HOUSE_CODE   = ${session.HOUSE_CODE}
+			   AND COMPANY_CODE = ${session.COMPANY_CODE}
+			   AND USER_ID      = ${session.ID}
+		]]>
+	</method>
+	
+	<method name="doUpdate">
+		<![CDATA[
+			UPDATE SUDSM
+	      	   SET DES_FILE_NAME  = ${DES_FILE_NAME}
+				 , SRC_FILE_NAME  = ${SRC_FILE_NAME}
+				 , SIGN_TYPE      = ${SIGN_TYPE}
+				 , ATTACH_NO      = ${SIGN_ATTACH_NO}
+				 , CHANGE_DATE 	  = ${current.DATE}
+				 , CHANGE_TIME    = ${current.TIME}
+				 , CHANGE_USER_ID = ${session.ID}
+		     WHERE HOUSE_CODE     = ${session.HOUSE_CODE}
+			   AND COMPANY_CODE   = ${session.COMPANY_CODE}
+			   AND USER_ID        = ${session.ID}
+			   AND SIGN_SEQ       = ${SIGN_SEQ}
+			   AND DEL_FLAG       = 'N'
+		]]>
+	</method>
+	
+	<method name="doQuerySFILE">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+			,DOC_NO
+			,DOC_SEQ
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,TYPE
+			,DES_FILE_NAME
+			,SRC_FILE_NAME
+			,FILE_SIZE
+			,DEL_FLAG
+			,MOBILE_DOC_NO
+			,ROOT_PATH
+		FROM
+			SFILE
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND DOC_NO = ${ATTACH_NO}
+		ORDER BY 
+			CAST(DOC_SEQ AS SIGNED) ASC
+	]]>
+	</method>
+	
+    <method name="doDelete">
+    <![CDATA[
+        DELETE FROM SUDSM
+        WHERE HOUSE_CODE = ${HOUSE_CODE}
+        AND COMPANY_CODE = ${COMPANY_CODE} 
+        AND USER_ID = ${USER_ID}
+        AND SIGN_SEQ = ${SIGN_SEQ}        
+    ]]>
+    </method>
+    
+</service>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryModuleMaster">
+	<![CDATA[
+		SELECT
+			  MODULE
+			, MODULE AS TREE_ID
+			, PARENT AS TREE_PARENT_ID
+			, DESCRIPTION
+			, NODE
+			, `TYPE`
+			, `OPTIONS`
+			, SORT
+		FROM
+			SBMMA
+		ORDER BY
+			  PARENT ASC
+			, SORT ASC
+	]]>
+	</method>
+</service>

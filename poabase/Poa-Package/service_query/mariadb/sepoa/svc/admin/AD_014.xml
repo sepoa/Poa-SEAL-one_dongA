@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doListCode">
+	<![CDATA[
+	    SELECT HOUSE_CODE
+	          ,TYPE
+	          ,CODE
+	          ,TEXT1
+	          ,TEXT2
+          FROM (SELECT HOUSE_CODE
+	        	     , TYPE
+	        	     , CODE
+	        	     , TEXT1
+	        	     , TEXT2
+	        	     , RANK() OVER(ORDER BY CASE WHEN LANGUAGE = ${session.LANGUAGE} THEN 1 
+	        	                                 ELSE 2 END, 
+	        	                                 LANGUAGE) RANK 
+	        	  FROM SCODE 
+	        	 WHERE TYPE = 'M000'
+	        	   AND ( UPPER( CODE )  LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') 
+	           	      OR UPPER( TEXT1 ) LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') 
+	           	      OR UPPER( TEXT2 ) LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') 
+	           	      OR UPPER( TEXT3 ) LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') ) 
+	           	   AND #DB_OWNER#NVL( DEL_FLAG, 'N' ) = 'N'
+	           	   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	        	 
+	           ) AS CODE
+	       WHERE RANK = 1 
+	       ORDER BY CODE
+	]]>
+	</method>
+	
+	<method name="doListModule">
+	<![CDATA[
+	    SELECT HOUSE_CODE
+	          ,TYPE
+	          ,CODE
+	          ,TEXT1
+	          ,TEXT2
+	          ,FLAG
+          FROM (SELECT HOUSE_CODE
+	        	     , TYPE
+	        	     , CODE
+	        	     , TEXT1
+	        	     , TEXT2
+	        	     , FLAG
+	        	     , RANK() OVER(ORDER BY CASE WHEN LANGUAGE = ${session.LANGUAGE} THEN 1 
+	        	                                 ELSE 2 END, 
+	        	                                 LANGUAGE) RANK 
+	        	  FROM SCODE 
+	        	 WHERE TYPE = 'S000'
+	        	   AND ( UPPER( CODE )  LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') 
+	           	      OR UPPER( TEXT1 ) LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') 
+	           	      OR UPPER( TEXT2 ) LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') 
+	           	      OR UPPER( TEXT3 ) LIKE CONCAT('%' , UPPER( $S{F_KEYWORD} ) , '%') ) 
+	           	   AND #DB_OWNER#NVL( DEL_FLAG, 'N' ) = 'N'
+	           	   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	        	 
+	           ) AS CODE
+	       WHERE RANK = 1 
+	       ORDER BY CODE
+	]]>
+	</method>
+	
+	<method name="doQueryHeader">
+	<![CDATA[
+		SELECT CODE.TYPE               AS MODULE_TYPE
+		      ,CODE.CODE               AS TYPE
+              ,CODE.CLIENT_CUSTOM_FLAG
+              ,LANG.USE_FLAG
+              ,LANG.FLAG
+              ,LANG.TEXT1              AS TEXT1_#LANGUAGE#
+              ,LANG.TEXT2              AS TEXT2_#LANGUAGE#
+              ,LANG.TEXT3              AS TEXT3_#LANGUAGE#
+              ,LANG.TEXT4              AS TEXT4_#LANGUAGE#
+              ,LANG.TEXT5              AS TEXT5_#LANGUAGE#
+		  FROM (
+                SELECT DISTINCT
+                       HOUSE_CODE
+                      ,TYPE
+                      ,CODE
+                      ,CLIENT_CUSTOM_FLAG
+                  FROM SCODE 
+                 WHERE TYPE                           = ${MODULE_TYPE}
+                   AND #DB_OWNER#NVL( DEL_FLAG, 'N' ) = 'N'
+                   AND HOUSE_CODE                     = ${session.HOUSE_CODE}
+                   AND CODE                           = ${TYPE}
+                   AND LANGUAGE                       = ${LANGUAGE}
+               ) CODE
+          LEFT OUTER
+          JOIN SCODE LANG
+            ON CODE.HOUSE_CODE = LANG.HOUSE_CODE
+           AND CODE.TYPE       = LANG.TYPE
+           AND CODE.CODE       = LANG.CODE
+           AND LANG.LANGUAGE   = ${LANGUAGE}
+	]]>
+	</method>
+
+	<method name="doQueryCodeDetail">
+	<![CDATA[
+		SELECT CODE.TYPE
+              ,CODE.CODE
+              ,LANG.TEXT1 AS TEXT1_#LANGUAGE#
+              ,LANG.TEXT2 AS TEXT2_#LANGUAGE#
+              ,LANG.TEXT3 AS TEXT3_#LANGUAGE#
+              ,LANG.TEXT4 AS TEXT4_#LANGUAGE#
+              ,LANG.TEXT5 AS TEXT5_#LANGUAGE#
+              ,LANG.TEXT6 AS TEXT6_#LANGUAGE#
+              ,LANG.TEXT7 AS TEXT7_#LANGUAGE#
+              ,LANG.SORT_SEQ AS SORT
+              ,CASE WHEN LANG.USE_FLAG = 'Y' THEN 1
+                    ELSE 0
+                END AS USE_FLAG
+          FROM (
+                SELECT DISTINCT
+                       HOUSE_CODE
+                      ,TYPE
+                      ,CODE
+                  FROM SCODE 
+                 WHERE TYPE                     = ${TYPE}
+                   AND #DB_OWNER#NVL( DEL_FLAG, 'N' ) = 'N'
+                   AND HOUSE_CODE               = ${session.HOUSE_CODE}
+               ) CODE
+          LEFT OUTER
+          JOIN SCODE LANG
+            ON CODE.HOUSE_CODE = LANG.HOUSE_CODE
+           AND CODE.TYPE       = LANG.TYPE
+           AND CODE.CODE       = LANG.CODE
+           AND LANG.LANGUAGE   = ${LANGUAGE}
+		 ORDER 
+		    BY SORT, CODE
+	]]>
+	</method>
+
+	<method name="doDeleteCodeHeader">
+	<![CDATA[
+		DELETE 
+		  FROM #DB_OWNER#SCODE 
+		 WHERE TYPE       = ${MODULE_TYPE} 
+		   AND CODE       = ${TYPE} 
+		   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+
+	<method name="doDeleteCodeDetail">
+	<![CDATA[
+		DELETE 
+		  FROM #DB_OWNER#SCODE 
+		 WHERE TYPE       = ${TYPE}
+		   AND CODE       = ${CODE}
+		   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+
+	<method name="doCheckHeader">
+	<![CDATA[
+		SELECT COUNT(*) CNT
+		  FROM SCODE
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND LANGUAGE   = ${LANGUAGE}
+		   AND TYPE       = ${MODULE_TYPE}
+		   AND CODE       = ${TYPE}
+	]]>
+	</method>
+	
+	<method name="doCheckDetail">
+	<![CDATA[
+		SELECT COUNT(*) CNT
+		  FROM SCODE
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND LANGUAGE   = ${LANGUAGE}
+		   AND TYPE       = ${TYPE}
+		   AND CODE       = ${CODE}
+	]]>
+	</method>
+
+	<method name="doInsertHeader">
+	<![CDATA[
+		INSERT 
+		  INTO #DB_OWNER#SCODE
+	         ( HOUSE_CODE
+	         , TYPE
+	         , CODE
+	         , LANGUAGE
+	         , ADD_DATE
+	         , ADD_TIME
+	         , ADD_USER_ID
+	         , CHANGE_DATE
+	         , CHANGE_TIME
+	         , CHANGE_USER_ID
+	         , FLAG
+	         , SORT_SEQ
+	         , USE_FLAG
+	         , TEXT1
+	         , TEXT2
+	         , TEXT3
+	         , TEXT4
+	         , TEXT5
+	         , TEXT6
+	         , TEXT7
+	         , TEXT8
+	         , DEL_FLAG  
+             , CLIENT_CUSTOM_FLAG
+	         )
+	   VALUES( 
+	           ${session.HOUSE_CODE}
+	         , ${MODULE_TYPE}
+	         , ${TYPE}
+	         , ${LANGUAGE}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${FLAG}
+	         , #{SORT}
+	         , CASE WHEN ${USE_FLAG} = 'N' THEN 'N' ELSE 'Y' END
+	         , ${TEXT1}
+	         , ${TEXT2}
+	         , ${TEXT3}
+	         , ${TEXT4}
+	         , ${TEXT5}
+	         , ${TEXT6}
+	         , ${TEXT7}
+	         , ${TEXT8}
+	         , 'N'
+             , ${CLIENT_CUSTOM_FLAG}  
+	       ) 
+	]]>
+	</method>
+	
+	<method name="doUpdateHeader">
+	<![CDATA[
+		UPDATE #DB_OWNER#SCODE
+		   SET CHANGE_DATE    = ${current.DATE}
+	         , CHANGE_TIME    = ${current.TIME}
+	         , CHANGE_USER_ID = ${session.ID}
+	         , FLAG           = ${FLAG}
+	         , SORT_SEQ       = #{SORT}
+	         , USE_FLAG       = CASE WHEN ${USE_FLAG} = 'N' THEN 'N' ELSE 'Y' END 
+	         , TEXT1          = ${TEXT1}
+	         , TEXT2          = ${TEXT2}
+	         , TEXT3          = ${TEXT3}
+	         , TEXT4          = ${TEXT4}
+	         , TEXT5          = ${TEXT5}
+	         , TEXT6          = ${TEXT6}
+	         , TEXT7          = ${TEXT7}
+	         , TEXT8          = ${TEXT8}
+	         , DEL_FLAG       = 'N'
+             , CLIENT_CUSTOM_FLAG = ${CLIENT_CUSTOM_FLAG}
+	     WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+	       AND LANGUAGE   = ${LANGUAGE}
+	       AND TYPE       = ${MODULE_TYPE}
+	       AND CODE       = ${TYPE} 
+	]]>
+	</method>
+	
+<method name="doInsertDetail">
+	<![CDATA[
+		INSERT 
+		  INTO #DB_OWNER#SCODE
+	         ( HOUSE_CODE
+	         , TYPE
+	         , CODE
+	         , LANGUAGE
+	         , ADD_DATE
+	         , ADD_TIME
+	         , ADD_USER_ID
+	         , CHANGE_DATE
+	         , CHANGE_TIME
+	         , CHANGE_USER_ID
+	         , FLAG
+	         , SORT_SEQ
+	         , USE_FLAG
+	         , TEXT1
+	         , TEXT2
+	         , TEXT3
+	         , TEXT4
+	         , TEXT5
+	         , TEXT6
+	         , TEXT7
+	         , TEXT8
+	         , DEL_FLAG  
+	         )
+	   VALUES( 
+	           ${session.HOUSE_CODE}
+	         , ${TYPE}
+	         , ${CODE}
+	         , ${LANGUAGE}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${FLAG}
+	         , #{SORT}
+	         , CASE WHEN ${USE_FLAG}= '1' THEN 'Y' ELSE 'N' END
+	         , ${TEXT1}
+	         , ${TEXT2}
+	         , ${TEXT3}
+	         , ${TEXT4}
+	         , ${TEXT5}
+	         , ${TEXT6}
+	         , ${TEXT7}
+	         , ${TEXT8}
+	         , 'N'  
+	       ) 
+	]]>
+	</method>
+	
+	<method name="doUpdateDetail">
+	<![CDATA[
+		UPDATE #DB_OWNER#SCODE
+		   SET CHANGE_DATE    = ${current.DATE}
+	         , CHANGE_TIME    = ${current.TIME}
+	         , CHANGE_USER_ID = ${session.ID}
+	         , FLAG           = ${FLAG}
+	         , SORT_SEQ       = #{SORT}
+	         , USE_FLAG       = CASE WHEN ${USE_FLAG}= '1' THEN 'Y' ELSE 'N' END
+	         , TEXT1          = ${TEXT1}
+	         , TEXT2          = ${TEXT2}
+	         , TEXT3          = ${TEXT3}
+	         , TEXT4          = ${TEXT4}
+	         , TEXT5          = ${TEXT5}
+	         , TEXT6          = ${TEXT6}
+	         , TEXT7          = ${TEXT7}
+	         , TEXT8          = ${TEXT8}
+	         , DEL_FLAG       = 'N'
+	     WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+	       AND LANGUAGE   = ${LANGUAGE}
+	       AND TYPE       = ${TYPE}
+	       AND CODE       = ${CODE} 
+	]]>
+	</method>
+</service>

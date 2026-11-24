@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery_Target">
+	<![CDATA[
+		SELECT
+			, USER_ID 		AS USER_ID
+			, USER_NAME_LOC	AS USER_NAME_LOC
+			, USER_NAME_ENG AS USER_NAME_ENG
+			, DEPT_CD 		AS DEPT
+			, DEPT_NM		AS DEPT_NAME_LOC
+			, DUTY_CD	 	AS POSITION
+			, DUTY_NM		AS POSITION_LOC
+			, EMAIL 		AS EMAIL
+			, PHONE_NO		AS PHONE_NO
+			, DEL_FLAG	 	AS DEL_FLAG
+			, 'KO'			AS LANGUAGE
+		FROM
+			pierp_erp.V_ETS_USER
+		WHERE 
+		  USER_ID IS NOT NULL
+		  AND USER_NM IS NOT NULL
+		  AND DEPT_CD IS NOT NULL
+	]]>
+	</method>
+	<method name="DEL_FLAG_Y">
+	<![CDATA[
+		UPDATE SUSMT
+			SET
+				  DEL_FLAG	      = 'Y'
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}			  
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND USER_ID			  NOT IN ($IN{EXCEPT_IDS})
+	]]>
+	</method>
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${USER_NAME_LOC}
+				, USER_NAME_ENG	 	= ${USER_NAME_ENG}
+				, DEPT		      	= ${DEPT}
+				, POSITION		  	= ${POSITION}
+				, EMAIL  		    = ${EMAIL}
+				, DEL_FLAG        	= ${DEL_FLAG}
+				, DATE_FORMAT		= ${DATE_FORMAT}
+				, MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+				, LANGUAGE			= 'KO'
+				, WORK_TYPE			= 'G'
+		WHERE
+			  HOUSE_CODE        	= ${session.HOUSE_CODE}
+		  AND USER_ID           	= ${USER_ID}
+	]]>
+	</method>
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL				
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, LANGUAGE
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${session.COMPANY_CODE}
+				, ${USER_NAME_LOC}
+				, ${USER_NAME_ENG}
+				, ${PASSWORD}
+				, ${DEPT}
+				, ${POSITION}
+				, ${EMAIL}				
+				, 'KR'
+				, 'A'
+				, 'G'
+				, ${MENU_PROFILE_CODE}
+				, ${USER_TYPE}
+				, '0'
+				, 'Y'
+				, ${DEL_FLAG}
+				, ${DATE_FORMAT}
+				, 'KO'
+			)	
+	]]>
+	</method>	
+	<method name="doUpdatePositionCode">
+	<![CDATA[
+		UPDATE SCODE
+			SET
+				  TEXT1		      = ${POSITION_LOC}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}	
+				, DEL_FLAG		  = ${DEL_FLAG}		  
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+			AND CODE              = ${POSITION}
+			AND LANGUAGE 		  = ${LANGUAGE}
+	]]>
+	</method>
+	<method name="doInsertPositionCode">
+	<![CDATA[
+		INSERT INTO SCODE
+			(
+				  HOUSE_CODE
+				, TYPE 
+				, CODE
+				, LANGUAGE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, USE_FLAG
+				, TEXT1
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, 'UX049'
+				, ${POSITION}
+				, ${LANGUAGE}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, 'Y'
+				, ${POSITION_LOC}
+				, 'N'
+			)	
+	]]>
+	</method>
+	<method name="checkExistSCODE">
+	<![CDATA[
+		SELECT
+			CODE
+		FROM
+			SCODE
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND TYPE = 'UX049' 
+		AND CODE = ${POSITION}
+		AND LANGUAGE = ${LANGUAGE}
+	]]>
+	</method>
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+			  USER_ID
+			, MENU_PROFILE_CODE
+			, USER_TYPE
+		FROM
+			SUSMT
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND USER_ID 		= ${USER_ID}	
+	]]>
+	</method>
+</service>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="ECT_205_G" header="false" pageCloseWarn="false" delegate="false">
+    <form id="formObj" div="ad9d0abdb22742da8905e85a553be1" form-id="ECT_205_G">
+        <event type="onButtonClick" callback="onButtonClick"/>
+        <event type="onChange" callback="onChange"/>
+    </form>
+    <onloadscript>
+    	<call name="init"/>
+        <call name="onReady"/>
+    </onloadscript>
+    <userscript>
+    	<var name="$share" value="{}"/>
+    	<function name="init">
+        <![CDATA[
+        
+        ]]>
+        </function>
+    	<function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name:'SINGLE_SIGNER',
+                id: $sObject.aliasCode,
+                fn:{
+                    doOpenDocument:doOpenDocument,
+                    doClear:doClear,
+                    doValidate:doValidate,
+                    onScreenDataUpdate:onScreenDataUpdate
+                }
+            }])
+        ]]>
+        </function>
+        <function name="onScreenDataUpdate" args="type, name, value">
+        <![CDATA[
+            if(name == 'RADIO_BTN') {
+                formObj.clear();
+            }
+        ]]>
+        </function>
+    	<function name="initForm">
+        <![CDATA[
+            formObj.setValue("CONT_TYPE", "E");
+            
+            
+			// init -> onReady -> doOpenDocument 통해 $share가 초기화되기 전단계라 오류발생.
+        	// initForm에 구현은했으나, initForm에서 작동하는게 맞는가?
+			
+            if($share.config.data['SIGNER'].length == 0) {
+                const defaultSigner = getSignerCurrentSession();
+                if(defaultSigner == undefined) {
+                    // 현재 사용자($.{ID})에 대한 계약자 정보 조회에 실패했습니다.<br>관리자에게 문의해 계약자 등록을 진행해주세요.
+                    Alert(sUtils.string.dataReplacer(sUtils.cache.text.get('ECT_205_E.MESSAGE_FAILED_ADD_CURRENT_SIGNER'), Sepoa.info), () => {
+                        callFunction(['p', 'p'], 'changeView', [{view:'LIST'}]);
+                    });
+                } else {
+                    addSigner(defaultSigner);
+                }
+            }
+        ]]>
+        </function>
+        <function name="onButtonClick" args="name">
+        <![CDATA[
+            if (name == 'SIGNER_SEARCH') {
+				
+				const options = {
+					url: window.CONTEXT_NAME + '/EmployeeContract/setForm/EmployeeContractsetFormSignerPopup.sux',
+					params: {
+						CONT_TYPE: formObj.getValue('CONT_TYPE'),
+						SINGLE_SIGN : 'Y', // 비정형서식일때만 포함되는 구분값
+						callback: (data) => {
+								
+								if(data.SIGNER_ID == Sepoa.info.ID){
+									Alert(Sepoa.cache.text.get("ECT_205_G.CHECK_ID")); // 자기 자신을 서명대상자로 지정할 수 없습니다.
+									return false;
+								}
+								
+								for(let key in data){
+									formObj.setValue(key, data[key]);
+								}
+								
+								const mergeData = parseSignerData(data)
+								$share.config.data.SIGNER_GROUP = [];
+								$share.config.data.SIGNER_GROUP.push(mergeData);
+						}
+					},
+					width: SUX.getModuleTop().outerWidth * 0.6,
+					height: SUX.getModuleTop().outerHeight * 0.5,
+					title: sUtils.cache.text.get('ECT_205_E_POPUP.TITLE') // '계약자 선택'
+				};
+			
+				sUtils.popup.modal(options);
+			}
+        ]]>
+        </function>
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+			 if(name == 'CONT_TO') {
+                $share.config.data.CONT_TO = sUtils.date.toString(value).replace(/\D/g, '')
+            } else if(name == 'CONT_FROM') {
+                $share.config.data.CONT_FROM = sUtils.date.toString(value).replace(/\D/g, '')
+            }
+            
+            callFunction('p', 'onChangeData', ['SINGLE_SIGNER', name, value]);
+        ]]>
+        </function>
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+			$share.config = config;
+            
+            if(!config?.data) {
+                config.data = {};
+            }
+            
+            initForm();
+            
+            return true;
+            // 초기화 이후 문서를 불러오는 코드 작성필요
+           
+        ]]>
+        </function>
+        <function name="doValidate" args="">
+        <![CDATA[
+            if(!formObj.validate()){
+        		Alert(Sepoa.cache.text.get("ECT_205_G.MSG6")); // 입력되지않은 필수값이 존재합니다. 
+        		return false ;
+        	}
+            
+            if($share.config.data['SIGNER_GROUP'] === undefined || $share.config.data['SIGNER_GROUP'].length <= 0) {
+                const msg = sUtils.cache.text.get('ECT_205_E.MESSAGE_REQUIRE_MIN_SIGNER');
+                Alert(sUtils.string.dataReplacer(msg, {MIN_SIGNER : 1}));
+                
+                return false;
+            }
+        	
+        	return true;
+        
+        ]]>
+        </function>
+        <function name="doClear">
+        <![CDATA[
+            formObj.clear();
+            delete $share.config;
+        ]]>
+        </function>
+        <function name="getSignerCurrentSession" args="">
+        <![CDATA[
+            let myCompany;
+            const service = 'sepoa.svc.ct.ECT_205_E_POPUP';
+            const companySO = doServiceAjax(service, 'CONNECTION', 'doQueryCompany', {}, null, false);
+            if(companySO.status == '1') {
+                const companyList = new SepoaFormater(companySO.result[0]).getArrayMap();
+                if(companyList.length == 0) {
+                    // 현재 사용자에 대한 계약자 정보 조회에 실패했습니다.<br>관리자에게 문의해 계약자 등록을 진행해주세요.
+                    return;
+                }
+                
+                myCompany = companyList.find(e => e['SIGNER_COMPANY_CODE'] == Sepoa.info['COMPANY_CODE']);
+                if(myCompany === undefined) {
+                    return;
+                }
+            }
+            
+            let targetManager;
+            const managerParams = {
+                ...myCompany,
+                F_KEYWORD : Sepoa.info['ID']
+            };
+            const managerSO = doServiceAjax(service, 'CONNECTION', 'doQuerySigner', managerParams, null, false);
+            if (managerSO.status == '1') {
+                const managerList = new SepoaFormater(managerSO.result[0]).getArrayMap();
+                if(managerList.length <= 0) {
+                    return;
+                }
+                
+                targetManager = managerList.find(e => e['SIGNER_ID'] == Sepoa.info['ID']);
+                if(targetManager === undefined) {
+                    return;
+                }
+            }
+            
+            return {
+                ...myCompany,
+                ...targetManager,
+                SEQ : '1',
+                CATEGORY : 'COMPANY'
+            };
+        ]]>
+        </function>
+		<function name="addSigner" args="data">
+		<![CDATA[
+			if (!$share.config.data) {
+				return;
+			}
+			
+			$share.config.data.SIGNER = [];
+			
+			let targetList;
+			if (Array.isArray(data)) {
+				targetList = data;
+			} else {
+				targetList = [data];
+			}
+			
+			for (let signer of targetList) {
+				if (signer.SIGNER_ID == '') {
+					return;
+				}
+				
+				const mergeData = parseSignerData(signer);
+				$share.config.data.SIGNER.push(mergeData);
+			}
+		]]>
+		</function>
+		
+		<function name="parseSignerData" args="data">
+		<![CDATA[
+			
+			let delKeyTarget = ['gr_id', 'SELECTED'];
+			
+			for (var i in delKeyTarget) {
+				delete data[delKeyTarget[i]]
+			}
+			
+			const result = {
+				SIGNER_COMPANY_CODE: data.SIGNER_COMPANY_CODE,
+				SIGNER_COMPANY_NAME: data.SIGNER_COMPANY_NAME,
+				SIGNER_ID: data.SIGNER_ID,
+				SIGNER_NAME: data.SIGNER_NAME,
+				SIGNER_EMAIL: data.SIGNER_EMAIL,
+				SIGNER_PHONE: data.SIGNER_PHONE,
+				SIGNER_COMPANY_OWNER: data.SIGNER_COMPANY_OWNER,
+				SIGNER_COMPANY_ADDR: data.SIGNER_COMPANY_ADDR,
+				SIGN_KEY: data.IRS_NO
+			};
+			
+			return result;
+		]]>
+		</function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQllTcVNpY0JZU3FTaWNZUVpQIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9kUGF2aGg5NHAwNXgiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3Zpa0E5R0xNUGowMyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX202MzRvY1dpS29qWSI6Im51bGwiLCJkaHhJZF9UanR5VVJ5bUhBb3QiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiRUNUXzIwNV9HIiwiT0JKRUNUX0lEIjoiQllTcVNpY0JZU3FTaWNZUVpQIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwi
+        LCJGUkFNRV9QUkVTRVQiOiJGVUxMIn0sImlkIjoiQllTcVNpY0JZU3FTaWNZUVpQIiwidHlwZSI6ImJvZHkifSwiYWQ5ZDBhYmRiMjI3NDJkYTg5MDVlODVhNTUzYmUxIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfWkFsdjNRMndRUzNpIjoibnVsbCIsImRoeElkX2l3Z3YzZjZZb0RHTiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiY2VudGVyIiwiQUxJR05fVkVSVElDQUwiOiJtaWRkbGUiLCJkaHhJZF9B
+        ZHprZVZXaVZ0dlMiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9RTHpmeW1PdGRtS1oiOiJudWxsIiwiZGh4SWRfTTJsQlFxWGFNcGZlIjoibnVsbCIsImRoeElkX0Q2blFqNTVLSkNIMCI6Im51bGwiLCJkaHhJZF8yaHI5a3d0emV2cVgiOiJudWxsIiwiZGh4SWRfSVhZenpHZEYyaEFhIjoibnVsbCIsImRoeElkXzNvejdLZWVoNmlPaSI6Im51bGwiLCJkaHhJZF9odTFKQXJ3VDBmWWMiOiJudWxsIiwiZGh4SWRfd2xOclVveGdHMXczIjoibnVsbCIsImRoeElkX3U0Wnp1WU9XYmtyQiI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJhZDlkMGFiZGIyMjc0MmRhODkwNWU4NWE1NTNiZTEiLCJGT1JNX0lEIjoiRUNUXzIw
+        NV9HIn0sImlkIjoiYWQ5ZDBhYmRiMjI3NDJkYTg5MDVlODVhNTUzYmUxIiwidHlwZSI6ImZvcm0iLCJldmVudHMiOlt7Ik5BTUUiOiJvbkJ1dHRvbkNsaWNrIiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0siOiJvbkJ1dHRvbkNsaWNrIn0seyJOQU1FIjoib25DaGFuZ2UiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDSyI6Im9uQ2hhbmdlIn1dfX0sInRyZWUiOnsiaWQiOiJCWVNxU2ljQllTcVNpY1lRWlAiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImFkOWQwYWJkYjIyNzQyZGE4OTA1ZTg1YTU1M2JlMSIsInR5cGUiOiJmb3JtIn1dfSwiaW5mbyI6eyJQQVRIIjoiL0VtcGxveWVlQ29udHJhY3Qvc2V0Rm9ybS9FbXBsb3llZUNvbnRyYWN0c2V0Rm9ybVNp
+        bmdsZVNpZ25uZXIueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJDT0RFIjoiMjA1X0ciLCJQUkVGSVgiOiJFQ1QiLCJQQVRIXzIiOiJzZXRGb3JtIiwiUEFUSF8zIjoiRW1wbG95ZWVDb250cmFjdHNldEZvcm0iLCJQQVRIXzEiOiJFbXBsb3llZUNvbnRyYWN0IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiU2luZ2xlU2lnbm5lciIsIlNDUkVFTl9JRCI6IkVDVF8yMDVfRyJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJCWVNxU2ljQllTcVNpY1lRWlBcIiBjbGFzcz1cImNvbnRhaW5lciBzZXBvYXV4X3NjcmVlbl9zY3JvbGxcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHls
+        ZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9jZW50ZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX3ZhbGlnbl9taWRkbGVcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAg
+        ICAgICA8ZGl2IGlkPVwiYWQ5ZDBhYmRiMjI3NDJkYTg5MDVlODVhNTUzYmUxXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9mb3JtXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Master" pageWidth="181" pageHeight="299" whenNoDataType="AllSectionsNoDetail" columnWidth="159" leftMargin="11" rightMargin="11" topMargin="11" bottomMargin="11" uuid="8e2fabd9-ace9-4ac9-80e0-552f13d97ba0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="Data" class="java.util.Map"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="277" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="150" width="159" height="18" uuid="f5b25428-858d-4d72-8e71-884d52bf8f76"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("DESCRIPTION_LOC")]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+				<reportElement x="0" y="168" width="159" height="7" uuid="b31212df-acbc-400a-9626-af3d1948bbb1">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["전기용품 및 생활용품 안전관리법에 의한 표시"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="175" width="15" height="7" uuid="cf5f0e31-00f8-412d-a3fe-e136d597012b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["재질 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="70" y="182" width="35" height="7" uuid="64a85013-3a50-4708-a3da-c814880936b5">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["가시광선 투과율 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="189" width="20" height="7" uuid="d15de00b-0f83-4864-9c9e-8e956484f158">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["제조년월 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="203" width="35" height="7" uuid="153bf391-1001-4a1b-a3af-f77fd15300fc">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["주소 및 전화번호 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="175" width="20" height="7" uuid="e2502c53-1b39-4c48-a08a-33112861747a">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["광선특성 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="182" width="30" height="7" uuid="8161dec3-0e6a-4554-8636-91f10f70091b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["자외선 차단율 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="196" width="20" height="7" uuid="c5af5773-0909-4a2b-8f2a-858c9f4fa31f">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["제조국명 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="70" y="189" width="20" height="7" uuid="10b9a5b1-a518-49fb-a67e-2a2723957ed5">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["제조자명 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="70" y="196" width="20" height="7" uuid="266a1c07-d2fb-4e3e-9697-8255581fc15b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["판매자명 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="210" width="35" height="7" uuid="aaf0ae47-b400-48d5-9bd6-031c1b936ac0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["사용상 주의사항 : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="228" width="20" height="7" uuid="7ddec512-63cf-4ae7-a929-8fce5d1f22d3">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Item : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="249" width="30" height="7" uuid="a7d0fcb9-cf90-40a7-9b50-21a53dea41cb">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Manufacturer : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="242" width="30" height="7" uuid="b657d3d3-9168-4d47-b9e1-fa5d9dc8492c">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["UV Protection : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="97" y="235" width="33" height="7" uuid="04dffa9e-8bbf-447a-947e-9ca7d876016c">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Filter Category : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="235" width="20" height="7" uuid="147f9d14-fe9d-4854-8a90-6ba436b36250">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Material : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="70" y="242" width="60" height="7" uuid="750b4b31-0433-4887-9632-0358adf4da58">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Luminous Transmittance : "]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="138" y="61" width="15" height="20" uuid="ce2d72d2-180b-462e-9fc4-d47b058f826b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="2019 GM BARCODE" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\u0063"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="270" width="60" height="7" uuid="152c3d8b-40b6-48ec-ab59-b63ed13e1411">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("ORIGIN_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="60" y="270" width="99" height="7" uuid="27120bd4-a1d2-45f8-8ee7-522ac795be43">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CAUTION_CODE_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="120" y="61" width="15" height="20" uuid="4cd923d0-0ded-4ee2-aaa2-ba3e4e2fbf36">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="2019 GM BARCODE" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CAR").toString().equals("Y") ? "\u0067" : ""]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="50" y="5" width="114" height="55" uuid="a94c399e-c483-4710-95b1-cd0f7fa6e0eb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<jr:EAN13 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="1.0">
+					<jr:codeExpression><![CDATA[$P{Data}.get("BARCODE_NUMBER").toString().replaceAll("\\s", "")]]></jr:codeExpression>
+				</jr:EAN13>
+			</componentElement>
+			<textField isBlankWhenNull="true">
+				<reportElement x="15" y="175" width="75" height="7" uuid="e63cdc64-869c-4913-aa59-37e642bcd1be">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("MATERIAL_1")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="30" y="182" width="40" height="7" uuid="40707e5c-06bf-4c97-ad2f-7b5afa3395dc">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("UV_PROTECTION_RATE")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="20" y="196" width="50" height="7" uuid="8bc7c6e2-b5ac-437e-a96c-199be0e6cf34">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("ORIGIN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="196" width="69" height="7" uuid="3d618101-8343-41c3-abab-f299edf97bf7">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("BUYER_NAME")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="189" width="69" height="7" uuid="fc7e259a-2140-4ffe-8e1d-a68d625a5783">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("SELLER_NAME_LOC")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="105" y="182" width="54" height="7" uuid="264ee904-1bd2-463a-8a97-4f3fc0b00a43">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("VISIBLE_LIGHT_TRANSMITTANCE")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="110" y="175" width="49" height="7" uuid="94a3b800-d64f-4bdc-a174-ff67dc9062be">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("MATERIAL_2")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="20" y="189" width="50" height="7" uuid="f594902e-9dd6-46d0-adf2-de07779d9b74">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($P{Data}.get("MF_DATE").toString() == null || $P{Data}.get("MF_DATE").toString().isEmpty()) ? "n/a" : new SimpleDateFormat("yyyy.MM").format(new SimpleDateFormat("yyyyMMdd").parse($P{Data}.get("MF_DATE").toString()))]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="35" y="203" width="124" height="7" uuid="cd0512fa-c635-4f7d-8658-1ec0955c4ea4">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("BUYER_ADDRESS")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="35" y="210" width="124" height="7" uuid="0efa3b0c-84b9-43f8-bef9-829022c50017">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="윤고딕" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CAUTION_CODE")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="30" y="256" width="129" height="14" uuid="7eeb6920-f895-46a7-8fca-7410b66ed6d8">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("SELLER_ADDRESS_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="30" y="249" width="129" height="7" uuid="061058aa-3de0-48aa-8301-9acaba2179ef">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("SELLER_NAME_LOC_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="20" y="228" width="139" height="7" uuid="f6428435-07e6-4b55-ae4b-10a5a4307e6d">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CATEGORY_CODE_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="20" y="235" width="77" height="7" uuid="90481a6b-4511-4a88-b173-5f54f849c367">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("MATERIAL_1_EN") + ", " + $P{Data}.get("MATERIAL_2_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="130" y="235" width="29" height="7" uuid="fcdca207-de1d-44f9-9dd8-6709f35cb9bf">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("CHARACTERISTIC_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="130" y="242" width="29" height="7" uuid="51dd3d34-0c68-494c-88ae-bfab3b386bde">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("VISIBLE_LIGHT_TRANSMITTANCE_EN")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="30" y="242" width="40" height="7" uuid="03fb8ae5-dcb3-49d1-aef0-a9889c7dfa8a">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="GentleMonster" size="4"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Data}.get("UV_PROTECTION_RATE_EN")]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

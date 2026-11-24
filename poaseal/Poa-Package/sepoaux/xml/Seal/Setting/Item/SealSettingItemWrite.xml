@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_105" header="false">
+    <button id="btnObj">
+        <btn div="gGndnmenjBenmeMVfO" id="ADD" type="default" text="{BUTTON.add}" onclick="onButtonClick('ADD')"/>
+        <btn div="gGndnmenjBenmeMVfO" id="SAVE" type="default" text="{BUTTON.save}" onclick="onButtonClick('SAVE')"/>
+        <btn div="gGndnmenjBenmeMVfO" id="DELETE" type="default" text="{BUTTON.delete}" onclick="onButtonClick('DELETE')"/>
+    </button>
+    <grid id="gridObj" div="gGndnmerfCenmeYwBj" grid-id="CT_105" drag="false" merge="false" dynamic="false">
+    	<event type="onXLE" callback="doQueryEnd"/>
+        <event type="onTXE" callback="doSaveEnd"/>
+        <event type="onRowSelect" callback="onRowSelect"/>
+    </grid>
+    <onloadscript/>
+    <userscript>
+        <function name="onRowSelect" args="id, ind">
+        <![CDATA[
+            var header = this.getColumId();
+        ]]>
+        </function>
+        <function name="doSaveEnd" args="obj">
+        <![CDATA[
+        
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+            var header = this.getColumId();
+            if (stage == 0) {
+                return true;
+            } else if (stage == 1) {
+                return true;
+            } else if (stage == 2) {
+                return true;
+            }
+            return false;
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, count">
+        <![CDATA[
+            var msg = obj.getUserData("", "message");
+            var status = obj.getUserData("", "status");
+            if (status != "true") {
+                Alert(msg);
+            }
+        ]]>
+        </function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTEduZG5tZUJBQnpOTWN0WWNzIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF94RWJ5bHFYVWpudzIiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3kyMmFQeUYydnNTNyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IlNMTV8xMDUiLCJPQkpFQ1RfSUQiOiJMR25kbm1lQkFCek5NY3RZY3MiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJMR25kbm1lQkFCek5NY3RZY3MiLCJ0eXBl
+        IjoiYm9keSJ9LCJnR25kbm1lbmpCZW5tZU1WZk8iOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJPQkpFQ1RfSUQiOiJnR25kbm1lbmpCZW5tZU1WZk8iLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fVE1UR05NRVpTV0dOTUVSTUJVX0lEIjoiQUREIiwiSVRFTV9UTVRHTk1FWlNXR05NRVJNQlVfVFlQRSI6ImRlZmF1bHQiLCJJVEVNX1RN
+        VEdOTUVaU1dHTk1FUk1CVV9TTENPREUiOiJCVVRUT04uYWRkIiwiSVRFTV9UTVRHTk1FWlNXR05NRVJNQlVfVEVYVCI6Iuy2lOqwgCIsIklURU1fVE1UR05NRUtJWEdOTUVETktVX0lEIjoiU0FWRSIsIklURU1fVE1UR05NRUtJWEdOTUVETktVX1RZUEUiOiJkZWZhdWx0IiwiSVRFTV9UTVRHTk1FS0lYR05NRUROS1VfU0xDT0RFIjoiQlVUVE9OLnNhdmUiLCJJVEVNX1RNVEdOTUVLSVhHTk1FRE5LVV9URVhUIjoi7KCA7J6lIiwiSVRFTV9UTVRHTk1FSVNYR05NRU9RWVdfSUQiOiJERUxFVEUiLCJJVEVNX1RNVEdOTUVJU1hHTk1FT1FZV19UWVBFIjoiZGVmYXVsdCIsIklURU1fVE1UR05NRUlTWEdOTUVPUVlXX1NMQ09ERSI6IkJVVFRPTi5kZWxldGUiLCJJVEVN
+        X1RNVEdOTUVJU1hHTk1FT1FZV19URVhUIjoi7IKt7KCcIiwiSVRFTV9UTVRHTk1FWlNXR05NRVJNQlVfU09SVCI6IjEiLCJJVEVNX1RNVEdOTUVLSVhHTk1FRE5LVV9TT1JUIjoiMiIsIklURU1fVE1UR05NRUlTWEdOTUVPUVlXX1NPUlQiOiIzIn0sImlkIjoiZ0duZG5tZW5qQmVubWVNVmZPIiwidHlwZSI6ImJ1dHRvbiJ9LCJnR25kbm1lcmZDZW5tZVl3QmoiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9JRmlu
+        RGZzSFhOaGIiOiJudWxsIiwiZGh4SWRfelZqY3lkQ1Z3czZ6IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzlJdUhLNHJYZDVoaCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZE9iaiIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJPQkpFQ1RfSUQiOiJnR25kbm1lcmZDZW5tZVl3QmoiLCJHUklEX0lEIjoiQ1RfMTA1IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJnR25kbm1lcmZDZW5tZVl3QmoiLCJ0eXBlIjoiZ3JpZCJ9fSwidHJlZSI6eyJpZCI6IkxHbmRubWVCQUJ6Tk1jdFljcyIsInR5cGUiOiJib2R5IiwiY2Vs
+        bHMiOlt7ImlkIjoiZ0duZG5tZW5qQmVubWVNVmZPIiwidHlwZSI6ImJ1dHRvbiJ9LHsiaWQiOiJnR25kbm1lcmZDZW5tZVl3QmoiLCJ0eXBlIjoiZ3JpZCJ9XX0sImluZm8iOnsiUEFUSCI6Ii9TZWFsL1NldHRpbmcvSXRlbS9TZWFsU2V0dGluZ0l0ZW1Xcml0ZS54bWwiLCJQUk9KRUNUIjoiU0VBTCIsIkNPREUiOiIxMDUiLCJQUkVGSVgiOiJTTE0iLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJTZWFsL1NldHRpbmcvSXRlbSIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlNlYWxTZXR0aW5nSXRlbVdyaXRlIiwiU0NSRUVOX0lEIjoiU0xNXzEwNSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJMR25kbm1lQkFCek5NY3RZ
+        Y3NcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0
+        b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJnR25kbm1lbmpCZW5tZU1WZk9cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dy
+        aWRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiZ0duZG5tZXJmQ2VubWVZd0JqXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

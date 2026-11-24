@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="LoginSSO" header="false" tpl="editor.tpl">
+	<link>
+    <![CDATA[
+    // 이거 필요 없을 듯 함.  삭제해야 하나, 아래 HEADER 넘겨주는 부분 참조를 위해 놔 둠 
+    <%
+    	String ssoToken = request.getParameter("raw_token");
+    %>
+        <script type="text/javascript" src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/login/login.js"></script>
+        <script type="text/javascript">
+
+            Sepoa.cache.text.load([{
+                url:CONTEXT_NAME+'/resource/ux/admin/langs/'+(Sepoa.request.LANGAUGE || 'KO')+'/POA_BASE.js'
+            }]);
+	
+            // 삼성 엔지니어링 SSO 시작  , EpTray 와 웹 소켓 통신으로 Json Data 가져옴 
+			
+			var Browser = new Object();
+			var userAgent = navigator.userAgent.toLowerCase();
+			var isIE = userAgent.indexOf('trident');
+			
+			// IE 지원 안하면 어떻게 처리해야 하는지 ???
+			if(isIE > -1){			
+				Alert("IE 는 지원하지 않습니다. Chrome 으로 접속하세요. " ) ;
+				return ;
+			}
+
+			var websocket = new WebSocket("wss://localhost:29283"); 
+		
+			websocket.onopen = function (event) {
+				websocket.send('{"rqtype":"getknoxsso","token":"","data":"KCC60TRAY0002"}');			
+			}
+		
+			//웹소켓 응답 메시지 처리
+			websocket.onmessage = function (event) {
+		
+				var rpJSON = event.data;  
+			
+				var obj = JSON.parse(rpJSON);
+				obj = JSON.parse(obj.data);
+			
+				if(obj.result == "fail"){
+					Alert("Code : " +obj.errorCode  + ":" + obj.errorMsg);
+					return;
+				}
+				websocket.close();
+			}
+            // 오류 메세지 처리는 어떻게 ?? 
+            websocket.onerror = function (event){
+				var errmsg = event.data;
+			}			
+            
+            function SepoaSSO(config)
+            {
+                sUtils.modules.extend(this, "EventManager");
+                sUtils.modules.extend(this, SepoaIndex.prototype.login);
+                this.$var = {};
+                this.config = $.extend(true, {}, config);
+
+                this.send = function()
+                {
+                    var config = 
+                    {
+                        progress:true,
+                        nickName:"sepoa.seal.secl.LoginSSO",
+                        conType:"CONNECTION",
+                        methodName:this.config.service,
+                        requestMode:"doServiceAjax",
+                        callback:function(so)
+                        {
+                            var shareObj = {};
+                            this.callEvent('onLoginEnd', [so]);
+                        }.bind(this)
+                    }
+
+                    var data = {};
+
+					// 바로 아래 또는 그 아래 것 중 하나 일 듯. HEADER 라는 것을 어떻게 구분하는지 ??
+					// rpJSON 선언 위치..바로 사용 가능 한가 ? ssoToken 은 사용 가능이라서 바로 써 봄...
+ 
+					data["HEADER"] = {"SSODATA" : rpJSON } ; 
+					
+					// data[SSO_DATA] = rpJSON ;
+                    
+					//data[Sepoa.common.KEY_PARAMS] = sUtils.url.toSepoaParams($.extend(this.config.sendParams||{},{
+                    //    SSO_DATA:"<%=rpJSON%>" }),false );
+                    
+                    //data[Sepoa.common.KEY_PARAMS]= sUtils.url.toSepoaParams($.extend(this.config.sendParams||{},{
+                    //    ssoToken:"<%=ssoToken%>" }),false);
+
+                    sUtils.connector.service(config, data);
+                }
+            }
+        </script>
+    ]]>
+	</link>
+	<variable>
+		<var name="mainFrame"
+			value="$($sObject._vp).find('#inSwtpdwDUwtpdiAjq')[0]" />
+		<var name="inSwtpdvDUwtpdyJYG"
+			value="$($sObject._vp).find('#inSwtpdvDUwtpdyJYG')[0]" />
+	</variable>
+	<onloadscript>
+		<call name="init" />
+	</onloadscript>
+	<userscript>
+		<var name="$var" value="{}" />
+		<function name="init">
+        <![CDATA[
+
+            var indexObj = $var.module = new SepoaSSO({
+                cont:mainFrame,
+                mode:Sepoa.request.login || "login",
+                service:"forceLogin",
+                sendParams:(Sepoa.params)?Sepoa.params.param:null
+            });
+
+			// 크롬에서 사용 한다고 하는데 ?? frwk 에서 알아서 변환해주나 ??
+            // indexObj.addEventListener("LoginEnd", function(so){
+            
+			// ie 에서 사용 한다고 함 . 원 소스가 이걸로 되어 있으니 일단 이것으로 사용함 
+            indexObj.attachEvent("onLoginEnd", function(so){
+                if(so.status == '1'){
+                    location.href = window.CONTEXT_NAME + "/Main.sux";
+                } else {
+                    location.href = window.CONTEXT_NAME + "/";
+                }
+            });
+            
+            indexObj.send();
+        ]]>
+		</function>
+
+	</userscript>
+	<template editor="true">
+		eyJkYXRhIjp7Im9iamVjdHMiOnsiaW5Td3RwZGpuU3d0cGR6SWlyIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiSU5ERVhfMDAwIn0sImlkIjoiaW5Td3RwZGpuU3d0cGR6SWlyIiwidHlwZSI6ImJvZHkifSwiaW5Td3RwZHdEVXd0cGRpQWpxIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVnBwamtVUnlpZE5wIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfdDFOTDhWSkpMSHRPIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoibWFpbkZyYW1lIiwiT0JKRUNUX0lEIjoi
+		aW5Td3RwZHdEVXd0cGRpQWpxIn0sImlkIjoiaW5Td3RwZHdEVXd0cGRpQWpxIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sImluU3d0cGR2RFV3dHBkeUpZRyI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfdldiN3kxM2U1UnVEIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9GQXRUQW5yb0xabkgiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfQ2I3QnpmU2k4QXp3Ijoi
+		bnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiaW5Td3RwZHZEVXd0cGR5SllHIiwiT0JKRUNUX0lEIjoiaW5Td3RwZHZEVXd0cGR5SllHIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJpblN3dHBkdkRVd3RwZHlKWUciLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiaW5Td3RwZGpuU3d0cGR6SWlyIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJpblN3dHBkdkRVd3RwZHlKWUciLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiaW5Td3RwZHdEVXd0cGRpQWpxIiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQUk9KRUNUIjoiRlJXSyIsIk5PTlNURF9QQVRIIjoi
+		WSIsIlBBVEhfMSI6IkluZGV4IiwiUEFUSF8yIjoiIiwiUEFUSF8zIjoiIiwiTkFNRSI6IkluZGV4RnJhbWUiLCJQQVRIIjoiL0luZGV4L0luZGV4RnJhbWUueG1sIiwiQVJFQV9ESVZJU0lPTiI6bnVsbCwiUFJFRklYIjoiSU5ERVgiLCJDT0RFIjoiMDAwIiwiU0NSRUVOX0lEIjoiSU5ERVhfMDAwIn19LCJodG1sIjoiPGRpdiBpZD1cImluU3d0cGRqblN3dHBkeklpclwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBz
+		ZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImluU3d0cGR2RFV3dHBkeUpZR1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5
+		bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiaW5Td3RwZHdEVXd0cGRpQWpxXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4g
+		ICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+	</template>
+</body>

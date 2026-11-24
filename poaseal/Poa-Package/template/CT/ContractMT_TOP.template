@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title></title>
+<style type="text/css">
+	body {
+		font-size: 14px;
+		font-family : '돋움체' !important;	
+	}
+	table {
+		font-size: 12px;	
+	}
+	th, td{
+		padding: 5px;
+	}
+</style>
+</head>
+<body>
+<p>- 별첨 -</p>
+<table style="width: 100%;border-collapse: collapse;" border="1">
+	<colgroup>
+		<col width="8%" >
+		<col width="">
+		<col width="8%" >
+		<col width="16%" >
+		<col width="16%" >
+		<col width="20%" >
+	</colgroup>
+	<thead>
+		<tr>
+			<th>구분</th>
+			<th>목적물</th>
+			<th>수량</th>
+			<th>단가</th>
+			<th>금액(부가세 별도)</th>
+			<th>비고</th>
+		</tr>

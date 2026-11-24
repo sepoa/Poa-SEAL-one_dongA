@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_202_2" header="false" pageCloseWarn="false" dataStore="false">
+    <form id="formObj" div="dSgNbTbwAIBItZhVrC" form-id="AD_202_2">
+        <event type="onChange" callback="onChange"/>
+        <event type="onUploadFile" callback="changeVaultView"/>
+    </form>
+    <usercss>
+    <![CDATA[
+        #EDITOR_AREA {
+            height: calc(100% - 10px);
+            width: calc(100% - 10px);
+            padding: 5px;
+            overflow: auto;
+            border: 1px solid #f0f0f0;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+        <event obj="Sepoa" type="onWindowResize" callback="editorResizeHandler"/>
+    </onloadscript>
+    <userscript>
+        <var name="$data" value="{}"/>
+        <var name="isNoticePopup"/>
+        <function name="init">
+        <![CDATA[
+            var target = formObj.getContainer("EDITOR_BOX");
+            target.innerHTML = '<div id="EDITOR_AREA"></div>'
+            editorResizeHandler();
+            
+            isNoticePopup = SUX.getModuleTop().Sepoa.request.isPopup;
+            
+            formObj.getForm('formObj_0').getVault('ATTACH_NO').changeMode('VI');
+            
+            checkIsNoticePopup();
+            
+            if (request.NOTICE_NUMBER) {
+                doQuery(request.NOTICE_NUMBER);
+            }
+        ]]>
+        </function>
+        <function name="changeVaultView" args="">
+        <![CDATA[
+            if (typeof(isNoticePopup) != 'undefined' && isNoticePopup == 'true') {
+                var fileCount = arguments[1].fileCount;
+                if (fileCount == 0) {
+                    formObj.hideItem("ATTACH_NO");
+                } else {
+                    formObj.showItem("ATTACH_NO");
+                }
+            }
+        ]]>
+        </function>
+        <function name="checkIsNoticePopup" args="data">
+        <![CDATA[
+            if (!isNoticePopup) {
+                formObj.hideItem("FLAG");
+            }
+        ]]>
+        </function>
+        <function name="doQuery" args="noticeNumber">
+        <![CDATA[
+            if (noticeNumber) {
+                $data.NOTICE_NUMBER = noticeNumber;
+            }
+            doServiceAjax('sepoa.svc.admin.AD_202_3', 'CONNECTION', 'doQuery', {
+                NOTICE_NUMBER: noticeNumber
+            }, function(so) {
+                if (so.status == 1) {
+                    var sf = new SepoaFormater(so.result[0]);
+                    renderData(sf, new SepoaFormater(so.result[1]))
+                } else {
+                    Alert(so.message);
+                }
+            });
+        ]]>
+        </function>
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+            if (state == 1) {
+                if (name == 'FLAG') {
+                    var before = SUX.root.getCookie("sepoa.notice.ignore");
+            
+                    if (before) {
+                        before = before.split(",");
+                    } else {
+                        before = [];
+                    }
+                    var noticeNumber = $data.NOTICE_NUMBER;
+                    if (state) {
+                        if (before.indexOf(noticeNumber) < 0) {
+                            before.push(noticeNumber);
+                            sUtils.cookie.set("sepoa.notice.ignore", before.join(','), 1);
+                        }
+                        if (SUX.pools.AD_202_1) {
+                            callFunction('AD_202_1', 'deleteCell', [Sepoa.request.NOTICE_NUMBER]);
+                        }
+                    } else {
+                        if (before.indexOf(noticeNumber) >= 0) {
+                            before.splice(before.indexOf(noticeNumber), 1);
+                            sUtils.cookie.set("sepoa.notice.ignore", before.join(','), 1);
+                        }
+                    }
+                }
+            }
+        ]]>
+        </function>
+        <function name="clearForm" args="">
+        <![CDATA[
+            formObj.clear();
+        ]]>
+        </function>
+        <function name="renderData" args="sf, sf2">
+        <![CDATA[
+            if (!sf) {
+                sf = tempData;
+                sf2 = tempContent;
+            } else {
+                tempData = sf;
+                tempContent = sf2;
+            }
+            if (!sf) return;
+            var c = '';
+            for (var i = 0; i < sf2.getRowCount(); i++) {
+                c += sf2.getValue('CONTENT', i);
+            }
+            c = c.replaceAll("\\\"", "\"");
+            c = sUtils.string.decodeHTML(c);
+            if (!tempData) {
+                clearForm();
+            } else {
+                formObj.dataMapper(sf);
+                formObj.getForm('formObj_0').getVault('ATTACH_NO').changeMode('VI');
+                $('#EDITOR_AREA').html(c);
+            }
+            
+            var cookieData = sUtils.cookie.get("sepoa.notice.ignore");
+            if (cookieData) {
+                cookieData = cookieData.split(",");
+            } else {
+                cookieData = [];
+            }
+            if (cookieData.indexOf(sf.getValue('NOTICE_NUMBER', 0)) >= 0) {
+                formObj.setValue('FLAG', 1)
+            }
+        ]]>
+        </function>
+        <function name="editorResizeHandler" args="">
+        <![CDATA[
+            var target = formObj.getContainer("EDITOR_BOX");
+            var height = document.body.offsetHeight - dhx.absTop(formObj.getContainer("EDITOR_BOX")) - 10;
+            target.style.height = height + 'px';
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZFNnTmJUYlRpeUFJdFpoY1FGIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiI5NTAiLCJkaHhJZF9yd0kwaVNhUGJiOEQiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsImRoeElkX0FOZFRvS0o2ZTBZaSI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzJ6QVY4c3A1S3k3OCI6Im51bGwiLCJkaHhJZF9xbDdYY0xqdDZERHUiOiJudWxsIiwiZGh4SWRfanhERHVZMXAycTNMIjoibnVsbCIsImRoeElkX01QNjUwd1IzTFdOdiI6Im51bGwiLCJkaHhJZF9EOEJuMml1VVVMVHkiOiJudWxsIiwiZGh4SWRfWjdsRFpn
+        S2RPU3RSIjoibnVsbCIsImRoeElkX2NZbVBNZFFNYnVMZiI6Im51bGwiLCJkaHhJZF9JaVdoaXh4c1R0NTQiOiJudWxsIiwiZGh4SWRfdGlvaFM3S1B6UkVkIjoibnVsbCIsImRoeElkX3MxWmQ2Q0ZGOHNxUiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF8yMDJfMiIsIk9CSkVDVF9JRCI6ImRTZ05iVGJUaXlBSXRaaGNRRiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6ImRTZ05iVGJUaXlBSXRaaGNRRiIsInR5cGUiOiJib2R5In0sImRTZ05iVGJ3QUlCSXRaaFZyQyI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hU
+        IjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJjZW50ZXIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJkU2dOYlRid0FJQkl0WmhWckMiLCJGT1JNX0lEIjoiQURfMjAyXzIifSwiaWQiOiJkU2dOYlRid0FJQkl0WmhWckMiLCJ0eXBlIjoiZm9ybSIsImZvcm0iOiJmb3JtIiwiZXZlbnRzIjpbeyJDQUxMQkFDSyI6Im9uQ2hhbmdlIiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0tfVFlQRSI6Im5hbWUiLCJOQU1FIjoib25DaGFuZ2UifSx7IkNBTExCQUNLIjoiY2hhbmdlVmF1bHRWaWV3IiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0tfVFlQRSI6Im5h
+        bWUiLCJOQU1FIjoib25VcGxvYWRGaWxlIn1dfX0sInRyZWUiOnsiaWQiOiJkU2dOYlRiVGl5QUl0WmhjUUYiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImRTZ05iVGJ3QUlCSXRaaFZyQyIsInR5cGUiOiJmb3JtIn1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL05vdGljZVZpZXcvQWRtaW5Ob3RpY2VWaWV3Vmlldy54bWwiLCJQUk9KRUNUIjoiU0VBTCIsIkNPREUiOiIyMDJfMiIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiTm90aWNlVmlldyIsIlBBVEhfMyI6IkFkbWluTm90aWNlVmlldyIsIlBBVEhfMSI6IkFkbWluIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiVmlldyIsIlNDUkVFTl9JRCI6IkFEXzIwMl8yIn19LCJodG1sIjoiPGRpdiBpZD1c
+        ImRTZ05iVGJUaXlBSXRaaGNRRlwiIGNsYXNzPVwiY29udGFpbmVyIHNlcG9hdXhfc2NyZWVuX3Njcm9sbFwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwibWluLXdpZHRoOjk1MHB4O1wiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYg
+        Y2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJkU2dOYlRid0FJQkl0WmhWckNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2Zvcm1cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

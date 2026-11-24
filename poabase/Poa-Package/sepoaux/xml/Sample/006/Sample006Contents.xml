@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SAMPLE_006_1" header="false">
+    <template>
+    <![CDATA[
+        <div class="container" id="container">
+        	<div id="formbox" style="display: table;"></div>
+        </div>
+    ]]>
+    </template>
+    <onloadscript>
+    	<call name="drawForm"/>
+    </onloadscript>
+    <userscript>
+    	<var name="formObj"/>
+    	<function name="drawForm" args="">
+    	<![CDATA[
+    		var formAttr = [
+                {type: "image", value: "", className: "btn_search", name: "MAP_POPUP", inputWidth: "22", inputHeight: "22"},
+                {type: "image", value: "", className: "btn_search", name: "MAP_POPUP2", inputWidth: "22", inputHeight: "22"}
+            ]
+            
+            formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject($sObject._vp.find('#formbox')[0],'formObj',[{id:dhx4.comboParam("AD_201"),option:formAttr}],true);
+            formObj.enableLiveValidation(true);
+            formObj.attachEvent('onButtonClick', onButtonClick);
+        ]]>
+    	</function>
+    
+    	<function name="loadMapsConfig" args="">
+    	<![CDATA[
+    		var returnObj;
+            $.ajax({
+                type : 'POST',
+                url : '/servlets/sepoa.module.maps.SepoaMapModuleServer?mode=config',
+                data: '',
+                dataType:'json',
+                contentType: "application/json",
+                error: function(data){
+                    Alert("load config Fail!");
+                },
+                success : function(data){
+                    returnObj =  data;
+                },
+                async: false
+             });
+            
+            return returnObj;
+    	]]>
+    	</function>
+    
+    	<function name="onButtonClick" args="id">
+    	<![CDATA[
+    		var initData = document.getElementById("formbox").callbackData;
+    		var configObj = loadMapsConfig();
+    		
+    		if(configObj.status != 1){
+    			Alert("load config Fail!");
+    			return false;
+    		}
+    		
+    		var props = $.extend(true, {}, configObj.result[0]);
+    		props.user_id = Sepoa.info.ID;
+    		props.house_code = Sepoa.info.HOUSE_CODE;
+    		props.company_code = Sepoa.info.COMPANY_CODE;
+    		
+    		if(id == 'MAP_POPUP'){
+    			var url = '/Modules/Maps/ModulesMapsLayout.sux';
+    			var params =  {props:props, mapsDataParam: initData};
+    			var callback = mapsCallback;
+    			var width = 1366;
+    			var height = 768;
+    			var title = '지도검색';
+    			
+    			PopupOpenPost(url, params, callback, width, height, title);
+    		} else if(id == 'MAP_POPUP2') {
+    			var url = '/Modules/Maps/ModulesMapsLayout.sux';
+    			var params =  {props:props, mapsDataParam: initData , mode : "VI"};
+    			var callback = mapsCallback;
+    			var width = 1366;
+    			var height = 768;
+    			var title = '지도검색';
+    			
+    			PopupOpenPost(url, params, callback, width, height, title);
+    		}
+    	]]>
+    	</function>
+    	
+    	<function name="mapsCallback" args="obj">
+    	<![CDATA[
+    		document.getElementById("formbox").callbackData = $.extend(true, {}, obj);
+    	]]>
+    	</function>
+    </userscript>
+</body>

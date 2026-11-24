@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectUserInfo">
+	<![CDATA[
+		SELECT
+			  USER_VIEW.USER_ID
+			, USER_VIEW.USER_NM AS USER_NAME_LOC
+			, USER_VIEW.DEPT_CD AS DEPT
+			, USER_VIEW.TEAM_CD AS TEAM
+			, USER_VIEW.PSTN_CD AS POSITION
+			, USER_VIEW.EMAIL_ADDR AS EMAIL
+			, USER_VIEW.MBL_TNO AS PHONE
+			, USER_VIEW.WRK_STAT_CD
+			, DEPT_VIEW.DEPT_NM AS COMPANY_NAME_LOC
+		FROM
+			COA.TB_CO1017M_USERINFO USER_VIEW
+		INNER JOIN COA.TB_CO1018M_DEPTINFO DEPT_VIEW
+			ON USER_VIEW.DEPT_CD = DEPT_VIEW.DEPT_CD
+		WHERE
+			USER_VIEW.USER_ID IS NOT NULL
+		AND USER_VIEW.CLPO_CD <> '88'
+		AND USER_VIEW.WRK_STAT_CD <> '09'
+		AND USER_VIEW.DEPT_CD NOT LIKE 'P%'
+		-- WRK_STAT_CD : 01(재직), 04(휴직), 07(파견), 09(퇴직)
+	]]>
+	</method>
+	<method name="checkExistSUSMT">
+	<![CDATA[
+		SELECT
+				  USER_ID
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+		FROM
+			SUSMT
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND USER_ID 		= ${USER_ID}		 
+	]]>
+	</method>
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		   SET
+				  CHANGE_DATE    	= ${current.DATE}
+				, CHANGE_TIME    	= ${current.TIME}
+				, CHANGE_USER_ID  	= ${session.ID}				  
+				, USER_NAME_LOC	 	= ${USER_NAME_LOC}
+				, USER_NAME_ENG	 	= $S{USER_NAME_ENG}
+				, DEPT		      	= ${DEPT}
+				, POSITION		  	= $S{POSITION}
+				, EMAIL  		    = $S{EMAIL}
+				, PHONE           	= $S{PHONE}
+				, employee_no       = $S{EMPLOYEE_NO}
+				, DEL_FLAG        	= 'N'
+				, LANGUAGE			= 'KO'
+				, USER_TYPE			= #DB_OWNER#NVL($S{USER_TYPE}, USER_TYPE)
+		WHERE
+			  HOUSE_CODE        	= ${session.HOUSE_CODE}
+		  AND COMPANY_CODE 			= ${session.COMPANY_CODE}
+		  AND USER_ID           	= ${USER_ID}
+	]]>
+	</method>
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, PLANT_CODE
+				, USER_NAME_LOC
+				, USER_NAME_ENG
+				, PASSWORD
+				, DEPT
+				, POSITION
+				, EMAIL		
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, PHONE
+				, LANGUAGE
+				, EMPLOYEE_NO
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${session.COMPANY_CODE}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${session.COMPANY_CODE}
+				, ${USER_NAME_LOC}
+				, #DB_OWNER#NVL(${USER_NAME_ENG}, USER_NAME_ENG)
+				, #DB_OWNER#NVL(${PASSWORD}, PASSWORD)
+				, ${DEPT}
+				, #DB_OWNER#NVL(${POSITION}, POSITION)
+				, #DB_OWNER#NVL(${EMAIL}, EMAIL)				
+				, 'KR'
+				, 'A'
+				, 'G'
+				, ${MENU_PROFILE_CODE}
+				, 'A'
+				, '0'
+				, 'N'
+				, 'N'
+				, '%Y/%m/%d'
+				, #DB_OWNER#NVL(${PHONE},PHONE)
+				, 'KO'
+				, #DB_OWNER#NVL(${EMPLOYEE_NO}, EMPLOYEE_NO)
+			)	
+	]]>
+	</method>
+</service>

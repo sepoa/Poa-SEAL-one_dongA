@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT LANG.CONTENTS        AS CONTENTS_#LANGUAGE#
+		     , GRID.HOUSE_CODE
+		     , GRID.GRID_ID
+		     , GRID.CODE
+		     , GRID.COL_TYPE
+		     , #DB_OWNER#NVL(GRID.NOT_NULL, '0') NOT_NULL
+		     , GRID.COL_FORMAT
+		     , GRID.TEXT_STYLE
+		     , GRID.TEMPLATE
+		     , LANG.GRID_WIDTH       AS COL_WIDTH_#LANGUAGE#
+		     , GRID.COL_MAX_LEN
+		     , GRID.COL_ALIGN
+		     , GRID.COL_VISIBLE
+		     , GRID.SELECTED_YN
+		     , GRID.COL_SEQ
+		     , GRID.COL_COLOR
+		     , GRID.COL_COMBO
+		     , GRID.COL_SORT
+		     , 'Y'                   SAVED
+	      FROM SGRID GRID
+	      LEFT OUTER 
+	      JOIN SLANG LANG
+	    	ON GRID.GRID_ID = LANG.SCREEN_ID 
+	       AND GRID.CODE    = LANG.CODE
+	       AND LANG.LANGUAGE = ${LANGUAGE}
+	     WHERE GRID.GRID_ID    = ${GRID_ID} 
+	       AND GRID.HOUSE_CODE = ${session.HOUSE_CODE}
+	       AND #DB_OWNER#NVL(LANG.HOUSE_CODE, '000') = #DB_OWNER#NVL((SELECT max(HOUSE_CODE) 
+	                                                                  FROM SLANG 
+	                                                                 WHERE HOUSE_CODE IN ('000', ${session.HOUSE_CODE})
+	                                                                   AND SCREEN_ID  = LANG.SCREEN_ID
+	                                                                   AND CODE       = LANG.CODE
+	                                                                   AND LANGUAGE   = LANG.LANGUAGE
+	                                                               ), '000')
+	       AND (   1=1
+		   	   AND upper(GRID.CODE)     like '%' + upper($S{F_KEYWORD}) + '%'
+		   	   OR  upper(LANG.CONTENTS) like '%' + upper($S{F_KEYWORD}) + '%'
+		   	   )
+	     ORDER 
+	        BY GRID.COL_SEQ, CODE
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE 
+		  FROM #DB_OWNER#SGRID
+		 WHERE GRID_ID    = ${GRID_ID} 
+		   AND CODE       = ${CODE}
+		   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doQueryExistRow">
+	<![CDATA[
+		SELECT COUNT(*) 
+		  FROM SGRID 
+		 WHERE GRID_ID    = ${GRID_ID} 
+		   AND CODE       = ${CODE}
+		   AND HOUSE_CODE = ${session.HOUSE_CODE}
+	]]>
+	</method>
+	<method name="doUpdateData">
+		<![CDATA[
+			UPDATE #DB_OWNER#SGRID
+			   SET COL_TYPE       = ${COL_TYPE},
+				   COL_FORMAT     = ${COL_FORMAT},
+				   COL_MAX_LEN    = ${COL_MAX_LEN},
+				   COL_ALIGN      = ${COL_ALIGN},
+				   COL_VISIBLE    = ${COL_VISIBLE},
+				   SELECTED_YN    = ${SELECTED_YN},
+				   COL_SEQ        = #{COL_SEQ},
+				   TEXT_STYLE     = ${TEXT_STYLE},
+				   COL_COLOR      = ${COL_COLOR},
+				   COL_COMBO      = ${COL_COMBO},
+				   COL_SORT       = ${COL_SORT},
+				   CHANGE_USER_ID = ${session.ID},
+				   CHANGE_DATE    = ${current.DATE},
+				   CHANGE_TIME    = ${current.TIME},
+				   NOT_NULL       = ${NOT_NULL},
+				   TEMPLATE       = ${TEMPLATE}
+			 WHERE 1=1
+	]]>
+	<if test="${GRID_ID}" operator="ne" value="">
+	<![CDATA[
+			   AND GRID_ID    = ${GRID_ID}
+	]]>
+	</if>
+	<![CDATA[  
+			   AND CODE       = ${CODE}
+			   AND HOUSE_CODE = ${session.HOUSE_CODE}
+		]]>
+	</method>
+	
+	<method name="doInsertData">
+	<![CDATA[
+		INSERT 
+		  INTO #DB_OWNER#SGRID
+		     (
+		       HOUSE_CODE,
+		       GRID_ID,
+		       CODE,
+		       COL_TYPE,
+		       COL_FORMAT,
+		       COL_MAX_LEN,
+		       COL_ALIGN,
+		       COL_VISIBLE,
+		       SELECTED_YN,
+		       COL_SEQ,
+		       TEXT_STYLE,
+		       COL_COLOR,
+		       COL_COMBO,
+		       COL_SORT,
+		       ADD_USER_ID,
+		       ADD_DATE,
+		       ADD_TIME,
+		       CHANGE_USER_ID,
+		       CHANGE_DATE,
+		       CHANGE_TIME,
+		       DEL_FLAG,
+		       NOT_NULL,
+		       TEMPLATE
+	       ) VALUES (
+		       ${session.HOUSE_CODE},
+		       ${GRID_ID},
+		       ${CODE},
+		       ${COL_TYPE},
+		       ${COL_FORMAT},
+		       ${COL_MAX_LEN},
+		       ${COL_ALIGN},
+		       ${COL_VISIBLE},
+		       ${SELECTED_YN},
+		       #{COL_SEQ},
+		       ${TEXT_STYLE},
+		       ${COL_COLOR},
+		       ${COL_COMBO},
+		       ${COL_SORT},
+		       ${session.ID},
+		       ${current.DATE},
+		       ${current.TIME},
+		       ${session.ID},
+		       ${current.DATE},
+		       ${current.TIME},
+		       'N',
+		       ${NOT_NULL},
+		       ${TEMPLATE}
+		   )
+	]]>
+	</method>
+	
+	<method name="doQueryExistRowSLANG">
+		<![CDATA[
+			SELECT COUNT(*) 
+			  FROM SLANG 
+			 WHERE SCREEN_ID  = ${GRID_ID} 
+			   AND CODE       = ${CODE}
+			   AND LANGUAGE   = ${LANGUAGE}
+			   AND HOUSE_CODE = ${session.HOUSE_CODE}
+		]]>
+	</method>
+	
+	<method name="doUpdateDataSLANG">
+	<![CDATA[
+		UPDATE #DB_OWNER#SLANG 
+	       SET CONTENTS    = ${CONTENTS}
+			 , GRID_WIDTH  = ${COL_WIDTH}
+			 , CHANGE_DATE = ${current.DATE}
+			 , CHANGE_TIME = ${current.TIME}
+	     WHERE SCREEN_ID  = ${GRID_ID}
+	       AND CODE       = ${CODE}
+	       AND HOUSE_CODE = ${session.HOUSE_CODE}
+	       AND LANGUAGE   = ${LANGUAGE}
+	]]>
+	</method>
+	
+	<method name="doInsertDataSLANG">
+	<![CDATA[
+		 INSERT 
+		   INTO #DB_OWNER#SLANG
+		      (
+				HOUSE_CODE,
+				SCREEN_ID,
+				LANGUAGE,
+				CODE,
+				CONTENTS,
+			    GRID_WIDTH,
+				ADD_USER_ID,
+				ADD_DATE,
+				ADD_TIME,
+				CHANGE_USER_ID,
+				CHANGE_DATE,
+				CHANGE_TIME,
+				DEL_FLAG
+			) VALUES (
+				${session.HOUSE_CODE},
+				${GRID_ID},
+				${LANGUAGE},
+				${CODE},
+				${CONTENTS},
+			    ${COL_WIDTH},
+				${session.ID},
+				${current.DATE},
+				${current.TIME},
+				${session.ID},
+				${current.DATE},
+				${current.TIME},
+				'N'
+			)
+	]]>
+	</method>
+</service>

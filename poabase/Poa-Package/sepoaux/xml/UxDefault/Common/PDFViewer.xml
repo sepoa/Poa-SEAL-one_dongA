@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="PDF_VIEWER" header="false">
+    <usercss>
+    <![CDATA[
+        .sepoa-report-frame{
+            width:100%;
+            height:100%;
+            border:0px;
+        }
+        .sepoa-report-form{
+           display:none;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="wSTckKckmVckKcbouF" value="$($sObject._vp).find('#wSTckKckmVckKcbouF')[0]"/>
+        <var name="container" value="$($sObject._vp).find('#wSTckKckmVckKctFzX')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$var" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            $var.frame = container.appendChild($('<iframe class="sepoa-report-frame lowerDiv" name="sepoa-report-frame"></iframe>')[0]);
+            $var.form = container.appendChild($('<form class="sepoa-report-form" target="sepoa-report-frame"></form>')[0]);
+            
+            SUX.callEvent('onWindowResize', []);
+            
+            for(var i in Sepoa.request){
+                $var.form.appendChild($('<input type="hidden" name="'+i+'" value="'+Sepoa.request[i]+'">')[0]);
+            }
+        
+            var url = "/SepoaPDF.sux"
+            if (dhx4.isIE && !CheckAdobeVersion()) {
+                Alert("Adobe Reader 프로그램이 설치되어있지 않습니다.</br>저장 후 설치해주십시요.");
+                $var.form.action="https://get.adobe.com/kr/reader/?promoid=KSWLH";
+            }else{
+                $var.form.action=window.CONTEXT_NAME+"/SepoaReportPDF.sux";
+            }
+            $var.form.submit();
+        ]]>    
+        </function>
+        <function name="CheckAdobeVersion">
+        <![CDATA[
+            var isInstalled = false;
+            var version = null;
+            if ("ActiveXObject" in window) {
+                var control = null;
+                try {
+                    // AcroPDF.PDF is used by version 7 and later
+                    control = new ActiveXObject('AcroPDF.PDF');
+                } catch (e) {
+                    // Do nothing
+                }
+                if (!control) {
+                    try {
+                        // PDF.PdfCtrl is used by version 6 and earlier
+                        control = new ActiveXObject('PDF.PdfCtrl');
+                    } catch (e) {
+                        return;
+                    }
+                }
+                if (control) {
+                    isInstalled = true;
+                    version = control.GetVersions().split(',');
+                    version = version[0].split('=');
+                    version = parseFloat(version[1]);
+                    return version;
+                }
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVHhlY2pLY1R4ZWNqS2NhTXZhIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJQREZfVklFV0VSIn0sImlkIjoiVHhlY2pLY1R4ZWNqS2NhTXZhIiwidHlwZSI6ImJvZHkifSwid1NUY2tLY2ttVmNrS2Nib3VGIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJ3U1Rja0tja21WY2tLY2JvdUYifSwiaWQiOiJ3U1Rja0tja21WY2tLY2JvdUYiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwid1NUY2tLY2ttVmNrS2N0RnpYIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwi
+        U0laRV9IRUlHSFQiOiIiLCJkaHhJZF9Pak1GV0dqaEt4M3MiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3ZjdlUxMWlCY2NpdyI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9QU09RcXp3cnhUZ3giOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJjb250YWluZXIiLCJPQkpFQ1RfSUQiOiJ3U1Rja0tja21WY2tLY3RGelgiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIn0sImlkIjoid1NUY2tLY2ttVmNrS2N0RnpYIiwidHlw
+        ZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IlR4ZWNqS2NUeGVjaktjYU12YSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoid1NUY2tLY2ttVmNrS2N0RnpYIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IndTVGNrS2NrbVZja0tjYm91RiIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9VeERlZmF1bHQvQ29tbW9uL1BERlZpZXdlci54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlV4RGVmYXVsdC9Db21tb24iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJQREZWaWV3ZXIiLCJDT0RFIjoiVklFV0VSIiwiUFJFRklYIjoi
+        UERGIiwiU0NSRUVOX0lEIjoiUERGX1ZJRVdFUiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJUeGVjaktjVHhlY2pLY2FNdmFcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwi
+        c2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJ3U1Rja0tja21WY2tLY3RGelhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwid1NUY2tLY2ttVmNrS2Nib3VGXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

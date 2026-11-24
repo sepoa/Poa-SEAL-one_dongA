@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="NEW_PROJECT2" header="false" tpl="editor.tpl">
+	<link>
+	<![CDATA[
+		<script type="text/javascript">
+            Sepoa.cache.text.load({
+                url:CONTEXT_NAME+'/resource/plugin/sepoasoft/screenbuilder/langs/'+Sepoa.info.LANGUAGE+'.js',
+                def:CONTEXT_NAME+'/resource/plugin/sepoasoft/screenbuilder/langs/KO.js'
+            });
+		</script>
+	]]>
+	</link>
+    <layout id="DqTqKPcLzYqKPceTId" div="DqTqKPcLzYqKPceTId" pattern="2U">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <fix_size>true,true</fix_size>
+            <attach file="/Tools/ScreenBuilder/Popup/NewProjectTabbar.xml"/>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+            <fix_size>true,true</fix_size>
+            <width>400</width>
+            <attach file="/Tools/ScreenBuilder/Popup/NewProject2Option.xml"/>
+        </cell>
+    </layout>
+    <usercss/>
+    <onloadscript/>
+    <userscript/>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiRHFUcUtQY0RxVHFLUGNSZGVlIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJORVdfUFJPSkVDVDIifSwiaWQiOiJEcVRxS1BjRHFUcUtQY1JkZWUiLCJ0eXBlIjoiYm9keSJ9LCJEcVRxS1BjTHpZcUtQY2VUSWQiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMlUiLCJWQVIiOiJEcVRxS1BjTHpZcUtQY2VUSWQiLCJPQkpFQ1RfSUQiOiJEcVRxS1BjTHpZcUtQY2VUSWQi
+        fSwiaWQiOiJEcVRxS1BjTHpZcUtQY2VUSWQiLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX0sIkRxVHFLUGN1VmpxS1BjSnlYdCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJmYWxzZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSIsIkFUVEFDSF9UQVJHRVQiOiIvVG9vbHMvU2NyZWVuQnVpbGRlci9Qb3B1cC9OZXdQcm9qZWN0VGFiYmFyLnhtbCIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJBVFRBQ0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSJ9LCJpZCI6IkRxVHFLUGN1VmpxS1BjSnlYdCIsIm1heENoaWxkQ291
+        bnQiOjEsInR5cGUiOiJsYXlvdXRDZWxsIiwibmFtZSI6ImEifSwiRHFUcUtQY0FXanFLUGN2QmtCIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6ImZhbHNlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkFUVEFDSF9UQVJHRVQiOiIvVG9vbHMvU2NyZWVuQnVpbGRlci9Qb3B1cC9OZXdQcm9qZWN0Mk9wdGlvbi54bWwiLCJCQVNFX0ZJWF9TSVpFIjoidHJ1ZSx0cnVlIiwiQVRUQUNIX1RZUEUiOiJVIiwiQ09MTEFQU0VfQlVUVE9OIjoiZmFsc2UiLCJCQVNFX1dJRFRIIjoiMzUyIn0sImlkIjoiRHFUcUtQY0FXanFLUGN2QmtCIiwibWF4Q2hpbGRD
+        b3VudCI6MSwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYiJ9fSwidHJlZSI6eyJpZCI6IkRxVHFLUGNEcVRxS1BjUmRlZSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiRHFUcUtQY0x6WXFLUGNlVElkIiwidHlwZSI6ImxheW91dCIsImNlbGxzIjpbeyJpZCI6IkRxVHFLUGN1VmpxS1BjSnlYdCIsInR5cGUiOiJsYXlvdXRDZWxsIn0seyJpZCI6IkRxVHFLUGNBV2pxS1BjdkJrQiIsInR5cGUiOiJsYXlvdXRDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVG9vbHMvU2NyZWVuQnVpbGRlci9Qb3B1cC9OZXdQcm9qZWN0Mi54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhf
+        MSI6IlRvb2xzL1NjcmVlbkJ1aWxkZXIvUG9wdXAiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJOZXdQcm9qZWN0MiIsIkNPREUiOiJQUk9KRUNUMiIsIlBSRUZJWCI6Ik5FVyIsIlNDUkVFTl9JRCI6Ik5FV19QUk9KRUNUMiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJEcVRxS1BjRHFUcUtQY1JkZWVcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAg
+        ICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkRxVHFLUGNMellxS1BjZVRJZFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+
+        XG48L2Rpdj4ifQ==
+    </template>
+</body>

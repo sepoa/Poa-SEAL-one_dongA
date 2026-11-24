@@ -1,0 +1,1604 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_501" header="false" pageCloseWarn="false">
+    <grid id="approval_grid" div="e26243a4c85e47518df894779b46bb" grid-id="AP_111" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onXLE" callback="doQueryApproverEnd"/>
+    </grid>
+    <button id="btnObj">
+        <btn div="GGeujmeXdkujmeKLSb" id="save" type="default" text="{BUTTON.tempsave}" onclick="onButtonClick( 'SAVE' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="manager_request" text="{BUTTON.complete_write}" onclick="onButtonClick( 'MANAGER_REQUEST' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="approval_request" text="{BUTTON.app_request}" onclick="onButtonClick( 'APPROVAL_REQUEST' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="manager_accept" type="default" text="{BUTTON.comfirm}" onclick="onButtonClick( 'MANAGER_ACCEPT' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="manager_reject" type="default" text="{BUTTON.reject}" onclick="onButtonClick( 'MANAGER_REJECT' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="return_request" type="default" text="{BUTTON.return_request}" onclick="onButtonClick( 'RETURN_REQUEST' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="return_complete" type="default" text="{BUTTON.return_complete}" onclick="onButtonClick( 'RETURN_COMPLETE' )"/>
+        <btn div="GGeujmeXdkujmeKLSb" id="back" type="default" text="{BUTTON.back}" onclick="onButtonClick( 'BACK' )"/>
+    </button>
+    <form id="formObj" div="GGeujmefOlujmeeWrz" form-id="SLM_501">
+        <event type="onButtonClick" callback="onButtonClick_formObj"/>
+    </form>
+    <button id="gridObj_btnObj">
+        <btn div="GGeujmeoArxjmeFbFw" id="rowadd" type="default" text="{BUTTON.add}" toggle="false" reverse="false" onclick="doAddRow(  )"/>
+        <btn div="GGeujmeoArxjmeFbFw" id="rowdelete" type="default" text="{BUTTON.delete}" toggle="false" reverse="false" onclick="doDeleteRow(  )"/>
+    </button>
+    <grid id="gridObj" div="GGeujmeLYpujmePuqT" grid-id="SLM_501_2" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onRowSelect" callback="onRowSelect"/>
+    </grid>
+    <usercss>
+    <![CDATA[
+        .dhxform_note {
+            padding-top: 10px;
+        }
+        
+        #GGeujmeXdkujmeKLSb,
+        #GGeujmeoArxjmeFbFw {
+            display: none;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="approver_grid_col" value="$($sObject._vp).find('#a61c65e043ec47b88824f0c4ee58a9')[0]"/>
+        <var name="approver_grid_cont" value="$($sObject._vp).find('#ff7ba1f1fe614fbd877775b08d3d52')[0]"/>
+        <var name="GGeujmeQcSvjmejwTz" value="$($sObject._vp).find('#GGeujmeQcSvjmejwTz')[0]"/>
+        <var name="GGeujmePcSvjmeGGJQ" value="$($sObject._vp).find('#GGeujmePcSvjmeGGJQ')[0]"/>
+        <var name="gridObj_title" value="$($sObject._vp).find('#GGeujmepNmujmeRAnH')[0]"/>
+        <var name="GGeujmeYBoujmesaHN" value="$($sObject._vp).find('#GGeujmeYBoujmesaHN')[0]"/>
+        <var name="GGeujmepNmujmedMez" value="$($sObject._vp).find('#GGeujmepNmujmedMez')[0]"/>
+        <var name="YutgpXferGhpXfItbk" value="$($sObject._vp).find('#YutgpXferGhpXfItbk')[0]"/>
+        <var name="YutgpXfdrGhpXfzREq" value="$($sObject._vp).find('#YutgpXfdrGhpXfzREq')[0]"/>
+        <var name="GGeujmeZuhujmeSQww" value="$($sObject._vp).find('#GGeujmeZuhujmeSQww')[0]"/>
+        <var name="GGeujmeZuhujmeXDyO" value="$($sObject._vp).find('#GGeujmeZuhujmeXDyO')[0]"/>
+    </variable>
+    <onloadscript>
+        <event obj="Sepoa" type="onButtonClick" callback="onButtonClick"/>
+        <call name="init"/>
+        <![CDATA[
+			if (Sepoa.request.SMR_NUMBER && Sepoa.request.isPopup == 'true') { //팝업으로 띄웠을 시 이전 화면에서 가져오는 데이터로 SMR_NUMBER가 있는지 확인
+                doQuery(Sepoa.request.SMR_NUMBER, 'Y');
+            }        
+        ]]>
+    </onloadscript>
+    <userscript>
+        <var name="$reqExtInfo" value="{}"/>
+        <![CDATA[
+            //폼, smr_number등의 정보를 담는 변수
+        ]]>
+        <var name="$documentList"/>
+        <![CDATA[
+            //그리드 데이터의 정보를 담는 변수
+        ]]>
+        <var name="$selectedExtList"/>
+        <![CDATA[
+            //날인서류인장리스트
+        ]]>
+        <var name="$share" value="{}"/>
+        <var name="selectedExtId"/>
+        <var name="selectedGridId" value="0"/>
+        <var name="smrStatus" value="'T'"/>
+        <var name="moveFlag" value="'Y'"/>
+        <var name="reject_comment"/>
+        <var name="addUserId"/>
+        <![CDATA[
+            //새로 만든 요청이라면 Y
+        ]]>
+        <var name="sealMgId" value="[]"/>
+        <var name="editMode" value="'INSERT'"/>
+        <var name="deleteRows" value="[]"/>
+        <function name="onButtonClick" args="name">
+        <![CDATA[
+            switch (name) {
+                case "SAVE":
+                    doSave();
+                    break;
+                case "APPROVAL_REQUEST":
+                    doApprovalRequest();
+                    break;
+                case "MANAGER_REQUEST":
+                    doManagerRequest();
+                    break;
+                case "MANAGER_ACCEPT":
+                    doManagerAccept();
+                    break;
+                case "MANAGER_REJECT":
+                    doManagerReject();
+                    break;
+                case "BACK":
+                    doBack();
+                    break;
+                case "RETURN_REQUEST":
+                    doReturnRequest();
+                    break
+                case "RETURN_COMPLETE":
+                    doReturnComplete();
+                    break
+                default:
+                    break;
+            }
+        ]]>
+        </function>
+        <function name="onButtonClick_formObj" args="name">
+        <![CDATA[
+            //용도 버튼
+            if (name == 'SEAL_USE_TYPE_BTN') {
+                if (formObj.getValue('SEAL_USE_TYPE') == '' || gridObj.getRowsNum() == 0) {
+                    PopupCommonPost('SP0069', sealUseTypePopupCallback, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+                } else {
+                    Confirm(Sepoa.cache.text.get('SLM_501.CONFIRM_USE_NUMBER_RESET'), function(flag) {
+                        if (flag == true) {
+                            gridObj.forEachRow(function(rId) {
+                                const smdNo = gridObj.cells(rId, gridObj.getColIndexById('SMD_NUMBER')).getValue();
+                                deleteRows.push(smdNo);
+                            });
+                            gridObj.clearAll();
+            
+                            PopupCommonPost('SP0069', sealUseTypePopupCallback, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+                        }
+                    });
+                }
+            }
+        ]]>
+        </function>
+        <function name="sealUseTypePopupCallback" args="a, b, c, d">
+        <![CDATA[
+            formObj.setValue('SEAL_USE_TYPE', b);
+            formObj.setValue('SEAL_USE_TYPE_LOC', a);
+        ]]>
+        </function>
+        <function name="init" args="">
+        <![CDATA[
+            // 채번 따서 $reqExtInfo에 채번넣고 기본셋팅
+            $documentList = new Object(); //문서정보리스트
+            $selectedExtList = new Object(); //인장리스트
+            
+            //그리드 셋팅
+            gridObj_title.innerHTML = Sepoa.cache.text.get('SLM_501.GRID_TITLE');
+            gridObj_title.setAttribute('style', 'font-size:14px;padding-top: 15px;');
+            gridObj.setColumnHidden(gridObj.getColIndexById('SEAL_TYPE'), true);
+            gridObj.setColumnHidden(gridObj.getColIndexById('REAL_FLAG'), true);
+            gridObj.setColumnHidden(gridObj.getColIndexById('ATTACH2_IMG'), true);
+            
+            $(approver_grid_cont).hide();
+            
+            //폼 셋팅
+            formObj.getInput("EXT_OUT_EXPECT_DATE").placeholder = Sepoa.cache.text.get('SLM_501.EXT_OUT_YYYYMMDD'); //반출년월일
+            formObj.getInput("EXT_IN_EXPECT_DATE").placeholder = Sepoa.cache.text.get('SLM_501.EXT_IN_YYYYMMDD'); //반입년월일
+            
+            //폼 셋팅
+            formObj.checkItem('REAL_FLAG');
+            formObj.setReadonly('REAL_FLAG', true);
+            
+            if (Sepoa.request.TYPE) {
+                aliasType = Sepoa.request.TYPE;
+            }
+            
+            if (sUtils.ux.getRootScreenID() == 'SLM_500') {
+                var smrNumber = Sepoa.request.SMR_NUMBER || getDocumentNumber("SER"); //채번
+                $reqExtInfo.SMR_NUMBER = smrNumber;
+                formObj.setValue('SMR_NUMBER', smrNumber);
+            
+                initBtn();
+            }
+        ]]>
+        </function>
+        <function name="hideAllButtons" args="">
+        <![CDATA[
+            btnObj.forEachBtn(function(btnId) {
+                if (btnId) {
+                    btnObj.showButton(btnId, false);
+                }
+            });
+            gridObj_btnObj.forEachBtn(function(btnId) {
+                if (btnId) {
+                    gridObj_btnObj.showButton(btnId, false);
+                }
+            });
+        ]]>
+        </function>
+        <function name="showButtonArea" args="">
+        <![CDATA[
+            document.getElementById('GGeujmeXdkujmeKLSb').style.display = 'inline-block';
+            document.getElementById('GGeujmeoArxjmeFbFw').style.display = 'inline-block';
+        ]]>
+        </function>
+        <function name="setScreenMode" args="mode">
+        <![CDATA[
+            if (mode) editMode = mode;
+        ]]>
+        </function>
+        <function name="initBtn" args="btnFlag, editMode">
+        <![CDATA[
+            // 처음에 모든 버튼을 숨기고 상황에 맞는 버튼 표출
+            hideAllButtons();
+            if (editMode == 'APP') {
+                formObj._apiConnector('detachAllEvents', []);
+                formObj.setViewMode(true);
+                gridObj.setReadOnly(true);
+                $(approver_grid_cont).hide();
+                showButtonArea();
+            } else if (smrStatus != 'T' && smrStatus != 'F' && smrStatus != 'RW' && smrStatus != 'R') { //임시저장 또는 반려가 아닌 경우 
+                var alias = '';
+                formObj._apiConnector('detachAllEvents', []); //폼의 이벤트와 분리
+                formObj.setViewMode(true);
+                gridObj.setReadOnly(true);
+                btnObj.showButton('back', true);
+                gridObj.setColumnHidden(gridObj.getColIndexById('MANAGE_IMG'), 1); //관리부서 선택버튼 숨김
+            
+                if (Sepoa.request.SMR_NUMBER || ['APP', 'APPR_TURN', 'APPR_DONE','APPR_REFER'].indexOf(editMode) > -1) {
+                    btnObj.showButton('back', false);
+                }
+            
+                if (smrStatus == 'RR' && btnFlag) {
+                    alias = 'MANAGER';
+                }
+            
+                if (smrStatus == 'W' && btnFlag) { //인감관리자 승인 진행중
+                    alias = 'APPROVAL';
+                }
+            
+                if (alias != '') { //alias가 MANAGER 일 경우 다음 진행상황에 따른 버튼 표출
+                    doServiceAjax('sepoa.svc.seal.SepoaReqExternalService', 'CONNECTION', 'doSelectNextModule', { //반출 요청시 서비스
+                        ALIAS: alias,
+                        PARENT: 'ET'
+                    }, function(so) {
+                        if (so.status == 1) {
+                            var moduleArr = JSON.parse(so.result[0]);
+                            var nextModule = moduleArr.MODULE;
+                            switch (nextModule) {
+                                case "ET1644372420935":
+                                    // 결재
+                                    btnObj.showButton('approval_request', true);
+                                    break;
+                                case "ET1644374538390":
+                                    // 인감관리자 승인
+                                    btnObj.showButton('manager_reject,manager_accept', true);
+                                    break;
+                                case "ET1647222908416":
+                                    //반납요청
+                                    btnObj.showButton('return_complete', true);
+                                    break;
+                                case "ET1644375000197":
+                                    // 완료
+                                    btnObj.showButton('complete', true);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else {
+                            Alert(Sepoa.cache.text.get("MESSAGE.1002")); //오류발생
+                        }
+                    });
+                }
+                showButtonArea();
+            } else if (smrStatus == 'T' || smrStatus == 'F' || smrStatus == 'RW' || smrStatus == 'R') { //임시저장, 새로운 요청 또는 반려일 경우
+                if (moveFlag == 'N') { //기존 임시저장일 경우 N, Y는 요청내역에서 들어올 시 doquery에서 Y을 들고 들어옴 
+                    btnObj.showButton('back', true);
+                }
+            
+                if (smrStatus == 'T') { // 이전반려사유 보이기 유무
+                    formObj.hideItem('REJECT_REMARK');
+                } else {
+                    formObj.showItem('REJECT_REMARK');
+                }
+            
+                //다음 모듈을 실행하기 위한 alias 셋팅
+                var alias = '';
+                alias = 'CREATE';
+                if (smrStatus == 'RW' && !btnFlag) {
+                    alias = 'MANAGER';
+                } else if (smrStatus == 'RW') {
+                    alias = '';
+                    showButtonArea();
+                    btnObj.showButton('back', true);
+                } else if (smrStatus == 'A' || smrStatus == 'F') {
+                    alias = 'APPROVAL';
+                }
+                gridObj.setColumnHidden(gridObj.getColIndexById('MANAGE_IMG'), 0); //관리부서 선택버튼 표출
+                gridObj_btnObj.showButton('rowadd,rowdelete', true); //행 추가,삭제버튼 표출
+                // 임시저장 상태일 때 다음 모듈에 따라 표출될 버튼이 다름
+                // PARENT: 어느 페이지 안에서 서비스를 실행하는지 확인
+                if (alias != '') { //alias가 MANAGER 일 경우 다음 진행상황에 따른 버튼 표출
+                    doServiceAjax('sepoa.svc.seal.SepoaReqExternalService', 'CONNECTION', 'doSelectNextModule', {
+                        ALIAS: alias,
+                        PARENT: 'ET'
+                    }, function(so) {
+                        if (so.status == 1) {
+                            var moduleArr = JSON.parse(so.result[0]);
+                            var nextModule = moduleArr.MODULE;
+                            switch (nextModule) {
+                                case "ET1644372420935":
+                                    // 결재
+                                    if (editMode == 'VIEW') {
+                                        //btnObj.showButton('approval_request', true);
+                                    } else {
+                                        btnObj.showButton('save,approval_request', true);
+                                    }
+                                    break;
+                                case "ET1644374538390":
+                                    // 인감관리자 승인
+                                    if (editMode == 'VIEW') {
+                                        //btnObj.showButton('manager_request', true);
+                                    } else {
+                                        btnObj.showButton('save,manager_request', true);
+                                    }
+                                    break;
+                                case "ET1647222908416":
+                                    //반납요청
+                                    if (!btnFlag && $addUserId == Sepoa.info.ID) {
+                                        btnObj.showButton('return_request', true);
+                                    } else {
+                                        btnObj.showButton('back', true);
+                                    }
+                                    break;
+                                case "ET1644375000197":
+                                    // 완료
+                                    btnObj.showButton('complete', true);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            showButtonArea();
+                        } else {
+                            Alert(Sepoa.cache.text.get("MESSAGE.1002"));
+                        }
+                    });
+                }
+            }
+        ]]>
+        </function>
+        <function name="doQuery" args="smrNumber, flag, mode, addUserId">
+        <![CDATA[
+            $documentList = {};
+            $reqExtInfo = {};
+            formObj.clear();
+            gridObj.clearAll();
+            moveFlag = flag;
+            editMode = mode;
+            $addUserId = addUserId;
+            
+            gridObj.setColumnHidden(gridObj.getColIndexById('ATTACH2_IMG'), true);
+            
+            doServiceAjax('sepoa.svc.seal.SepoaReqExternalService', 'CONNECTION', 'doSelectRequestInfo', { // 반출 요청의 정보를 조회
+                SMR_NUMBER: smrNumber
+            }, function(so) {
+                if (so.status == 1) {
+                    var reqData = JSON.parse(so.result[0]);
+                    var reqExtInfo = reqData[0].REQ_EXT_INFO; //객체정보
+                    var documentList = reqData[0].DOCUMENT_LIST; //서류문서
+                    var selectedExtList = reqData[0].SELECTED_EXT_LIST; //인감조회
+                    var btnFlag = false;
+                    formObj.dataMapper(reqExtInfo, 'JSON');
+                    $reqExtInfo.SMR_NUMBER = reqExtInfo.SMR_NUMBER;
+            		$addUserId = reqExtInfo.ADD_USER_ID;
+            		
+                    smrStatus = reqExtInfo.SMR_STATUS;
+            
+                    if ((smrStatus == 'RW' || smrStatus == 'RR' || smrStatus == 'C') && sUtils.workflow.check('ET1647222908416')) { //
+                        gridObj.setColumnHidden(gridObj.getColIndexById('ATTACH2_IMG'), false);
+                    }
+            
+                    if (smrStatus != "T" && editMode != "APP" && sUtils.workflow.check('ETL1683709519388') && !sUtils.workflow.check('ET1644374538390')) {
+                        //임시저장X, 결재선 라인표출 on(모듈저장 오류로 나중에 저장예정), 인감담당자 승인모듈 off 일 경우
+                        $(approver_grid_cont).show();
+                        doQueryApprover(reqExtInfo.SMR_NUMBER);
+                    } else {
+                        $(approver_grid_cont).hide();
+                    }
+            
+                    // 구분 세팅
+                    formObj.setValue('REAL_FLAG', 1);
+            
+                    //콤보 불러오기
+                    var useArray = Sepoa.cache.combo.get('SP0069,' + Sepoa.info.HOUSE_CODE + '#' + Sepoa.info.COMPANY_CODE);
+                    //배열의 특정값을 찾는 조건을 callback함수를 통해 전달하여 조건에 맞는 값 중 첫번째 값을 리턴한다.
+                    //EX ) arr.find(callback(element[,index[,array]])[,thisArg])
+                    //item = 현재 처리중인 배열의 element, idx = 현재 처리중인 배열의 인덱스
+                    var useName = useArray.find((item, idx) => {
+                        return item.text == reqExtInfo.SEAL_USE_TYPE; //요청된 용도와 해당 값이 같으면
+                    });
+            
+                    // 용도 세팅
+                    if (useName != null && useName != '') {
+                        formObj.setValue('SEAL_USE_TYPE', useName.text); //용도 코드번호
+                        formObj.setValue('SEAL_USE_TYPE_LOC', useName.value); //용도명
+                    }
+            
+                    for (var i in documentList) {
+                        var data = documentList[i];
+                        var maxRowId = dhx4.newId();
+                        // 그리드 데이터 셋팅
+                        gridObj.addRow(maxRowId, '', gridObj.getRowsNum());
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('SMD_NUMBER')).setValue(data.SMD_NUMBER); //날인서류채번
+                        //gridObj.cells(maxRowId, gridObj.getColIndexById('SEAL_MG_DEPT_LOC')).setValue(data.DEPT_NAME);
+                        //gridObj.cells(maxRowId, gridObj.getColIndexById('SEAL_MG_DEPT')).setValue(data.SEAL_MG_DEPT);
+                        //gridObj.cells(maxRowId, gridObj.getColIndexById('SEAL_MG_USER_ID')).setValue(data.SEAL_MG_USER_ID);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH_NO')).setValue(data.ATTACH_NO);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH2_NO')).setValue(data.ATTACH2_NO);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('DOWN_COUNT')).setValue(data.DOWN_COUNT);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('SUBJECT')).setValue(data.SUBJECT);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('SEAL_TYPE')).setValue(data.SEAL_TYPE);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('MANAGE_NUMBER')).setValue(data.MANAGE_NUMBER);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('DOC_NUMBER')).setValue(data.SMR_NUMBER + '_' + data.SMD_NUMBER);
+                        //gridObj.cells(maxRowId, gridObj.getColIndexById('CALC_DOWN_CNT')).setValue(Number(data.COUNT) - Number(data.DOWN_COUNT));
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('COUNT')).setValue(data.COUNT);
+                        gridObj.cells(maxRowId, gridObj.getColIndexById('SMR_SEQ')).setValue(data.SMR_SEQ);
+                        gridObj.showRow(maxRowId);
+            			
+						var booleanData = false
+            			if(sUtils.workflow.check('ET1695609422635')){ // 날인예상서류 업로드 파일매니저 모듈
+            				booleanData = searchFMFI(data.SMR_NUMBER + '_' + data.SMD_NUMBER, 'EXT_SEAL_DOC');
+            				if(booleanData){
+								gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH_IMG')).setIcon('ATTACH_IMG2');
+								gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH_IMG')).cell.children[0].style = 'filter:none';
+            				}
+            			}else {
+	                        if (gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH_NO')).getValue() != '') {
+	                            gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH_IMG')).setIcon('ATTACH_IMG2');
+	                            gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH_IMG')).cell.children[0].style = 'filter:none';
+	                        }
+            			}
+                        
+                        if(sUtils.workflow.check('ET1693531467784')){ // 반출 실날인서류 업로드 파일매니저
+                        	booleanData = searchFMFI(data.SMR_NUMBER + '_' + data.SMD_NUMBER, 'EXT_SEAL_REAL_DOC');
+                        	if(booleanData){
+	                        	gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH2_IMG')).setIcon('ATTACH_IMG2');
+	                            gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.children[0].style = 'filter:none';
+                        	}
+                        }else {
+	                        if (gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH2_NO')).getValue() != '') {
+	                            gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH2_IMG')).setIcon('ATTACH_IMG2');
+	                            gridObj.cells(maxRowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.children[0].style = 'filter:none';
+	                        }
+                        }
+            
+                        $documentList[data.SMD_NUMBER] = data;
+                        $selectedExtList[data.SMD_NUMBER] = {};
+                        var sealData = [];
+                        //인장 리스트
+                        for (var j in selectedExtList) {
+                            if (data.SMD_NUMBER == selectedExtList[j].SMD_NUMBER) {
+                                selectedExtList[j].ITEM_NAME = selectedExtList[j].SUBJECT;
+                                sealData.push(selectedExtList[j]);
+                                gridObj.cells(maxRowId, gridObj.getColIndexById("SEAL_MG_DEPT_LOC")).setValue(selectedExtList[j].DEPT_NAME);
+                                gridObj.cells(maxRowId, gridObj.getColIndexById("SEAL_MG_DEPT")).setValue(selectedExtList[j].SEAL_MG_DEPT);
+                                gridObj.cells(maxRowId, gridObj.getColIndexById("SEAL_MG_USER_ID")).setValue(selectedExtList[j].SEAL_MG_USER_ID);
+                                gridObj.cells(maxRowId, gridObj.getColIndexById("SEAL_MG_USER_NAME")).setValue(selectedExtList[j].SEAL_MG_USER_NAME);
+                                gridObj.cells(maxRowId, gridObj.getColIndexById("SEAL_MG_SUBJECT")).setValue(selectedExtList[j].SUBJECT);
+                                sealMgId.push(selectedExtList[j].SEAL_MG_USER_ID);
+            
+                                if (smrStatus == 'W' && Sepoa.info.ID == selectedExtList[j].SEAL_MG_USER_ID && selectedExtList[j].ACCEPT_FLAG == 'N') {
+                                    btnFlag = true;
+                                }
+                                if (smrStatus == 'RW' && Sepoa.info.ID == selectedExtList[j].SEAL_MG_USER_ID) {
+                                    btnFlag = false;
+                                }
+                                if (smrStatus == 'RR' && Sepoa.info.ID == selectedExtList[j].SEAL_MG_USER_ID && selectedExtList[j].COMPLETE_FLAG == 'N') {
+                                    btnFlag = true;
+                                }
+                                if (smrStatus == 'W' && Sepoa.info.ID == selectedExtList[j].RECE_USER_ID && selectedExtList[j].ACCEPT_FLAG == 'N') {
+                                    btnFlag = true;
+                                }
+                            }
+                        }
+                        $documentList[data.SMD_NUMBER].SELECT_EXT_LIST = sealData;
+                        $selectedExtList[data.SMD_NUMBER].SELECT_EXT_LIST = sealData;
+                    }
+                    initBtn(btnFlag, editMode);
+                    doChangeEditMode(editMode);
+                } else {
+                    Alert(Sepoa.cache.text.get("MESSAGE.1002"));
+                }
+            });
+        ]]>
+        </function>
+        <function name="searchFMFI" args="doc_number, layer">
+        <![CDATA[
+            var result;
+            
+            doServiceAjax('sepoa.svc.seal.SepoaReqExternalService', 'CONNECTION', 'doSearchFMFI', {
+                DOC_NUMBER: doc_number,
+                LAYER : layer
+            }, function(so) {
+                if (so.status == 1) {
+                    result = so.result[0];
+                } else {
+                    Alert(Sepoa.cache.text.get("SLM_221.MISSING_FMFI"));
+                }
+            }, false);
+            
+            return result;
+        ]]>
+        </function>
+        <function name="doQueryApprover" args="smrNumber">
+        <![CDATA[
+            dataOutput.setValue("SMR_NUMBER", smrNumber);
+            
+            doServiceAjax('sepoa.svc.approval.SepoaApprovalService', 'CONNECTION', 'doQueryExtSelect', {
+                SMR_NUMBER: smrNumber
+            }, function(so) {
+                if (so.status == 1) {
+                    var sf = new SepoaFormater(so.result[0]);
+                    var sfList = sf.getArrayMap();
+                    if (sf.getRowCount() > 0) {
+                        var ListResult = sfList[0];
+            
+                        dataOutput.setValue('COMPANY_CODE', ListResult.COMPANY_CODE);
+                        dataOutput.setValue('APP_NO', ListResult.APP_NO);
+                        dataOutput.setValue('APP_NO_SEQ', ListResult.APP_NO_SEQ);
+                        dataOutput.setValue('RE_FLAG', ListResult.RE_FLAG);
+                        dataOutput.setValue('APPLY_TYPE', ListResult.RE_FLAG);
+                        approval_grid.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'METHOD=getAppLine', 'PROCESS_ID=sepoa.svc.approval.SepoaApprovalService']);
+                    }
+                } else {
+                    Alert(Sepoa.cache.text.get("MESSAGE.1002")); //오류발생
+                }
+            });
+        ]]>
+        </function>
+        <function name="doQueryApproverEnd" args="obj, count">
+        <![CDATA[
+            if(count == 0) {
+   		   		Alert("결재자 정보를 조회하는데 실패하였습니다.");
+           	}else{	           		
+				approval_grid.forEachRowA(function(id) {
+					if(approval_grid.cells(id, approval_grid.getColIndexById('APP_LINE_STATUS')).getValue() == ""){
+						approval_grid.cells(id, approval_grid.getColIndexById('APP_LINE_STATUS')).setValue("L06");
+					}
+				})       	
+           	}
+        ]]>
+        </function>
+        <function name="doBack">
+        <![CDATA[
+            callFunction('p', 'doBack', []);
+        ]]>
+        </function>
+        <function name="doChangeEditMode" args="editMode">
+        <![CDATA[
+            switch (editMode) {
+                case "VIEW": // 뷰
+                    formObj.setViewMode(true);
+                    formObj.setdisable('SEAL_USE_TYPE_BTN', true);
+            
+                    gridObj.setEditable(false);
+                    gridObj.setColumnHidden(gridObj.getColIndexById('SELECTED'), true);
+                    gridObj.setColumnHidden(gridObj.getColIndexById('MANAGE_IMG'), true);
+                    gridObj_btnObj.showButton('rowadd,rowdelete', false); //행 추가,삭제버튼 표출
+            
+                    break;
+                case "EDITOR": // 수정
+                    formObj.setViewMode(false);
+                    formObj.setdisable('SEAL_USE_TYPE_BTN', false);
+            
+                    gridObj.setReadOnly(false);
+                    gridObj.setEditable(true);
+                    gridObj.setColumnHidden(gridObj.getColIndexById('SELECTED'), false);
+                    gridObj.setColumnHidden(gridObj.getColIndexById('MANAGE_IMG'), false);
+                    gridObj_btnObj.showButton('rowadd,rowdelete', true); //행 추가,삭제버튼 표출
+            
+                    break;
+                case "undefined": //doSave이후 화면이전시
+                    formObj.clear();
+                    gridObj.clearAll();
+                default:
+                    break;
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="callbackObj">
+        <![CDATA[
+        
+			if (!formObj.validate() || !gridObj.validate()) {
+				Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+			    return;
+			}
+			
+            var formData = Object.assign(formObj.getFormData());
+            formData.SEAL_USE_TYPE = formObj.getValue('SEAL_USE_TYPE'); //용도의 값
+            formData.REMARK = formObj.getValue('REMARK'); //사외반출 필요사유
+            formData.APPLY_TYPE = 'U'; //반출 -> 반출 신청 시 인감 구분을 위한 것으로 추정(사용인감(U) or 서명인(E))
+            formData.EXT_OUT_EXPECT_DATE = formObj.getValue('EXT_OUT_EXPECT_DATE'); // 예상사외반출일
+            formData.EXT_IN_EXPECT_DATE = formObj.getValue('EXT_IN_EXPECT_DATE'); // 예상사내반입일
+            formData.REJECT_REMARK = reject_comment; // 승인/반려사유
+            if(smrStatus == 'T'){
+	            formData.EXT_USE_USER_ID = Sepoa.info.ID; // 반출 요청자(세션 ID)
+            }
+            $reqExtInfo = formData; // 반출 요청 정보(폼)
+            
+            // 날인예상서류의 행을 담을 배열
+            var documentArr = new Array();
+            gridObj.forEachRowA(function(id) { //날인대상서류의 행의 값들을 배열에 넣음
+                var documentData = {};
+                var smdNumber = gridObj.cells(id, gridObj.getColIndexById('SMD_NUMBER')).getValue(); //날인서류 채번
+                documentData.SMD_NUMBER = smdNumber;
+                documentData.SEAL_TYPE = gridObj.cells(id, gridObj.getColIndexById('SEAL_TYPE')).getValue();
+                documentData.SEAL_MG_DEPT = gridObj.cells(id, gridObj.getColIndexById('SEAL_MG_DEPT')).getValue();
+                documentData.SEAL_MG_USER_ID = gridObj.cells(id, gridObj.getColIndexById('SEAL_MG_USER_ID')).getValue();
+                documentData.SEAL_MG_SUBJECT = gridObj.cells(id, gridObj.getColIndexById('SEAL_MG_SUBJECT')).getValue(); // 인감명
+                documentData.SUBJECT = gridObj.cells(id, gridObj.getColIndexById('SUBJECT')).getValue(); // 서류명
+                documentData.COUNT = String(gridObj.cells(id, gridObj.getColIndexById('COUNT')).getValue()); // 부수
+                documentData.SELECT_EXT_LIST = $selectedExtList[smdNumber].SELECT_EXT_LIST; // 날인서류에 해당하는 인감리스트
+                documentData.DOC_NUMBER = gridObj.cells(id, gridObj.getColIndexById('DOC_NUMBER')).getValue();
+                documentData.ATTACH_NO = gridObj.cells(id, gridObj.getColIndexById('ATTACH_NO')).getValue(); // 날인서류 파일 번호
+                documentData.ATTACH2_NO = gridObj.cells(id, gridObj.getColIndexById('ATTACH2_NO')).getValue(); // 실사용 날인서류 파일 번호
+                documentData.MANAGE_NUMBER = gridObj.cells(id, gridObj.getColIndexById('MANAGE_NUMBER')).getValue(); // 인감관리번호
+                documentData.SMR_SEQ = gridObj.cells(id, gridObj.getColIndexById('SMR_SEQ')).getValue();
+                documentData.DELROW_DATA = deleteRows; //삭제예정(서비스 로직에서 삭제될 데이터들)
+                documentArr.push(documentData);
+            });
+            
+            $documentList = documentArr;
+            
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status == "1") {
+                            if (callbackObj) { //임시저장이 아닌경우 callbackObj를 인자값으로 받음
+                                callbackObj.CALLBACK(callbackObj.CALLBACK_PARMETER);
+                            } else {
+                                Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                if (moveFlag == 'Y') { //새로 만든 요청이라면 
+                                    linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                                    SUX.root.getContentsCell(window).close();
+                                } else {
+                                    linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                                }
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            
+            $reqExtInfo.APP_TYPE = 'J03'; // 반출 결재
+            
+            // 반출 요청 정보(폼, 그리드)
+            var serviceData = {
+                REQ_EXT_INFO: $reqExtInfo,
+                DOCUMENT_LIST: documentArr
+            };
+            
+            var params = {
+                module: "ext.req",
+                action: "doRequestService",
+                CONNECTION: "TRANSACTION",
+                CURRENT_PRC: "CREATE",
+                SMR_NUMBER: formObj.getValue('SMR_NUMBER'),
+                PARAMETER: JSON.stringify(serviceData)
+            }
+            
+            if (callbackObj) { //임시저장이 아닐경우
+                var callback_parm = callbackObj.CALLBACK_PARMETER;
+                var return_logic_flag = callbackObj.RETURN_LOGIC_FLAG;
+                var manager_logic_flag = callbackObj.MANAGER_LOGIC_FLAG;
+                if (return_logic_flag) {
+                    params['RETURN_LOGIC_FLAG'] = "Y";
+                } else if (manager_logic_flag) {
+                    params['MANAGER_LOGIC_FLAG'] = "Y";
+                }
+                if (["MANAGER_REQUEST", "APPROVAL_REQUEST"].indexOf(callback_parm['LEGAL_PRC_TYPE'] || callback_parm['APPROVAL_PRC_TYPE']) > -1) {
+                    var value = searchExtAjax(formData,documentArr);
+                    if (!value) {
+                        return;
+                    }
+                }
+                sUtils.multipart.send(config, params);
+            } else { //임시저장
+                Confirm(Sepoa.cache.text.get('SLM_123.MESSAGE009'), function(flag) {
+                    if (flag) {
+                        sUtils.multipart.send(config, params);
+                    }
+                });
+            }
+        ]]>
+        </function>
+        <function name="doManagerRequest">
+        <![CDATA[
+            if (!doApprovalRequest_validation()) {
+                return;
+            }
+            
+            Confirm(Sepoa.cache.text.get('SLM_221.MESSAGE_REQUEST'), function(flag) {
+                if (flag) {
+                    doSave({
+                        CALLBACK: doManagerProcess,
+                        CALLBACK_PARMETER: {
+                            LEGAL_PRC_TYPE: "MANAGER_REQUEST"
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doManagerAccept">
+        <![CDATA[
+            var contents = formObj.getValue('REJECT_REMARK');
+            var param = {
+                title: Sepoa.cache.text.get('SLM_501.ACCEPT_REASON'),
+                mode: 'WRITE',
+                APP_COMMENT: contents
+            }
+            
+            sUtils.popup.modal({
+                url: '/UxDefault/Common/WindowForm.sux',
+                title: param.title,
+                header: true,
+                params: {
+                    mode: param.mode,
+                    form: 'APP_COMMENT',
+                    data: param,
+                    callback: onAcceptClose || function() {}
+                }
+            })
+        ]]>
+        </function>
+        <function name="onAcceptClose" args="obj">
+        <![CDATA[
+            reject_comment = obj.APP_COMMENT;
+            
+            Confirm(Sepoa.cache.text.get('SLM_221.MESSAGE_REQUEST_CONFIRM'), function(flag) {
+                if (flag) {
+                    doSave({
+                        CALLBACK: doManagerProcess,
+                        CALLBACK_PARMETER: {
+                            LEGAL_PRC_TYPE: "MANAGER_ACCEPT",
+                        },
+                        MANAGER_LOGIC_FLAG: true
+                    });
+                }
+            });
+            
+            return true;
+        ]]>
+        </function>
+        <function name="onRejectClose" args="obj">
+        <![CDATA[
+            reject_comment = obj.APP_COMMENT;
+            
+            Confirm(Sepoa.cache.text.get('SLM_221.MESSAGE_REQUEST_REJECT'), function(flag) {
+                if (flag) {
+                    doSave({
+                        CALLBACK: doManagerProcess,
+                        CALLBACK_PARMETER: {
+                            LEGAL_PRC_TYPE: "MANAGER_REJECT"
+                        },
+                        MANAGER_LOGIC_FLAG: true
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doManagerReject">
+        <![CDATA[
+            var contents = formObj.getValue('REJECT_REMARK');
+            var param = {
+                title: Sepoa.cache.text.get('SLM_501.REJECT_REASON'),
+                mode: 'REJECT',
+                APP_COMMENT: contents
+            }
+            sUtils.popup.modal({
+                url: '/UxDefault/Common/WindowForm.sux',
+                title: param.title,
+                header: true,
+                params: {
+                    mode: param.mode,
+                    form: 'APP_COMMENT',
+                    data: param,
+                    callback: onRejectClose || function() {}
+                }
+            })
+        ]]>
+        </function>
+        <function name="doReturnRequest">
+        <![CDATA[
+            var value = validation_grid();
+            if (value == false) {
+                return;
+            }
+            
+            Confirm(Sepoa.cache.text.get('SLM_501.MESSAGE_RETURN_REQUEST'), function(flag) {
+                if (flag) {
+                    doSave({
+                        CALLBACK: doReturnProcess,
+                        CALLBACK_PARMETER: {
+                            LEGAL_PRC_TYPE: "RETURN_REQUEST",
+                        },
+                        RETURN_LOGIC_FLAG: true
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="validation_grid">
+        <![CDATA[
+       		var result = false;
+        	if (sUtils.workflow.check('ET1693531467784')) {
+        		let so = doServiceAjax("sepoa.svc.ct.CT_201", 'CONNECTION', "doCheckContractCreateReady", {SMR_NUMBER: $reqExtInfo.SMR_NUMBER, REQ_TYPE: "E"}, function(so) {}, false);
+                if(so.status != 1) {
+                	// 동아 커스텀 문구로 변경
+                	Alert("날인 서류가 등록되지 않았습니다.");
+                	return false;
+                }
+                
+                result = true;
+        	} else {
+	            gridObj.forEachRowA(function(id) {
+	                if (gridObj.cells(id, gridObj.getColIndexById('ATTACH2_NO')).getValue() == '') {
+	                    result = false;
+	                } else {
+	                    result = true;
+	                }
+	            });
+	            
+	            if (!result) {
+	                Alert(Sepoa.cache.text.get('SLM_501.SELECTED_ATTACH2_NO')); //실사용 날인서류를 첨부 해주세요.
+	            }
+        	}
+            
+            return result;
+        ]]>
+        </function>
+        <function name="doReturnComplete">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('SLM_501.MESSAGE_RETURN_COMPLETE'), function(flag) {
+                if (flag) {
+                    doSave({
+                        CALLBACK: doReturnProcess,
+                        CALLBACK_PARMETER: {
+                            LEGAL_PRC_TYPE: "RETURN_COMPLETE"
+                        },
+                        RETURN_LOGIC_FLAG: true
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doReturnProcess" args="callbackParams">
+        <![CDATA[
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status == "1") {
+                            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                            if (callbackParams.LEGAL_PRC_TYPE == "RETURN_REQUEST") {
+                                linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                            } else {
+                                linkTo('SLM_520', '/Seal/Document/External/Todo/SealDocumentExternalTodoLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_521.LAYOUT_A_HEADER'));
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            var reqExtInfo = $reqExtInfo; //smr_number,폼데이터등의 정보
+            reqExtInfo.CONFIRM_STATUS = callbackParams.LEGAL_PRC_TYPE;
+            
+            //$documentList 는 요청시 저장되는 gridObj의 데이터
+            var serviceData = {
+                REQ_EXT_INFO: $reqExtInfo,
+                DOCUMENT_LIST: $documentList
+            };
+            
+            var params = {
+                module: "ext.req",
+                action: "doRequestService",
+                CONNECTION: "TRANSACTION",
+                CURRENT_PRC: "RETURN",
+                PARAMETER: JSON.stringify(serviceData)
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="doManagerProcess" args="callbackParams">
+        <![CDATA[
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status == "1") {
+                            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                            var call_val = callbackParams.LEGAL_PRC_TYPE;
+            
+                            if (smrStatus == 'T' && moveFlag == 'Y') { //새로 만든 요청이라면
+                                linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                                SUX.root.getContentsCell(window).close();
+                            } else if (call_val == 'MANAGER_REJECT' || call_val == 'MANAGER_ACCEPT') {
+                                linkTo('SLM_520', '/Seal/Document/External/Todo/SealDocumentExternalTodoLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_521.LAYOUT_A_HEADER'));
+                            } else if (Sepoa.request.SMR_NUMBER) { //이미 SMR_NUMBER값이 있었다면
+                                linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                            } else {
+                                doBack();
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            
+            var reqExtInfo = $reqExtInfo; //smr_number,폼데이터등의 정보
+            reqExtInfo.CONFIRM_STATUS = callbackParams.LEGAL_PRC_TYPE; //임시저장 아닌 다른 버튼 클릭시 버튼마다 지정되어 있는 타입을 가져옴(ex: "MANAGER_REQUEST"(인감관리자에게 승인요청시))
+            
+            //$documentList 는 요청시 저장되는 gridObj의 데이터
+            var serviceData = {
+                REQ_EXT_INFO: $reqExtInfo,
+                DOCUMENT_LIST: $documentList
+            };
+            
+            var params = {
+                module: "ext.req",
+                action: "doRequestService",
+                CONNECTION: "TRANSACTION",
+                CURRENT_PRC: "MANAGER",
+                PARAMETER: JSON.stringify(serviceData)
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="onRowSelect" args="rId, cInd">
+        <![CDATA[
+            var header = this.getColumnId(cInd);
+            var sealType = 'E,U';
+            var useNumber = formObj.getValue("SEAL_USE_TYPE"); //용도 값
+            selectedGridId = rId;
+            
+            if ((smrStatus == 'T' || smrStatus == 'F' || smrStatus == 'R') && ["SEAL_MG_USER_NAME", "MANAGE_NUMBER", "SEAL_MG_SUBJECT", "MANAGE_IMG"].indexOf(header) > -1) { //작성상태이면서 그리드의 관리부서 선택컬럼 클릭시
+                if (sUtils.workflow.check('US1637133464814')) {
+                    if (useNumber == "") { //용도 선택 이전이라면
+                        Alert(Sepoa.cache.text.get('SLM_221.MESSAGE_SELECT_USE'));
+                        return false;
+                    }
+                }
+            
+                var params = {
+                    SEAL_TYPE: sealType,
+                    SEAL_USE_TYPE: useNumber,
+                    GRID_ROW_ID: rId,
+                    SELECTED_SEAL_ID: selectedExtId,
+                    EXTERNAL_FLAG: 'Y'
+                };
+                var height = SUX.getModuleTop().outerHeight * 0.7;
+                PopupOpenPost('/Seal/Document/Common/Popup/SealDocumentWriteSealPopupLayout.sux', params, manageImgPopupCallback, 840, height, Sepoa.cache.text.get('SLM_221.SELECT_SEAL'));
+            } else if (header == "ATTACH_IMG") { //날인서류 클릭시
+            	if (sUtils.workflow.check('ET1695609422635')) { // 템플릿모듈 켜져있을경우
+            		var docFlag = 'EXT_SEAL_DOC';
+            		doAttachRealFile(rId, docFlag);
+            	} else {
+	                var seal_mg_dept = gridObj.cells(rId, gridObj.getColIndexById("SEAL_MG_DEPT")).getValue();
+	                var attKey = gridObj.cells(rId, gridObj.getColIndexById("ATTACH_NO")).getValue();
+	                doAttachFile(rId, attKey);
+            	}
+            
+            } else if (header == "ATTACH2_IMG") { //실사용 날인서류 클릭시
+            	if (sUtils.workflow.check('ET1693531467784')) {
+					var docFlag = 'EXT_SEAL_REAL_DOC';            		
+            		doAttachRealFile(rId, docFlag);
+            	} else {
+            		var seal_mg_dept = gridObj.cells(rId, gridObj.getColIndexById("SEAL_MG_DEPT")).getValue();
+	                var attKey = gridObj.cells(rId, gridObj.getColIndexById("ATTACH2_NO")).getValue();
+	                doAttachFile2(rId, attKey);
+            	}
+            }
+        ]]>
+        </function>
+        <function name="doAttachRealFile" args="rowId, docFlag">
+        <![CDATA[
+        	// 반출신청 날인예상서류 , 반출신청 후 실날인서류에 대한 FALG
+        	var docAction = (docFlag == 'EXT_SEAL_DOC') ? 'doSelectExtSealDocFile' : 'doSelectExtSealRealDocFile';
+        	
+            //기존에 등록된 문서가 있는지 확인( SMR_NUMBER + "_" + SMD_NUMBER로 서버 확인 필요 )
+        	var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status == "1") {
+                        	let result = JSON.parse(res.result[0]);
+                        	if(result["RESULT"] == "ATTACH_DOC_EMPTY") {
+	        					//없다면 파일 업로드 창 Open
+	        					doOpenFileExplorer(rowId, docFlag);
+                        	} else {
+	                            //있다면 기존 파일 편집기 Open
+	                            let rowData = gridObj.getRowDataObject(rowId, docFlag);
+                            	openAttachDocTemplateFile(rowId, $reqExtInfo.SMR_NUMBER, rowData["SMD_NUMBER"], docFlag);
+                        	}
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            };
+        	
+        	let docDataObj = gridObj.getRowDataObject(rowId);
+            docDataObj["SMR_NUMBER"] = $reqExtInfo.SMR_NUMBER;
+        	var params = {
+                module:  "ext.req",
+                action: docAction,
+                CONNECTION: "CONNECTION",
+                DOC_DATA : JSON.stringify(docDataObj)
+            };
+            
+            sUtils.multipart.send(config, params); //파일 없을 경우
+        ]]>
+        </function>
+        <function name="doOpenFileExplorer" args="rowId, docFlag">
+        <![CDATA[
+            var tmpFileInput = document.createElement('input'); //html의 input 요소 생성
+            tmpFileInput.type = 'file';
+            tmpFileInput.id = 'upload_file';
+            tmpFileInput.name = 'upload_file';
+            
+            tmpFileInput.onchange = function(fe) {
+                var files = fe.currentTarget.files;
+                doUploadAttachDocTemplateFile(rowId, files, docFlag);
+                
+				if(docFlag == 'EXT_SEAL_DOC'){
+	                gridObj.cells(rowId, gridObj.getColIndexById("SUBJECT")).setValue(files[0].name);
+			        gridObj.cells(rowId, gridObj.getColIndexById('ATTACH_IMG')).setIcon('ATTACH_IMG2');
+					gridObj.cells(rowId, gridObj.getColIndexById('ATTACH_IMG')).cell.children[0].style = 'filter:none';
+	        	}else {
+	        		gridObj.cells(rowId, gridObj.getColIndexById('ATTACH2_IMG')).setIcon('ATTACH_IMG2');
+					gridObj.cells(rowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.children[0].style = 'filter:none';
+	        	}
+            }
+            
+            tmpFileInput.click();
+        ]]>
+        </function>
+        <function name="doUploadAttachDocTemplateFile" args="rowId, files, docFlag">
+        <![CDATA[
+        	var config = {
+                multiple: false,
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                ext: ['pdf'],
+                on: {
+                    callback: function(res) {
+                        if (res.status == "1") {
+                            let rowData = gridObj.getRowDataObject(rowId);
+                            openAttachDocTemplateFile(rowId, $reqExtInfo.SMR_NUMBER, rowData["SMD_NUMBER"], docFlag);
+                        } else {
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0002'));
+                        }
+                    }
+                }
+            }
+            
+            var docUploadAction = (docFlag == 'EXT_SEAL_DOC') ? 'doUploadExtSealDocFile' : 'doUploadExtSealRealDocFile';
+            
+            let docDataObj = gridObj.getRowDataObject(rowId);
+            docDataObj["SMR_NUMBER"] = $reqExtInfo.SMR_NUMBER;
+            var params = {
+                module: "ext.req",
+                action: docUploadAction,
+                CONNECTION: "TRANSACTION",
+                DOC_DATA : JSON.stringify(docDataObj),
+                files: files
+            }
+            
+            sUtils.multipart.upload(config, params);
+        ]]>
+        </function>
+         <function name="openAttachDocTemplateFile" args="rowId, smrNumber, smdNumber, docFlag">
+        <![CDATA[
+        	//기존 문서가 있을 경우
+			var docData = {
+				KEY: smrNumber + "_" + smdNumber,
+				TARGET: docFlag
+			};
+			
+			var titleText ; 
+			var btnConfigArr = [];
+			
+			if(smrStatus == 'T'){ // 임시저장
+				btnConfigArr.push("DELETE");
+				btnConfigArr.push("CLOSE");
+			}else if(editMode == 'EDITOR' && smrStatus == 'R' && docFlag == 'EXT_SEAL_DOC'){ // 반려 후 수정할경우
+				if($addUserId != Sepoa.info.ID){
+					btnConfigArr.push("CLOSE");
+				} else {
+					btnConfigArr.push("DELETE");
+					btnConfigArr.push("CLOSE");
+				} 
+			}else if(smrStatus == 'RW' && docFlag == 'EXT_SEAL_REAL_DOC'){ // 반출승인 후 실사용날인서류
+				if($addUserId != Sepoa.info.ID){
+					btnConfigArr.push("CLOSE");
+				} else {
+					btnConfigArr.push("DELETE");
+					btnConfigArr.push("CLOSE");
+				} 
+			}else {
+				btnConfigArr.push("CLOSE");
+			}
+			
+			if(docFlag == 'EXT_SEAL_DOC'){
+				titleText = '날인서류';
+			}else {
+				titleText = '날인 확정 서류'
+			}
+			
+			$popup = sUtils.popup.modal({
+				url: window.CONTEXT_NAME + '/Contract/Module/SealModuleLayout.sux',
+				params: {
+					DOC_DATA: JSON.stringify(docData),
+					CONT_MODULE: "VIEW",
+					WORK_TYPE: "T",
+					CALLER: docFlag,
+                    BTN_CONFIG: btnConfigArr,
+                    deleteDoc: function() {
+                    	if(docFlag == 'EXT_SEAL_DOC'){
+					        gridObj.cells(rowId, gridObj.getColIndexById('ATTACH_IMG')).setIcon('ATTACH_IMG');
+							gridObj.cells(rowId, gridObj.getColIndexById('ATTACH_IMG')).cell.children[0].style = 'filter:none';
+	                        gridObj.cells(rowId, gridObj.getColIndexById("DOC_NUMBER")).setValue('');
+	                        gridObj.cells(rowId, gridObj.getColIndexById("SUBJECT")).setValue('');
+			        	}else {
+			        		gridObj.cells(rowId, gridObj.getColIndexById('ATTACH2_IMG')).setIcon('ATTACH_IMG');
+							gridObj.cells(rowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.children[0].style = 'filter:none';
+			        	}
+                    }					
+				},
+				title: titleText
+			});
+			resizePopup();
+			return;
+        ]]>
+        </function>
+        <function name="resizePopup">
+        <![CDATA[
+            if ($popup.conf) {
+                var width = Math.max(document.documentElement.clientWidth - 300, 900);
+                var height = Math.max(document.documentElement.clientHeight - 100, 600);
+                $popup.setDimension(width, height);
+            }
+        ]]>
+        </function>
+        <function name="manageImgPopupCallback" args="data">
+        <![CDATA[
+            //관리부서 선택 팝업 콜백
+            var sealDeptArray = [];
+            var sealDeptCodeArray = [];
+            var manageNumberArray = [];
+            var gridId = 0;
+            var deptArray = Sepoa.cache.combo.get('SL0015,' + Sepoa.info.HOUSE_CODE + '#' + Sepoa.info.COMPANY_CODE);
+            var sealData = [];
+            
+            for (var i in data) {
+                var sealObj = new Object();
+                var deptLoc = deptArray.find((item, idx) => {
+                    return item.value == data[i].SEAL_MG_DEPT;
+                });
+                sealDeptArray.push(deptLoc.text);
+                sealDeptCodeArray.push(deptLoc.value);
+                sealObj = Object.assign({}, data[i]);
+                sealObj.ITEM_NAME = data[i].SUBJECT;
+                sealObj.SEAL_MG_USER_ID = data[i].SEAL_MG_USER_ID;
+                sealObj.SEAL_MG_USER_NAME = data[i].SEAL_MG_USER_NAME;
+                sealObj.SEAL_TYPE = data[i].SEAL_TYPE;
+                sealData.push(sealObj);
+            }
+            var smdNumber = gridObj.cells(selectedGridId, gridObj.getColIndexById("SMD_NUMBER")).getValue();
+            $selectedExtList[smdNumber].SELECT_EXT_LIST = sealData;
+            $documentList[smdNumber].SELECT_EXT_LIST = sealData;
+            
+            selectedExtId = sealData[0].MANAGE_NUMBER;
+            var seal_mg_user_id = sealData[0].SEAL_MG_USER_ID;
+            var seal_mg_user_name = sealData[0].SEAL_MG_USER_NAME;
+            var seal_type = sealData[0].SEAL_TYPE;
+            var sealName = sealData[0].ITEM_NAME;
+            var deptSet = new Set(sealDeptArray);
+            var deptCodeSet = new Set(sealDeptCodeArray);
+            var sealDeptStr = Array.from(deptSet).join(',');
+            var sealDeptCodeStr = Array.from(deptCodeSet).join(',');
+            
+            if (sealData[0].SEAL_TYPE == 'U' || sealData[0].SEAL_TYPE == 'E') {
+                var seal_type = "U,E"
+            }
+            
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_MG_DEPT")).setValue('');
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_MG_DEPT_LOC")).setValue(sealDeptStr);
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_TYPE")).setValue(seal_type);
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_MG_DEPT")).setValue(sealDeptCodeStr);
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("MANAGE_NUMBER")).setValue(selectedExtId);
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_MG_USER_ID")).setValue(seal_mg_user_id);
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_MG_USER_NAME")).setValue(seal_mg_user_name);
+            gridObj.cells(selectedGridId, gridObj.getColIndexById("SEAL_MG_SUBJECT")).setValue(sealName);
+        ]]>
+        </function>
+        <function name="setSealMgDept" args="dept, division_dept_name, dept_name, seal_mg_user_name, seal_number, manage_number">
+        <![CDATA[
+            gridObj.cells(selected_rId, gridObj.getColIndexById('SEAL_MG_DEPT')).setValue(dept);
+            gridObj.cells(selected_rId, gridObj.getColIndexById('SEAL_NUMBER')).setValue(seal_number);
+            gridObj.cells(selected_rId, gridObj.getColIndexById('MANAGE_NUMBER')).setValue(manage_number);
+        ]]>
+        </function>
+        <function name="doAttachFile" args="rId, attach_key">
+        <![CDATA[
+            var type = "extDocExpect";
+            var mode = "";
+            
+            if (editMode == "VIEW" || editMode == "APP") {
+                mode = "VI";
+            }
+            var limit = 1; // 첨부파일 갯수 제한
+            
+            vaultPopup({
+                attach_key: attach_key,
+                type: type,
+                mode: mode,
+                callback: setAttach_callback,
+                rowId: rId,
+                limit: limit
+            });
+        ]]>
+        </function>
+        <function name="setAttach_callback" args="e, a, r">
+        <![CDATA[
+            if (editMode != "VIEW" && editMode != "APP") {
+                if (e.fileCount > 0) {
+                    gridObj.cells(r.rowId, gridObj.getColIndexById("SUBJECT")).setValue(e.name);
+                    gridObj.cells(r.rowId, gridObj.getColIndexById("ATTACH_NO")).setValue(e.attach_key);
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH_IMG')).cell.style.filter = '';
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH_IMG')).setIcon('ATTACH_IMG2');
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH_IMG')).cell.children[0].style = 'filter:none';
+                } else {
+                    gridObj.cells(r.rowId, gridObj.getColIndexById("ATTACH_NO")).setValue(e.attach_key);
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH_IMG')).cell.children[0].style = '';
+                }
+            }
+        ]]>
+        </function>
+        <function name="doAttachFile2" args="rId, attach_key">
+        <![CDATA[
+            var type = "extDocActual";
+            var mode = "";
+            
+            if ((editMode == "VIEW" && $addUserId != Sepoa.info.ID) || editMode == "APP") {
+                if (Sepoa.info.CTRL_CODE.indexOf('EXT_CONFIRM') > -1) {
+                    mode = "";
+                } else {
+                    mode = "VI";
+                }
+            } else if (smrStatus == "C") {
+                mode = "VI";
+            }
+            
+            var limit = 1; // 첨부파일 갯수 제한
+            
+            vaultPopup({
+                attach_key: attach_key,
+                type: type,
+                mode: mode,
+                callback: setAttach_callback2,
+                rowId: rId,
+                limit: limit
+            });
+        ]]>
+        </function>
+        <function name="setAttach_callback2" args="e, a, r">
+        <![CDATA[
+            if (editMode == "VIEW") {
+                if (e.fileCount > 0) {
+                    //gridObj.cells(r.rowId, gridObj.getColIndexById("SUBJECT")).setValue(e.name);
+                    gridObj.cells(r.rowId, gridObj.getColIndexById("ATTACH2_NO")).setValue(e.attach_key);
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.style.filter = '';
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH2_IMG')).setIcon('ATTACH_IMG2');
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.children[0].style = 'filter:none';
+                } else {
+                    gridObj.cells(r.rowId, gridObj.getColIndexById("ATTACH2_NO")).setValue(e.attach_key);
+                    gridObj.cells(r.rowId, gridObj.getColIndexById('ATTACH2_IMG')).cell.children[0].style = '';
+                }
+            }
+        ]]>
+        </function>
+        <function name="doAddRow" args="">
+        <![CDATA[
+            var smdNumber = getDocumentNumber("SMD");
+            var maxRowId = dhx4.newId();
+            gridObj.addRow(maxRowId, '', gridObj.getRowsNum());
+            gridObj.cells(maxRowId, gridObj.getColIndexById('SMR_SEQ')).setValue(maxRowId);
+            gridObj.cells(maxRowId, gridObj.getColIndexById('SMD_NUMBER')).setValue(smdNumber);
+            gridObj.cells(maxRowId, gridObj.getColIndexById('ACCEPT_FLAG')).setValue('N');
+            gridObj.cells(maxRowId, gridObj.getColIndexById('COMPLETE_FLAG')).setValue('N');
+            gridObj.showRow(maxRowId);
+            
+            $documentList[smdNumber] = {};
+            $selectedExtList[smdNumber] = {};
+        ]]>
+        </function>
+        <function name="doDeleteRow" args="">
+        <![CDATA[
+            grid_array = gridObj.getGridChangedRows("SELECTED");
+            if (grid_array.length < 1) {
+                Alert(Sepoa.cache.text.get('MESSAGE.MSG_1001'));
+            } else {
+                Confirm(Sepoa.cache.text.get('MESSAGE.1010'), function(result) {
+                    if (result) {
+                        for (var i in grid_array) {
+                            deleteRows.push(gridObj.cells(grid_array[i], gridObj.getColIndexById('SMD_NUMBER')).getValue());
+                            gridObj.deleteRow(grid_array[i]);
+                        }
+                    }
+                });
+            }
+        ]]>
+        </function>
+        <function name="doApprovalRequest_validation" args="status">
+        <![CDATA[
+            if (!formObj.validate()) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return false;
+            }
+            
+            var arr = ['EXT_OUT_EXPECT_HOUR', 'EXT_IN_EXPECT_HOUR'];
+            
+            for (var i = 0; i < arr.length; i++) {
+                var value = formObj.getValue(arr[i]);
+                if ('X'.indexOf(value) >= 0) {
+                    Alert(Sepoa.cache.text.get('SLM_501.MSG_0010')); //MSG_0010 올바른 예상일시 시/분을 선택해 주세요.
+                    return;
+                    break;
+                }
+            }
+            
+            var _fromDate = formObj.getValue('EXT_OUT_EXPECT_DATE');
+            var _toDate = formObj.getValue('EXT_IN_EXPECT_DATE');
+            if (_fromDate > _toDate) {
+                Alert(Sepoa.cache.text.get('MESSAGE.MSG_1002')); // 날짜 입력이 잘못되었습니다.
+                return false;
+            }
+            
+            var _fromTime = formObj.getValue('EXT_OUT_EXPECT_HOUR');
+            var _toTime = formObj.getValue('EXT_IN_EXPECT_HOUR');
+            if (_fromDate == _toDate && _fromTime >= _toTime) {
+                Alert(Sepoa.cache.text.get('SLM_501.MSG_0003')); // 시간 입력이 잘못되었습니다.
+                return false;
+            }
+            
+            // 날인예상서류 유효성 검사
+            var gridRowsCount = gridObj.getRowsNum();
+            if (gridRowsCount == 0) {
+                Alert(Sepoa.cache.text.get('SLM_501.MSG_0001')); // 날인예상서류를 입력해주세요.
+                return false;
+            }
+            
+            if (!gridObj.validate()) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0003'));
+                return false;
+            }
+            return true;
+        ]]>
+        </function>
+        <function name="searchExtAjax" args="formData, documentArr">
+        <![CDATA[
+            var result = "result";
+            
+            var serviceData = {
+                DOCUMENT_LIST: documentArr
+            };
+            
+            var CHK_CAL = "FALSE"; //나중에 모듈로 바꿔야함 일단 FALSE로 진행
+            
+            var params = {
+                EXT_OUT_EXPECT_DATE: formData.EXT_OUT_EXPECT_DATE,
+                EXT_OUT_EXPECT_HOUR: formData.EXT_OUT_EXPECT_HOUR,
+                EXT_OUT_EXPECT_MINUTE: formData.EXT_OUT_EXPECT_MINUTE,
+                EXT_IN_EXPECT_DATE: formData.EXT_IN_EXPECT_DATE,
+                EXT_IN_EXPECT_HOUR: formData.EXT_IN_EXPECT_HOUR,
+                EXT_IN_EXPECT_MINUTE: formData.EXT_IN_EXPECT_MINUTE,
+                PARAMETER: JSON.stringify(serviceData),
+                CHK_CAL_VAL: CHK_CAL
+            }
+            
+            doServiceAjax('sepoa.svc.seal.SepoaReqExternalService', 'CONNECTION', 'doSearchExtUse', params, function(so) { //반출 되어 있는지 확인
+                if (so.status == 1) {
+                    var sf = new SepoaFormater(so.result[0]);
+                    var sfList = sf.getArrayMap();
+                    var out_date;
+                    var out_time;
+                    var in_date;
+                    var in_time;
+                    var name;
+                    var status;
+            
+                    if (sf.getRowCount() > 0) {
+                        for (var i = 0; i < sf.getRowCount(); i++) {
+                            var ListResult = sfList[i];
+                            name = ListResult.SEAL_MG_SUBJECT;
+                            out_date = ListResult.EXT_OUT_EXPECT_DATE;
+                            out_time = ListResult.EXT_OUT_EXPECT_TIME;
+                            in_date = ListResult.EXT_IN_EXPECT_DATE;
+                            in_time = ListResult.EXT_IN_EXPECT_TIME;
+                            status = ListResult.SMR_STATUS;
+                        }
+                        if (CHK_CAL != "FALSE") {
+                            if (['I', 'W'].indexOf(status) > -1) {
+                                Alert(Sepoa.cache.text.get('SLM_501.NOT_REQ_EXT').replace('#NAME#', name));
+                            } else {
+                                Alert(Sepoa.cache.text.get('SLM_501.NOT_ALLOW').replace('#NAME#', name).replace('#YEAR#', out_date.substring(0, 4)).replace('#MONTH#', out_date.substring(4, 6)).replace('#DATE#', out_date.substring(6, 8)).replace('#TIME#', out_time.substring(0, 2)).replace('#MINUTE#', out_time.substring(2, 4))
+                                    .replace('#YEARS#', in_date.substring(0, 4)).replace('#MONTHS#', in_date.substring(4, 6)).replace('#DATES#', in_date.substring(6, 8)).replace('#TIMES#', in_time.substring(0, 2)).replace('#MINUTES#', in_time.substring(2, 4)));
+                            }
+                        } else {
+                            Alert(Sepoa.cache.text.get('SLM_501.NOT_REQ_EXT').replace('#NAME#', name));
+                        }
+                        result = false;
+                    } else {
+                        result = true;
+                    }
+                } else {
+                    Alert(Sepoa.cache.text.get("MESSAGE.1002")); //오류발생
+                    result = false;
+                }
+            }, false);
+            return result;
+        ]]>
+        </function>
+        <function name="doApprovalRequest">
+        <![CDATA[
+            if (!doApprovalRequest_validation()) {
+                return;
+            }
+            
+            Confirm(Sepoa.cache.text.get('SLM_501.MESSAGE_APPROVAL_REQUEST'), function(flag) {
+                if (flag) {
+                    doSave({
+                        CALLBACK: doSetApproval,
+                        CALLBACK_PARMETER: {
+                            APPROVAL_PRC_TYPE: "APPROVAL_REQUEST"
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doSetApproval" args="callbackParams">
+        <![CDATA[
+           doServiceAjax('sepoa.svc.approval.SepoaGWApprovalService', 'TRANSACTION', 'sendApproval', { 
+            	SMR_NUMBER: $reqExtInfo.SMR_NUMBER,
+            	APPLY_TYPE: 'EXTERNAL'
+            }, function(so) {
+		    	if (so.status == 1) {
+				    var width = Math.min(SUX.root.innerWidth * 0.7, 1280);
+				    var height = Math.min((SUX.root.innerHeight - 100) * 0.9, 800);
+					PopupOpenPostReal(so.result[0], width, height, $reqExtInfo.SMR_NUMBER, JSON.parse(so.result[1]));
+					var win = sUtils.popup.getWindowObject($reqExtInfo.SMR_NUMBER)
+
+					setTimeout(function run() {
+						if(win.closed) {
+						    if (Sepoa.request.SMR_NUMBER) {
+								doQuery(Sepoa.request.SMR_NUMBER);
+						    } else if (smrStatus == 'T' && moveFlag == 'Y') {
+                                linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+								SUX.root.getContentsCell(window).close();
+						    } else {
+								doBack();
+						    }
+						} else {
+							setTimeout(run, 500);
+						}
+					}, 500);
+				} else {
+					Alert(so.message);
+				}
+			});
+        ]]>
+        </function>
+        <function name="doApprovalProcess" args="params">
+        <![CDATA[
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status == "1") {
+                            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+                            if (Sepoa.request.SMR_NUMBER) {
+                                linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                            } else if (smrStatus == 'T' && moveFlag == 'Y') {
+                                linkTo('SLM_510', '/Seal/Document/External/Request/SealExternalRequestLayout.sux', 'undefined', Sepoa.cache.text.get('SLM_501.REQUEST_LIST'));
+                                SUX.root.getContentsCell(window).close();
+                            } else {
+                                doBack();
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            
+            var serviceData = {
+                REQ_EXT_INFO: $reqExtInfo,
+                REQ_SEAL_INFO: $reqExtInfo,
+                DOCUMENT_LIST: $documentList,
+                APP_LINE: params.data.approver,
+                APP_INFO: {
+                    APP_COMMENT: params.data.comment
+                }
+            };
+            
+            var params = {
+                module: "ext.req",
+                action: "doRequestService",
+                CONNECTION: "TRANSACTION",
+                CURRENT_PRC: "APPROVAL",
+                PARAMETER: JSON.stringify(serviceData)
+            }
+            
+            sUtils.multipart.send(config, params);
+            
+            
+            
+            //$documentList 는 요청시 저장되는 gridObj의 데이터
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZkZldWptZUJBQnpOTWN0WWNzIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9RS08yZjJ1b0Z1V3AiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1JhbXQ2RTBwalZ0USI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX1Z4blRWdEhSZmlYUyI6Im51bGwiLCJkaHhJZF8wcmN5cmQ4MnZVQ0EiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiU0xNXzUwMSIsIk9CSkVDVF9JRCI6ImZGZXVqbWVCQUJ6Tk1jdFljcyIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwi
+        RlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6ImZGZXVqbWVCQUJ6Tk1jdFljcyIsInR5cGUiOiJib2R5In0sIkdHZXVqbWVadWh1am1lU1F3dyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiR0dldWptZVp1aHVqbWVTUXd3In0sImlkIjoiR0dldWptZVp1aHVqbWVTUXd3IiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIkdHZXVqbWVadWh1am1lWER5TyI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IjEwMzVweCIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfc2ZRZFpSNEUzZXRtIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwi
+        TUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9ncWpUTjJRSnE3QmEiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsIkFMSUdOX1ZFUlRJQ0FMIjoibWlkZGxlIiwiZGh4SWRfbURDVDU2V3VWQjl2IjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfOXVrUjVIUFUycHRZIjoibnVsbCIsImRoeElkX0tFZE95OFRyNEZBNiI6Im51bGwiLCJkaHhJZF9tbkxrMVVZWVBQdDYiOiJudWxsIiwiZGh4SWRfSHFDWEVMQ0J4dlliIjoibnVsbCIsImRoeElkXzhia1ppaEllYTZOQyI6Im51bGwiLCJkaHhJZF9FTHRrYkQyT2RNZm8iOiJudWxsIiwiZGh4SWRfSFFQZllPa2VER0tZIjoibnVsbCIsImRoeElkXzM3bGo4cU1XcTRsOCI6Im51
+        bGwiLCJkaHhJZF8wZEx5TER4MVRpQmMiOiJudWxsIiwiZGh4SWRfR3BvOXFLSktCZFY3IjoibnVsbCIsImRoeElkX0lBejFzaTdGNlo1SiI6Im51bGwiLCJkaHhJZF9IdVE3ZUZydzQ5NVoiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiR0dldWptZVp1aHVqbWVYRHlPIiwiT0JKRUNUX0lEIjoiR0dldWptZVp1aHVqbWVYRHlPIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJHR2V1am1lWnVodWptZVhEeU8iLCJ0eXBlIjoiY29udGFpbmVyIn0sIkdHZXVqbWVYZGt1am1lS0xTYiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIs
+        IlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIk9CSkVDVF9JRCI6IkdHZXVqbWVYZGt1am1lS0xTYiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiSVRFTV8wX0lEIjoic2F2ZSIsIklURU1fMF9UWVBFIjoiZGVmYXVsdCIsIklURU1fMF9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fMF9TTENPREUiOiJCVVRUT04udGVtcHNhdmUiLCJJVEVNXzBfUEFSQU0iOiImIzM5O1NBVkUmIzM5OyIsIklURU1fMF9URVhUIjoi7J6E7Iuc7KCA7J6lIiwiSVRFTV8xX0lEIjoibWFuYWdlcl9yZXF1
+        ZXN0IiwiSVRFTV8xX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8xX1NMQ09ERSI6IkJVVFRPTi5jb21wbGV0ZV93cml0ZSIsIklURU1fMV9QQVJBTSI6IiYjMzk7TUFOQUdFUl9SRVFVRVNUJiMzOTsiLCJJVEVNXzFfVEVYVCI6IuyKueyduOyalOyyrSIsIklURU1fMl9JRCI6ImFwcHJvdmFsX3JlcXVlc3QiLCJJVEVNXzJfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzJfU0xDT0RFIjoiQlVUVE9OLmFwcF9yZXF1ZXN0IiwiSVRFTV8yX1BBUkFNIjoiJiMzOTtBUFBST1ZBTF9SRVFVRVNUJiMzOTsiLCJJVEVNXzJfVEVYVCI6IuqysOyerOyalOyyrSIsIklURU1fM19JRCI6Im1hbmFnZXJfYWNjZXB0IiwiSVRFTV8zX1RZUEUiOiJkZWZhdWx0
+        IiwiSVRFTV8zX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8zX1NMQ09ERSI6IkJVVFRPTi5jb21maXJtIiwiSVRFTV8zX1BBUkFNIjoiJiMzOTtNQU5BR0VSX0FDQ0VQVCYjMzk7IiwiSVRFTV8zX1RFWFQiOiLsirnsnbgiLCJJVEVNXzRfSUQiOiJtYW5hZ2VyX3JlamVjdCIsIklURU1fNF9UWVBFIjoiZGVmYXVsdCIsIklURU1fNF9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fNF9TTENPREUiOiJCVVRUT04ucmVqZWN0IiwiSVRFTV80X1BBUkFNIjoiJiMzOTtNQU5BR0VSX1JFSkVDVCYjMzk7IiwiSVRFTV80X1RFWFQiOiLrsJjroKQiLCJJVEVNXzVfSUQiOiJyZXR1cm5fcmVxdWVzdCIsIklURU1fNV9UWVBFIjoiZGVmYXVsdCIsIklURU1f
+        NV9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fNV9TTENPREUiOiJCVVRUT04ucmV0dXJuX3JlcXVlc3QiLCJJVEVNXzVfUEFSQU0iOiImIzM5O1JFVFVSTl9SRVFVRVNUJiMzOTsiLCJJVEVNXzVfVEVYVCI6IuuwmOyehSIsIklURU1fNl9JRCI6InJldHVybl9jb21wbGV0ZSIsIklURU1fNl9UWVBFIjoiZGVmYXVsdCIsIklURU1fNl9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fNl9TTENPREUiOiJCVVRUT04ucmV0dXJuX2NvbXBsZXRlIiwiSVRFTV82X1BBUkFNIjoiJiMzOTtSRVRVUk5fQ09NUExFVEUmIzM5OyIsIklURU1fNl9URVhUIjoi67CY7J6F7JmE66OMIiwiSVRFTV83X0lEIjoiYmFjayIsIklURU1fN19UWVBFIjoiZGVmYXVsdCIs
+        IklURU1fN19PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fN19TTENPREUiOiJCVVRUT04uYmFjayIsIklURU1fN19QQVJBTSI6IiYjMzk7QkFDSyYjMzk7IiwiSVRFTV83X1RFWFQiOiLrkqTroZwiLCJJVEVNXzBfU09SVCI6IjEiLCJJVEVNXzFfU09SVCI6IjIiLCJJVEVNXzJfU09SVCI6IjMiLCJJVEVNXzNfU09SVCI6IjQiLCJJVEVNXzRfU09SVCI6IjUiLCJJVEVNXzVfU09SVCI6IjYiLCJJVEVNXzZfU09SVCI6IjciLCJJVEVNXzdfU09SVCI6IjgifSwiaWQiOiJHR2V1am1lWGRrdWptZUtMU2IiLCJ0eXBlIjoiYnV0dG9uIn0sIkdHZXVqbWVmT2x1am1lZVdyeiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwi
+        TUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX053UVc5VEtPZkk2SiI6Im51bGwiLCJkaHhJZF9yeURlc2xTMG1NSDQiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsIkFMSUdOX1ZFUlRJQ0FMIjoibWlkZGxlIiwiZGh4SWRfam5qUlg0eTJHcmsxIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfT28zUmlhaXozem1wIjoibnVsbCIsImRoeElkX1pCWEJFNlhTNzVKRCI6Im51bGwiLCJkaHhJZF85U1U4VWMyVGFGT0ciOiJudWxsIiwiZGh4SWRfUGlTbU96TWNFZXFDIjoibnVsbCIsImRo
+        eElkX3U1SlJqcnU2RXB1dCI6Im51bGwiLCJkaHhJZF9RWUFvbXF0ZnBjUEMiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmb3JtT2JqIiwiT0JKRUNUX0lEIjoiR0dldWptZWZPbHVqbWVlV3J6IiwiRk9STV9JRCI6IlNMTV81MDEifSwiaWQiOiJHR2V1am1lZk9sdWptZWVXcnoiLCJ0eXBlIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvbkJ1dHRvbkNsaWNrX2Zvcm1PYmoiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvbkJ1dHRvbkNsaWNrIn1dfSwiR0dldWptZXBObXVqbWVSQW5IIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29t
+        cG9uZW50Ijp7IlZBUiI6ImdyaWRPYmpfdGl0bGUiLCJPQkpFQ1RfSUQiOiJHR2V1am1lcE5tdWptZVJBbkgifSwiaWQiOiJHR2V1am1lcE5tdWptZVJBbkgiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiR0dldWptZXBObXVqbWVkTWV6Ijp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiMTAxMHB4IiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9HR0MyNGNHQUF3NXQiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX2RuemdXSkFEN3VaeiI6Im51bGwiLCJBTElHTl9IT1JJWk9O
+        VEFMIjoiY2VudGVyIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9BYzBjSG9tYnRoYmsiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9XQ0c1TVpQaUtyTUciOiJudWxsIiwiZGh4SWRfWmZVbjQ5WFJqdUNjIjoibnVsbCIsImRoeElkX3JEdTNPemlhWFNDVSI6Im51bGwiLCJkaHhJZF9EU1pEUmxlT0pvWmIiOiJudWxsIiwiZGh4SWRfdTVpbWQzdEpQNWhiIjoibnVsbCIsImRoeElkX3Z6cWpvRllXZnZYdCI6Im51bGwiLCJkaHhJZF9yekI3Z1puRUZrSUUiOiJudWxsIiwiZGh4SWRfemRpVmFSTm9NbGFDIjoibnVsbCIsImRoeElkX1MwY1V0bVVUbk1tZSI6Im51bGwiLCJkaHhJZF9NbGU2dFFJYm1CeDkiOiJudWxsIiwiZGh4SWRfSW1QZUZ3bVVVeVZmIjoi
+        bnVsbCIsImRoeElkX3kzeG1SRXQ2ZlpSTiI6Im51bGwiLCJkaHhJZF9jNVJtMXljcHZxcDUiOiJudWxsIiwiZGh4SWRfYUVXVW1sY1FzeWUwIjoibnVsbCIsImRoeElkX0RvUzZhVXdZTGg0byI6Im51bGwiLCJkaHhJZF94TEw5d1hybmsxVG8iOiJudWxsIiwiZGh4SWRfVVBsZG1naUNPT085IjoibnVsbCIsImRoeElkXzdGUXE1QkV2dThyZCI6Im51bGwiLCJkaHhJZF9Uek1EdlFGSEM4UjUiOiJudWxsIiwiZGh4SWRfa3lFeGI4eXhQMGpFIjoibnVsbCIsImRoeElkX1E5a01JV3FBYkdwbyI6Im51bGwiLCJkaHhJZF9CSEJqYTJSN1IwRWwiOiJudWxsIiwiZGh4SWRfNU9VZmFTYWdrRmx3IjoibnVsbCIsImRoeElkXzFKQ2ZmTEJ6NkhDZCI6Im51bGwiLCJkaHhJ
+        ZF9qZk1wWE1zQlh3djQiOiJudWxsIiwiZGh4SWRfVXJ1WGtLY21UN1hXIjoibnVsbCIsImRoeElkXzJSZEVyVUtQVWZHciI6Im51bGwiLCJkaHhJZF9pZ0hWSUxVdk5WanUiOiJudWxsIiwiZGh4SWRfTllMZHI4MkY5NGNWIjoibnVsbCIsImRoeElkX2xqMlBQY3k2ck9BbyI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjIiLCJWQVIiOiJHR2V1am1lcE5tdWptZWRNZXoiLCJPQkpFQ1RfSUQiOiJHR2V1am1lcE5tdWptZWRNZXoiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIiwiQ09MVU1OX0lURU1fMSI6IjEifSwiaWQiOiJHR2V1am1lcE5tdWptZWRNZXoiLCJ0eXBlIjoiY29udGFpbmVyIn0sIkdHZXVqbWVZQm91am1l
+        c2FITiI6eyJsYXlvdXQiOnsiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJHR2V1am1lWUJvdWptZXNhSE4iLCJPQkpFQ1RfSUQiOiJHR2V1am1lWUJvdWptZXNhSE4ifSwiaWQiOiJHR2V1am1lWUJvdWptZXNhSE4iLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImIifSwiR0dldWptZUxZcHVqbWVQdXFUIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IjEzMDAiLCJTSVpFX0hFSUdIVCI6IjE4NyIsIlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9O
+        IjoibnVsbCIsImRoeElkX2t0YVZPR0pPYWlndSI6Im51bGwiLCJkaHhJZF9ONVo0SlpVWW1IUFUiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfSGprWmx1SlgzbkVXIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfZzFXYnlSWHMzSVByIjoibnVsbCIsImRoeElkX0NDcjR6OUNpUkNITCI6Im51bGwiLCJkaHhJZF9zWG5VcUVwQTNvcTkiOiJudWxsIiwiZGh4SWRfN3FSODAzSVhQR3d0IjoibnVsbCIsImRoeElkX2c4VHZrRTJhaE9lMSI6Im51bGwiLCJkaHhJZF94WmNsNjNuSUIxMGciOiJudWxsIiwiZGh4SWRfWUlpcjV3ZVhlbXYzIjoibnVsbCIsImRoeElkX0YwOFFwQWtJenI0TiI6Im51bGwiLCJkaHhJ
+        ZF90Y2hSbXJzWTF5TzQiOiJudWxsIiwiZGh4SWRfZEYwck55Z0x2Q3VzIjoibnVsbCIsImRoeElkX2M3UHB2VzFMdkkxVyI6Im51bGwiLCJkaHhJZF9IUFRjTU1HUzkzcFciOiJudWxsIiwiZGh4SWRfM3R4S1dwYUpZWGpjIjoibnVsbCIsImRoeElkX3JLZFZRTVpzM2tNSiI6Im51bGwiLCJkaHhJZF9VZGdUeDZiU3BvQnYiOiJudWxsIiwiZGh4SWRfOGMySkZqVWZ4ZDU5IjoibnVsbCIsImRoeElkX3RvdHo3b3Z0cHRHciI6Im51bGwiLCJkaHhJZF9ibElZREI0Q1g4WngiOiJudWxsIiwiZGh4SWRfNkE1bllXM0xVQ25vIjoibnVsbCIsImRoeElkXzNGVmJsaVBNamxTMiI6Im51bGwiLCJkaHhJZF91UVRBWmFUaG5KNjgiOiJudWxsIiwiZGh4SWRfWGJFQmo4cHBU
+        YmJVIjoibnVsbCIsImRoeElkX1FERmt2OHVkcmlVOCI6Im51bGwiLCJkaHhJZF9LQ0Nna0g4NlVGaHYiOiJudWxsIiwiZGh4SWRfYXBCdUFQYWNMc2FHIjoibnVsbCIsImRoeElkXzlzSERYa3haZVNSRiI6Im51bGwiLCJkaHhJZF8zQmZCWDRGNnRHakgiOiJudWxsIiwiZGh4SWRfUUR1alZ0MnBkYU5zIjoibnVsbCIsImRoeElkX2R5MlJudFpHRDVsQiI6Im51bGwiLCJkaHhJZF9RUlN3MlFLczN0QkUiOiJudWxsIiwiZGh4SWRfZXcwVVZGTWduYVhFIjoibnVsbCIsImRoeElkX2hhWTlsVmVKUHRZWSI6Im51bGwiLCJkaHhJZF9zYmxvUlhvUEhvNDMiOiJudWxsIiwiZGh4SWRfZkNld1A2cEs4WWhrIjoibnVsbCIsImRoeElkXzhQa2E2QVhic0dsNyI6Im51bGwi
+        LCJkaHhJZF81UkZrazZyYmU5QW8iOiJudWxsIiwiZGh4SWRfRFdwRk9oNktob1BVIjoibnVsbCIsImRoeElkX2xtdEhvSzgwUjVRSyI6Im51bGwiLCJkaHhJZF9xT0psV2VRQ0NHdTYiOiJudWxsIiwiZGh4SWRfaVJMREJnMjNJeUpHIjoibnVsbCIsImRoeElkX1laeVJ6bmJrSHk5NiI6Im51bGwiLCJkaHhJZF9LaHoxME5CVTVkYTYiOiJudWxsIiwiZGh4SWRfaEh6MUZ3UUI3U3FMIjoibnVsbCIsImRoeElkXzJjQXM1bUh0RGxzRyI6Im51bGwiLCJkaHhJZF9uQ0ZXOXhJSFFMWXoiOiJudWxsIiwiZGh4SWRfUkNzNmR5THFSdWh2IjoibnVsbCIsImRoeElkXzk3N0JsaVNUVERUaSI6Im51bGwiLCJkaHhJZF9qR0E1UE95QkludXQiOiJudWxsIiwiZGh4SWRfd2gx
+        bGRUTTdRTnBtIjoibnVsbCIsImRoeElkX2VHVUhEallMV2VjWSI6Im51bGwiLCJkaHhJZF83Qkhhc3IyamNVb1UiOiJudWxsIiwiZGh4SWRfYmVoeFlrMmFwWnlhIjoibnVsbCIsImRoeElkX1N0OVY1TG5YSFFmUyI6Im51bGwiLCJkaHhJZF92UTdkS1kzMzJ6MjciOiJudWxsIiwiZGh4SWRfVmRSVVIyMnNKZ3lKIjoibnVsbCIsImRoeElkXzN2Y1N3UVlJY2lwMiI6Im51bGwiLCJkaHhJZF8wR0h3ODZoOFJkbXgiOiJudWxsIiwiZGh4SWRfNHZjRjFmcE1QcUgzIjoibnVsbCIsImRoeElkX2Fua2J1V25vZlZDNSI6Im51bGwiLCJkaHhJZF9HVUc5TW5FeHRZbXMiOiJudWxsIiwiZGh4SWRfOUNHMDdEYTNDcDhMIjoibnVsbCIsImRoeElkX1hWTDVublJtTmFDYSI6
+        Im51bGwiLCJkaHhJZF96d2c1MlIxN2psTlIiOiJudWxsIiwiZGh4SWRfcFd6bXE1VGswRzF3IjoibnVsbCIsImRoeElkX1UzdG1zdWJKVkU4ViI6Im51bGwiLCJkaHhJZF9NMkVWRWx4OEN5ejkiOiJudWxsIiwiZGh4SWRfUG1mRlEya01sUXBtIjoibnVsbCIsImRoeElkX2hwRWFGNU5LREhGUiI6Im51bGwiLCJkaHhJZF9IWkQyUXB3bWF0c1MiOiJudWxsIiwiZGh4SWRfMHNISjlWOFlpWE1nIjoibnVsbCIsImRoeElkX0VmekVOZGNmWFRBdCI6Im51bGwiLCJkaHhJZF9xSE5jMmNJTklNQlciOiJudWxsIiwiZGh4SWRfWHdMQVFtc083M3JYIjoibnVsbCIsImRoeElkX0E5dEZyQUdlSzhtbSI6Im51bGwiLCJkaHhJZF9xUTRBcXV6bHFCd2kiOiJudWxsIiwiZGh4
+        SWRfRXpDbjZkQW45dmRzIjoibnVsbCIsImRoeElkX3FaWU1hWXBZM003eiI6Im51bGwiLCJkaHhJZF91ZVIwWFJnbmk2MHEiOiJudWxsIiwiZGh4SWRfTE9RU3V2a0cyU1Y3IjoibnVsbCIsImRoeElkX0dOQlZJQm1oQjY0ayI6Im51bGwiLCJkaHhJZF8yZE5TVmRudVFyWWgiOiJudWxsIiwiZGh4SWRfNVpXWW5IaDdDcEI2IjoibnVsbCIsImRoeElkXzYzdG5HVjBpSXZ4cCI6Im51bGwiLCJkaHhJZF82cU9MZFdla1JJRkUiOiJudWxsIiwiZGh4SWRfMnZWNVJveVJwOWlHIjoibnVsbCIsImRoeElkX0hGZ0dkcUU1VWtpYiI6Im51bGwiLCJkaHhJZF84UWVRR09HRFZtRzQiOiJudWxsIiwiZGh4SWRfQ01Vc3pIQTM4RlpZIjoibnVsbCIsImRoeElkX0lXbEJydjhG
+        VFUydyI6Im51bGwiLCJkaHhJZF80VU16RHoxcmxJTEciOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIkVYQ0VMRE9XTkxPQUQiOiJ0cnVlIiwiT0JKRUNUX0lEIjoiR0dldWptZUxZcHVqbWVQdXFUIiwiR1JJRF9JRCI6IlNMTV81MDFfMiJ9LCJpZCI6IkdHZXVqbWVMWXB1am1lUHVxVCIsInR5cGUiOiJncmlkIn0sIkdHZXVqbWVRY1N2am1landUeiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiR0dldWptZVFjU3ZqbWVqd1R6In0sImlkIjoiR0dldWptZVFjU3ZqbWVqd1R6IiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIkdHZXVq
+        bWVQY1N2am1lR0dKUSI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfZzF5ZjRmeHVUVzk3IjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9qcTczTDdwalVSNXAiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0IiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9yRTFDNFpTaVVDWnIiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF8wa2M0Nm56THVKdGYiOiJudWxsIiwiZGh4SWRfb1Mxc2U4ejNpd0VPIjoibnVsbCIsImRo
+        eElkX2RUOGFGcFk0dDZCRyI6Im51bGwiLCJkaHhJZF9wUDhUY1JnMXZUOWgiOiJudWxsIiwiZGh4SWRfdURLSDc2c0ROY3VhIjoibnVsbCIsImRoeElkX0R1bWhuc3BGYnNyeiI6Im51bGwiLCJkaHhJZF9IbVNPZ1ZiekNXOUEiOiJudWxsIiwiZGh4SWRfZ0dWbURZN3k2YTRXIjoibnVsbCIsImRoeElkXzlCY01RdGpZdDIyUyI6Im51bGwiLCJkaHhJZF9Ub0F5eWFkcHcyR0UiOiJudWxsIiwiZGh4SWRfNWZOcUc1bnc3QlloIjoibnVsbCIsImRoeElkX01vSlZyVURwcmljcSI6Im51bGwiLCJkaHhJZF9pTU1lck5uRUdSVlkiOiJudWxsIiwiZGh4SWRfWDVTOTZQcHRFcFdOIjoibnVsbCIsImRoeElkX3p1YkdRc29oQ0RSYSI6Im51bGwiLCJkaHhJZF92dlM1MVM2
+        SlNWR3ciOiJudWxsIiwiZGh4SWRfVEZ3Z1R5akI0TXRiIjoibnVsbCIsImRoeElkX2UxbURUb0w2aG5PdyI6Im51bGwiLCJkaHhJZF94YmQ3QjVKdXF1TTkiOiJudWxsIiwiZGh4SWRfRTd1Z2F0eUZWaDRzIjoibnVsbCIsImRoeElkX0Zob21ETEJEMXRaRyI6Im51bGwiLCJkaHhJZF9wWDF5RnQxMjh4YjYiOiJudWxsIiwiZGh4SWRfT2dIYVhrZWlBQUFvIjoibnVsbCIsImRoeElkX2ZaTUJyNVp2ZWJqQSI6Im51bGwiLCJkaHhJZF9pQVBDOWFtcDZPY0IiOiJudWxsIiwiZGh4SWRfNHQ1akpHdUVrSnBXIjoibnVsbCIsImRoeElkX2V6ckJKcHZHTjdZayI6Im51bGwiLCJkaHhJZF9HcHg1ZGo1dVZTc3oiOiJudWxsIiwiZGh4SWRfZThkTUN5NExJRUQ4IjoibnVs
+        bCIsImRoeElkX3U4QU5oNkZWd0FubiI6Im51bGwiLCJkaHhJZF96c0o2cmVPSWswb2wiOiJudWxsIiwiZGh4SWRfdnZhalhPMUVaOWxLIjoibnVsbCIsImRoeElkX2t6Y0pNSDVqMnhJMiI6Im51bGwiLCJkaHhJZF9OSDNtV2tBQlUwa0kiOiJudWxsIiwiZGh4SWRfemhtU01pcG0yWkxIIjoibnVsbCIsImRoeElkX2N5Z3pyWnhaWFYzbiI6Im51bGwiLCJkaHhJZF9sVW96aTlZY2hYYzciOiJudWxsIiwiZGh4SWRfa3dUTHdqcmQydk5NIjoibnVsbCIsImRoeElkX2dWOXF5bUJGdGo3MSI6Im51bGwiLCJkaHhJZF9jdThZR2tWTHZZbDMiOiJudWxsIiwiZGh4SWRfSXJRZTdyVTV1QnBMIjoibnVsbCIsImRoeElkX09nS25KRHhlQkM1aSI6Im51bGwiLCJkaHhJZF9G
+        Q21lWTJWZHRwVmQiOiJudWxsIiwiZGh4SWRfQ2VOWmNKTlQzSWRuIjoibnVsbCIsImRoeElkXzNleG12V3hhV3BNdiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJHR2V1am1lUGNTdmptZUdHSlEiLCJPQkpFQ1RfSUQiOiJHR2V1am1lUGNTdmptZUdHSlEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIn0sImlkIjoiR0dldWptZVBjU3ZqbWVHR0pRIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJHR2V1am1lb0FyeGptZUZiRnciOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0la
+        RV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqX2J0bk9iaiIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5hZGQiLCJJVEVNXzFfU0xDT0RFIjoiQlVUVE9OLmRlbGV0ZSIsIklURU1fMF9UWVBFIjoiZGVmYXVsdCIsIklURU1fMF9QQVJBTSI6IiIsIklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX09OQ0xJQ0siOiJkb0RlbGV0ZVJvdyIsIklURU1fMV9QQVJBTSI6IiIsIklURU1fMF9PTkNMSUNLIjoiZG9BZGRSb3ciLCJJVEVNXzFfVEVYVCI6IuyCreygnCIsIklURU1fMV9UT0dHTEUi
+        OmZhbHNlLCJJVEVNXzBfVE9HR0xFIjpmYWxzZSwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIiwiT0JKRUNUX0lEIjoiR0dldWptZW9BcnhqbWVGYkZ3IiwiSVRFTV8xX1RZUEUiOiJkZWZhdWx0IiwiSVRFTV8wX0lEIjoicm93YWRkIiwiSVRFTV8xX0lEIjoicm93ZGVsZXRlIiwiSVRFTV8wX1RFWFQiOiLstpTqsIAifSwiaWQiOiJHR2V1am1lb0FyeGptZUZiRnciLCJ0eXBlIjoiYnV0dG9uIn0sIll1dGdwWGZlckdocFhmSXRiayI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiWXV0Z3BYZmVyR2hwWGZJdGJrIn0sImlkIjoiWXV0Z3BYZmVyR2hwWGZJdGJrIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIll1dGdwWGZkckdo
+        cFhmelJFcSI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IjEwMzBweCIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfZ2Q2ajlraDZWSnpXIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9Zb0FVNUlGdE5PME0iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsIkFMSUdOX1ZFUlRJQ0FMIjoibWlkZGxlIiwiZGh4SWRfWFkzcjJJWGtNR1lNIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfU1F5Snk1RlR4QXViIjoibnVsbCIsImRoeElkXzllYVZYNWVKQ0xJbCI6Im51
+        bGwiLCJkaHhJZF8wY2d5eDh4RzZVaEciOiJudWxsIiwiZGh4SWRfVlhzRGZFbWFzYjBqIjoibnVsbCIsImRoeElkX3pSV0J0WW9YT0U2VCI6Im51bGwiLCJkaHhJZF82dnVocVpmU3VscEEiOiJudWxsIiwiZGh4SWRfZFJCQTF1eUtDdVcxIjoibnVsbCIsImRoeElkX1BMM2lvY0p6ZjBzSyI6Im51bGwiLCJkaHhJZF9NS2JTMGZtS1lOTWkiOiJudWxsIiwiZGh4SWRfUmVMejB2bTdVQmp3IjoibnVsbCIsImRoeElkX1VTTlJ1ZnBEUDFPaCI6Im51bGwiLCJkaHhJZF9LN3dBb0RVdVBtMW0iOiJudWxsIiwiZGh4SWRfVTZBWWhwNXdvQUh3IjoibnVsbCIsImRoeElkX1luSTdwS1ZRREtqdyI6Im51bGwiLCJkaHhJZF9sQ1Qxb1FSd0FxWXAiOiJudWxsIiwiZGh4SWRf
+        QjVNWUhaZ2tnU05UIjoibnVsbCIsImRoeElkXzVqbzZsWFViRjIxNiI6Im51bGwiLCJkaHhJZF91YzdGSkhSNmoxRjkiOiJudWxsIiwiZGh4SWRfcWRtQ0JHU0FxSzJ2IjoibnVsbCIsImRoeElkXzJrQWUyZnE0SktybCI6Im51bGwiLCJkaHhJZF9yeWVKaDNheVpLMG0iOiJudWxsIiwiZGh4SWRfUTVNeEdDWHZMcGRiIjoibnVsbCIsImRoeElkX0kwZHB2UEg3VHFJWiI6Im51bGwiLCJkaHhJZF8zcFp3bWVWMjQxTVAiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiWXV0Z3BYZmRyR2hwWGZ6UkVxIiwiT0JKRUNUX0lEIjoiWXV0Z3BYZmRyR2hwWGZ6UkVxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJZdXRncFhmZHJHaHBY
+        ZnpSRXEiLCJ0eXBlIjoiY29udGFpbmVyIn0sImE2MWM2NWUwNDNlYzQ3Yjg4ODI0ZjBjNGVlNThhOSI6eyJsYXlvdXQiOnsiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJhcHByb3Zlcl9ncmlkX2NvbCIsIk9CSkVDVF9JRCI6ImE2MWM2NWUwNDNlYzQ3Yjg4ODI0ZjBjNGVlNThhOSJ9LCJpZCI6ImE2MWM2NWUwNDNlYzQ3Yjg4ODI0ZjBjNGVlNThhOSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJmZjdiYTFmMWZlNjE0ZmJkODc3Nzc1YjA4ZDNkNTIiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgi
+        OiIxMDM1cHgiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkXzVkNHpQc3d5VlBjQyI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfdjQxclhaa0xhczVkIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiJjZW50ZXIiLCJBTElHTl9WRVJUSUNBTCI6Im1pZGRsZSIsImRoeElkX2Jrb0N6WlhzbENicyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6ImFwcHJvdmVyX2dyaWRfY29udCIsIk9CSkVDVF9JRCI6ImZmN2JhMWYxZmU2MTRmYmQ4Nzc3NzViMDhkM2Q1MiIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoi
+        ZmY3YmExZjFmZTYxNGZiZDg3Nzc3NWIwOGQzZDUyIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJlMjYyNDNhNGM4NWU0NzUxOGRmODk0Nzc5YjQ2YmIiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9KWUJtNFdhQ0l4ZkEiOiJudWxsIiwiZGh4SWRfeDE5N2QwWEdlQzM4IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzc2RU5IMG5WTnd3RyI6Im51bGwiLCJDTEFT
+        UyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYXBwcm92YWxfZ3JpZCIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJFWENFTERPV05MT0FEIjoidHJ1ZSIsIk9CSkVDVF9JRCI6ImUyNjI0M2E0Yzg1ZTQ3NTE4ZGY4OTQ3NzliNDZiYiIsIkdSSURfSUQiOiJBUF8xMTEifSwiaWQiOiJlMjYyNDNhNGM4NWU0NzUxOGRmODk0Nzc5YjQ2YmIiLCJ0eXBlIjoiZ3JpZCJ9fSwidHJlZSI6eyJpZCI6ImZGZXVqbWVCQUJ6Tk1jdFljcyIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiZmY3YmExZjFmZTYxNGZiZDg3Nzc3NWIwOGQzZDUyIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImE2MWM2NWUwNDNl
+        YzQ3Yjg4ODI0ZjBjNGVlNThhOSIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJlMjYyNDNhNGM4NWU0NzUxOGRmODk0Nzc5YjQ2YmIiLCJ0eXBlIjoiZ3JpZCJ9XX1dfSx7ImlkIjoiR0dldWptZVp1aHVqbWVYRHlPIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IkdHZXVqbWVadWh1am1lU1F3dyIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJHR2V1am1lUGNTdmptZUdHSlEiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiR0dldWptZVFjU3ZqbWVqd1R6IiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6IkdHZXVqbWVYZGt1am1lS0xTYiIsInR5cGUiOiJidXR0b24ifV19XX0seyJpZCI6IkdH
+        ZXVqbWVmT2x1am1lZVdyeiIsInR5cGUiOiJmb3JtIn0seyJpZCI6IkdHZXVqbWVwTm11am1lZE1leiIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJHR2V1am1lcE5tdWptZVJBbkgiLCJ0eXBlIjoiY29sdW1uIn0seyJpZCI6IkdHZXVqbWVZQm91am1lc2FITiIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJHR2V1am1lb0FyeGptZUZiRnciLCJ0eXBlIjoiYnV0dG9uIn1dfV19LHsiaWQiOiJZdXRncFhmZHJHaHBYZnpSRXEiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiWXV0Z3BYZmVyR2hwWGZJdGJrIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6IkdHZXVqbWVMWXB1am1lUHVxVCIsInR5cGUiOiJn
+        cmlkIn1dfV19XX1dfV19LCJpbmZvIjp7IlBBVEgiOiIvU2VhbC9Eb2N1bWVudC9FeHRlcm5hbC9TZWFsRG9jdW1lbnRFeHRlcm5hbFdyaXRlLnhtbCIsIlBST0pFQ1QiOiJTRUFMIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiU2VhbC9Eb2N1bWVudC9FeHRlcm5hbCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlNlYWxEb2N1bWVudEV4dGVybmFsV3JpdGUiLCJDT0RFIjoiNTAxIiwiUFJFRklYIjoiU0xNIiwiU0NSRUVOX0lEIjoiU0xNXzUwMSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJmRmV1am1lQkFCek5NY3RZY3NcIiBjbGFzcz1cImNvbnRhaW5lciBzZXBvYXV4X3NjcmVlbl9zY3JvbGxcIj5cbiAgICA8ZGl2
+        IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImZmN2JhMWYxZmU2MTRmYmQ4Nzc3NzVi
+        MDhkM2Q1MlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9jZW50ZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX3ZhbGlnbl9taWRkbGVcIiBzdHlsZT1cIndpZHRoOjEwMzVweDtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImE2MWM2NWUwNDNlYzQ3Yjg4ODI0ZjBjNGVlNThhOVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiZTI2MjQzYTRjODVlNDc1MThkZjg5NDc3OWI0NmJiXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+
+        XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiR0dldWptZVp1aHVqbWVYRHlPXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfdmFsaWduX21pZGRsZVwiIHN0eWxlPVwid2lkdGg6
+        MTAzNXB4O1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJHR2V1am1lWnVodWptZVNRd3dcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJHR2V1am1lUGNTdmptZUdHSlFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJHR2V1am1lUWNTdmptZWp3VHpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5u
+        ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkdHZXVqbWVYZGt1am1lS0xTYlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xh
+        c3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfdmFsaWduX21pZGRsZVwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJHR2V1am1lZk9sdWptZWVXcnpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2Zvcm1cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJHR2V1am1lcE5tdWptZWRNZXpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2VudGVyXCIgc3R5bGU9XCJ3aWR0aDoxMDEwcHg7XCI+XG4gICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiR0dldWptZXBObXVqbWVSQW5IXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhf
+        Y29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVy
+        IFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJHR2V1am1lWUJvdWptZXNhSE5cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkdHZXVqbWVvQXJ4am1lRmJGd1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiWXV0Z3BYZmRyR2hwWGZ6UkVxXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfdmFsaWdu
+        X21pZGRsZVwiIHN0eWxlPVwid2lkdGg6MTAzMHB4O1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJZdXRncFhmZXJHaHBYZkl0
+        YmtcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkdHZXVqbWVMWXB1am1lUHVxVFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZ3JpZFwiIHN0eWxlPVwid2lkdGg6MTMwMHB4O2hlaWdodDoxODdweDtcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4g
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAg
+        ICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

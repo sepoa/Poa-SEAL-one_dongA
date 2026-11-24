@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="QA_002_1" header="false" pageCloseWarn="false">
+    <filterbar id="filterObj" div="AnUVDRcAxMkzsShHhf">
+        <calendar id="F_WRITE_DATE" button="year:0,week:-4,week:-1,day:0" default="week:-12"/>
+        <status id="F_STATUS" combo="SL0001,{HOUSE_CODE}#{LANGUAGE}#QA001" label=""/>
+        <keyword id="KEYWORD"/>
+        <filter>
+            <option id="F_MANAGER" type="text"/>
+            <option id="F_DEPT" type="select" combo="SL0015,{HOUSE_CODE}#{COMPANY_CODE}"/>
+            <option id="F_KEYWORD" type="text"/>
+            <option id="F_ADD_USER" type="text"/>
+        </filter>
+    </filterbar>
+    <button id="btnObj">
+        <btn div="AnUVDRcsspkzsSheFZ" id="SEARCH" text="{BUTTON.search}" onclick="onButtonClick( 'SEARCH' )"/>
+        <btn div="AnUVDRcsspkzsSheFZ" id="QA_WRITE" text="{BUTTON.new}" onclick="onButtonClick( 'QA_WRITE' )"/>
+        <btn div="AnUVDRcsspkzsSheFZ" id="QA_LINK_BUTTON" text="{BUTTON.save}" onclick="onButtonClick( 'QA_LINK_BUTTON' )"/>
+        <btn div="AnUVDRcsspkzsSheFZ" id="QA_EXCEL_DOWNLOAD" text="{BUTTON.EXCEL-DOWNLOAD}" onclick="onButtonClick( 'QA_EXCEL_DOWNLOAD' )"/>
+    </button>
+    <grid id="gridObj" div="AnUVDRcssrjzsShZbx" grid-id="QA_002_1" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onXLE" callback="onXLE"/>
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onEditCell" callback="onEditCell"/>
+    </grid>
+    <usercss>
+    <![CDATA[
+        >.container {
+            padding: 0 20px 0 20px;
+            width: calc(100% - 40px);
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="pSGBtVcSNJBtVcZMhV" value="$($sObject._vp).find('#pSGBtVcSNJBtVcZMhV')[0]"/>
+        <var name="pSGBtVcLDMBtVcJcLJ" value="$($sObject._vp).find('#pSGBtVcLDMBtVcJcLJ')[0]"/>
+        <var name="pSGBtVcRNJBtVcOjI" value="$($sObject._vp).find('#pSGBtVcRNJBtVcOjI')[0]"/>
+    </variable>
+    <onloadscript>
+        <var name="userType" value="Sepoa.info.USER_TYPE"/>
+        <var name="CNTR_TYPE" value="Sepoa.info.cntrType"/>
+        <![CDATA[
+            if (userType == "S") {
+                filterObj.filterPull.filter.items.F_USER_COMPANY.activeItem.parentNode.parentNode.parentNode.parentNode.hidden = true;
+            }
+            
+            var cntrType = Sepoa.request["cntrType"];
+            
+            /*
+            	cntrType 메뉴클릭시 alias 로 진입한다.
+            	최초 1개 게시판으로 운용되었으나, 계약용을 추가로 분리해달라는 요청을 받음.
+            	alias C를 달아서 분리하였으나 목적과 다르게 반대로 사용하며 데이터가 적재된상태이고
+            	수정이 불가능하여 명칭과 반대로 서비스를 사용중
+            	
+            	QnA_MANAGER , QnA_MANAGER_D 둘중 하나의 직무를 가질경우 법무검토게시판 전체조회가 가능하다.
+            	
+            	cntrType = undefined 	(법무검토>계약서 법무검토 요청현황)
+            	cntrType = "C"			(법무검토>일반 법무검토 요청현황)
+            */
+            
+            if (cntrType == "C") {
+                dataOutput.setValue("CNTR_TYPE", cntrType);
+                if (!Sepoa.info.CTRL_CODE.split(",").includes("QnA_MANAGER")) { // 법무검토관리자
+                    gridObj.setColumnHidden(gridObj.getColIndexById('SELECT_MANAGER'), 1);
+                    gridObj.setColumnHidden(gridObj.getColIndexById('CHECK_FLAG'), 1);
+                }
+            } else {
+                if (!Sepoa.info.CTRL_CODE.split(",").includes("QnA_MANAGER_D")) { // 법무검토관리자(일반)
+                    gridObj.setColumnHidden(gridObj.getColIndexById('SELECT_MANAGER'), 1);
+                    gridObj.setColumnHidden(gridObj.getColIndexById('CHECK_FLAG'), 1);
+                }
+            }
+        ]]>
+        <event obj="filterObj" type="onSearch">
+            <function args="id">
+            <![CDATA[
+                if (id == 'filter' || id == 'search') {
+                    doQuery();
+                }
+            ]]>
+            </function>
+        </event>
+        <event obj="Sepoa" type="onWindowResize">
+            <function args="">
+            <![CDATA[
+                resizeGrid();
+            ]]>
+            </function>
+        </event>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="init">
+        <![CDATA[
+            var cntrType = Sepoa.request["cntrType"];
+            var headerText = "";
+            
+            if (cntrType == "C") {
+                headerText = Sepoa.cache.text.get("QA_002.LAYOUT_A_HEADER_C");
+            } else {
+                headerText = Sepoa.cache.text.get("QA_002.LAYOUT_A_HEADER");
+            }
+            
+            callFunction(['p'], "setHeaderText", [headerText]);
+            
+            btnObj.showButton('QA_LINK_BUTTON', false);
+            
+            // 팝업 제어
+            if (isPopup()) {
+                btnObj.showButton('SEARCH', false);
+                btnObj.showButton('QA_WRITE', false);
+                btnObj.showButton('QA_LINK_BUTTON', true);
+            
+                // TODO : 수정내용
+                filterObj.setHide("F_KEYWORD");
+                filterObj.setHide("F_ADD_USER");
+                gridObj.setColumnHidden(gridObj.getColIndexById("SELECT_MANAGER"), true);
+            } else {
+                //gridObj.setColumnHidden(gridObj.getColIndexById("SELECTED"), true);
+            }
+            
+            // 저장된 필터 값 복원
+            restoreFilterValues();
+            
+            doQuery();
+        ]]>
+        </function>
+        <function name="onButtonClick" args="name">
+        <![CDATA[
+            switch (name) {
+                case "SEARCH":
+                    doQuery();
+                    break;
+                case "QA_WRITE":
+                    callFunction('QA_002', 'changeFrame', ['write']);
+                    break;
+                case "QA_LINK_BUTTON":
+                    doSelectRefDoc();
+                    break;
+                case "QA_EXCEL_DOWNLOAD":
+                    doExcelDownload();
+                    break;
+                default:
+                    break;
+            }
+        ]]>
+        </function>
+        <function name="doQuery" args="">
+        <![CDATA[
+            saveFilterValues();
+            
+            dataOutput.addFilter(filterObj);
+            gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'PROCESS_ID=sepoa.svc.board.SepoaQAService', 'METHOD=doQuery']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCnt">
+        <![CDATA[
+            
+        ]]>
+        </function>
+        <function name="onXLE" args="obj, count">
+        <![CDATA[
+            var msg = obj.getUserData("", "message");
+            var status = obj.getUserData("", "status");
+            
+            var rowCount = gridObj.getRowsNum();
+            if (rowCount == 0) {
+                Alert("조회결과가 없습니다");
+                return false;
+            }
+            
+            if (rowCount > 0) {
+                var colSeqIndex = gridObj.getColIndexById('ROWNUM');
+                var seqCount = rowCount;
+            
+                for (var i = 0; i < rowCount; i++) {
+                    var rowID = gridObj.getRowId(i);
+            
+                    gridObj.cells(rowID, colSeqIndex).setValue(seqCount--);
+                }
+            }
+        ]]>
+        </function>
+        <function name="onRowSelect" args="rId, cInd">
+        <![CDATA[
+            var header = gridObj.getColumnId(cInd);
+            var qnaNumber = gridObj.gridGetCellValueId(rId, 'QNA_NUMBER');
+            var checkFlag = gridObj.gridGetCellValueId(rId, 'CHECK_FLAG');
+            var qnaStatus = gridObj.gridGetCellValueId(rId, 'STATUS');
+            
+            let ctrlArr = Sepoa.info.CTRL_CODE.split(",");
+            let ctrlFlag = ctrlArr.indexOf("QnA_MANAGER") >= 0;
+            
+            let profileFlag = (Sepoa.info.MENU_PROFILE_CODE == 'MUP2011020001') ? true : false;
+            
+            if (header == 'SUBJECT') {
+                if (checkFlag != 'Y' || ctrlFlag || profileFlag) {
+                    callFunction('QA_002', 'changeFrame', ['view', qnaNumber]);
+                } else if (checkFlag == 'Y' && (!ctrlFlag || !profileFlag)) {
+                    callFunction('QA_002', 'changeFrame', ['view', qnaNumber, checkFlag]);
+                }
+            } else if (header == "SELECT_MANAGER") {
+                if (!["G", "F"].includes(qnaStatus)) {
+                    Alert("결재완료, 검토진행중건에 대해서만 담당자를 지정할 수 있습니다.");
+                    return;
+                }
+            
+                let cntrType = Sepoa.request.cntrType;
+                let ctrlCode = '';
+            
+                if (cntrType == "C") {
+                    ctrlCode = "QnA_MANAGER";
+                } else {
+                    ctrlCode = "QnA_MANAGER_D";
+                }
+            
+                let height = Math.min((SUX.getModuleTop().innerHeight) * 0.9, 500);
+                let width = 500;
+                let popupParam = [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE, ctrlCode];
+                PopupCommonPost("QA001", function(args) {
+                    let name = arguments[0];
+                    let id = arguments[1];
+                    let callbackObj = {
+                        NAME: name,
+                        MANAGER: id,
+                        QNA_NUMBER: qnaNumber,
+                        ROW_ID: rId,
+                        CELL_IDX: cInd
+                    }
+            
+                    managerSelectCallback(callbackObj);
+                }, popupParam, '', width, height);
+            }
+            
+            // 팝업일 경우 row를 선택해도 체크가 되도록 설정
+            if (isPopup()) {
+                let selectedFlag = gridObj.cells(rId, gridObj.getColIndexById("SELECTED")).getValue();
+            
+                if (selectedFlag == 0) {
+                    gridObj.cells(rId, gridObj.getColIndexById("SELECTED")).setValue('1');
+                } else {
+                    gridObj.cells(rId, gridObj.getColIndexById("SELECTED")).setValue('0');
+                }
+            }
+        ]]>
+        </function>
+        <function name="managerSelectCallback" args="callbackObj">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.board.SepoaQAService', 'TRANSACTION', 'doAssginManager', callbackObj, function(so) {
+                if (so.status == 1) {
+                    gridObj.cells(callbackObj.ROW_ID, gridObj.getColIndexById('STATUS')).setValue("G");
+                    gridObj.cells(callbackObj.ROW_ID, gridObj.getColIndexById('MANAGER')).setValue(callbackObj.NAME);
+                } else {
+                    Alert("검토 담당자 지정에 실패하였습니다.");
+                    return;
+                }
+            });
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+            var header = gridObj.getColumnId(cInd);
+            let ctrlArr = Sepoa.info.CTRL_CODE.split(",");
+            let ctrlFlag = "";
+            let qnaStatus = gridObj.gridGetCellValueId(rId, 'STATUS');
+            
+            if (cntrType == "C") {
+                ctrlFlag = (ctrlArr.indexOf("QnA_MANAGER") >= 0);
+            } else {
+                ctrlFlag = (ctrlArr.indexOf("QnA_MANAGER_D") >= 0);
+            }
+            
+            if (header === "CHECK_FLAG" && stage == 0 && !["G", "A"].includes(qnaStatus)) {
+                Alert("검토가 진행중이거나 완료된 건에 대해서만<br/>완료여부를 지정할 수 있습니다.");
+                return false;
+            }
+            
+            if (ctrlFlag && stage == 2 && header === "CHECK_FLAG" && (oValue != nValue)) {
+                var rowData = gridObj._getRowData(rId);
+                doServiceAjax('sepoa.svc.board.SepoaQAService', 'TRANSACTION', 'doCheckFlagUpdate', rowData, function(so) {
+                    if (so.status == 1) {
+                        gridObj.cells(rId, gridObj.getColIndexById(header)).setValue(nValue);
+                        gridObj.cells(rId, gridObj.getColIndexById("STATUS")).setValue(nValue == "Y" ? "A" : "G");
+                    } else {
+                        Alert(so.meesage);
+                        return;
+                    }
+                });
+            } else if (header == "SELECTED") {
+                return true;
+            }
+        ]]>
+        </function>
+        <function name="doSelectRefDoc">
+        <![CDATA[
+            if (isPopup()) {
+                const checkedRows = gridObj.getSelectedRows("SELECTED"); // 배열 반환
+            
+                if (checkedRows.length <= 0) {
+                    Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005')); // 선택된 행이 없습니다.
+                    return;
+                }
+            
+                // 주소와 제목을 담을 객체
+                let callbackObj = {};
+                // 체크 된 모든 글 정보를 담을 배열
+                let callbackParams = [];
+            
+                // 배열 돌면서 qna넘버 가져온다.
+                for (const rId of checkedRows) {
+                    let qnaNumber = gridObj.gridGetCellValueId(rId, 'QNA_NUMBER');
+                    let subject = gridObj.cells(rId, gridObj.getColIndexById("SUBJECT")).getValue();
+            
+                    let url = document.location.origin + '/link.sux?ln=79bde217-722b-4144-97f9-1ac7f7d36979&QNA_NUMBER=' + qnaNumber;
+            
+                    callbackObj.addr = url;
+                    callbackObj.subject = subject;
+            
+                    callbackParams.push(Object.assign({}, callbackObj));
+                }
+            
+                Sepoa.params.callback(callbackParams);
+            
+                selfObj.close();
+            }
+        ]]>
+        </function>
+        <function name="isPopup">
+        <![CDATA[
+            const isModalPopup = Sepoa.request.isPopup;
+            return isModalPopup;
+        ]]>
+        </function>
+        <function name="saveFilterValues">
+        <![CDATA[
+            try {
+                // filterObj.getFilterData()로 전체 필터 데이터 가져오기
+                var filterData = filterObj.getFilterData();
+            
+                // sessionStorage에 저장
+                // cntrType이 null, undefined, 빈 문자열인 경우 'default'로 처리
+                var cntrType = Sepoa.request["cntrType"];
+                var storageKey = 'QA_002_FILTER_' + (cntrType && cntrType !== 'undefined' ? cntrType : 'default');
+                sessionStorage.setItem(storageKey, JSON.stringify(filterData));
+            } catch (e) {
+                // 에러 발생 시 무시 (필터 저장 실패해도 상세 화면 이동은 진행)
+            }
+        ]]>
+        </function>
+        <function name="restoreFilterValues">
+        <![CDATA[
+            try {
+                // cntrType이 null, undefined, 빈 문자열인 경우 'default'로 처리
+                var cntrType = Sepoa.request["cntrType"];
+                var storageKey = 'QA_002_FILTER_' + (cntrType && cntrType !== 'undefined' ? cntrType : 'default');
+                var savedFilterData = sessionStorage.getItem(storageKey);
+            
+                if (!savedFilterData) {
+                    return; // 저장된 필터 값이 없으면 복원하지 않음
+                }
+            
+                var filterData = JSON.parse(savedFilterData);
+            
+                // 각 필터 항목별로 값 복원
+                // 조회기간 (F_WRITE_DATE_FROM, F_WRITE_DATE_TO)
+                if (filterData.F_WRITE_DATE_FROM && filterData.F_WRITE_DATE_TO) {
+                    try {
+                        var calendarItem = filterObj.getItemById('F_WRITE_DATE');
+                        if (calendarItem) {
+                            // YYYYMMDD 형식을 Date 객체로 변환
+                            var fromDateStr = filterData.F_WRITE_DATE_FROM;
+                            var toDateStr = filterData.F_WRITE_DATE_TO;
+            
+                            // 날짜 문자열을 Date 객체로 변환 (YYYYMMDD 형식)
+                            var fromDate = new Date(
+                                fromDateStr.substring(0, 4),
+                                parseInt(fromDateStr.substring(4, 6)) - 1,
+                                fromDateStr.substring(6, 8)
+                            );
+                            var toDate = new Date(
+                                toDateStr.substring(0, 4),
+                                parseInt(toDateStr.substring(4, 6)) - 1,
+                                toDateStr.substring(6, 8)
+                            );
+            
+                            // filter_v2 형식인 경우 _setInputDate 메서드 사용
+                            if (calendarItem._setInputDate) {
+                                calendarItem._setInputDate("from", fromDate);
+                                calendarItem._setInputDate("to", toDate);
+                            }
+                            // fromObj와 toObj가 있는 경우에도 설정
+                            else if (calendarItem.fromObj && calendarItem.toObj) {
+                                calendarItem.fromObj.setDate(fromDate);
+                                calendarItem.toObj.setDate(toDate);
+                            }
+                        }
+                    } catch (e) {
+                        // calendar 복원 실패 시 무시
+                        console.log("Calendar filter restore error:", e);
+                    }
+                }
+            
+                // 검색어 (KEYWORD)
+                if (filterData.KEYWORD) {
+                    filterObj.setValue('KEYWORD', filterData.KEYWORD);
+                }
+            
+                // 필터 옵션들 (F_KEYWORD, F_ADD_USER, F_MANAGER, F_DEPT)
+                if (filterData.F_KEYWORD) {
+                    filterObj.setValue('F_KEYWORD', filterData.F_KEYWORD);
+                }
+                if (filterData.F_ADD_USER) {
+                    filterObj.setValue('F_ADD_USER', filterData.F_ADD_USER);
+                }
+                if (filterData.F_MANAGER) {
+                    filterObj.setValue('F_MANAGER', filterData.F_MANAGER);
+                }
+                if (filterData.F_DEPT) {
+                    filterObj.setValue('F_DEPT', filterData.F_DEPT);
+                }
+            
+                // 상태 (F_STATUS)
+                if (filterData.F_STATUS) {
+                    filterObj.setValue('F_STATUS', filterData.F_STATUS);
+                }
+            } catch (e) {
+                // 에러 발생 시 무시 (필터 복원 실패해도 정상 진행)
+            }
+        ]]>
+        </function>
+        <function name="doExcelDownload" args="">
+        <![CDATA[
+            // 선택한 행이 있는지 확인
+            var selectedRows = gridObj.getGridChangedRows("SELECTED");
+            var qnaNumbers = [];
+            
+            if (selectedRows && selectedRows.length > 0) {
+                // 선택한 행의 QNA_NUMBER 목록 생성
+                for (var i = 0; i < selectedRows.length; i++) {
+                    var rId = selectedRows[i];
+                    var qnaNumber = gridObj.gridGetCellValueId(rId, 'QNA_NUMBER');
+                    if (qnaNumber) {
+                        qnaNumbers.push(qnaNumber);
+                    }
+                }
+            }
+            
+            // 선택한 행이 없으면 경고 메시지 표시
+            if (qnaNumbers.length === 0) {
+                Alert("다운로드할 항목을 선택해주세요.");
+                return;
+            }
+            
+            // 엑셀 다운로드 실행
+            var params = {"SELECTED_QNA_NUMBERS" : qnaNumbers.join(',')};
+            var fileId = 'LEGAL_REVIEW_TEMPLATE.xlsx';
+            sepoaExcelProcessor('down', 'sepoa.svc.board.SepoaQAService', 'doExcelDownload', null, fileId, params);
+        ]]>
+        </function>
+        <var name="selected_rId"/>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQW5VVkRSY0F4TWt6c1NoSGhmIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJmaWx0ZXJPYmoiLCJLRVlXT1JEX0FDVElWRSI6InRydWUiLCJLRVlXT1JEX0lEIjoiS0VZV09SRCIsIlNUQVRVU19BQ1RJVkUiOiJ0cnVlIiwiU1RBVFVTX0lEIjoiRl9TVEFUVVMiLCJDQUxFTkRBUl9BQ1RJVkUiOiJ0cnVlIiwiQ0FMRU5EQVJfSUQiOiJGX1dSSVRFX0RBVEUiLCJGSUxURVJfQUNUSVZFIjoidHJ1ZSIsIkNBTEVOREFSX0JVVFRPTiI6InllYXI6MCx3ZWVrOi00LHdlZWs6LTEsZGF5OjAiLCJGSUxURVJfSVRFTV8zX1RZUEUiOiJ0ZXh0IiwiRklMVEVSX0lURU1fMF9UWVBFIjoic2VsZWN0IiwiQ0FMRU5EQVJfREVG
+        QVVMVCI6IndlZWs6LTEyIiwiRklMVEVSX0lURU1fMF9DT01CTyI6IlNMMDAxNSx7SE9VU0VfQ09ERX0je0NPTVBBTllfQ09ERX0iLCJPQkpFQ1RfSUQiOiJBblVWRFJjQXhNa3pzU2hIaGYiLCJGSUxURVJfSVRFTV8xX1RZUEUiOiJ0ZXh0IiwiRklMVEVSX0lURU1fM19JRCI6IkZfTUFOQUdFUiIsIlNUQVRVU19MQUJFTCI6IiIsIkZJTFRFUl9JVEVNXzFfSUQiOiJGX0tFWVdPUkQiLCJGSUxURVJfSVRFTV8yX1RZUEUiOiJ0ZXh0IiwiRklMVEVSX0lURU1fMF9JRCI6IkZfREVQVCIsIkZJTFRFUl9JVEVNXzJfSUQiOiJGX0FERF9VU0VSIiwiU1RBVFVTX0NPTUJPIjoiU0wwMDAxLHtIT1VTRV9DT0RFfSN7TEFOR1VBR0V9I1FBMDAxIn0sImlkIjoiQW5VVkRSY0F4
+        TWt6c1NoSGhmIiwidHlwZSI6ImZpbHRlcmJhciIsImZpbHRlcmJhciI6ImZpbHRlcmJhciJ9LCJBblVWRFJjc3Nwa3pzU2hlRloiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJPQkpFQ1RfSUQiOiJBblVWRFJjc3Nwa3pzU2hlRloiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fMF9JRCI6IlNFQVJDSCIsIklURU1fMF9PTkNMSUNLIjoi
+        b25CdXR0b25DbGljayIsIklURU1fMF9TTENPREUiOiJCVVRUT04uc2VhcmNoIiwiSVRFTV8wX1BBUkFNIjoiJiMzOTtTRUFSQ0gmIzM5OyIsIklURU1fMF9URVhUIjoi7KGw7ZqMIiwiSVRFTV8xX0lEIjoiUUFfV1JJVEUiLCJJVEVNXzFfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzFfU0xDT0RFIjoiQlVUVE9OLm5ldyIsIklURU1fMV9QQVJBTSI6IiYjMzk7UUFfV1JJVEUmIzM5OyIsIklURU1fMV9URVhUIjoi7Iug6recIiwiSVRFTV8yX0lEIjoiUUFfTElOS19CVVRUT04iLCJJVEVNXzJfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzJfU0xDT0RFIjoiQlVUVE9OLnNhdmUiLCJJVEVNXzJfUEFSQU0iOiImIzM5O1FBX0xJTktfQlVUVE9O
+        JiMzOTsiLCJJVEVNXzJfVEVYVCI6IuyggOyepSIsIklURU1fM19JRCI6IlFBX0VYQ0VMX0RPV05MT0FEIiwiSVRFTV8zX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8zX1NMQ09ERSI6IkJVVFRPTi5FWENFTC1ET1dOTE9BRCIsIklURU1fM19QQVJBTSI6IiYjMzk7UUFfRVhDRUxfRE9XTkxPQUQmIzM5OyIsIklURU1fM19URVhUIjoi7JeR7IWA64uk7Jq066Gc65OcIiwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIiwiSVRFTV8yX1NPUlQiOiIzIiwiSVRFTV8zX1NPUlQiOiI0In0sImlkIjoiQW5VVkRSY3NzcGt6c1NoZUZaIiwidHlwZSI6ImJ1dHRvbiIsImJ1dHRvbiI6ImJ1dHRvbiJ9LCJBblVWRFJjc3NyanpzU2haYngiOnsibGF5
+        b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIkVYQ0VMRE9XTkxPQUQiOiJ0cnVlIiwiT0JKRUNUX0lEIjoiQW5VVkRSY3Nzcmp6c1NoWmJ4IiwiR1JJRF9JRCI6IlFBXzAwMl8xIn0sImlkIjoiQW5VVkRSY3Nzcmp6c1NoWmJ4IiwidHlwZSI6ImdyaWQiLCJncmlkIjoiZ3JpZCJ9LCJ6bVVWRFJjTUNZaXpzU2h0ZmQiOnsibGF5b3V0Ijp7
+        IlNDUk9MTCI6IiIsIlNDUk9MTF9WIjoiIiwiU0NSRUVOX1NDUk9MTCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTlRFTlRfTUlOX1dJRFRIIjoiIiwiZGh4SWRfeThic0RlRmJ1MWZjIjoibnVsbCIsIlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJkaHhJZF9GQ0gxWjl1cmd4bHEiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJRQV8wMDJfMSIsIk9CSkVDVF9JRCI6InptVVZEUmNNQ1lpenNTaHRmZCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6InptVVZEUmNNQ1lpenNTaHRmZCIsInR5cGUiOiJib2R5In0sInBTR0J0VmNTTkpCdFZjWk1oViI6eyJsYXlv
+        dXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoicFNHQnRWY1NOSkJ0VmNaTWhWIn0sImlkIjoicFNHQnRWY1NOSkJ0VmNaTWhWIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sInBTR0J0VmNSTkpCdFZjT2pJIjp7ImxheW91dCI6eyJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX0RyNlN0Q1RmSVNGSSI6Im51bGwiLCJkaHhJZF9VT3RQYVJlbFh5MXYiOiJudWxsIiwiZGh4SWRfaVJNelVWMTFVanNvIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMiIsIlZBUiI6InBTR0J0VmNSTkpCdFZjT2pJIiwiT0JKRUNUX0lEIjoicFNHQnRWY1JOSkJ0VmNPakkiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIiwiQ09MVU1O
+        X0lURU1fMSI6IjEifSwiaWQiOiJwU0dCdFZjUk5KQnRWY09qSSIsInR5cGUiOiJjb250YWluZXIifSwicFNHQnRWY0xETUJ0VmNKY0xKIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJwU0dCdFZjTERNQnRWY0pjTEoifSwiaWQiOiJwU0dCdFZjTERNQnRWY0pjTEoiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImIifX0sInRyZWUiOnsiaWQiOiJ6bVVWRFJjTUNZaXpzU2h0ZmQiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6InBTR0J0VmNSTkpCdFZjT2pJIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6InBTR0J0VmNTTkpCdFZjWk1oViIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJBblVWRFJjQXhNa3pzU2hI
+        aGYiLCJ0eXBlIjoiZmlsdGVyYmFyIn1dfSx7ImlkIjoicFNHQnRWY0xETUJ0VmNKY0xKIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6IkFuVVZEUmNzc3BrenNTaGVGWiIsInR5cGUiOiJidXR0b24ifV19XX0seyJpZCI6IkFuVVZEUmNzc3JqenNTaFpieCIsInR5cGUiOiJncmlkIn1dfSwiaW5mbyI6eyJQQVRIIjoiL1NlYWwvQm9hcmQvUW5hL0JvYXJkUW5hTGlzdC54bWwiLCJQUk9KRUNUIjoiQ0JPIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiU2VhbC9Cb2FyZC9RbmEiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJCb2FyZFFuYUxpc3QiLCJDT0RFIjoiMDAyXzEiLCJQUkVGSVgiOiJRQSIsIlND
+        UkVFTl9JRCI6IlFBXzAwMl8xIn19LCJodG1sIjoiPGRpdiBpZD1cInptVVZEUmNNQ1lpenNTaHRmZFwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2Nv
+        bXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInBTR0J0VmNSTkpCdFZjT2pJXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxk
+        aXYgaWQ9XCJwU0dCdFZjU05KQnRWY1pNaFZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9maWx0ZXJiYXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZmlsdGVyYmFyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkFuVVZEUmNBeE1renNTaEhoZlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgc2Vwb2F1eF9maWx0ZXJiYXIgc3NmaWx0ZXJfY29udFwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25l
+        bnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJwU0dCdFZjTERNQnRWY0pjTEpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9i
+        dXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkFuVVZEUmNzc3BrenNTaGVGWlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9n
+        cmlkX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkFuVVZEUmNzc3JqenNTaFpieFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZ3JpZCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

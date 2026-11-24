@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT HOUSE_CODE
+			  ,COMPANY_CODE
+			  ,ITEM_NO
+			  ,ADD_DATE
+			  ,ADD_TIME
+			  ,ADD_USER_ID
+			  ,CHANGE_DATE
+			  ,CHANGE_TIME
+			  ,CHANGE_USER_ID
+			  ,ITEM_CODE
+			  ,ITEM_SEQ
+			  ,ITEM_NAME
+			  ,ITEM_TYPE
+			  ,CONT_TYPE
+			  ,DES_FILE_PATH
+			  ,CLASS
+			  ,METHOD
+			  ,DISPLAY_TEMPLATE
+			  ,DISPLAY_EDIT
+			  ,#DB_OWNER#NVL(DEL_FLAG, 'N') AS DEL_FLAG
+			  ,SEAL_WIDTH
+			  ,SEAL_HEIGHT
+			  ,PRE_FILE_PATH
+			  ,CATEGORY
+              ,ATTACH_TYPE
+              ,ITEM_FORMAT
+              , CASE WHEN( 
+              		SELECT COUNT(*)
+              	 		FROM SFMFI 
+              	 	WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+              	 	  AND COMPANY_CODE = ${session.COMPANY_CODE} 
+              	 	  AND DOC_NUMBER = ITEM_NO
+              	 	  AND LAYER ='SEAL_IMAGE'
+              ) > 0 THEN 'Y' ELSE 'N' END AS ATTACH_FLAG
+              , CASE WHEN(
+              		SELECT COUNT(*)
+              	 		FROM SFMFI 
+              	 	WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+              	 	  AND COMPANY_CODE = ${session.COMPANY_CODE} 
+              	 	  AND DOC_NUMBER = ITEM_NO
+              	 	  AND LAYER ='SEAL_PRE'
+              ) > 0 THEN 'Y' ELSE 'N' END AS PRE_ATTACH_FLAG
+		  FROM SUPIM
+		 WHERE #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		   AND HOUSE_CODE                   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE                 = ${session.COMPANY_CODE}
+		   AND CONT_TYPE                    = ${CONT_TYPE}
+		   AND CATEGORY                     = ${CATEGORY}
+		 ORDER 
+            BY CONT_TYPE
+              ,ITEM_SEQ ASC
+	]]>
+	</method>
+	<method name="doSave">
+	<![CDATA[
+		INSERT 
+		  INTO SUPIM 
+		     ( HOUSE_CODE
+			  ,COMPANY_CODE
+			  ,ITEM_NO
+			  ,ADD_DATE
+			  ,ADD_TIME
+			  ,ADD_USER_ID
+			  ,CHANGE_DATE
+			  ,CHANGE_TIME
+			  ,CHANGE_USER_ID
+			  ,ITEM_CODE
+			  ,ITEM_SEQ
+			  ,ITEM_NAME
+			  ,ITEM_TYPE	
+			  ,CONT_TYPE
+			  ,DES_FILE_PATH
+			  ,CLASS
+			  ,METHOD
+			  ,DISPLAY_TEMPLATE
+			  ,DISPLAY_EDIT
+			  ,DEL_FLAG
+			  ,SEAL_WIDTH
+			  ,SEAL_HEIGHT
+			  ,PRE_FILE_PATH
+			  ,CATEGORY
+              ,ITEM_FORMAT
+			)
+		VALUES
+			 ( ${session.HOUSE_CODE}
+			  ,${session.COMPANY_CODE}
+			  ,${ITEM_NO}
+			  ,${current.DATE}
+			  ,${current.TIME}
+			  ,${session.ID}
+			  ,${current.DATE}
+			  ,${current.TIME}
+			  ,${session.ID}
+			  ,${ITEM_CODE}
+			  ,${ITEM_SEQ}
+			  ,${ITEM_NAME}
+			  ,${ITEM_TYPE}
+			  ,${CONT_TYPE}
+			  ,${DES_FILE_PATH}
+			  ,${CLASS}
+			  ,${METHOD}
+			  ,${DISPLAY_TEMPLATE}
+			  ,${DISPLAY_EDIT}
+			  ,'N'
+			  ,${SEAL_WIDTH}
+			  ,${SEAL_HEIGHT}
+			  ,${PRE_FILE_PATH}
+			  ,${CATEGORY}
+              ,${ITEM_FORMAT}
+			)
+	]]>
+	</method>
+	<method name="doUpdate">
+	<![CDATA[
+		UPDATE SUPIM
+		   SET ITEM_CODE   = ${ITEM_CODE}
+			  ,ITEM_NAME   = ${ITEM_NAME}
+			  ,ITEM_TYPE   = ${ITEM_TYPE}
+			  ,ITEM_SEQ    = ${ITEM_SEQ}
+			  ,CONT_TYPE   = ${CONT_TYPE}
+			  ,DES_FILE_PATH = ${DES_FILE_PATH}
+			  ,CLASS = ${CLASS}
+			  ,METHOD = ${METHOD}
+			  ,DISPLAY_TEMPLATE = ${DISPLAY_TEMPLATE}
+			  ,DISPLAY_EDIT = ${DISPLAY_EDIT}
+			  ,SEAL_WIDTH	= ${SEAL_WIDTH}
+			  ,SEAL_HEIGHT	= ${SEAL_HEIGHT}
+			  ,PRE_FILE_PATH = ${PRE_FILE_PATH}
+			  ,CATEGORY = ${CATEGORY}
+              ,ATTACH_TYPE = ${ATTACH_TYPE}
+              ,ITEM_FORMAT = ${ITEM_FORMAT}
+		 WHERE #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N' 
+		   AND HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND ITEM_NO      = ${ITEM_NO}
+	]]>
+	</method>
+	<method name="doDelete">
+	<![CDATA[
+		UPDATE SUPIM
+		   SET DEL_FLAG = 'Y'
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND ITEM_NO      = ${ITEM_NO}
+	]]>
+	</method>
+    <method name="doQueryContType">
+    <![CDATA[
+        SELECT 
+            GETCODETEXT(CTGL.HOUSE_CODE, 'CT005', CTGL.CONT_TYPE, ${session.LANGUAGE}) as CONT_TYPE_LOC
+    ]]>
+    </method>
+    <method name="doCheckExists">
+    <![CDATA[
+    	SELECT ITEM_NO
+    		FROM SUPIM
+   		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+   			AND COMPANY_CODE = ${session.COMPANY_CODE}
+   			AND ITEM_NO = ${ITEM_NO}
+   			AND ITEM_CODE = ${ITEM_CODE}
+    ]]>
+    </method>
+</service>

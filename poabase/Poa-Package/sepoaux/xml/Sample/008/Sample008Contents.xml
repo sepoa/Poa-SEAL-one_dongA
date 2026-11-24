@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SAMPLE_008_1" header="false">    <template>    <![CDATA[        <div class="container" id="container" style="overflow:hidden;">        	<div id="vaultContainer" class="lowerDiv" style="width:100%;height:100%"></div>        </div>    ]]>    </template>
+    <vault id="vaultObj" div="vaultContainer" key="AT20061200001">
+        <service service="sepoa.sample.vault.SV_001">
+            <method id="ZLLMFBCGKQMFBCFSEU" method="TestDoQuery" work="SELECT"/>
+            <method id="ZLLMFBCBFRMFBCMGLA" method="TestDoUpload" work="UPLOAD"/>
+            <method id="ZLLMFBCBFRMFBCMGLT" method="TestDoDelete" work="DELETE"/>
+        </service>
+    </vault>
+     <onloadscript>    </onloadscript>    <userscript>    </userscript></body>

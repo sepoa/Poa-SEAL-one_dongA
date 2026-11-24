@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SAMPLE_008" header="false">    <template>    <![CDATA[        <div class="container" id="container" style="overflow:hidden;">        	<div id="layoutBox" class="lowerDiv" style="width:100%;height:100%"></div>        </div>    ]]>    </template>    <layout div="layoutBox" id="containerLayout" pattern="1C">
+    	<cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false" text="SAMPLE_007.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <fix_size>true,true</fix_size>
+            <attach file="/Sample/008/Sample008Contents.xml"/>
+        </cell>    </layout>    <onloadscript>    </onloadscript>    <scriptlet>    <![CDATA[    ]]>    </scriptlet>    <userscript>    </userscript></body>

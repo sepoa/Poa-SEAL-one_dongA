@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	
+	<method name="doQueryProfile">
+	<![CDATA[
+		 SELECT MUPD.MENU_PROFILE_CODE
+		      , MUPD.COMPANY_CODE
+		      , CMGL.COMPANY_NAME_LOC
+		      , LANG.CONTENTS MENU_PROFILE_NAME 
+		   FROM (SELECT MENU_PROFILE_CODE
+		               ,COMPANY_CODE 
+		               ,HOUSE_CODE
+		           FROM SMUPD 
+		          WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		            AND MENU_PROFILE_CODE <> 'COMMON'
+		          GROUP BY HOUSE_CODE, MENU_PROFILE_CODE, COMPANY_CODE) MUPD
+		   JOIN SCMGL CMGL
+		     ON MUPD.HOUSE_CODE   = CMGL.HOUSE_CODE
+		    AND MUPD.COMPANY_CODE = CMGL.COMPANY_CODE
+		   JOIN SLANG LANG
+		     ON MUPD.HOUSE_CODE        = LANG.HOUSE_CODE
+		    AND MUPD.MENU_PROFILE_CODE = LANG.CODE
+		    AND LANG.SCREEN_ID         ='MENU_PROFILE'
+		    AND LANG.LANGUAGE          = ${session.LANGUAGE}
+		    AND (    1=1
+		         AND LANG.CONTENTS          LIKE CONCAT('%', $S{F_KEYWORD} ,'%')
+		         OR  MUPD.MENU_PROFILE_CODE LIKE CONCAT('%', $S{F_KEYWORD} ,'%')
+		         )
+		  ORDER 
+		     BY CASE WHEN MENU_PROFILE_CODE = 'ADD' 
+		             THEN 1 ELSE 0 END
+		      , MENU_PROFILE_CODE
+	]]>
+	</method>
+	
+	<method name="doQueryMenuData">
+	<![CDATA[
+	    SELECT MUPD.MENU_PROFILE_CODE
+		     , MUPD.MENU_ID
+		     , MUPD.PARENT_MENU_ID
+		     , #DB_OWNER#nvl(PDLANG.CONTENTS, PDLANG_DEFAULT.CONTENTS) MENU_NAME
+		     , MUPD.SCREEN_ID
+		     , MUPD.ITEM_SEQ
+		     , MUID.URL
+             , MUID.MOBILE_URL
+		     , MUID.AUTH_URL
+		     , #DB_OWNER#nvl(MUPD.MENU_IMG, MUID.MENU_IMG) MENU_IMG 
+		     , MUID.SUMMARY_FLAG
+		     , MUPD.ETC_FLAG
+		     , MUPD.HIDDEN_FLAG
+		     , MUID.ATTACH_NO
+             , MUPD.MODULE
+		  FROM SMUPD MUPD
+		  LEFT OUTER JOIN SLANG PDLANG
+		    ON MUPD.HOUSE_CODE = PDLANG.HOUSE_CODE
+		   AND MUPD.MENU_ID = PDLANG.CODE
+		   AND PDLANG.SCREEN_ID = CONCAT('MENU_' , MUPD.MENU_PROFILE_CODE)
+		   AND PDLANG.LANGUAGE  = ${session.LANGUAGE}
+		  LEFT OUTER JOIN SLANG PDLANG_DEFAULT
+		    ON PDLANG_DEFAULT.HOUSE_CODE = '000'
+		   AND MUPD.MENU_ID = PDLANG_DEFAULT.CODE
+		   AND PDLANG_DEFAULT.SCREEN_ID = CONCAT('MENU_' , MUPD.MENU_PROFILE_CODE)
+		   AND PDLANG_DEFAULT.LANGUAGE  = ${session.LANGUAGE}
+		  LEFT OUTER JOIN SMUID MUID
+		    ON MUPD.HOUSE_CODE = MUID.HOUSE_CODE
+		   AND MUPD.SCREEN_ID = MUID.SCREEN_ID
+		 WHERE MENU_PROFILE_CODE = ${profile_no}
+		   AND #DB_OWNER#NVL(MUPD.DEL_FLAG,'N') = 'N'
+    	   AND MUPD.HOUSE_CODE= ${session.HOUSE_CODE}
+      	 ORDER 
+      		BY PARENT_MENU_ID
+      		 , CAST(#DB_OWNER#NVL(ITEM_SEQ,'0') AS INT)
+	]]>
+	</method>
+	
+	<method name="doQueryMenuMgtData">
+	<![CDATA[
+		SELECT MUPD.MENU_PROFILE_CODE
+			 , MUPD.COMPANY_CODE
+		     , MUPD.MENU_ID
+		     , MUPD.PARENT_MENU_ID
+		     , MUPD.SCREEN_ID
+		     , MUPD.ITEM_SEQ
+		     , MUID.URL
+             , MUID.MOBILE_URL
+		     , MUID.AUTH_URL
+		     , #DB_OWNER#nvl(MUPD.MENU_IMG, MUID.MENU_IMG) MENU_IMG
+		     , MUID.SUMMARY_FLAG
+		     , MUPD.ETC_FLAG
+		     , MUPD.HIDDEN_FLAG
+		     , MUID.ATTACH_NO
+             , MUPD.MODULE
+		  FROM SMUPD MUPD
+		  LEFT OUTER 
+		  JOIN SMUID MUID
+      		ON MUPD.HOUSE_CODE  = MUID.HOUSE_CODE
+	 	   AND MUPD.SCREEN_ID   = MUID.SCREEN_ID
+		 WHERE MUPD.HOUSE_CODE        = ${session.HOUSE_CODE}
+		   AND MUPD.MENU_PROFILE_CODE = ${menu_profile_code}
+		   AND MUPD.MENU_ID           <> '0'
+		 ORDER 
+		    BY PARENT_MENU_ID
+      		 , CAST(#DB_OWNER#NVL(ITEM_SEQ,'0') AS INT)
+	]]>
+	</method>
+	
+	<method name="doQuery_LANG">
+	<![CDATA[
+		SELECT
+			  CONTENTS
+			, LANGUAGE
+		FROM
+			SLANG
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND LANGUAGE   = $S{LANGUAGE}
+		AND SCREEN_ID  = ${screen_id}
+		AND CODE       = ${code}
+	]]>
+	</method>
+	
+	<method name="doUpdate_LANG">
+	<![CDATA[
+		UPDATE
+			SLANG
+		SET
+			  CONTENTS       = ${CONTENTS}
+			, CHANGE_USER_ID = ${session.ID}
+			, CHANGE_DATE    = ${current.date}
+			, CHANGE_TIME    = ${current.time}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND LANGUAGE   = ${LANGUAGE}
+		AND SCREEN_ID  = ${screen_id}
+		AND CODE       = ${code}
+	]]>
+	</method>
+	
+	<method name="doInsert_LANG">
+	<![CDATA[
+		INSERT INTO SLANG
+		(
+			  HOUSE_CODE
+			, SCREEN_ID
+			, LANGUAGE
+			, CODE
+			, CONTENTS
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+			, CHANGE_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, DEL_FLAG
+		) 
+		VALUES
+		(
+			  ${session.HOUSE_CODE}
+			, ${screen_id}
+			, ${LANGUAGE}
+			, ${code}
+			, ${CONTENTS}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, 'N'
+		)
+	]]>
+	</method>
+	
+	<method name="doDelete_LANG">
+	<![CDATA[
+		DELETE FROM
+			SLANG
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND SCREEN_ID  = ${screen_id}
+	]]>
+	<if test="${code}" operator="ne" value="">
+	<![CDATA[
+		AND CODE       = ${code}
+	]]>
+	</if>
+	</method>
+	
+	<method name="doQuerySlangFromMenuID">
+	<![CDATA[
+		SELECT DISTINCT
+			   LANG.CONTENTS
+		  FROM SLANG LANG
+		  JOIN SMUPD MUPD 
+		    ON LANG.HOUSE_CODE = MUPD.HOUSE_CODE
+		   AND LANG.CODE	   = MUPD.MENU_ID
+		   AND LANG.SCREEN_ID  = CONCAT('MENU_', MUPD.MENU_PROFILE_CODE)
+		   AND LANG.LANGUAGE   = ${LANGUAGE}
+		 WHERE LANG.HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND MUPD.SCREEN_ID  = ${code}
+	]]>
+	</method>
+	
+	<method name="doDeleteTreeNode">
+	<![CDATA[
+		DELETE FROM
+			#DB_OWNER#SMUPD
+		WHERE
+			HOUSE_CODE        = ${session.HOUSE_CODE}
+		AND COMPANY_CODE      = ${company_code}
+		AND MENU_PROFILE_CODE = ${menu_profile_code}
+		AND MENU_ID           = ${menu_id}
+	]]>
+	</method>
+	
+	<method name="doQuery_MUID">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, SCREEN_ID
+			, URL
+            , MOBILE_URL
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, MENU_IMG
+			, SUMMARY_FLAG
+		FROM
+			SMUID
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND SCREEN_ID  = ${screen_id}
+	]]>
+	</method>
+	
+	<method name="doInsert_MUID">
+	<![CDATA[
+		INSERT INTO SMUID
+		(
+			  HOUSE_CODE
+			, SCREEN_ID
+			, URL
+            , MOBILE_URL
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, MENU_IMG
+			, SUMMARY_FLAG
+		)
+		VALUES
+		(
+			  ${session.house_code}
+			, ${screen_id}
+			, ${url}
+            , ${mobile_url}
+			, ${current.date}
+			, ${current.time}
+			, ${session.ID}
+			, ${current.date}
+			, ${current.time}
+			, ${session.ID}
+			, ${del_flag}
+			, ${menu_img}
+			, ${summary_flag}
+		)
+	]]>
+	</method>
+	
+	<method name="doUpdate_MUID">
+	<![CDATA[
+		UPDATE
+			SMUID
+		SET
+			  URL			 = ${url}
+            , MOBILE_URL     = ${mobile_url}
+			, CHANGE_DATE    = ${current.date}
+			, CHANGE_TIME    = ${current.time}
+			, CHANGE_USER_ID = ${session.ID}  
+			, DEL_FLAG       = ${del_flag}    
+			, MENU_IMG       = ${menu_img}    
+			, SUMMARY_FLAG   = ${summary_flag}
+		WHERE
+			HOUSE_CODE     = ${session.house_code}
+		AND SCREEN_ID      = ${screen_id}
+	]]>
+	</method>
+	
+	<method name="doQuery_MUPD">
+	<![CDATA[
+		SELECT SCREEN_ID     
+			  ,PARENT_MENU_ID
+			  ,ITEM_SEQ      
+			  ,DEL_FLAG         
+			  ,ETC_FLAG		 
+			  ,HIDDEN_FLAG   
+			  ,ICON_TYPE     
+              ,MODULE
+		  FROM SMUPD
+		 WHERE HOUSE_CODE        = ${session.house_code}
+		   AND MENU_PROFILE_CODE = ${menu_profile_code}
+		   AND MENU_ID           = ${menu_id}
+	]]>
+	</method>
+
+	<method name="doInsert_MUPD">
+	<![CDATA[
+		INSERT INTO SMUPD 
+		(
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, MENU_PROFILE_CODE
+			, MENU_ID
+			, SCREEN_ID
+			, PARENT_MENU_ID
+			, ITEM_SEQ
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, ETC_FLAG
+			, HIDDEN_FLAG
+			, ICON_TYPE
+			, MENU_IMG
+			, MODULE
+		)
+		VALUES
+		(
+			  ${session.house_code}
+			, ${company_code}
+			, ${menu_profile_code}
+			, ${menu_id}
+			, ${screen_id}
+			, ${parent_menu_id}
+			, ${item_seq}
+			, ${current.date}
+			, ${current.time}
+			, ${session.id}
+			, ${current.date}
+			, ${current.time}
+			, ${session.id}
+			, ${del_flag}
+			, ${etc_flag}
+			, ${hidden_flag}
+			, ${icon_type}
+			, ${menu_img}
+			, ${module}
+		)
+	]]>
+	</method>
+
+	<method name="doUpdate_MUPD">
+	<![CDATA[
+		UPDATE
+			SMUPD
+		SET
+			  CHANGE_DATE    = ${current.date}
+			, CHANGE_TIME    = ${current.time}
+			, CHANGE_USER_ID = ${session.ID}
+			, SCREEN_ID      = ${screen_id}
+			, PARENT_MENU_ID = ${parent_menu_id}
+			, ITEM_SEQ       = ${item_seq}
+			, DEL_FLAG       = ${del_flag}    
+			, ETC_FLAG		 = ${etc_flag}
+			, HIDDEN_FLAG    = ${hidden_flag}
+			, ICON_TYPE      = ${icon_type}
+			, MENU_IMG		 = ${menu_img}
+			, MODULE         = ${module}
+		WHERE
+			HOUSE_CODE        = ${session.house_code}
+		AND MENU_PROFILE_CODE = ${menu_profile_code}
+		AND MENU_ID           = ${menu_id}
+	]]>
+	</method>
+	
+	<method name="doDelete_MUPD">
+	<![CDATA[
+		DELETE FROM
+			#DB_OWNER#SMUPD 
+		WHERE
+			MENU_PROFILE_CODE = ${menu_profile_code}
+	]]>
+	</method>
+	
+	<method name="getScreenComboList">
+	<![CDATA[
+		SELECT * 
+		  FROM (SELECT A.*
+		  			 , ROW_NUMBER() OVER(ORDER BY A.VALUE) AS ROW_NUM__
+		  		  FROM (
+						SELECT DISTINCT
+                               MUID.SCREEN_ID AS TEXT
+							 , MUID.SCREEN_ID AS VALUE
+							 , MUID.SCREEN_ID
+							 , LANG.CONTENTS
+							 , MUID.URL
+                             , MUID.MOBILE_URL
+							 , MUID.MENU_IMG
+							 , MUID.SUMMARY_FLAG
+							 , MUID.HIDDEN_FLAG
+                             , MUPD.MODULE
+						  FROM SMUID MUID
+						  LEFT OUTER
+						  JOIN SMUPD MUPD
+          					ON MUID.HOUSE_CODE = MUPD.HOUSE_CODE 
+         				   AND MUID.SCREEN_ID  = MUPD.SCREEN_ID
+        	 			  LEFT OUTER
+        				  JOIN SLANG LANG
+		  					ON MUPD.HOUSE_CODE = LANG.HOUSE_CODE 
+						   AND MUPD.MENU_ID  = LANG.CODE
+						   AND LANG.LANGUAGE   = 'KO'
+						   AND LANG.SCREEN_ID  like 'MENU%'
+					   ) A
+				 WHERE 1=1
+				   AND A.TEXT  like CONCAT('%' , $S{MASK} , '%')
+				   AND A.VALUE like $S{VALUE}
+			   ) B
+		 WHERE B.ROW_NUM__ <= 10
+	]]>
+	</method>
+	
+	<method name="doUpdateTreeIndex">
+	<![CDATA[
+		UPDATE
+			SMUPD
+		SET
+			  ITEM_SEQ       = ${ITEM_SEQ}
+			, PARENT_MENU_ID = ${parent_menu_id}
+		WHERE
+			HOUSE_CODE   = ${session.HOUSE_CODE} 
+		AND COMPANY_CODE = ${COMPANY_CODE}
+		AND MENU_PROFILE_CODE = ${menu_profile_code}
+		AND MENU_ID      = ${MENU_ID}
+	]]>
+	</method>
+    
+    <method name="doInsertSLANGHistory">
+    <![CDATA[
+        INSERT INTO #DB_OWNER#SLANG_HISTORY
+		(
+			  HISTORY_KEY
+			, ACTION_MODE
+			, HOUSE_CODE
+			, SCREEN_ID
+			, LANGUAGE
+			, CODE
+			, CONTENTS
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+		)
+		VALUES
+		(
+			  ${HISTORY_KEY}
+			, ${ACTION_MODE}
+			, ${session.HOUSE_CODE}
+			, ${screen_id}
+			, ${LANGUAGE}
+			, ${code}
+			, ${CONTENTS}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+		 )
+    ]]>
+    </method>
+    
+    <method name="doInsertSMUPDHistory">
+    <![CDATA[
+        INSERT INTO SMUPD_HISTORY
+          (
+			  HISTORY_KEY
+			, ACTION_MODE
+			, HOUSE_CODE
+			, COMPANY_CODE
+			, MENU_PROFILE_CODE
+			, MENU_ID
+			, SCREEN_ID
+			, PARENT_MENU_ID
+			, MENU_SEQ
+			, ITEM_SEQ
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, DEL_FLAG
+			, ETC_FLAG
+			, HIDDEN_FLAG
+			, ICON_TYPE
+			, MENU_IMG
+			, MODULE
+		)
+		VALUES
+		(
+			  ${HISTORY_KEY}
+			, ${ACTION_MODE}
+			, ${session.HOUSE_CODE}
+			, ${company_code}
+			, ${menu_profile_code}
+			, ${menu_id}
+			, ${screen_id}
+			, ${parent_menu_id}
+			, ${menu_seq}
+			, ${item_seq}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${del_flag}
+			, ${etc_flag}
+			, ${hidden_flag}
+			, ${icon_type}
+			, ${menu_img}
+			, ${module}
+		)
+    ]]>
+    </method>
+    
+    <method name="doInsertSMUIDHistory">
+    <![CDATA[
+        INSERT INTO SMUID_HISTORY
+		(
+			  HISTORY_KEY
+			, ACTION_MODE
+			, HOUSE_CODE
+			, SCREEN_ID
+			, PARENT_ID
+			, URL
+            , MOBILE_URL
+			, AUTH_URL
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, DEL_FLAG
+			, MENU_IMG
+			, SUMMARY_FLAG
+			, ATTACH_NO
+			, HIDDEN_FLAG
+		)
+		VALUES
+		(
+			  ${HISTORY_KEY}
+			, ${ACTION_MODE}
+			, ${session.HOUSE_CODE}
+			, ${screen_id}
+			, ${parent_id}
+			, ${url}
+            , ${mobile_url}
+			, ${auth_url}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${del_flag}
+			, ${menu_img}
+			, ${summary_flag}
+			, ${attach_no}
+			, ${hidden_flag}
+		)
+    ]]>
+    </method>
+</service>

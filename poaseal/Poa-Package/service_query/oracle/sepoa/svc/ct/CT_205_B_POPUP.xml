@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQueryCompany">
+    <![CDATA[
+        SELECT
+               BIZ_CODE AS SIGNER_COMPANY_CODE
+             , BIZ_CATEGORY AS SIGNER_CATEGORY
+             , BIZ_TYPE
+             , SELLER_NAME_LOC AS SIGNER_COMPANY_NAME
+             , IRS_NO
+             , ZIP_CODE
+             , ADDRESS_LOC AS SIGNER_COMPANY_ADDR
+             , PHONE_NO AS SIGNER_COMPANY_PHONE_NO
+             , EMAIL AS SIGNER_COMPANY_EMAIL
+             , CEO_NAME_LOC AS SIGNER_COMPANY_OWNER
+             , FOUNDATION_DATE
+             , IF_FLAG
+        FROM SBUPR
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+          AND BIZ_CATEGORY = ${BIZ_CATEGORY}
+    ]]>
+    <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            SELLER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'
+            OR CEO_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'
+            OR IRS_NO LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    <if test="${BIZ_TYPE}" operator="ne" value="">
+    <![CDATA[
+          AND (
+            BIZ_TYPE = ${BIZ_TYPE}
+          )
+    ]]>
+    </if>
+    </method>
+    
+    <method name="doQuerySigner">
+    <![CDATA[
+        SELECT
+               BIZ_CODE AS SIGNER_COMPANY_CODE
+             , SEQ
+             , USER_ID AS SIGNER_ID
+             , USER_NAME AS SIGNER_NAME
+             , EMAIL AS SIGNER_EMAIL
+             , PHONE_NO AS SIGNER_PHONE
+             , IF_FLAG
+        FROM SBUPI
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND BIZ_CODE = ${BIZ_CODE}
+          AND #DB_OWNER#nvl(DEL_FLAG, 'N') = 'N'
+    ]]>
+    <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            USER_ID LIKE '%' || $S{F_KEYWORD} || '%'
+            OR USER_NAME LIKE '%' || $S{F_KEYWORD} || '%'
+            OR EMAIL LIKE '%' || $S{F_KEYWORD} || '%'
+            OR PHONE_NO LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    </method>
+
+    <method name="doQueryUser">
+    <![CDATA[
+        SELECT
+              USMT.COMPANY_CODE AS SIGNER_COMPANY_CODE
+            , CMGL.COMPANY_NAME_LOC AS SIGNER_COMPANY_NAME
+            , ADDR.CEO_NAME_LOC AS SIGNER_COMPANY_OWNER
+            , ADDR.ADDRESS_LOC AS SIGNER_COMPANY_ADDR
+            , CMGL.IRS_NO
+            , USMT.USER_ID AS SIGNER_ID
+            , USMT.USER_NAME_LOC AS SIGNER_NAME
+            , USMT.EMAIL AS SIGNER_EMAIL
+            , USMT.PHONE AS SIGNER_PHONE
+        FROM SUSMT USMT
+        INNER JOIN SADDR ADDR
+           ON ADDR.HOUSE_CODE = USMT.HOUSE_CODE
+          AND ADDR.CODE_NO = USMT.USER_ID
+        INNER JOIN SCMGL CMGL
+           ON CMGL.HOUSE_CODE = USMT.HOUSE_CODE
+          AND CMGL.COMPANY_CODE = USMT.COMPANY_CODE
+        WHERE USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+          AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+          AND #DB_OWNER#nvl(USMT.DEL_FLAG, 'N') = 'N'
+    ]]>
+     <if test="${F_KEYWORD}" operator="ne" value="__EMPTY__KEYWORD__">
+    <![CDATA[
+          AND (
+            USMT.USER_ID LIKE '%' || $S{F_KEYWORD} || '%'
+            OR USMT.USER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'
+            OR USMT.PHONE LIKE '%' || $S{F_KEYWORD} || '%'
+            OR USMT.EMAIL LIKE '%' || $S{F_KEYWORD} || '%'
+          )
+    ]]>
+    </if>
+    </method>
+</service>

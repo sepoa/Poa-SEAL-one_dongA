@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectSSETL">
+	<![CDATA[
+		SELECT 
+			  SETL.HOUSE_CODE
+			, SETL.COMPANY_CODE
+			, SETL.ROW_NUM
+			, SETL.SMR_NUMBER
+			, SETL.SMR_STATUS
+			, SETL.ADD_DATE
+			, SETL.ADD_TIME
+			, SETL.ADD_USER_ID
+			, #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME
+			, SETL.CHANGE_DATE
+			, SETL.CHANGE_TIME
+			, SETL.CHANGE_USER_ID
+			, SETL.DEL_FLAG
+			, SETL.APPLY_TYPE
+			, SETL.ATTACH_NO
+			, SETL.SUBJECT
+			, SETL.SUBMISSION_PLACE
+			, CAST(SETL.REMARK AS VARCHAR(4000)) AS REMARK
+			, CAST(SETL.REJECT_REMARK AS VARCHAR(4000)) AS REJECT_REMARK
+			, SETL.CONFIRM_DATE
+			, SETL.CONFIRM_TIME
+			, SETL.CONFIRM_USER_ID
+			, SETL.SUBMIT_TYPE
+			, CAST(SETL.SUBMIT_REMARK AS VARCHAR(4000)) AS SUBMIT_REMARK
+			, SETL.EXT_OUT_EXPECT_DATE
+			, SETL.EXT_USE_USER_ID
+			, SETL.EXT_USE_PLACE
+			, SETL.SEAL_USE_TYPE
+			, SUBSTR(SETL.EXT_OUT_EXPECT_TIME,1,2) AS EXT_OUT_EXPECT_HOUR
+			, SUBSTR(SETL.EXT_OUT_EXPECT_TIME,3,2) AS EXT_OUT_EXPECT_MINUTE
+			, SETL.EXT_IN_EXPECT_DATE 
+			, SUBSTR(SETL.EXT_IN_EXPECT_TIME,1,2) AS EXT_IN_EXPECT_HOUR
+			, SUBSTR(SETL.EXT_IN_EXPECT_TIME,3,2) AS EXT_IN_EXPECT_MINUTE    
+			, #DB_OWNER#GETUSERDEPTNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) AS EXT_USE_DEPT_NAME_LOC
+			, #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) as EXT_USE_USER_NAME_LOC
+			, #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.CONFIRM_USER_ID, ${session.LANGUAGE}) as CONFIRM_USER_NAME_LOC
+		FROM SSETL SETL 
+		LEFT OUTER JOIN SUSMT USMT 
+			ON SETL.HOUSE_CODE		= USMT.HOUSE_CODE
+			AND SETL.COMPANY_CODE	= USMT.COMPANY_CODE
+			AND SETL.ADD_USER_ID 	= USMT.USER_ID
+		LEFT JOIN SDEPT ADD_USER_DEPT 
+			ON ADD_USER_DEPT.HOUSE_CODE = USMT.HOUSE_CODE 
+			AND ADD_USER_DEPT.COMPANY_CODE = USMT.COMPANY_CODE 
+			AND ADD_USER_DEPT.DEPT = USMT.DEPT 
+		WHERE SETL.HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND SETL.COMPANY_CODE 	= ${session.COMPANY_CODE}
+			AND SETL.SMR_NUMBER 	= $S{SMR_NUMBER}
+			AND SETL.ADD_USER_ID	= $S{REQ_USER_ID}
+			AND NVL(SETL.DEL_FLAG,'N') = 'N'
+			AND SETL.APPLY_TYPE = 'CEXT'
+	]]>
+	<if test="${REQ_USER_DEPT}" operator="ne" value="">
+    <![CDATA[
+    	AND (
+    		SETL.ADD_USER_ID = ${session.ID} 
+    		OR (
+    			ADD_USER_DEPT.DEPT = ${session.DEPARTMENT}
+    			AND SETL.SMR_STATUS != 'T'
+    		)
+    	)
+	]]>
+	</if>
+	<![CDATA[
+			AND SETL.SMR_STATUS		IN($INS{SMR_STATUS})
+			AND (SETL.SUBJECT 	LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR	SETL.ADD_USER_ID LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR SETL.SMR_NUMBER  LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR SETL.SUBMISSION_PLACE LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR USMT.USER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%' )
+			AND SETL.ADD_DATE >= $S{F_CALENDAR_FROM}
+			AND SETL.ADD_DATE <= $S{F_CALENDAR_TO}
+		ORDER BY SETL.SMR_NUMBER DESC
+	]]>
+	</method>
+	<method name="doInsertSSETL">
+	<![CDATA[
+		INSERT 
+		  INTO SSETL
+	         ( HOUSE_CODE
+		     , COMPANY_CODE
+		     , SMR_NUMBER
+		     , SMR_STATUS
+		     , ADD_DATE
+		     , ADD_TIME
+		     , ADD_USER_ID
+		     , CHANGE_DATE
+		     , CHANGE_TIME
+		     , CHANGE_USER_ID
+		     , DEL_FLAG
+		     , SIGN_STATUS
+		     , APPLY_TYPE
+		     , SUBJECT
+		     , SEAL_USE_TYPE
+		     , SUBMISSION_PLACE
+		     , ATTACH_NO
+		     , REMARK
+             , SUBMIT_TYPE
+             , SUBMIT_REMARK		     
+             , EXT_USE_DETAIL
+             , EXT_OUT_EXPECT_DATE
+             , EXT_OUT_EXPECT_TIME
+             , EXT_IN_EXPECT_DATE
+             , EXT_IN_EXPECT_TIME
+             , EXT_USE_PLACE
+             , EXT_USE_USER_ID 
+             , EXT_CPNO_USER_ID
+             , EXT_OUT_DATE
+             , EXT_OUT_TIME
+             , EXT_IN_DATE
+             , EXT_IN_TIME
+             , EMERGENCY_FLAG
+             , EMERGENCY_REMARK
+             , ROOT_PATH_TYPE
+             , REJECT_REMARK 			 
+             , APVID
+             , ROW_NUM
+			 , ADD_USER_DEPT
+	         )
+	   VALUES( 
+	           ${session.HOUSE_CODE}
+	         , ${session.COMPANY_CODE}
+	         , ${SMR_NUMBER}
+	         , 'N'
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , 'N'
+	         , 'T'
+	         , ${APPLY_TYPE}
+			 , ${SUBJECT}       
+	         , ${SEAL_USE_TYPE}
+			 , ${SUBMISSION_PLACE}
+			 , ${ATTACH_NO}
+			 , ${REMARK}
+             , ${SUBMIT_TYPE}
+             , ${SUBMIT_REMARK}			 
+             , ${EXT_USE_DETAIL}			 
+             , ${EXT_OUT_EXPECT_DATE}			 
+             , SUBSTR( NVL(${EXT_OUT_EXPECT_HOUR}, '') || NVL(${EXT_OUT_EXPECT_MINUTE}, '') ||  '000000' ,1,6)			 
+             , ${EXT_IN_EXPECT_DATE}
+             , SUBSTR(NVL(${EXT_IN_EXPECT_HOUR}, '') || NVL(${EXT_IN_EXPECT_MINUTE}, '') || '000000' ,1,6)
+             , ${EXT_USE_PLACE}			 
+             , ${EXT_USE_USER_ID} 			 
+             , ${EXT_CPNO_USER_ID}
+             , ${EXT_OUT_DATE}
+             , ${EXT_OUT_TIME}
+             , ${EXT_IN_DATE}
+             , ${EXT_IN_TIME}
+             , ${EMERGENCY_FLAG}
+             , ${EMERGENCY_REMARK}
+             , ${ROOT_PATH_TYPE}
+             , ${REJECT_REMARK} 			 
+             , ${APVID}
+			,	(
+					SELECT
+						TO_CHAR(NVL(MAX(TO_NUMBER(NVL(ROW_NUM, '0'))), 0) + 1)
+					FROM SSETL
+					WHERE
+						HOUSE_CODE = ${session.HOUSE_CODE}
+						AND COMPANY_CODE = ${session.COMPANY_CODE}
+						AND APPLY_TYPE = 'CEXT'
+				)  
+			, ${session.DEPARTMENT}
+	       ) 
+	]]>
+	</method>
+	<method name="doUpdateSSETL">
+	<![CDATA[
+		UPDATE SSETL SET
+			  CHANGE_DATE      = ${current.DATE}
+			, CHANGE_TIME      = ${current.TIME}
+			, CHANGE_USER_ID   = ${session.ID}
+			, DEL_FLAG         = NVL(${DEL_FLAG    	 }  , DEL_FLAG        )
+			, SMR_STATUS 	   = NVL(${SMR_STATUS		 }  , SMR_STATUS   )
+			, SEAL_USE_TYPE    = NVL(${SEAL_USE_TYPE   }  , SEAL_USE_TYPE   )
+			, SUBJECT          = NVL(${SUBJECT    	 }  , SUBJECT         )
+			, REMARK           = NVL(${REMARK    	 	 }  , REMARK    	  )
+			, REJECT_REMARK	   = NVL(${REJECT_REMARK 	 }  , REJECT_REMARK	  ) 
+			, SUBMISSION_PLACE = NVL(${SUBMISSION_PLACE}  , SUBMISSION_PLACE)
+			, EXT_USE_PLACE    = NVL(${EXT_USE_PLACE   }  , EXT_USE_PLACE   )
+			, EXT_USE_USER_ID  = NVL(${EXT_USE_USER_ID }  , EXT_USE_USER_ID )
+			, ATTACH_NO        = NVL(${ATTACH_NO       }  , ATTACH_NO       )
+			, EXT_OUT_EXPECT_DATE  = NVL(${EXT_OUT_EXPECT_DATE  }  , EXT_OUT_EXPECT_DATE  )
+			, EXT_OUT_EXPECT_TIME  = SUBSTR(NVL(${EXT_OUT_EXPECT_HOUR}, '')|| 
+             		NVL(${EXT_OUT_EXPECT_MINUTE}, '')|| '000000',1,6) 
+			, EXT_IN_EXPECT_DATE   = NVL(${EXT_IN_EXPECT_DATE   }  , EXT_IN_EXPECT_DATE   )
+			, EXT_IN_EXPECT_TIME   = SUBSTR(NVL(${EXT_IN_EXPECT_HOUR}, '')|| 
+             		NVL(${EXT_IN_EXPECT_MINUTE}, '') || '000000' ,1,6)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doDeleteSSETL">
+	<![CDATA[
+		UPDATE SSETL SET
+			DEL_FLAG = 'Y'
+			, CHANGE_DATE      = ${current.DATE}
+			, CHANGE_TIME      = ${current.TIME}
+			, CHANGE_USER_ID   = ${session.ID}
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doConfirmSSETL">
+	<![CDATA[
+		UPDATE SSETL SET
+			  SMR_STATUS       = ${SMR_STATUS}
+			, CONFIRM_DATE     = ${current.DATE}
+			, CONFIRM_TIME     = ${current.TIME}
+			, CONFIRM_USER_ID  = ${session.ID}
+			, EXT_IN_DATE      = ${current.DATE}
+			, EXT_IN_TIME      = ${current.TIME}
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doConfirmReqSSETL">
+	<![CDATA[
+		UPDATE SSETL SET
+			  SMR_STATUS       = ${SMR_STATUS}
+			, EXT_OUT_DATE     = ${current.DATE}
+			, EXT_OUT_TIME     = ${current.TIME}
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doConfirmSignSSETL">
+	<![CDATA[
+		UPDATE SSETL SET
+			  CHANGE_DATE      = ${current.DATE}
+			, CHANGE_TIME      = ${current.TIME}
+			, CHANGE_USER_ID   = ${session.ID}
+			, SMR_STATUS       = NVL(${SMR_STATUS}, SMR_STATUS)
+			, SIGN_DATE        = ${current.DATE}
+			, SIGN_TIME        = ${current.TIME}
+			, SIGN_USER_ID     = ${session.ID}
+			, REJECT_REMARK    = NVL(${REJECT_REMARK}, REJECT_REMARK)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doCheckCertExtWithdrawable">
+	<![CDATA[
+		SELECT SMR_STATUS
+			 , (SELECT COUNT(*) FROM SAPPR 
+			    WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+			      AND COMPANY_CODE = ${session.COMPANY_CODE}
+			      AND APP_NO = SETL.SMR_NUMBER
+			      AND APP_STATUS = 'C') AS APP_STAGE
+		FROM SSETL SETL
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+		AND APPLY_TYPE      = 'CEXT'
+	]]>
+	</method>
+	<method name="doDeleteAppInfo">
+	<![CDATA[
+		DELETE FROM SAPPR
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND APP_NO			= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doInsertSPMGT">
+	<![CDATA[
+        INSERT
+          INTO SPMGT
+             ( HOUSE_CODE       
+              ,COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}       
+              ,${session.COMPANY_CODE}     
+              ,${SMR_NUMBER}        
+              ,'1'      
+              ,(SELECT COUNT(1) + 1
+                  FROM SPMGT InPMGT
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${session.COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${SMR_NUMBER}
+                   AND InPMGT.CONT_GL_SEQ  = '1'
+               )
+              ,${current.DATE}         
+              ,${current.TIME}         
+              ,${session.COMPANY_CODE}
+              ,${session.ID}
+              ,${ACTION}           
+              ,${IP}
+             )
+	]]>
+	</method>
+	<method name="doSelectSSEDC">
+	<![CDATA[
+		SELECT
+			  SEDC.HOUSE_CODE
+			, SEDC.COMPANY_CODE
+			, SEDC.SMR_NUMBER
+			, SEDC.SMR_SEQ
+			, SEDC.ADD_DATE
+			, SEDC.ADD_TIME
+			, SEDC.ADD_USER_ID
+			, #DB_OWNER#GETUSERNAME(SEDC.HOUSE_CODE, SEDC.COMPANY_CODE, SEDC.ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME
+			, SEDC.SUBJECT
+			, SEDC.COUNT
+			, SEDC.ATTACH_NO
+			, SEDC.SMD_NUMBER
+			, SEDC.SEAL_MG_USER_ID
+			, SEDC.SEAL_MG_SUBJECT
+		FROM SSEDC SEDC
+		WHERE SEDC.HOUSE_CODE = ${session.HOUSE_CODE}
+		AND SEDC.COMPANY_CODE = ${session.COMPANY_CODE}
+		AND SEDC.SMR_NUMBER   = ${SMR_NUMBER}
+		AND NVL(SEDC.DEL_FLAG, 'N') = 'N'
+		ORDER BY SEDC.SMR_SEQ ASC, SEDC.SMD_NUMBER ASC
+	]]>
+	</method>
+	<method name="doInsertSSEDC">
+	<![CDATA[
+		INSERT INTO SSEDC (
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMR_NUMBER
+			, SMR_SEQ
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, DEL_FLAG
+			, SEAL_TYPE
+			, SUBJECT
+			, COUNT
+			, ATTACH_NO
+			, MANAGE_NUMBER
+			, SMD_NUMBER
+			, SEAL_MG_USER_ID
+			, SEAL_MG_DEPT
+			, SEAL_MG_SUBJECT
+		) VALUES (
+			  ${session.HOUSE_CODE  }
+			, ${session.COMPANY_CODE}
+			, ${SMR_NUMBER          }
+			, ${SMR_SEQ             }
+			, ${ADD_DATE        	}
+			, ${current.TIME        }
+			, ${ADD_USER_ID         }
+			, 'N'
+			, ${SEAL_TYPE           }
+			, ${SUBJECT             }
+			, ${COUNT               }
+			, ${ATTACH_NO           }
+			, ${MANAGE_NUMBER       }
+			, ${SMD_NUMBER          }
+			, ${SEAL_MG_USER_ID     }
+			, ${SEAL_MG_DEPT        }
+			, ${SEAL_MG_SUBJECT     }
+		)
+	]]>
+	</method>
+	<method name="doDeleteAllSSEDC">
+	<![CDATA[
+		DELETE FROM SSEDC
+		WHERE HOUSE_CODE 	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER 		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doDeleteSPMGT">
+	<![CDATA[
+        DELETE
+          FROM SPMGT
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+	]]>
+	</method>
+	<method name="doSelectLedgerList">
+	<![CDATA[
+		SELECT 
+			  SETL.HOUSE_CODE
+			, SETL.COMPANY_CODE
+			, SETL.ROW_NUM
+			, SETL.SMR_NUMBER
+			, SETL.SMR_STATUS
+			, SETL.ADD_DATE
+			, SETL.ADD_TIME
+			, SETL.ADD_USER_ID
+			, SETL.CHANGE_DATE
+			, SETL.CHANGE_TIME
+			, SETL.CHANGE_USER_ID
+			, SETL.DEL_FLAG
+			, SETL.SEAL_USE_TYPE
+			, SETL.APPLY_TYPE
+			, SETL.SUBJECT
+			, CAST(SETL.REMARK AS VARCHAR(4000)) AS REMARK
+			, SETL.SUBMISSION_PLACE
+			, SETL.CONFIRM_DATE
+			, SETL.CONFIRM_TIME
+			, SETL.CONFIRM_USER_ID
+			, SETL.SUBMIT_TYPE
+			, SETL.EXT_OUT_DATE
+			, SETL.EXT_OUT_TIME
+			, SETL.EXT_IN_DATE
+			, SETL.EXT_IN_TIME
+			, SETL.EXT_OUT_EXPECT_DATE
+			, SETL.EXT_IN_EXPECT_DATE
+			, SUBSTR(SETL.EXT_OUT_EXPECT_TIME,1,2) AS EXT_OUT_EXPECT_HOUR
+			, SUBSTR(SETL.EXT_OUT_EXPECT_TIME,3,2) AS EXT_OUT_EXPECT_MINUTE
+			, SUBSTR(SETL.EXT_IN_EXPECT_TIME,1,2) AS EXT_IN_EXPECT_HOUR
+			, SUBSTR(SETL.EXT_IN_EXPECT_TIME,3,2) AS EXT_IN_EXPECT_MINUTE
+			, #DB_OWNER#GETUSERDEPTNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) AS DEPT_NAME_LOC
+			, #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME_LOC
+			, #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) AS USE_USER_NAME_LOC
+			, #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.CONFIRM_USER_ID, ${session.LANGUAGE}) AS CONFIRM_USER_NAME_LOC
+		FROM SSETL SETL 
+		LEFT OUTER JOIN SUSMT ADD_USMT 
+			ON ADD_USMT.HOUSE_CODE = SETL.HOUSE_CODE 
+			AND ADD_USMT.COMPANY_CODE = SETL.COMPANY_CODE
+			AND ADD_USMT.USER_ID = SETL.ADD_USER_ID
+		LEFT OUTER JOIN SUSMT USE_USMT 	
+			ON USE_USMT.HOUSE_CODE = SETL.HOUSE_CODE 
+			AND USE_USMT.COMPANY_CODE = SETL.COMPANY_CODE
+			AND USE_USMT.USER_ID = SETL.EXT_USE_USER_ID
+		LEFT OUTER JOIN SUSMT CONFIRM_USMT 	
+			ON CONFIRM_USMT.HOUSE_CODE = SETL.HOUSE_CODE 
+			AND CONFIRM_USMT.COMPANY_CODE = SETL.COMPANY_CODE
+			AND CONFIRM_USMT.USER_ID = SETL.CONFIRM_USER_ID
+		WHERE SETL.HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND SETL.COMPANY_CODE 	= ${session.COMPANY_CODE}
+			AND SETL.SMR_NUMBER 	= $S{SMR_NUMBER}
+			AND SETL.ADD_USER_ID	= $S{REQ_USER_ID}
+			AND NVL(SETL.DEL_FLAG,'N') = 'N'
+			AND SETL.APPLY_TYPE = 'CEXT'
+	]]>
+	<if test="${REQ_USER_DEPT}" operator="ne" value="">
+	<![CDATA[
+			AND (
+				SETL.ADD_USER_ID = ${session.ID}
+				OR ADD_USMT.DEPT = ${session.DEPARTMENT}
+			)
+	]]>
+	</if>
+	<![CDATA[
+			AND SETL.SMR_STATUS		IN($INS{SMR_STATUS})
+			AND (SETL.SUBJECT 		 LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR	SETL.ADD_USER_ID LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR SETL.SMR_NUMBER	 LIKE '%' || $S{F_KEYWORD} || '%' 
+				 OR	SETL.SUBMISSION_PLACE LIKE '%' || $S{F_KEYWORD} || '%' 
+			 	 OR ADD_USMT.USER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%' 
+			 	 OR USE_USMT.USER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'  
+			 	 OR CONFIRM_USMT.USER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%' )
+			AND SETL.ADD_DATE >= $S{F_CALENDAR_FROM}
+			AND SETL.ADD_DATE <= $S{F_CALENDAR_TO}
+		ORDER BY SETL.SMR_NUMBER DESC
+	]]>
+	</method>
+</service>

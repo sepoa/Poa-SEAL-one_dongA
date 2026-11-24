@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD INNER_MANAGER_NAME varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD INNER_MANAGER_NAME varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD INNER_MANAGER_ID varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD INNER_MANAGER_ID varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_COMPANY_NAME varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_COMPANY_NAME varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_COMPANY_CODE varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_COMPANY_CODE varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_MANAGER_NAME varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_MANAGER_NAME varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_MANAGER_ID varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD OUTER_MANAGER_ID varchar(100) NULL;
+		]]>
+		</query>
+	</item>
+</body>

@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_205_B" header="false" pageCloseWarn="false">
+    <form id="formObj" div="BYSqSictdNrSicPkYp" form-id="CT_205_B">
+        <event type="onButtonClick" callback="onFormButtonClick"/>
+        <event type="onChange" callback="onChange"/>
+    </form>
+    <button id="btnObj_left">
+        <btn div="b279b0645bbf48138b8e1d3dfa1555" id="SIGN_ORDER_S" type="icon" img="xi-radiobox-blank" position="left" text="{CT_205_B.SIGN_ORDER_S}" onclick="setSignOrder('S')"/>
+        <btn div="b279b0645bbf48138b8e1d3dfa1555" id="SIGN_ORDER_P" type="icon" img="xi-radiobox-blank" position="left" text="{CT_205_B.SIGN_ORDER_P}" onclick="setSignOrder('P')"/>
+    </button>
+    <button id="btnObj_right">
+        <btn div="f1be76b349ff4f6c82a343162aa11d" id="ADD" type="new" text="{BUTTON.rowadd}" onclick="onButtonClick( 'ADD' )"/>
+        <btn div="f1be76b349ff4f6c82a343162aa11d" id="DELETE" type="delete" text="{BUTTON.rowdelete}" onclick="onButtonClick( 'DELETE' )"/>
+    </button>
+    <grid id="gridObj" div="hOrNRBgzjtNRBgpxPe" grid-id="CT_205_B" drag="true" merge="false" dynamic="false" exceldownload="true">
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onEditCell" callback="onEditCell"/>
+        <event type="onDrop" callback="onDrop"/>
+    </grid>
+    <variable>
+        <var name="bf7b9e31c787462d80a5765adad51f" value="$($sObject._vp).find('#bf7b9e31c787462d80a5765adad51f')[0]"/>
+        <var name="fd8a059a8ada41968f5026fcb1d7c1" value="$($sObject._vp).find('#fd8a059a8ada41968f5026fcb1d7c1')[0]"/>
+        <var name="aa68dfa2337d458480735ab667c07d" value="$($sObject._vp).find('#aa68dfa2337d458480735ab667c07d')[0]"/>
+        <var name="bf55e04b0dba48558dbe57c1bf4e94" value="$($sObject._vp).find('#bf55e04b0dba48558dbe57c1bf4e94')[0]"/>
+        <var name="f8ff49c954f946f8836535b9c86a41" value="$($sObject._vp).find('#f8ff49c954f946f8836535b9c86a41')[0]"/>
+    </variable>
+    <usercss>
+    <![CDATA[
+        .sepoa-button-item-type-icon {
+            border : none;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <var name="targetObj" value="'grid'"/>
+        <var name="minSigner" value="2"/>
+        <var name="maxSigner" value="9"/>
+        <var name="currentSignOrder" value=""/>
+        <function name="init">
+        <![CDATA[
+            //if(sUtils.workflow.check('CT1661237936307')) { // 갑지 계약자 그리드 사용 모듈
+            if(true) {      // TODO: 갑지 그리드 사용 모듈 체크(추후 사용)
+                targetObj = 'grid'
+                
+                const signOrderOption = sUtils.workflow.check('CT1688609027512') ? 'P' : 'S';
+                const targetButton = btnObj_left.btn('SIGN_ORDER_' + signOrderOption);
+                if(targetButton) {
+                    targetButton._vp.prepend(targetButton._area.base);
+                }
+                setSignOrder(signOrderOption);
+                
+                formObj._parent.style.display = 'none';
+                
+                minSigner = <%=CommonUtil.getConfig("sepoa.contract.signer.min", "2")%>;
+                maxSigner = <%=CommonUtil.getConfig("sepoa.contract.signer.max", "9")%>;
+            } else {
+                targetObj = 'form'
+                container.style.display = 'none';
+            }
+            
+            onReady();
+        ]]>
+        </function>
+        
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name:'SIGNNER',
+                id: $sObject.aliasCode,
+                fn:{
+                    doOpenDocument:doOpenDocument,
+                    doClear:doClear,
+                    doValidate:doValidate,
+                    setViewMode:setViewMode
+                }
+            }])
+        ]]>
+        </function>
+        
+        <function name="setViewMode" args="flag">
+        <![CDATA[
+            if(targetObj == 'form'){
+                formObj.setViewMode(flag);
+            }else if(targetObj == 'grid'){
+                gridObj.setReadOnly(flag);
+                
+                btnObj_right.forEachBtn(id => {
+                    btnObj_right.showButton(id, !flag);
+                });
+            }
+            
+            $share.isReadOnly = flag;
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+            if(!config) {
+                return;
+            }
+            
+            $share.config = config;
+            
+            if(currentSignOrder) {
+                if($share.config && $share.config.data) {
+                    $share.config.data.SIGN_ORDER = currentSignOrder;
+                }
+            }
+            
+            if(targetObj == 'form'){
+                formObj.dataMapper($share.config.data, "JSON");
+            }else if(targetObj == 'grid'){
+                if($share.config.data?.SIGNER) {
+                    loadGrid($share.config.data.SIGNER);
+                } else {
+                    for(let i = gridObj.getRowsNum(); i < minSigner; i++) {
+                        addGridRow();
+                    }
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="doClear">
+        <![CDATA[
+            if(targetObj == 'form'){
+                formObj.clear();
+            }else if(targetObj == 'grid'){
+                gridObj.clearAll();
+            }
+        ]]>
+        </function>
+        
+        <function name="onRowSelect" args="rId,cId">
+        <![CDATA[
+            const header = gridObj.getColumnId(cId);
+            if($share.isReadOnly){
+                return false;
+            }
+            
+            if (header == 'SIGNER_SEARCH') {
+                const rowData = gridObj.getRowDataObject(rId);
+                if(rowData.CATEGORY == '') {
+                    Alert(sUtils.cache.text.get('CT_205_B.MESSAGE_CHECK_CATEGORY'));    // '계약자 구분을 선택해주세요.'
+                    return;
+                }
+                
+                const options = {
+                    url : window.CONTEXT_NAME + '/Contract/setForm/ContractsetFormSignerPopup.sux',
+                    params : {
+                        CATEGORY : rowData.CATEGORY,
+                        callback : (data) => {
+                            const hasTarget = gridObj.getAllDataObject().filter(e => e.SIGNER_ID == data.SIGNER_ID).length > 0;
+                            if(hasTarget) {
+                                const message = sUtils.string.dataReplacer(
+                                    sUtils.cache.text.get('CT_205_B.MESSAGE_ALREADY_ADDED_SIGNER'),     // '$.{SIGNER_NAME} 님은 이미 계약자 목록에 추가되어있습니다.'
+                                    {SIGNER_NAME : data.SIGNER_NAME}
+                                );
+                                
+                                Alert(message);
+                            } else {
+                                data.SEQ = rowData.SEQ;
+                                addSigner(data)
+                            }
+                        }
+                    },
+                    width : SUX.getModuleTop().outerWidth * 0.6,
+                    height : SUX.getModuleTop().outerHeight * 0.5,
+                    title : sUtils.cache.text.get('CT_205_B_POPUP.TITLE')       // '계약자 선택'
+                };
+                
+                sUtils.popup.modal(options);
+            }
+        ]]>
+        </function>
+        
+        <function name="onEditCell" args="stage, rId, cInd, newValue, oldValue">
+        <![CDATA[
+            const limit = 1;
+            const cId = gridObj.getColumnId(cInd);
+            if(stage == 2) {
+                if(cId == 'CATEGORY') {
+                    if(newValue == 'C') {
+                        const hasTargetValue = gridObj.getAllDataObject().filter(e => e.CATEGORY == 'C').length > limit;
+                        if(hasTargetValue) {
+                            Alert(sUtils.string.dataReplacer(sUtils.cache.text.get('CT_205_B.MESSAGE_SIGNER_LIMIT'), {LIMIT : limit}));     // '도급처 추가는 최대 $.{LIMIT} 개만 가능합니다.'
+                            return;
+                        }
+                    }
+                    
+                    const excludeKey = ['SELECTED', 'CATEGORY', 'SIGNER_SEARCH', 'SEQ'];
+                    for(let columnId of gridObj.columnIds) {
+                        if(excludeKey.includes(columnId) === false) {
+                            gridObj.cells(rId, gridObj.getColIndexById(columnId)).setValue('');
+                        }
+                    }
+                }
+                
+                setSignerData(gridObj.getAllDataObject());
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="onDrop" args="">
+        <![CDATA[
+            sortGridSeq();
+            setSignerData(gridObj.getAllDataObject());
+        ]]>
+        </function>
+        
+        <function name="doValidate">
+        <![CDATA[
+            if(targetObj == 'form') {
+                return formValidate();
+            } else if(targetObj == 'grid') {
+                return gridValidate();
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="formValidate">
+        <![CDATA[
+            if (!formObj.validate()) {
+                Alert(Sepoa.cache.text.get('CT_205.MSG7'));     // '입력되지않은 서명대상자 정보가 존재합니다.'
+                return false;
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="gridValidate">
+        <![CDATA[
+            if(gridObj.getRowsNum() < minSigner) {
+                const message = Sepoa.cache.text.get('CT_205_B.MESSAGE_REQUIRE_MIN_SIGNER');        // '최소 $.{MIN_SIGNER} 명 이상의 계약자 지정이 필요합니다.'
+                Alert(sUtils.string.dataReplacer(message, {MIN_SIGNER : minSigner}));
+                
+                return false;
+            }
+            
+            if(gridObj.getRowsNum() > maxSigner) {
+                const message = Sepoa.cache.text.get('CT_205_B.MESSAGE_CHECK_MAX_SIGNER');          // '최대 $.{MAX_SIGNER} 명 까지만 계약자 지정이 가능합니다.'
+                Alert(sUtils.string.dataReplacer(message, {MAX_SIGNER : maxSigner}));
+                
+                return false;
+            }
+            
+            if(!gridObj.validate()){
+                Alert(Sepoa.cache.text.get('CT_205.MSG7'));     // '입력되지않은 서명대상자 정보가 존재합니다.'
+                
+                return false;
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+            $.extend(true, $share.config.data, formObj.getFormData(true));
+            callFunction('p', 'onChangeData', ['SIGNNER']);
+        ]]>
+        </function>
+        
+        <function name="onFormButtonClick" args="id">
+        <![CDATA[
+            if($share.isReadOnly){
+                return;
+            }
+            if (id == 'VENDOR_SEARCH') {
+                PopupCommonPost('SP0060', function(code, company, irs_no, ceo_name, addr) {
+                    formObj.setValue('SELLER_CODE', code, true);
+                    formObj.setValue('SELLER_NAME', company, true);
+                    formObj.setValue('SELLER_IRS_NO', irs_no, true);
+                    formObj.setValue('SELLER_CEO_NAME', ceo_name, true);
+                    formObj.setValue('SELLER_ADDR', addr);
+                }, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+            } else if (id == 'BUYER_USER_SEARCH') {
+                PopupCommonPost('SP0061', function(id, name, email, tel) {
+                    formObj.setValue('BUYER_USER_ID', id, true);
+                    formObj.setValue('BUYER_USER_NAME', name, true);
+                    formObj.setValue('BUYER_USER_EMAIL', email, true);
+                    formObj.setValue('BUYER_USER_TEL', tel);
+                }, [Sepoa.info.HOUSE_CODE, formObj.getValue('BUYER_CODE')]);
+            } else if (id == 'SELLER_USER_SEARCH') {
+                PopupCommonPost('SP0063', function(id, name, email, tel) {
+                    formObj.setValue('SELLER_USER_ID', id, true);
+                    formObj.setValue('SELLER_USER_NAME', name, true);
+                    formObj.setValue('SELLER_USER_EMAIL', email, true);
+                    formObj.setValue('SELLER_USER_TEL', tel);
+                }, [Sepoa.info.HOUSE_CODE, formObj.getValue('SELLER_CODE')]);
+            }
+        ]]>
+        </function>
+        
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if($share.isReadOnly === true) {
+                return;
+            }
+            
+            switch(id) {
+                case 'ADD' :
+                    addGridRow();
+                    
+                    break;
+                case 'DELETE' :
+                    deleteGridRow();
+                    
+                    break;
+                default :
+                    break;
+            }
+        ]]>
+        </function>
+        
+        <function name="addGridRow" args="">
+        <![CDATA[
+            if(gridObj.getRowsNum() + 1 > maxSigner) {
+                const message = Sepoa.cache.text.get('CT_205_B.MESSAGE_CHECK_MAX_SIGNER');          // '최대 $.{MAX_SIGNER} 명 까지만 계약자 지정이 가능합니다.'
+                Alert(sUtils.string.dataReplacer(message, {MAX_SIGNER : maxSigner}));
+                
+                return false;
+            }
+            
+            const rowId = dhx.newId();
+            gridObj.addRow(rowId, gridObj.getRowsNum());
+            
+            gridObj.cells(rowId, gridObj.getColIndexById('SEQ')).setValue(gridObj.getRowsNum());
+            
+            setSignerData(gridObj.getAllDataObject());
+        ]]>
+        </function>
+        
+        <function name="deleteGridRow" args="">
+        <![CDATA[
+            const signerList = $share.config.data.SIGNER;
+            for(let rowId of gridObj.getGridChangedRows('SELECTED')) {
+                gridObj.deleteRow(rowId);
+            }
+            
+            sortGridSeq();
+            
+            setSignerData(gridObj.getAllDataObject());
+        ]]>
+        </function>
+        
+        <function name="addSigner" args="data">
+        <![CDATA[
+            if(!$share.config.data) {
+                return;
+            }
+            
+            if(!$share.config.data.SIGNER) {
+                $share.config.data.SIGNER = [];
+            }
+            
+            const rowId = gridObj.getRowId(data.SEQ - 1);
+            if(rowId) {
+                for(let entry of Object.entries(data)) {
+                    const [key, value] = entry;
+                    const columnIndex = gridObj.getColIndexById(key);
+                    if(columnIndex) {
+                        if(gridObj.getColType(columnIndex).includes('combo')) {
+                            const isComboLoaded = gridObj._ajaxStatusW.combo == 0;
+                            if(isComboLoaded === false) {
+                                const eventId = gridObj.attachEvent('onComboLoaded', () => {
+                                    gridObj.cells(rowId, columnIndex).setValue(value);
+                                    gridObj.detachEvent(eventId);
+                                })
+                            }
+                        }
+                        
+                        gridObj.cells(rowId, columnIndex).setValue(value);
+                    }
+                }
+            }
+            
+            setSignerData(gridObj.getAllDataObject());
+        ]]>
+        </function>
+        
+        <function name="setSignerData" args="data">
+        <![CDATA[
+            if(!$share.config.data) {
+                return;
+            }
+            
+            let tmp = [];
+            if($share.config.data.SIGNER) {
+                tmp = $share.config.data.SIGNER;
+            }
+            
+            $share.config.data.SIGNER = [];
+            for(let signer of data) {
+                const mergeData = sUtils.object.extend(true, {}, tmp.find(e => e.SIGNER_ID == signer.SIGNER_ID), parseSignerData(signer));
+                $share.config.data.SIGNER.push(mergeData);
+            }
+        ]]>
+        </function>
+        
+        <function name="parseSignerData" args="data">
+        <![CDATA[
+            const result = {
+                SIGNER_COMPANY_CODE : data.SIGNER_COMPANY_CODE,
+                SIGNER_COMPANY_NAME : data.SIGNER_COMPANY_NAME,
+                SIGNER_ID : data.SIGNER_ID,
+                SIGNER_NAME : data.SIGNER_NAME,
+                SIGNER_EMAIL : data.SIGNER_EMAIL,
+                SEQ : data.SEQ,
+                SIGNER_PHONE : data.SIGNER_PHONE,
+                SIGNER_COMPANY_OWNER : data.SIGNER_COMPANY_OWNER,
+                SIGNER_COMPANY_ADDR : data.SIGNER_COMPANY_ADDR,
+                SIGN_KEY : data.IRS_NO,
+                CATEGORY : data.CATEGORY
+            };
+            
+            return result;
+        ]]>
+        </function>
+        
+        <function name="sortGridSeq" args="">
+        <![CDATA[
+            const ids = gridObj.getAllRowIds(',').split(',');
+            for(let i in ids) {
+                const id = ids[i];
+                gridObj.cells(id, gridObj.getColIndexById('SEQ')).setValue(Number(i) + 1);
+            }
+        ]]>
+        </function>
+        
+        <function name="setSignOrder" args="type">
+        <![CDATA[
+            if($share.isReadOnly === true) {
+                return;
+            }
+            
+            // type : 'S' -> 순차 서명, 'P' -> 동시 서명
+            currentSignOrder = type;
+            
+            if($share.config && $share.config.data) {
+                $share.config.data.SIGN_ORDER = currentSignOrder;
+            }
+            
+            btnObj_left.forEachBtn(id => {
+                const item = btnObj_left.btn(id);
+                if(id == 'SIGN_ORDER_' + type) {
+                    item.setIcon('xi-radiobox-checked');
+                } else {
+                    item.setIcon('xi-radiobox-blank');
+                }
+            });
+            
+            if(type == 'S') {
+                gridObj.setColumnHidden(gridObj.getColIndexById('SEQ'), false);
+            } else {
+                gridObj.setColumnHidden(gridObj.getColIndexById('SEQ'), true);
+            }
+        ]]>
+        </function>
+        
+        <function name="loadGrid" args="data">
+        <![CDATA[
+            for(let signer of data) {
+                const rowId = dhx.newId();
+                gridObj.addRow(rowId, gridObj.getRowsNum());
+                gridObj.cells(rowId, gridObj.getColIndexById('SEQ')).setValue(gridObj.getRowsNum());
+                
+                if(rowId) {
+                    for(let entry of Object.entries(signer)) {
+                        const [key, value] = entry;
+                        const columnIndex = gridObj.getColIndexById(key);
+                        if(columnIndex) {
+                            if(gridObj.getColType(columnIndex).includes('combo')) {
+                                const isComboLoaded = gridObj._ajaxStatusW.combo == 0;
+                                if(isComboLoaded === false) {
+                                    const eventId = gridObj.attachEvent('onComboLoaded', () => {
+                                        gridObj.cells(rowId, columnIndex).setValue(value);
+                                        gridObj.detachEvent(eventId);
+                                    })
+                                }
+                            }
+                            
+                            gridObj.cells(rowId, columnIndex).setValue(value);
+                        }
+                    }
+                }
+            }
+            
+            setSignerData(data);
+        ]]>
+        </function>
+        
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQllTcVNpY0JZU3FTaWNZUVpQIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9kUGF2aGg5NHAwNXgiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3Zpa0E5R0xNUGowMyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNUXzIwNV9CIiwiT0JKRUNUX0lEIjoiQllTcVNpY0JZU3FTaWNZUVpQIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJGVUxMIn0sImlkIjoiQllTcVNpY0JZU3FTaWNZUVpQIiwidHlwZSI6
+        ImJvZHkifSwiQllTcVNpY3RkTnJTaWNQa1lwIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfcjluZ1lCV0lhYnVQIjoibnVsbCIsImRoeElkXzVyVUpVcHhHenpYQSI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiY2VudGVyIiwiQUxJR05fVkVSVElDQUwiOiJtaWRkbGUiLCJkaHhJZF9IVzdHUDg4eTR6U0siOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9ScmtiYkN5UTlaRHgiOiJudWxsIiwiZGh4SWRfU2tj
+        SThMdlh6NXNjIjoibnVsbCIsImRoeElkX3NLbFRmUnE3NnBIcyI6Im51bGwiLCJkaHhJZF9TdmZqcHlRVTJHZ0giOiJudWxsIiwiZGh4SWRfcXpiMXRvZ05tWElhIjoibnVsbCIsImRoeElkXzZLQVVCVnRCZGowOSI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJCWVNxU2ljdGROclNpY1BrWXAiLCJGT1JNX0lEIjoiQ1RfMjA1X0IifSwiaWQiOiJCWVNxU2ljdGROclNpY1BrWXAiLCJ0eXBlIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvbkZvcm1CdXR0b25DbGljayIsInR5cGUiOiJldmVudCIsIkNBTExCQUNLX1RZUEUiOiJuYW1lIiwiTkFNRSI6Im9uQnV0dG9uQ2xpY2sifSx7IkNBTExCQUNLIjoib25D
+        aGFuZ2UiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvbkNoYW5nZSJ9XX0sImhPck5SQmd6anROUkJncHhQZSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX3EyT090aE56bjlKeCI6Im51bGwiLCJkaHhJZF9mZ1gzZ253N3R2OHAiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfWnMxRGFsOE1WU25BIjoibnVsbCIsIkNM
+        QVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIkVYQ0VMRE9XTkxPQUQiOiJ0cnVlIiwiT0JKRUNUX0lEIjoiaE9yTlJCZ3pqdE5SQmdweFBlIiwiR1JJRF9JRCI6IkNUXzIwNV9CIn0sImlkIjoiaE9yTlJCZ3pqdE5SQmdweFBlIiwidHlwZSI6ImdyaWQifSwiYmY1NWUwNGIwZGJhNDg1NThkYmU1N2MxYmY0ZTk0Ijp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJiZjU1ZTA0YjBkYmE0ODU1OGRiZTU3YzFiZjRlOTQifSwiaWQiOiJiZjU1ZTA0YjBkYmE0ODU1OGRiZTU3YzFiZjRlOTQiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiZjhm
+        ZjQ5Yzk1NGY5NDZmODgzNjUzNWI5Yzg2YTQxIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9mN052UVFNWVZ5aHMiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX204MW8zSVRIeU1XWSI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9rUklmTTJWZHFRanIiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9TenF3eDNNUHg1TDMiOiJudWxsIiwiZGh4SWRfbndkT3hjSU5MWllzIjoi
+        bnVsbCIsImRoeElkXzdnUmhydEJuNUE1eiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJmOGZmNDljOTU0Zjk0NmY4ODM2NTM1YjljODZhNDEiLCJPQkpFQ1RfSUQiOiJmOGZmNDljOTU0Zjk0NmY4ODM2NTM1YjljODZhNDEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIn0sImlkIjoiZjhmZjQ5Yzk1NGY5NDZmODgzNjUzNWI5Yzg2YTQxIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJmMWJlNzZiMzQ5ZmY0ZjZjODJhMzQzMTYyYWExMWQiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoi
+        IiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmpfcmlnaHQiLCJPQkpFQ1RfSUQiOiJmMWJlNzZiMzQ5ZmY0ZjZjODJhMzQzMTYyYWExMWQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fMF9JRCI6IkFERCIsIklURU1fMF9UWVBFIjoibmV3IiwiSVRFTV8wX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5yb3dhZGQiLCJJVEVNXzBfUEFSQU0iOiImIzM5O0FERCYjMzk7IiwiSVRFTV8wX1RFWFQiOiLtlonstpTqsIAiLCJJVEVNXzFfSUQiOiJERUxFVEUiLCJJVEVNXzFfVFlQ
+        RSI6ImRlbGV0ZSIsIklURU1fMV9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fMV9TTENPREUiOiJCVVRUT04ucm93ZGVsZXRlIiwiSVRFTV8xX1BBUkFNIjoiJiMzOTtERUxFVEUmIzM5OyIsIklURU1fMV9URVhUIjoi7ZaJ7IKt7KCcIiwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIn0sImlkIjoiZjFiZTc2YjM0OWZmNGY2YzgyYTM0MzE2MmFhMTFkIiwidHlwZSI6ImJ1dHRvbiJ9LCJiZjdiOWUzMWM3ODc0NjJkODBhNTc2NWFkYWQ1MWYiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6ImJmN2I5ZTMxYzc4NzQ2MmQ4MGE1NzY1YWRhZDUxZiJ9LCJpZCI6ImJmN2I5ZTMxYzc4NzQ2MmQ4MGE1NzY1YWRhZDUxZiIsInR5cGUi
+        OiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJhYTY4ZGZhMjMzN2Q0NTg0ODA3MzVhYjY2N2MwN2QiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX1pBUDRRWFZQMU9yUyI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfN0VES2RTMUJHMmN1IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzVYMkhxOG5Dek03ZCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoi
+        MiIsIlZBUiI6ImFhNjhkZmEyMzM3ZDQ1ODQ4MDczNWFiNjY3YzA3ZCIsIk9CSkVDVF9JRCI6ImFhNjhkZmEyMzM3ZDQ1ODQ4MDczNWFiNjY3YzA3ZCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09MVU1OX0lURU1fMCI6IjEiLCJDT0xVTU5fSVRFTV8xIjoiMSJ9LCJpZCI6ImFhNjhkZmEyMzM3ZDQ1ODQ4MDczNWFiNjY3YzA3ZCIsInR5cGUiOiJjb250YWluZXIifSwiZmQ4YTA1OWE4YWRhNDE5NjhmNTAyNmZjYjFkN2MxIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJmZDhhMDU5YThhZGE0MTk2OGY1MDI2ZmNiMWQ3YzEifSwiaWQiOiJmZDhhMDU5YThhZGE0MTk2OGY1MDI2ZmNiMWQ3YzEiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImIifSwi
+        YjI3OWIwNjQ1YmJmNDgxMzhiOGUxZDNkZmExNTU1Ijp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iai1sZWZ0IiwiT0JKRUNUX0lEIjoiYjI3OWIwNjQ1YmJmNDgxMzhiOGUxZDNkZmExNTU1IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJJVEVNX0FGMEM1MDdCRjg5RTQ0M0E4MEE1Njk0MDExNEQyRF9JRCI6IlNJR05fT1JERVJfUyIsIklURU1fQUYwQzUwN0JG
+        ODlFNDQzQTgwQTU2OTQwMTE0RDJEX1RZUEUiOiJkZWZhdWx0IiwiSVRFTV9BRjBDNTA3QkY4OUU0NDNBODBBNTY5NDAxMTREMkRfT05DTElDSyI6ImRvT3BlbkRvY3VtZW50IiwiSVRFTV9BRjBDNTA3QkY4OUU0NDNBODBBNTY5NDAxMTREMkRfU0xDT0RFIjoiU0lHTl9PUkRFUl9TIiwiSVRFTV9CNTQxQkM2ODdGQjA0RkJFOEQxMkU5MDI0NDA4NjVfSUQiOiJTSUdOX09SREVSX1AiLCJJVEVNX0I1NDFCQzY4N0ZCMDRGQkU4RDEyRTkwMjQ0MDg2NV9PTkNMSUNLIjoiZG9PcGVuRG9jdW1lbnQiLCJJVEVNX0I1NDFCQzY4N0ZCMDRGQkU4RDEyRTkwMjQ0MDg2NV9TTENPREUiOiJTSUdOX09SREVSX1AiLCJJVEVNX0FGMEM1MDdCRjg5RTQ0M0E4MEE1Njk0MDExNEQy
+        RF9TT1JUIjoiMSIsIklURU1fQjU0MUJDNjg3RkIwNEZCRThEMTJFOTAyNDQwODY1X1NPUlQiOiIyIn0sImlkIjoiYjI3OWIwNjQ1YmJmNDgxMzhiOGUxZDNkZmExNTU1IiwidHlwZSI6ImJ1dHRvbiJ9fSwidHJlZSI6eyJpZCI6IkJZU3FTaWNCWVNxU2ljWVFaUCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiQllTcVNpY3RkTnJTaWNQa1lwIiwidHlwZSI6ImZvcm0ifSx7ImlkIjoiZjhmZjQ5Yzk1NGY5NDZmODgzNjUzNWI5Yzg2YTQxIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImJmNTVlMDRiMGRiYTQ4NTU4ZGJlNTdjMWJmNGU5NCIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJhYTY4ZGZhMjMzN2Q0NTg0ODA3MzVh
+        YjY2N2MwN2QiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiYmY3YjllMzFjNzg3NDYyZDgwYTU3NjVhZGFkNTFmIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6ImIyNzliMDY0NWJiZjQ4MTM4YjhlMWQzZGZhMTU1NSIsInR5cGUiOiJidXR0b24ifV19LHsiaWQiOiJmZDhhMDU5YThhZGE0MTk2OGY1MDI2ZmNiMWQ3YzEiLCJ0eXBlIjoiY29sdW1uIiwiY2VsbHMiOlt7ImlkIjoiZjFiZTc2YjM0OWZmNGY2YzgyYTM0MzE2MmFhMTFkIiwidHlwZSI6ImJ1dHRvbiJ9XX1dfSx7ImlkIjoiaE9yTlJCZ3pqdE5SQmdweFBlIiwidHlwZSI6ImdyaWQifV19XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L3NldEZvcm0vQ29udHJhY3Rz
+        ZXRGb3JtU2lnbm5lci54bWwiLCJQUk9KRUNUIjoiU0VBTCIsIkNPREUiOiIyMDVfQiIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoic2V0Rm9ybSIsIlBBVEhfMyI6IkNvbnRyYWN0c2V0Rm9ybSIsIlBBVEhfMSI6IkNvbnRyYWN0IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiU2lnbm5lciIsIlNDUkVFTl9JRCI6IkNUXzIwNV9CIn19LCJodG1sIjoiPGRpdiBpZD1cIkJZU3FTaWNCWVNxU2ljWVFaUFwiIGNsYXNzPVwiY29udGFpbmVyIHNlcG9hdXhfc2NyZWVuX3Njcm9sbFwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYg
+        Y2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfdmFsaWduX21pZGRsZVwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJCWVNxU2lj
+        dGROclNpY1BrWXBcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2Zvcm0gbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJmOGZmNDljOTU0Zjk0NmY4ODM2NTM1YjljODZhNDFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVy
+        XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYmY1NWUwNGIwZGJhNDg1NThkYmU1N2MxYmY0ZTk0XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIj5c
+        biAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYWE2OGRmYTIzMzdkNDU4NDgwNzM1YWI2NjdjMDdkXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJiZjdiOWUzMWM3ODc0NjJkODBhNTc2NWFkYWQ1MWZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBz
+        dHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9
+        XCJiMjc5YjA2NDViYmY0ODEzOGI4ZTFkM2RmYTE1NTVcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJmZDhhMDU5YThhZGE0MTk2OGY1MDI2ZmNi
+        MWQ3YzFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5
+        bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImYxYmU3NmIzNDlmZjRmNmM4MmEzNDMxNjJhYTExZFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9h
+        dXhfZ3JpZF9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJoT3JOUkJnemp0TlJCZ3B4UGVcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2dyaWQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwv
+        ZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doCheckDuplicateCompany">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+		FROM
+			USERVICE
+		WHERE
+			HOUSE_CODE = ${SERVICE_CODE}
+		AND COMPANY_CODE = ${COMPANY_CODE}
+	]]>
+	</method>
+	
+	<method name="doSave">
+	<![CDATA[
+		INSERT INTO USERVICE
+		(
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+			, CHANGE_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, DEL_FLAG
+		)
+		VALUES
+		(
+			  ${SERVICE_CODE}
+			, ${COMPANY_CODE}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, 'N'
+		)
+	]]>
+	</method>
+</service>

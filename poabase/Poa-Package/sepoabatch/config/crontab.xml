@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<crontab>
+<!-- this is sample
+<crontabentry id="0">
+	<seconds>*/5</seconds>
+	<minutes>*</minutes>
+	<hours>*</hours>
+	<daysofmonth>*</daysofmonth>
+	<months>*</months>
+	<daysofweek>*</daysofweek>
+	<years>*</years>
+	<bussinesdays>true</bussinesdays>
+	<startDate>null</startDate>
+	<endDate>null</endDate>
+	<class>sepoa.svc.batch.SP_SUSMT</class>
+	<method>main</method>
+        <parameters></parameters>
+	<description>SP_SUSMT</description>
+</crontabentry>
+ -->
+</crontab>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MANUAL_COMPLETE_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="수기계약서 업로드가 완료되었습니다"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="MANUAL_COMPLETE_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="Manual contract upload is completed"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MANUAL_COMPLETE"/>
+					<entry key="CONTENTS" val="수기계약 완료"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="MANUAL_COMPLETE"/>
+					<entry key="CONTENTS" val="Manual contract completed"/>
+				</map>
+				
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MANUAL_COMPLETE_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="자세한 내용은 아래 링크를 통해 확인해주세요"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="MANUAL_COMPLETE_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="For more details, please check the link below"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MANUAL_COMPLETE_LABEL_1"/>
+					<entry key="CONTENTS" val="서명자"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="MANUAL_COMPLETE_LABEL_1"/>
+					<entry key="CONTENTS" val="Signatory"/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

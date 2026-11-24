@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Master" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="483" leftMargin="56" rightMargin="56" topMargin="99" bottomMargin="56" uuid="9db360f0-006f-4a2a-9f51-12b717177e75">
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<parameter name="headerData" class="java.util.Map"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<variable name="tabSet" class="java.lang.String">
+		<variableExpression><![CDATA["&#09;&#09;&#09;&#09;&#09;"]]></variableExpression>
+		<initialValueExpression><![CDATA["&#09;&#09;&#09;&#09;&#09;"]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="686" splitType="Stretch">
+			<staticText>
+				<reportElement x="86" y="10" width="310" height="30" uuid="57de6d53-d251-455a-b35e-d712c6dd3dc6">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="25" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[하 자 이 행 각 서]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="30" y="90" width="100" height="25" uuid="6224c01d-1b8f-4dd0-a045-d3bfb3086acc">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["사 업 명" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="115" width="100" height="25" uuid="c824d043-0837-4aac-94de-388e971a7ab4">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["계 약 기 간" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="140" width="100" height="25" uuid="1b9acf83-fd77-435d-ad53-c3a9cd36bac9">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["하자  책임  기간" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="165" width="100" height="25" uuid="7fd5238b-5a90-4262-acf8-adb53f3b6dcb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["계 약 금 액" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="160" y="165" width="35" height="25" uuid="3a373962-1497-4cf7-b8d5-8b2e0aab4287">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[일금]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="160" y="140" width="320" height="25" uuid="3cd51e5d-3d42-48d1-aefd-1712036d5748">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[준공일로부터 1년]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="160" y="115" width="320" height="25" uuid="824c2cfd-f1e2-4b1d-8a11-0348c2bfbf02">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{headerData}.get("")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="160" y="90" width="320" height="25" uuid="fc9c1dc6-cf55-4e41-8f79-207f5b7663ef">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{headerData}.get("PROJECT_NAME")]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="90" width="30" height="25" uuid="86e22f3d-4439-40fe-8667-6f1742e598aa">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[1) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="115" width="30" height="25" uuid="8e2353d3-3608-4554-8ce6-2f328ae12389">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[2) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="140" width="30" height="25" uuid="8de5773b-6ebb-4bae-95ad-8357dcb28687">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[3) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="165" width="30" height="25" uuid="4cca9749-8580-46c2-bfc5-3f0cdc80744f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[4) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="115" width="30" height="25" uuid="8d51ef45-448c-4105-a54c-bccf73a608e8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="140" width="30" height="25" uuid="65365572-1788-4631-b1f9-4c07733d524b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="90" width="30" height="25" uuid="435d3593-bf62-4ad2-9a44-c4c5f118b914">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="165" width="30" height="25" uuid="153410ff-4957-4aa6-82c1-101a5ec9579c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="640" width="479" height="46" uuid="db94ae9a-faca-42ff-828e-933b13246179">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="25" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[(주) 한국종합기술 대표이사 귀하]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="300" width="483" height="30" uuid="4647e74b-2299-4f74-a670-4337479a5388">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[&#09;상기 계약권에 대해서 하자 발생시 즉시 보수할 것을 귀사에 확약하오며]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="330" width="483" height="30" uuid="3bd260c8-2272-48d3-b02e-cf582da8e81d"/>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[이에 각서를 제출합니다.]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="400" width="483" height="30" uuid="4c452abb-6edf-4ee4-8686-a08306014772">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="NatoSansCJKkr" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy.MM.dd.").format(new Date())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="170" y="550" width="64" height="25" uuid="40a02a06-581b-47c9-9f2a-249fa6547715">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["대 표 자" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="380" y="550" width="102" height="25" uuid="cf50be16-ea9e-4a41-afa0-06bfaecd6fb9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[(인)]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="250" y="500" width="232" height="25" uuid="3dcebc8c-58c1-409b-88d1-70402b87ac77">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{headerData}.get("ADDRESS_LOC")]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="234" y="550" width="16" height="25" uuid="4cfb30cc-aae3-4b68-ac6d-cae977a6ec73">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="170" y="525" width="64" height="25" uuid="2119df95-1079-4ca3-aef0-9804c6e4afe7">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["상 호 명" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="234" y="525" width="16" height="25" uuid="a1a744dc-2d04-4eed-969d-f071c5a60fec">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="234" y="500" width="16" height="25" uuid="2cd77dd3-e95a-4989-9ee4-600bcc426cc9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="170" y="500" width="64" height="25" uuid="dfe78c51-23cf-451b-96bd-4a02403f1cf8">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="5">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["주 소" + $V{tabSet}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="250" y="525" width="232" height="25" uuid="02437f46-9b92-411e-8c41-9a9776d73d5d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{headerData}.get("SELLER_NAME")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="250" y="550" width="130" height="25" uuid="2d64046d-6129-403d-831f-dd2b01ca28db">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="NatoSansCJKkr" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{headerData}.get("CEO_NAME_LOC")]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="280" y="165" width="200" height="25" uuid="949a27c1-ec9c-4a11-86f0-9bd393209e88">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[  원정 ( &#8361; &#09;&#09; )    (VAT 별도)]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="195" y="165" width="85" height="25" uuid="66dd8140-a5f7-40f8-b353-6abb7073198a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="html">
+					<font fontName="NatoSansCJKkr" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{headerData}.get("INV_AMT")]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

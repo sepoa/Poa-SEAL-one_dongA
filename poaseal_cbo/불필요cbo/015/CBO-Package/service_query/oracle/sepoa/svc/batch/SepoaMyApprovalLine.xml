@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="NIA_doSelectUserList">
+	<![CDATA[
+		SELECT
+			USERID AS USER_ID
+			, USERNM AS USER_NAME_LOC
+			, USERDB
+			, DEPTID AS DEPT
+			, UPPER_DEPTID
+			, TITLECD AS POSITION
+			, EMAIL
+			, CASE WHEN FLAG = 'Y' THEN 'N' END AS DEL_FLAG
+		FROM
+			NIA_MIS.USERMASTER_VIEW
+	]]>
+	</method>
+	
+	<method name="checkAppLine">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SGWMG
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND USER_ID = ${USER_ID}
+		AND APP_LINE_NAME = '기본결재선'
+	]]>
+	</method>
+	
+	<method name="doInsertSGWMG">
+	<![CDATA[
+		INSERT INTO SGWMG
+		 ( 
+		     HOUSE_CODE
+		   , COMPANY_CODE
+		   , USER_ID
+		   , APP_LINE_CODE
+		   , APP_LINE_NAME
+		   , ADD_DATE
+		   , ADD_TIME
+		   , ADD_USER_ID
+		   , DEL_FLAG
+		 ) 
+		 VALUES
+		 ( 
+		     ${session.HOUSE_CODE}
+		   , ${session.COMPANY_CODE}
+		   , ${USER_ID}
+		   , ${APP_LINE_CODE}
+		   , ${APP_LINE_NAME}
+		   , ${current.DATE}
+		   , ${current.TIME}
+		   , ${session.ID}
+		   , 'N'
+		 )  
+	]]>
+	</method>
+	
+	<method name="doInsertSGWML1">
+	<![CDATA[
+		INSERT INTO SGWML
+		(
+			 HOUSE_CODE
+		   , COMPANY_CODE
+		   , USER_ID
+		   , APP_LINE_CODE
+		   , APP_TYPE
+		   , LINE_SEQ
+		   , APP_STAGE
+		   , APP_METHOD
+		   , ADD_DATE
+		   , ADD_TIME
+		   , ADD_USER_ID
+		 ) 
+		VALUES
+		( 
+			 ${session.HOUSE_CODE}    
+		   , ${session.COMPANY_CODE} 
+		   , ${APP_USER_ID}             
+		   , ${APP_LINE_CODE}       
+		   , ${APP_TYPE}             
+		   , ${APP_LINE_SEQ}         
+		   , ${APP_STAGE}            
+		   , ${APP_METHOD}           
+		   , ${current.DATE}            
+		   , ${current.TIME}            
+		   , ${session.ID  }         
+		 ) 
+	]]>
+	</method>
+	<method name="doInsertSGWML2">
+	<![CDATA[
+		INSERT INTO SGWML
+		(
+			 HOUSE_CODE
+		   , COMPANY_CODE
+		   , USER_ID
+		   , APP_LINE_CODE
+		   , APP_TYPE
+		   , LINE_SEQ
+		   , APP_STAGE
+		   , APP_METHOD
+		   , ADD_DATE
+		   , ADD_TIME
+		   , ADD_USER_ID
+		 ) 
+		VALUES
+		( 
+			 ${session.HOUSE_CODE}    
+		   , ${session.COMPANY_CODE} 
+		   , ${APP_USER_ID}             
+		   , ${APP_LINE_CODE}       
+		   , ${APP_TYPE}             
+		   , ${APP_LINE_SEQ}         
+		   , ${APP_STAGE}            
+		   , ${APP_METHOD}           
+		   , ${current.DATE}            
+		   , ${current.TIME}            
+		   , ${session.ID  }         
+		 ) 
+	]]>
+	</method>
+	<method name="doInsertSGWML3">
+	<![CDATA[
+		INSERT INTO SGWML
+		(
+			 HOUSE_CODE
+		   , COMPANY_CODE
+		   , USER_ID
+		   , APP_LINE_CODE
+		   , APP_TYPE
+		   , LINE_SEQ
+		   , APP_STAGE
+		   , APP_METHOD
+		   , ADD_DATE
+		   , ADD_TIME
+		   , ADD_USER_ID
+		 ) 
+		VALUES
+		( 
+			 ${session.HOUSE_CODE}    
+		   , ${session.COMPANY_CODE} 
+		   , ${APP_USER_ID}             
+		   , ${APP_LINE_CODE}       
+		   , ${APP_TYPE}             
+		   , ${APP_LINE_SEQ}         
+		   , ${APP_STAGE}            
+		   , ${APP_METHOD}           
+		   , ${current.DATE}            
+		   , ${current.TIME}            
+		   , ${session.ID  }         
+		 ) 
+	]]>
+	</method>
+	
+	<method name="doQueryMyDept">
+	<![CDATA[
+		SELECT USMT.USER_ID
+			, USMT.USER_NAME_LOC
+			, DEPT.DEPT
+			, DEPT.DEPT_NAME_LOC
+			, DEPT.MANAGER_ID
+		FROM SDEPT DEPT
+			INNER JOIN SUSMT USMT
+			ON 
+				DEPT.DEPT = USMT.DEPT
+				AND DEPT.HOUSE_CODE = USMT.HOUSE_CODE
+				AND DEPT.COMPANY_CODE = USMT.COMPANY_CODE
+		WHERE
+			DEPT.HOUSE_CODE  = ${session.HOUSE_CODE}
+			and USMT.USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+</service>

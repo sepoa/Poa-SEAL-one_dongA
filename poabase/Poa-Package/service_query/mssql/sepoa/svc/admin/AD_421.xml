@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryClient">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE 
+			, COMPANY_CODE
+			, COMPANY_NAME
+		FROM
+			USERVICE
+		WHERE
+			COMPANY_CODE = '1000'
+		AND HOUSE_CODE = $S{HOUSE_CODE}
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		AND ( UPPER( HOUSE_CODE )  LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%' 
+      	      OR UPPER( COMPANY_CODE ) LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%' 
+      	      OR UPPER( COMPANY_NAME ) LIKE '%' + UPPER( $S{F_KEYWORD} ) + '%') 
+	]]>
+	</method>
+	
+	<method name="doQueryProfile">
+	<![CDATA[
+		SELECT MUPD.MENU_PROFILE_CODE
+            , MUPD.COMPANY_CODE
+            , CMGL.COMPANY_NAME_LOC
+            , LANG.CONTENTS MENU_PROFILE_NAME
+         FROM (SELECT MENU_PROFILE_CODE
+                     ,COMPANY_CODE
+                     ,HOUSE_CODE
+                 FROM SMUPD
+        WHERE HOUSE_CODE = '000'
+        AND MENU_PROFILE_CODE <> 'COMMON'
+                    GROUP BY HOUSE_CODE, MENU_PROFILE_CODE, COMPANY_CODE) MUPD
+             JOIN SCMGL CMGL
+               ON MUPD.HOUSE_CODE   = CMGL.HOUSE_CODE
+              AND MUPD.COMPANY_CODE = CMGL.COMPANY_CODE
+             JOIN SLANG LANG
+               ON MUPD.HOUSE_CODE        = LANG.HOUSE_CODE
+              AND MUPD.MENU_PROFILE_CODE = LANG.CODE
+              AND LANG.SCREEN_ID         ='MENU_PROFILE'
+        AND LANG.LANGUAGE          = 'KO'
+        AND (    1=1
+        )
+            ORDER
+               BY CASE WHEN MENU_PROFILE_CODE = 'ADD'
+                       THEN 1 ELSE 0 END
+                , MENU_PROFILE_CODE
+	]]>
+	</method>
+	
+	<method name="doQueryMenuFilterAll">
+	<![CDATA[
+		SELECT MUPD.MENU_PROFILE_CODE
+		     , MUPD.MENU_ID
+		     , MUPD.PARENT_MENU_ID
+		     , #DB_OWNER#nvl(PDLANG.CONTENTS, PDLANG_DEFAULT.CONTENTS) MENU_NAME
+		     , MUPD.SCREEN_ID
+		     , MUPD.ITEM_SEQ
+		     , MUID.URL
+             , MUID.MOBILE_URL
+		     , MUID.AUTH_URL
+		     , #DB_OWNER#nvl(MUPD.MENU_IMG, MUID.MENU_IMG) MENU_IMG 
+		     , MUID.SUMMARY_FLAG
+		     , MUPD.ETC_FLAG
+		     , MUPD.HIDDEN_FLAG
+		     , MUID.ATTACH_NO
+		     , MUPD.HOUSE_CODE
+		     , MUPD.MODULE
+    ]]>
+    <if test="${HOUSE_CODE}" operator="ne" value="000">
+    <![CDATA[
+     	     , CASE WHEN (SELECT MENU_ID FROM SMUFP MUFP 
+		     				WHERE MUPD.MENU_PROFILE_CODE = MUFP.MENU_PROFILE_CODE 
+		     				AND MUPD.MENU_ID = MUFP.MENU_ID
+                            AND MUFP.HOUSE_CODE = ${HOUSE_CODE}
+                            ) IS NOT NULL THEN 'Y' ELSE 'N' END AS MENU_FILTERED_YN
+    ]]>
+    </if>
+    <![CDATA[
+		  FROM SMUPD MUPD
+		  LEFT OUTER JOIN SLANG PDLANG
+		    ON MUPD.HOUSE_CODE = PDLANG.HOUSE_CODE
+		   AND MUPD.MENU_ID = PDLANG.CODE
+		   AND PDLANG.SCREEN_ID = 'MENU_' + MUPD.MENU_PROFILE_CODE
+		   AND PDLANG.LANGUAGE  = ${session.LANGUAGE}
+		  LEFT OUTER JOIN SLANG PDLANG_DEFAULT
+		    ON PDLANG_DEFAULT.HOUSE_CODE = '000'
+		   AND MUPD.MENU_ID = PDLANG_DEFAULT.CODE
+		   AND PDLANG_DEFAULT.SCREEN_ID = 'MENU_' + MUPD.MENU_PROFILE_CODE
+		   AND PDLANG_DEFAULT.LANGUAGE  = ${session.LANGUAGE}
+		  LEFT OUTER JOIN SMUID MUID
+		    ON MUPD.HOUSE_CODE = MUID.HOUSE_CODE
+		   AND MUPD.SCREEN_ID = MUID.SCREEN_ID
+		 WHERE #DB_OWNER#NVL(MUPD.DEL_FLAG,'N') = 'N'
+    	   AND MUPD.HOUSE_CODE= '000'
+           AND MUPD.MENU_PROFILE_CODE = ${CODE}
+      	 ORDER 
+      		BY PARENT_MENU_ID
+      		 , CONVERT(NUMERIC, #DB_OWNER#NVL(ITEM_SEQ,'0'))
+	]]>
+	</method>
+	
+	<method name="doSaveMenuFilter">
+	<![CDATA[
+		INSERT INTO
+			SMUFP(
+				  HOUSE_CODE
+				, MENU_PROFILE_CODE
+				, MENU_ID
+				, ADD_USER_ID
+				, ADD_DATE
+				, ADD_TIME
+			) VALUES (
+				  ${HOUSE_CODE}
+				, ${MENU_PROFILE_CODE}
+				, ${MENU_ID}
+				, ${session.ID}
+				, ${current.DATE}
+				, ${current.TIME}
+			)
+	]]>
+	</method>
+	
+	<method name="doDeleteMenuFilter">
+	<![CDATA[
+		DELETE FROM SMUFP
+		WHERE HOUSE_CODE = ${HOUSE_CODE}
+		AND MENU_PROFILE_CODE = ${MENU_PROFILE_CODE}
+	]]>
+	</method>
+</service>

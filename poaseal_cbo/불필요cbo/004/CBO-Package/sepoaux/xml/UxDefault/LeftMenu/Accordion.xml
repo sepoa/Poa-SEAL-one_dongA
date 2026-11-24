@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="MENU" header="false" tpl="editor.tpl">
+	<link>
+    <![CDATA[
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/mainframe/basic/module.js" ></script>
+        <link href="<%=CONTEXT_NAME%>/resource/design/css/leftmenu/Accordion.css" rel="stylesheet" type="text/css" />
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+    	div.group_collapse_icon.angle-down-thin {
+    		background-image:url('<%=CONTEXT_NAME%>/resource/design/imgs/menu/angle-down-thin.png');
+    		background-repeat: no-repeat;
+    		background-position-y: center;
+    		background-size: 90%;
+    	}
+    ]]>
+    </usercss>
+    <variable>
+        <var name="SepoaLeftMenu" value="$($sObject._vp).find('#nMKgeEcgRLgeEcKmOf')[0]"/>
+        <var name="nMKgeEcgRLgeEcMLCB" value="$($sObject._vp).find('#nMKgeEcgRLgeEcMLCB')[0]"/>
+    </variable>
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+    	<var name="menuObj" value="{}" />
+    	 <function name="init">
+        <![CDATA[
+        	var accordionBackgroundColor = Sepoa.config.get('css.accordion.background.color');
+            if (accordionBackgroundColor) $('.MENU').css('background-color', accordionBackgroundColor);
+            
+        	$sObject._vp.parents('body')[0].addEventListener('click', function(e){
+        		if(e.srcElement.classList.contains('frame')){
+        			window.top.Sepoa.callEvent('onMenuBlankClick', []);
+        		}
+        	})
+            setTimeout(doQueryMenu,200);
+            $(window).on({
+                resize:function(){
+                    menuAreaResize();
+                }
+            });
+            extendO2W($sObject);
+            if(Sepoa.request.isFixed == 'true' && Sepoa.request.screen){
+                callFunction(Sepoa.request.screen, 'setMenuWidth', [$sObject._vp[0].offsetWidth])
+            }
+        ]]>
+        </function>
+        <function name="doQueryMenu" args="">
+        <![CDATA[
+            doRenderMenu(getMenuData(Sepoa.info.MENU_PROFILE_CODE));
+            menuAreaResize();
+        ]]>
+        </function>
+        <function name="doRenderMenu" args="menuTree">
+        <![CDATA[
+        	menuObj.onGroupClick=function(obj){
+        		$(".sepoa_menu_screen").slideUp();
+				$(".sepoa_menu_group_li").removeClass("group_active")
+				if(!$(obj).next().is(":visible")){
+					$(obj).parent().addClass("group_active")
+					$(obj).next().slideDown();
+				}
+        	}
+        
+        	SepoaLeftMenu.innerHTML = "";
+        	SepoaLeftMenu.classList.add("sepoa_menu");
+        	
+        	var ul = SepoaLeftMenu.appendChild($('<ul class="sepoa_menu_group" id="sepoa_menu_group"></ul>')[0]);
+        
+            for(var i in menuTree){
+                var groupData = menuTree[i];
+                var childNodes = groupData.childs;
+                
+                if(groupData.HIDDEN_FLAG == "Y" || groupData.MENU_FILTERED_YN == "N"){
+                    continue;
+                }
+                if(childNodes.length <= 0){
+                    continue;
+                }
+            	    
+				var li = ul.appendChild(document.createElement('li'));
+        		li.id = "sepoa_menu_group_"+groupData.MENU_ID
+        		li.classList.add("sepoa_menu_group_li")
+
+				var menuName = Sepoa.cache.text.get('MENU_' + groupData.MENU_PROFILE_CODE + '.' + groupData.MENU_ID);
+				if(menuName.indexOf('Has not found text') == 0) {
+					menuName = groupData.MENU_NAME;
+				}
+        	
+        		var h3 = li.appendChild(document.createElement('h3'));
+                if(groupData.MENU_IMG && groupData.MENU_IMG.indexOf("xi-") == 0){
+                   h3.innerHTML = '<div class="sepoa_menu_group_icon '+groupData.MENU_IMG+'"></div>'+ menuName +'<div class="group_collapse_icon angle-down-thin"></div>';
+                }else{
+        	       h3.innerHTML = '<div style="'+(groupData.MENU_IMG?('background-image:url(\''+window.CONTEXT_NAME+'/resource/design/imgs/menu/'+groupData.MENU_IMG+'\');'):(''))+'"></div>'+ menuName +'<div class="group_collapse_icon angle-down-thin"></div>';
+                }
+        		h3.onclick = function(){
+	        		menuObj.onGroupClick(this);
+    	    	}
+        	
+        		var subUl = li.appendChild(document.createElement('ul'));
+        		subUl.classList.add("sepoa_menu_screen");
+                const isManageConfirmer = Sepoa.info.CTRL_CODE.split(',').indexOf('MANAGE_CONFIRM') > -1;	// 인감관리직무 여부
+                const isSealAdmin = Sepoa.info.MENU_PROFILE_CODE == Sepoa.config.get('sepoa.legal.porfile.code');	// 인감책임자 여부
+                const isAttachConfirmer = Sepoa.info.CTRL_CODE.split(',').indexOf('ATTACH_CONFIRM') > -1;	// 교부서류처리대상 관리자 여부
+                
+                for(var j in childNodes){
+                    var detailData = childNodes[j];
+                    var screenID = detailData.SCREEN_ID || "";
+                    var menuID = detailData.MENU_ID || "";
+                    var url = detailData.URL || "";
+                    var menuImage = detailData.MENU_IMG || "";
+                    
+                    if (screenID == 'SLM_160' && !isManageConfirmer) continue; // 인감관리승인자가 아니면 처리대상 없애기
+                    
+                    if (!isAttachConfirmer && screenID == 'SLM_290') continue;			//교부서류처리대상 관리자가 아닌 경우 교부서류 처리대상 없애기
+                    
+                    if(childNodes[j].HIDDEN_FLAG == "Y" || childNodes[j].MENU_FILTERED_YN == "N"){
+                        continue;
+                    }
+                    
+                    var detailMenuName = Sepoa.cache.text.get('MENU_' + detailData.MENU_PROFILE_CODE + '.' + detailData.MENU_ID);
+					if(detailMenuName.indexOf('Has not found text') == 0) {
+						detailMenuName = detailData.MENU_NAME;
+					}
+                    
+                    var li = subUl.appendChild(document.createElement('li'))
+					li.id = "sepoa_menu_screen_"+detailData.MENU_ID
+					li.classList.add("sepoa_menu_screen_li");
+					li.style.display=(detailData.HIDDEN_FLAG == 'Y')?"none":""
+					li.innerHTML = detailMenuName;
+					li.screenId = detailData.SCREEN_ID;
+					li.url = detailData.URL;
+					li.onclick = function(){
+						var _id = this.screenId
+						var _url = this.url
+						var _param = this.param
+						var _menuName = this.innerHTML
+						callFunction('MAINFRAME','openContainerUrl', [_id, _url, _param, _menuName]);
+					}
+                }
+            }
+            
+            var accordionTextColor = Sepoa.config.get('css.accordion.text.color');
+            if (accordionTextColor) {
+            	$('.sepoa_menu .sepoa_menu_group_li > h3').css('color', accordionTextColor);
+            	$('.sepoa_menu .sepoa_menu_screen li').css('color', accordionTextColor);
+            }
+            var accordionBorderColor = Sepoa.config.get('css.accordion.border.color');
+            if (accordionBorderColor) $('.sepoa_menu .sepoa_menu_group_li').css('border-bottom-color', accordionBorderColor);
+            
+        ]]>
+        </function>
+        <function name="menuAreaResize">
+        <![CDATA[
+            $(SepoaLeftMenu).css("height", ($( window ).height() - $(SepoaLeftMenu).offset().top - 1) + "px" );
+            if(typeof(leftMenu) != 'undefined'){
+            	leftMenu.cont.parentElement.style.overflowY="auto";
+                leftMenu.cont.style.width="100%";
+                leftMenu.setSizes();
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsid0xLZ2VFY2NLbGFiSHJnT1dzIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJNRU5VIn0sImlkIjoid0xLZ2VFY2NLbGFiSHJnT1dzIiwidHlwZSI6ImJvZHkifSwibk1LZ2VFY2dSTGdlRWNLbU9mIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJTZXBvYUxlZnRNZW51IiwiT0JKRUNUX0lEIjoibk1LZ2VFY2dSTGdlRWNLbU9mIn0sImlkIjoibk1LZ2VFY2dSTGdlRWNLbU9mIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIm5NS2dlRWNnUkxnZUVjTUxDQiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLCJWQVIiOiJuTUtnZUVjZ1JMZ2VFY01MQ0IifSwiaWQiOiJuTUtn
+        ZUVjZ1JMZ2VFY01MQ0IiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoid0xLZ2VFY2NLbGFiSHJnT1dzIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJuTUtnZUVjZ1JMZ2VFY01MQ0IiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoibk1LZ2VFY2dSTGdlRWNLbU9mIiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0xlZnRNZW51L0xlZnRNZW51LnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiTGVmdE1lbnUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJMZWZ0TWVudSIsIkNPREUiOiJNRU5VIiwiUFJFRklYIjoi
+        IiwiU0NSRUVOX0lEIjoiTUVOVSJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJ3TEtnZUVjY0tsYWJIcmdPV3NcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2Nv
+        bXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm5NS2dlRWNnUkxnZUVjTUxDQlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgIDxkaXYgaWQ9XCJuTUtnZUVjZ1JMZ2VFY0ttT2ZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

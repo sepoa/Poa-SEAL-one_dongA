@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_0034"/>
+					<entry key="CONTENTS" val="파일첨부가 불가능한 항목타입 입니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_0035"/>
+					<entry key="CONTENTS" val="이미지 항목에 파일첨부가 필요합니다. 항목 데이터코드 : #ITEM_CODE#"/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

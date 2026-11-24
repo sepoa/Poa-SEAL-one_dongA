@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TITLE_TEMPLATE_VIEW"/>
+					<entry key="CONTENTS" val="계약서 서식 보기"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_MAIN_HEADER"/>
+					<entry key="CONTENTS" val="감사 추적 인증서"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_CONT_SUBJECT"/>
+					<entry key="CONTENTS" val="계약 명"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_CONT_NO"/>
+					<entry key="CONTENTS" val="계약 ID"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_CONT_METHOD"/>
+					<entry key="CONTENTS" val="계약 방법"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_STATUS"/>
+					<entry key="CONTENTS" val="계약 상태"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_DATE"/>
+					<entry key="CONTENTS" val="계약 체결 시간"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_PAGE"/>
+					<entry key="CONTENTS" val="계약 문서 페이지 수"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_CREATOR_INFO"/>
+					<entry key="CONTENTS" val="작성자 정보"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_CREATOR"/>
+					<entry key="CONTENTS" val="작성자"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_SIGNER_INFO"/>
+					<entry key="CONTENTS" val="서명자 정보"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_SIGNER_NAME"/>
+					<entry key="CONTENTS" val="서명자 명"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_SIGNER_COMPANY_NAME"/>
+					<entry key="CONTENTS" val="회사 명"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_SIGNER_EMAIL"/>
+					<entry key="CONTENTS" val="이메일"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_SIGN"/>
+					<entry key="CONTENTS" val="서명"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_FILE_INFO"/>
+					<entry key="CONTENTS" val="계약 문서 파일 정보"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_FILE_TYPE"/>
+					<entry key="CONTENTS" val="파일 종류"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_FILE_NAME"/>
+					<entry key="CONTENTS" val="파일 명"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HISTORY"/>
+					<entry key="CONTENTS" val="계약 진행 이력"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_USER_IP"/>
+					<entry key="CONTENTS" val="접속정보(아이피)"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_TIME_ENVIRONMENT"/>
+					<entry key="CONTENTS" val="진행시점"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_USER_ID_NAME"/>
+					<entry key="CONTENTS" val="접속자(아이디)"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_HISTORY_CONTENT"/>
+					<entry key="CONTENTS" val="진행 내용"/>
+				</map>
+				
+				
+				
+				
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_CREATOR_NAME"/>
+					<entry key="CONTENTS" val="이름"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_HEADER_CREATOR_EMAIL"/>
+					<entry key="CONTENTS" val="이메일"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_CREATE"/>
+					<entry key="CONTENTS" val="계약서 작성"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_DOCUMENT_UPDATE"/>
+					<entry key="CONTENTS" val="계약서 수정"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_REVIEW_START"/>
+					<entry key="CONTENTS" val="계약 검토 시작"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_REVIEW_REQUEST"/>
+					<entry key="CONTENTS" val="계약 검토 요청"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_REVIEW_ACCEPT"/>
+					<entry key="CONTENTS" val="계약 검토 승인"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_REVIEW_REJECT"/>
+					<entry key="CONTENTS" val="계약 검토 거절"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_REVIEW_COMPLETE"/>
+					<entry key="CONTENTS" val="계약 검토 완료"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_SIGN_START"/>
+					<entry key="CONTENTS" val="계약서 서명 시작"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_SIGN_REQUEST"/>
+					<entry key="CONTENTS" val="계약서 서명 요청"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_SIGN_REJECT"/>
+					<entry key="CONTENTS" val="계약서 서명 거절"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_SIGN"/>
+					<entry key="CONTENTS" val="계약서 서명"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_SIGN_COMPLETE"/>
+					<entry key="CONTENTS" val="계약 체결"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TERMINATE_START"/>
+					<entry key="CONTENTS" val="계약 폐기 시작"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TERMINATE_REQUEST"/>
+					<entry key="CONTENTS" val="계약 폐기 요청"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TERMINATE_AGREE"/>
+					<entry key="CONTENTS" val="계약 폐기 동의"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TERMINATE_COMPLETE"/>
+					<entry key="CONTENTS" val="계약 폐기 완료"/>
+				</map>
+				
+			</list>
+		</params>
+	</item>
+</body>

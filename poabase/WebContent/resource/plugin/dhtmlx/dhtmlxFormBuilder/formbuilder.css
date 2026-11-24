@@ -1,0 +1,218 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	overflow: hidden;
+	background-color:#eeeeee;
+}
+
+.textarea_import_export textarea.dhxform_textarea {
+	font-family: "courier new";
+	tab-size: 4;
+	-o-tab-size: 4;
+	-moz-tab-size: 4;
+}
+
+/* selection in form */
+div.dhxform_item_label_left, div.dhxform_item_label_right, div.block_dhxform_item_label_left,
+	div.fs_dhxform_item_label_left, div.fs_dhxform_item_label_right, div.dhxform_item_label_top
+	{
+	position: relative;
+}
+
+div.dhxform_emu_sel {
+	position: absolute;
+	background-color: #fbedff;
+	border: 1px dotted #9501e1;
+	opacity: 0.5;
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+}
+
+.dhxlayout_base_material div.dhx_cell_layout div.dhx_cell_cont_layout.dhx_cell_cont_no_borders>div.dhxtabbar_base_material
+	{
+	box-shadow: none;
+}
+
+.dhxform_obj_dhx_skyblue div.dhxform_img.btn2state_0 {
+	background-image: url("toggle_off.png");
+	width: 42px;
+	height: 20px;
+}
+
+.dhxform_obj_dhx_skyblue div.dhxform_img.btn2state_1 {
+	background-image: url("toggle_on.png");
+	width: 42px;
+	height: 20px;
+}
+
+.dhxform_obj_dhx_skyblue div.disabled div.dhxform_img.btn2state_0 {
+	background-image: url("toggle_off_dis.png");
+	width: 42px;
+	height: 20px;
+}
+
+.dhxform_obj_dhx_skyblue div.disabled div.dhxform_img.btn2state_1 {
+	background-image: url("toggle_on_dis.png");
+	width: 42px;
+	height: 20px;
+}
+
+.dhxform_obj_material .dhxform_block {
+	/* margin-top: -7px; */
+}
+
+.icon-input {
+	background-image: url("etc/input.png")
+}
+
+.icon-password {
+	background-image: url("etc/password.png")
+}
+
+.icon-select {
+	background-image: url("etc/select.png")
+}
+
+.icon-multiselect {
+	background-image: url("etc/multiselect.png")
+}
+
+.icon-multiselect {
+	background-image: url("etc/multiselect.png")
+}
+
+.icon-combo {
+	background-image: url("etc/combo.png")
+}
+
+.icon-checkbox {
+	background-image: url("etc/checkbox.png")
+}
+
+.icon-radio {
+	background-image: url("etc/radio.png")
+}
+
+.icon-label {
+	background-image: url("etc/label.png")
+}
+
+.icon-button {
+	background-image: url("etc/button.png")
+}
+
+.icon-hidden {
+	background-image: url("etc/hidden.png")
+}
+
+.icon-template {
+	background-image: url("etc/template.png")
+}
+
+.icon-container {
+	background-image: url("etc/container.png")
+}
+
+.icon-calendar {
+	background-image: url("etc/calendar.png")
+}
+
+.icon-colorpicker {
+	background-image: url("etc/colorpicker.png")
+}
+
+.icon-editor {
+	background-image: url("etc/editor.png")
+}
+
+.icon-btn2state {
+	background-image: url("etc/btn2state.png")
+}
+
+.icon-image {
+	background-image: url("etc/image.png")
+}
+
+.icon-uploader {
+	background-image: url("etc/uploader.png")
+}
+
+.icon-file {
+	background-image: url("etc/file.png")
+}
+
+.icon-settings {
+	background-image: url("etc/settings.png")
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/ek4gzZ-GeXAPcSbHtCeQI_esZW2xOQ-xsNqO47m55DA.woff2)
+		format('woff2');
+	unicode-range: U0460-052F, U20B 4, U2DE -2DFF, UA640-A69F;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/mErvLBYg_cXG3rLvUsKT_fesZW2xOQ-xsNqO47m55DA.woff2)
+		format('woff2');
+	unicode-range: U0400-045F, U0490-0491, U04B -4B 1, U2116;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/-2n2p-_Y08sg57CNWQfKNvesZW2xOQ-xsNqO47m55DA.woff2)
+		format('woff2');
+	unicode-range: U1F -1FFF;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/u0TOpm082MNkS5K0Q4rhqvesZW2xOQ-xsNqO47m55DA.woff2)
+		format('woff2');
+	unicode-range: U0370-03FF;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/NdF9MtnOpLzo-noMoG0miPesZW2xOQ-xsNqO47m55DA.woff2)
+		format('woff2');
+	unicode-range: U0102-0103, U1EA -1EF 1, U20AB;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/Fcx7Wwv8OzT71A3E1XOAjvesZW2xOQ-xsNqO47m55DA.woff2)
+		format('woff2');
+	unicode-range: U0100-024F, U1E -1EFF, U20A -20AB, U20AD-20CF, U2C 58C 7F,
+		UA720-A7FF;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'),
+		url(etc/CWB0XYA8bzo0kSThX0UTuA.woff2)
+		format('woff2');
+	unicode-range: U0000-00FF, U0131, U0152-0153, U02C 6, U02DA, U02DC,
+		U2000-206F, U2074, U20AC, U2212, U2215, UE0FF, UEFFD, UF000;
+}

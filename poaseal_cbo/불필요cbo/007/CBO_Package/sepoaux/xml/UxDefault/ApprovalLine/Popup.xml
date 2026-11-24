@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="APPROVALLINE_POPUP" header="false">
+    <link>
+    <![CDATA[
+        <link href="<%=CONTEXT_NAME%>/resource/design/css/approvalLine/ApprovalLine.css" rel="stylesheet" type="text/css" />
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/approvalLine/SealSetApproval.js" type="text/javascript"></script>
+        <script>
+	        SepoaTreeView.prototype.setTreeItem = function(data) {
+				var deptData = data.filter(function(e){return e.TYPE == 'DEPT'});
+				var userData = data.filter(function(e){return e.TYPE == 'EMPLOYEE'});
+				
+				if(deptData.length > 0) {
+					deptData = this._customSort(deptData);
+			
+					for(var i in deptData) {
+						if(this.tree.items[deptData[i].ID]) {
+							continue;
+						}
+			
+						if(deptData[i].ID === '1') {
+							deptData[i].TYPE = 'CEO';
+						}
+			
+						this.tree.addItem(deptData[i].ID, deptData[i].TEXT, deptData[i].PARENTID ? deptData[i].PARENTID : '');
+						this.tree.setUserData(deptData[i].ID, 'DATA', deptData[i]);
+						this.tree.items[deptData[i].ID].item.className += ' dhxtreeview_item_' + deptData[i].TYPE;
+						$(this.tree.items[deptData[i].ID].item).find('.dhxtreeview_icon')[0].style.backgroundImage = 'url('+(window.CONTEXT_NAME||'')+'/resource/design/imgs/approvalLine/icon_folder_closed.gif)';
+			
+						if(deptData[i].TYPE === 'CEO') {
+							var parent = this.tree.items[deptData[i].ID].item.parentElement;
+							parent.insertBefore(this.tree.items[deptData[i].ID].item, parent.firstChild);
+						}
+					}
+				}
+			
+				if(userData.length > 0) {
+					var positionNameList = Sepoa.cache.combo.get("SL0001," + Sepoa.info.HOUSE_CODE + '#' + Sepoa.info.LANGUAGE + "#" + 'UX049');
+			
+					for(var i in userData) {
+						if(this.tree.items[userData[i].USER_ID]) {
+							continue;
+						}
+			
+						var positionName = positionNameList.filter(function(e){return e.value == userData[i].POSITION});
+						positionName = positionName.length > 0 ? positionName[0].text : '';
+						this.tree.addItem(userData[i].USER_ID, userData[i].USER_NAME_LOC + ' ('+userData[i].USER_ID+') ' + userData[i].DEPARTMENT_NAME, userData[i].DEPT);
+						this.tree.setUserData(userData[i].USER_ID, 'DATA', userData[i]);
+						this.tree.items[userData[i].USER_ID].item.className += ' dhxtreeview_item_' + userData[i].TYPE;
+						this.tree.items[userData[i].USER_ID].item.obj = this;
+			
+						if(!this.tree.items[userData[i].USER_ID].pId) {
+							this.tree.deleteItem(userData[i].USER_ID);
+							continue;
+						}
+			
+						var parent = this.tree.items[userData[i].USER_ID].item.parentElement;
+						parent.insertBefore(this.tree.items[userData[i].USER_ID].item, parent.firstChild);
+						this.tree.items[userData[i].USER_ID].item.draggable = true;
+						this.tree.items[userData[i].USER_ID].item.onmousedown = function(e) {
+							this.obj.tree.selectItem(this._itemId);
+						};
+					}
+				}
+			}
+        </script>
+        <script>
+	       	SepoaContractApproval.prototype._drawBase = function(data) {
+				//create form elements area
+			
+				var cnt = this.parentObj.approvalCount;
+				this.dataOption = this.parentObj.dataOption;
+				this.dataElements = {};
+				this.data = {};
+			
+				var setApprovalCell = this.base = document.createElement('div');
+				setApprovalCell.className = 'set-approval-cell';
+				setApprovalCell.obj = this;
+			
+				if(data.APP_METHOD == '01') {
+					setApprovalCell.className += ' not-sortable';
+					setApprovalCell.style.borderLeft = '5px solid #50B847';
+				} else {
+					setApprovalCell.style.borderLeft = '5px solid #00ADBD';
+				}
+			
+				var itemWrapper = document.createElement('div');
+				itemWrapper.className = 'table-item-wrapper';
+				setApprovalCell.appendChild(itemWrapper);
+			
+				for(var i in this.dataOption) {
+					var clazz = 'table-body-item';
+					clazz += this.dataOption[i].blur ? ' table-body-item-blur' : '';
+			
+					var item = document.createElement('div');
+					this.dataOption[i].width ? item.style.width = this.dataOption[i].width : void 0;
+					this.dataOption[i].display ? item.style.display = this.dataOption[i].display : void 0;
+					item.className = clazz;
+					itemWrapper.appendChild(item);
+			
+					var itemOuter = document.createElement('div');
+					itemOuter.className = 'table-body-item-outer';
+					itemOuter.className += this.dataOption[i].align ? ' table-body-item-' + this.dataOption[i].align : ' table-body-item-center';
+					item.appendChild(itemOuter);
+			
+					
+					var itemInner = this.dataOption[i].combo ? document.createElement('select') : document.createElement('div');
+					if(data.NOT_CHANGE){
+						itemInner.setAttribute("disabled", true);
+					}
+					itemInner.className = 'table-body-item-inner';
+					itemInner.className += this.dataOption[i].align ? ' table-body-item-' + this.dataOption[i].align : ' table-body-item-center';
+					itemInner.className += this.dataOption[i].border ? ' table-body-item-border' : '';
+					if(this.dataOption[i].key) {
+						itemInner.setAttribute('data-key', this.dataOption[i].key)
+						this.dataElements[this.dataOption[i].key] = itemInner;
+					}
+			
+					if(this.dataOption[i].combo) {
+						var combo = Sepoa.cache.combo.get('SL0001,' + Sepoa.info.HOUSE_CODE + '#' + Sepoa.info.LANGUAGE + '#' + this.dataOption[i].combo);
+						for(var i in combo) {
+							var option = $('<option value="' + combo[i].value + '">' + combo[i].text + '</option>')[0];
+							itemInner.appendChild(option);
+						}
+						itemInner.cell = this;
+						itemInner.onchange = function(e) {
+							this.cell.data.APP_METHOD = this.value;
+						}
+					} else if(this.dataOption[i].image) {
+						itemInner.className = itemInner.className + ' table-body-item-image';
+						itemInner.style.backgroundImage = 'url(' + this.dataOption[i].image + ')';
+						
+						if(this.dataOption[i].key == 'BUTTON' && this.dataOption[i].text == Sepoa.cache.text.get('CONTRACT_APPROVAL.BUTTON_DELETE')) {
+							itemInner.className += ' set-approval-form-remove-area';
+						}
+						
+						if(data.NOT_CHANGE == true) {
+							itemInner.classList.toggle('set-approval-form-remove-area');
+							itemInner.classList.toggle('table-body-item-image');
+							itemInner.style.backgroundImage = '';
+						}
+					} else if(this.dataOption[i].key === 'COUNT') {
+						if(data.APP_METHOD == '01') {
+							itemInner.innerText = Sepoa.cache.text.get('CONTRACT_APPROVAL.REPORTER');
+						} else {
+							var isReporterContain = this.parentObj.approvalList.filter(function(e) {return e.base.classList.contains('not-sortable')}).length;
+							itemInner.innerText = isReporterContain ? cnt : cnt + 1;
+						}
+					}
+			
+					itemOuter.appendChild(itemInner);
+				}
+				
+				if(data) {
+					this._setData(data);
+				}
+			}
+        </script>
+        <script>
+	        SepoaContractApprovalTabbar.prototype._drawApproval = function() {
+				var approvalOption = this.approvalOption = [
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.APP_METHOD')		, key: 'APP_METHOD'			, width: '20%', hidden: false, blur: false, align: 'center', combo: 'CT061_1'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.APP_USER_NAME')	, key: 'APP_USER_NAME'		, width: '25%', hidden: false, blur: false, align: 'center'},
+					{text: "사용자 ID"													, key: 'APP_USER_ID'		, width: '25%', hidden: false, blur: false, align: 'center'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.DEPARTMENT_NAME'), key: 'DEPARTMENT_NAME'	, width: '20%', hidden: false, blur: false, align: 'center'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.BUTTON_DELETE')	, key: 'BUTTON'				, width: '10%', hidden: true, blur: false, align: 'right', image: (window.CONTEXT_NAME ? window.CONTEXT_NAME : '') + '/resource/design/imgs/approvalLine/minus.png'}
+				];
+				
+				if(!this.component) {
+					this.component = {};
+				}
+				
+				var approval = this.component.approval = new SepoaContractApprovalList({dataOption : approvalOption});
+				approval.parentObj = this;
+				approval.type = 'approval';
+				approval._drawBase();
+				approval.base.obj = approval;
+			
+				var approvalData = this.data.filter(function(e) {return ['04', '06', '07'].indexOf(e.APP_METHOD) >= 0});
+				for(var i in approvalData) {
+					approval.callEvent('addForm', [approvalData[i]]);
+				}
+				var setApprovalData = this.data.filter(function(e) {return ['01'].indexOf(e.APP_METHOD) >= 0});
+				if ((setApprovalData[0].SEAL_SORT == 'U' && sUtils.workflow.check('USW1651625939807')) || (setApprovalData[0].SEAL_SORT == 'C' && sUtils.workflow.check('CSW1651639043172'))) {
+					for(var i in setApprovalData) {
+						var so = doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doGetManageData', {'MANAGE_NO_LIST' : setApprovalData[i].MANAGE_NO_LIST}, null, false);
+						var result = new SepoaFormater(so.result[0]).getArrayMap();
+						
+						for(var j in result){
+							setApprovalData[i].APP_USER_NAME = result[j].APP_USER_NAME;
+							setApprovalData[i].APP_USER_ID = result[j].APP_USER_ID;
+							setApprovalData[i].DEPT = result[j].DEPT;
+							setApprovalData[i].DEPARTMENT_NAME = result[j].DEPARTMENT_NAME;
+							setApprovalData[i].APP_METHOD = '04';
+							setApprovalData[i].NOT_CHANGE = true;
+							approval.callEvent('addForm', [setApprovalData[i]]);
+						}
+					}
+				}else if ((setApprovalData[0].SEAL_SORT == 'U' && sUtils.workflow.check('USW1673407285901')) || (setApprovalData[0].SEAL_SORT == 'C' && sUtils.workflow.check('CSW1673407570340'))){
+					for(var i in setApprovalData) {
+						var so = doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doGetBALN', {'MANAGE_NO_LIST' : setApprovalData[i].MANAGE_NO_LIST}, null, false);
+						var result = new SepoaFormater(so.result[0]).getArrayMap();
+						
+						for(var j in result){
+							setApprovalData[i].APP_USER_NAME = result[j].APP_USER_NAME;
+							setApprovalData[i].APP_USER_ID = result[j].APP_USER_ID;
+							setApprovalData[i].DEPT = result[j].DEPT;
+							setApprovalData[i].DEPARTMENT_NAME = result[j].DEPARTMENT_NAME;
+							setApprovalData[i].APP_METHOD = '04';
+							setApprovalData[i].NOT_CHANGE = false;
+							approval.callEvent('addForm', [setApprovalData[i]]);
+						}
+					}
+				}
+				
+				return approval.getBase();
+			}
+        </script>
+        <script>
+	        SepoaTreeView.prototype._initCustomFunction = function() {
+				if(!this.tree) {
+					return;
+				}
+				this.tree.search = function(keyword, callback) {
+					var values = Object.keys(this.tree.items).map(function(e) {return this.tree.items[e];}.bind(this));	//obj -> arr
+					var result = values.filter(function(e) {
+						if(e.userdata && ['DEPT', 'COMPANY'].indexOf(e.userdata.DATA.TYPE) >= 0) {
+							return e.text.indexOf(keyword) >= 0; 
+						} else {
+							return e.id.indexOf(keyword.toUpperCase()) >= 0 || e.text.indexOf(keyword) >= 0;	
+						}
+					});
+			
+					if(this.conf.dynamicLoad) {
+						doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doSearch', {'KEYWORD' : keyword}, function(so) {
+							if(so.status == 1) {
+								var data = JSON.parse(so.result[0]);
+								if(data.length == 0){
+									for(let i in this.tree.items) { 
+										let item = this.tree.items[i];
+										if(item.id != 'SE0000'){
+											this.tree.deleteItem(i);
+										}
+									}
+									this.tree.base.getElementsByClassName('dhxtreeview_icon_minus').item(0).style.display = 'none';
+								}
+								
+								if(result.length != data.length) {
+									doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doQuerySearchTreeData', {'TARGET' : data, 'KEYWORD' : keyword}, function(so2) {
+										if(so2.status == 1) {
+											var treeData = JSON.parse(so2.result[0]);
+											if(this.parentObj.conf.userSearchCache == false) {
+												for(let i in this.tree.items) { 
+													let item = this.tree.items[i];
+													if(item.userdata) {
+														if(item.userdata.DATA.TYPE === "EMPLOYEE"){
+															this.tree.deleteItem(i);
+														}
+													}
+												}
+											}
+											
+											this.setTreeItem(treeData);
+			
+											values = Object.keys(this.tree.items).map(function(e) {return this.tree.items[e];}.bind(this));	//obj -> arr
+											result = values.filter(function(e) {
+												if(e.userdata && ['DEPT', 'COMPANY'].indexOf(e.userdata.DATA.TYPE) >= 0) {
+													return e.text.indexOf(keyword) >= 0; 
+												} else {
+													return e.id.indexOf(keyword.toUpperCase()) >= 0 || e.text.indexOf(keyword) >= 0;	
+												}
+											});
+			
+											callback(result);
+										}
+									}.bind(this));
+								} else {
+									callback(result);
+								}
+							}
+						}.bind(this));
+					} else {
+						callback(result);
+					}
+			
+					return result;
+				}.bind(this);
+				
+				this.tree.focusItem = function(target) {
+					if(typeof target === 'string') {
+						target = [target];
+					} else {
+						if(Array.isArray(target) && target.length > 0 && target[0].id) {
+							target = target.map(function(e) {return e.id});
+						} else {
+							return;
+						}
+					}
+			
+					function setItemList(id, list) {
+						if(this.items[id].pId) {
+							list.splice(0, 0, this.items[id].pId);
+							return setItemList.call(this, this.items[id].pId, list);
+						} else {
+							return list;
+						}
+					};
+			
+					var targetIndex = target.length - 1;
+					var selectedId = this.getSelectedId();
+					if(selectedId.length > 0 && target.indexOf(selectedId[0]) >= 0) {
+						targetIndex = target.indexOf(selectedId[0]) - 1;
+						targetIndex = targetIndex < 0 ? target.length - 1 : targetIndex;
+					}
+					
+					var id = target[targetIndex];
+					var targetList = setItemList.call(this, id, []);
+					for(var j in targetList) {
+						this.openItem(targetList[j]);
+					}
+			
+					this.selectItem(id);
+					$(this.cont).animate({scrollTop: this.items[id].item.getBoundingClientRect().top}, 50);
+				}.bind(this.tree);
+				
+				this.tree.closeAll = function(){
+					for(var i in this.items) {
+						this.closeItem(this.items[i].id);
+					}
+				}.bind(this.tree);
+			}
+        </script>
+        <script>
+        SepoaTreeView.prototype._setTargetData = function(target, data) {
+			if(this.parentObj.conf.selfApproval == false) {
+				if(data.USER_ID == Sepoa.info.ID) {
+					Alert(Sepoa.cache.text.get("CONTRACT_APPROVAL.NOT_USE_SELF_APPROVAL"));
+					return false;
+				}
+			}
+			
+			for(var j in target.approvalList) {
+				if(data.USER_ID === target.approvalList[j].data.APP_USER_ID) {
+					return false;
+				}
+			}
+			
+			var params = {
+				APP_USER_ID : data.USER_ID,
+				APP_USER_NAME : data.USER_NAME_LOC,
+				SELLER_CODE : data.COMPANY_CODE,
+				POSITION : data.POSITION,
+				EMPLOYEE_NO : data.EMPLOYEE_NO,
+				DEPT : data.DEPT,
+				DEPARTMENT_NAME : data.DEPARTMENT_NAME,
+				APP_LINE_SEQ : String(target.approvalCount + 1)
+			};
+		
+			if(target.type == 'approval') {
+				params.APP_METHOD = '04';
+			} else if(target.type == 'referer') {
+				params.APP_METHOD = '03';
+			}
+		
+			if(this.parentObj.parentObj.conf.approverInsertPos && this.parentObj.parentObj.conf.approverInsertPos.toUpperCase() == "TOP"){
+				//최근 추가 결재자 최상단으로 셋팅
+				var tmpArr = [];
+				params["APP_LINE_SEQ"] = "1";
+				tmpArr.push(params);
+				
+				//기존 결재자 순서 하나씩 미뤄내기
+				for(var i in target.approvalList) {
+					var tmpItem = target.approvalList[i].data;
+					tmpItem["APP_LINE_SEQ"] = String(tmpArr.length + 1);
+					tmpArr.push(tmpItem);
+				}
+				
+				//기 결재선 데이터 삭제
+				target.removeAll();
+				
+				//새로운 결재선 구축
+				for(var i in tmpArr){
+					target.callEvent('addForm', [tmpArr[i]]);
+				}
+			} else {
+				target.callEvent('addForm', [params]);
+			}
+		}
+        </script>
+    ]]>
+    </link>
+    <variable>
+        <var name="container" value="$($sObject._vp).find('#NJdjrVdUzejrVdWVIX')[0]"/>
+        <var name="NJdjrVdUzejrVdkNCA" value="$($sObject._vp).find('#NJdjrVdUzejrVdkNCA')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+        	selfObj._dndUnloadModule();
+        
+        	$.extend(true, Sepoa.params, {selfApproval: false, userSearchCache: false, approverInsertPos: "top"});
+            var popup = $sObject.$popup = new SepoaContractApprovalPopup(container, Sepoa.params);
+            popup.tabbar.tabbar1.tabbarObj.setSizes();
+            popup.tabbar.tabbar2.tabbarObj.setSizes();
+            
+            popup.tabbar.tabbar1.tabbarObj.tabs("chart").setText("검색")
+            popup.tabbar.tabbar1.tabbarObj.tabs("preset").hide();
+            popup.tabbar.tabbar2.tabbarObj.tabs("referer").hide();
+            $(popup.base.getElementsByClassName("set-approval-button-save-preset")[0]).hide();
+            popup.base.getElementsByClassName("set-approval-button-approvalLine")[0].innerText = "상신";
+            $(popup.tabbar.tabbar2.tabbarObj.tabs("approval").cell.getElementsByClassName("set-approval-content")).find("select.table-body-item-inner.table-body-item-center").attr("disabled", "true");
+        ]]></onloadscript>
+    <userscript/>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTkpkanJWZE9KZGpyVmRGanFxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUFBST1ZBTExJTkVfUE9QVVAifSwiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSJ9LCJOSmRqclZkVXplanJWZFdWSVgiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiMTAwJSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVktOTHlQMnRSS2d6IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJjb250YWluZXIiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJW
+        ZFdWSVgifSwiaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiTkpkanJWZFV6ZWpyVmRrTkNBIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9vQ1ZxRXo4Tk1jVFIiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3hNeDVoSFhlSUxEayI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9SdkxrUWFBZ216aTkiOiJudWxsIiwiQ0xBU1Mi
+        OiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVXhEZWZhdWx0L0FwcHJvdmFsTGluZS9Qb3B1cC54bWwiLCJQ
+        Uk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlV4RGVmYXVsdC9BcHByb3ZhbExpbmUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJQb3B1cCIsIkNPREUiOiJQT1BVUCIsIlBSRUZJWCI6IkFQUFJPVkFMTElORSIsIlNDUkVFTl9JRCI6IkFQUFJPVkFMTElORV9QT1BVUCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJOSmRqclZkT0pkanJWZEZqcXFcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOSmRqclZkVXplanJWZGtOQ0FcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIGxvd2VyRGl2XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2Nv
+        bXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk5KZGpyVmRVemVqclZkV1ZJWFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiaGVpZ2h0OjEwMCU7XCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

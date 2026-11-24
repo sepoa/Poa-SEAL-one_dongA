@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="APPROVALLINE_POPUP" header="false">
+    <link>
+    <![CDATA[
+        <link href="<%=CONTEXT_NAME%>/resource/design/css/approvalLine/ApprovalLine.css" rel="stylesheet" type="text/css" />
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/approvalLine/SealSetApproval.js" type="text/javascript"></script>
+		
+        
+        <script>
+	        SepoaContractApprovalPopup.prototype.init = function() {
+				this.tabbar = {};
+				this._drawBase();
+				Alert(Sepoa.cache.text.get('APPROVAL_POPUP_LINE.MESSAGE_001'));
+			}
+		</script>
+        
+        <script>
+        	SepoaContractApprovalTabbar.prototype._drawApproval = function() {
+        	
+				var approvalOption = this.approvalOption = [
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.APP_LINE_SEQ')	, key: 'APP_LINE_SEQ'		, width: '10%', hidden: false, blur: false, align: 'center'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.APP_METHOD')		, key: 'APP_METHOD'			, width: '15%', hidden: false, blur: false, align: 'center', combo: 'CT061_1'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.APP_USER_NAME')	, key: 'APP_USER_NAME'		, width: '20%', hidden: false, blur: false, align: 'center'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.DEPARTMENT_NAME'), key: 'DEPARTMENT_NAME'	, width: '30%', hidden: false, blur: false, align: 'center'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.POSITION')		, key: 'POSITION'			, width: '15%', hidden: false, blur: false, align: 'center'},
+					{text: Sepoa.cache.text.get('CONTRACT_APPROVAL.BUTTON_DELETE')	, key: 'BUTTON'				, width: '10%', hidden: true, blur: false, align: 'right', image: (window.CONTEXT_NAME ? window.CONTEXT_NAME : '') + '/resource/design/imgs/approvalLine/minus.png'}
+				];
+				
+				if(!this.component) {
+					this.component = {};
+				}
+				
+				var approval = this.component.approval = new SepoaContractApprovalList({dataOption : approvalOption});
+				approval.parentObj = this;
+				approval.type = 'approval';
+				approval._drawBase();
+				approval.base.obj = approval;
+			
+				var approvalData = this.data.filter(function(e) {return ['04', '02'].indexOf(e.APP_METHOD) >= 0});
+				for(var i in approvalData) {
+					approval.callEvent('addForm', [approvalData[i]]);
+				}
+				
+				var setApprovalData = this.data.filter(function(e) {return ['01'].indexOf(e.APP_METHOD) >= 0});
+				if(setApprovalData.length > 0){ // APP_METHOD '01' (상신)이 아닐 경우 에러 방지
+					if ((setApprovalData[0].SEAL_SORT == 'U' && sUtils.workflow.check('USW1651625939807')) || (setApprovalData[0].SEAL_SORT == 'C' && sUtils.workflow.check('CSW1651639043172'))) {
+						for(var i in setApprovalData) {
+							var so = doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doGetManageData', {'MANAGE_NO_LIST' : setApprovalData[i].MANAGE_NO_LIST}, null, false);
+							var result = new SepoaFormater(so.result[0]).getArrayMap();
+							
+							for(var j in result){
+								setApprovalData[i].APP_USER_NAME = result[j].APP_USER_NAME;
+								setApprovalData[i].APP_USER_ID = result[j].APP_USER_ID;
+								setApprovalData[i].DEPT = result[j].DEPT;
+								setApprovalData[i].DEPARTMENT_NAME = result[j].DEPARTMENT_NAME;
+								setApprovalData[i].POSITION = result[j].POSITION;
+								setApprovalData[i].APP_METHOD = '04';
+								setApprovalData[i].NOT_CHANGE = true;
+								approval.callEvent('addForm', [setApprovalData[i]]);
+							}
+						}
+					}else if ((setApprovalData[0].SEAL_SORT == 'U' && sUtils.workflow.check('USW1673407285901')) || (setApprovalData[0].SEAL_SORT == 'C' && sUtils.workflow.check('CSW1673407570340')) || (setApprovalData[0].SEAL_SORT == 'D' && sUtils.workflow.check('CERT1698829707776'))){
+						for(var i in setApprovalData) {
+							var so = doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doGetBALN', {'MANAGE_NO_LIST' : setApprovalData[i].MANAGE_NO_LIST}, null, false);
+							var result = new SepoaFormater(so.result[0]).getArrayMap();
+							
+							// 결재선 목록 결재순서 내림차순 정렬
+		                    result.sort(function (a,b) {
+							    return b.APP_ORDER > a.APP_ORDER?1:-1;
+							});
+							
+							for(var j in result){
+								setApprovalData[i].APP_USER_NAME = result[j].APP_USER_NAME;
+								setApprovalData[i].APP_USER_ID = result[j].APP_USER_ID;
+								setApprovalData[i].DEPT = result[j].DEPT;
+								setApprovalData[i].DEPARTMENT_NAME = result[j].DEPARTMENT_NAME;
+								setApprovalData[i].POSITION = result[j].POSITION;
+								setApprovalData[i].APP_METHOD = '04';
+								setApprovalData[i].NOT_CHANGE = true;
+								setApprovalData[i].APP_LINE_SEQ = String(result.length-Number(j));
+								approval.callEvent('addForm', [setApprovalData[i]]);
+							}
+						}
+					}
+				}
+				
+				return approval.getBase();
+			}
+		</script>
+		<script>
+			SepoaTreeView.prototype._setTargetData = function(target, data) {
+				if(this.parentObj.conf.selfApproval == false) {
+					if(data.USER_ID == Sepoa.info.ID) {
+						Alert(Sepoa.cache.text.get("CONTRACT_APPROVAL.NOT_USE_SELF_APPROVAL"));
+						return false;
+					}
+				}
+				
+				for(var j in target.approvalList) {
+					if(data.USER_ID === target.approvalList[j].data.APP_USER_ID) {
+						return false;
+					}
+				}
+			
+				var params = {
+					APP_USER_ID : data.USER_ID,
+					APP_USER_NAME : data.USER_NAME_LOC,
+					SELLER_CODE : data.COMPANY_CODE,
+					POSITION : data.POSITION,
+					EMPLOYEE_NO : data.EMPLOYEE_NO,
+					DEPT : data.DEPT,
+					DEPARTMENT_NAME : this.tree.items['DEPT_' + data.DEPT].text,
+					APP_LINE_SEQ : String(target.approvalCount + 1)
+				};
+			
+				if(target.type == 'approval') {
+					params.APP_METHOD = '04';
+				} else if(target.type == 'referer') {
+					params.APP_METHOD = '03';
+				}
+			
+				if(this.parentObj.parentObj.conf.approverInsertPos && this.parentObj.parentObj.conf.approverInsertPos.toUpperCase() == "TOP"){
+					//최근 추가 결재자 최상단으로 셋팅
+					var tmpArr = [];
+					// params["APP_LINE_SEQ"] = "1";
+					tmpArr.push(params);
+					
+					//기존 결재자 순서 하나씩 미뤄내기
+					for(var i in target.approvalList) {
+						var tmpItem = target.approvalList[i].data;
+						// tmpItem["APP_LINE_SEQ"] = String(tmpArr.length + 1);
+						tmpArr.push(tmpItem);
+					}
+					
+					//기 결재선 데이터 삭제
+					target.removeAll();
+					
+					//새로운 결재선 구축
+					for(var i in tmpArr){
+						target.callEvent('addForm', [tmpArr[i]]);
+					}
+				} else {
+					target.callEvent('addForm', [params]);
+				}
+			}	
+        </script>
+        <script>
+        	SepoaContractApprovalList.prototype._sortApproval=function(){
+	
+				var target = $('.dhx_cell_tabbar').filter(function(e, i) {
+					return i.style.visibility == 'visible' && $(i).find('.set-approval-form-list-container').length > 0
+				}).find('.set-approval-form-list-container')[0];
+				
+				var tmp = $(this.approvalContent).find('.set-approval-cell');
+				this.approvalList = [];
+				var tmpList = [];
+			
+				var isReporterContain = tmp.filter(function(e) {return tmp[e].obj.data['APP_METHOD'] == '01';}).length > 0;
+				for(var i = 0; i < tmp.length; i++) {
+					this.approvalList.push(tmp[i].obj);
+					tmp[i].obj.data['APP_LINE_SEQ'] = String(tmp.length-i);
+					
+					if(tmp[i].obj.dataElements['COUNT']) {
+						if(tmp[i].obj.data['APP_METHOD'] == '01') {
+							tmp[i].obj.dataElements['COUNT'].innerText = Sepoa.cache.text.get('CONTRACT_APPROVAL.REPORTER');
+						} else {
+							tmp[i].obj.dataElements['COUNT'].innerText = isReporterContain ? i : i + 1;
+						}	
+					}
+					
+					tmpList.push(tmp[i].obj.data);
+				}
+				
+				target.obj.removeAll();
+				
+				for(var i=0; i<tmpList.length; i++) {
+					target.obj.callEvent('addForm', [tmpList[i]]);
+				}
+				
+			}
+        </script>
+        <script>
+	        SepoaContractApprovalList.prototype.removeAll = function(){
+				this.base.style.display = 'none';
+				this.approvalList = [];
+				this.approvalCount = this.approvalList.length;
+				$(this.approvalContent).find('.set-approval-cell').remove();
+				// this.callEvent('sortApproval', []);
+			}
+		</script>
+		<script>
+			SepoaContractApprovalPopup.prototype.getAllApproverInfo = function() {
+			
+				for(var i in this.tabbar) {
+					if(this.tabbar[i].component) {
+						var component = this.tabbar[i].component;
+						var result = null;
+						// 상신자 지정
+						for(var i=0; i<this.conf.data.length; i++) {
+						    if(this.conf.data[i].APP_LINE_SEQ == '0') result = [this.conf.data[i]];
+						}
+						// var result = this.conf.data[0] ? [this.conf.data[0]] : [];
+						for(var i in component) {
+							if(component[i].objName == 'SepoaContractApprovalList') {
+								result = result.concat(component[i].getAllApprovalInfo());
+							}
+						}
+						return result.map(function(e, i) { return e });
+					}
+				}
+				
+				return [this.conf.data[this.conf.data.length-1]];
+			}
+		</script>
+		<script>
+			SepoaContractApprovalTabbar.prototype._setPreset = function(e) {
+				if(!e.currentTarget.classList.contains('set-approval-preset')) {
+					return false;
+				}
+			
+				var params = {
+					APP_LINE_CODE : e.currentTarget.value
+				}
+				var so = doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doQuerySGWML', params, null, false);
+				var result = new SepoaFormater(so.result[0]).getArrayMap();
+			
+				var tabbarList = this.parentObj.tabbar;
+				for(var i in tabbarList) {
+				    if(tabbarList[i].component) {
+						var approvalData = result.filter(function(e) {return ['04', '02'].indexOf(e.APP_METHOD) >= 0}).sort(function(a,b) {
+							if (Number(a.APP_LINE_SEQ) < Number(b.APP_LINE_SEQ)) {
+								return -1;
+							}
+							if (Number(a.APP_LINE_SEQ) > Number(b.APP_LINE_SEQ)) {
+								return 1;
+							}
+			
+							return 0;
+						});
+						
+						if(tabbarList[i].component.approval.parentObj.data[0].NOT_CHANGE != true){
+							tabbarList[i].component.approval.removeAll();
+				    	}
+				    	
+						tabbarList[i].component.approval.base.style.display = 'flex';
+						
+						// 내림차순 정렬
+						approvalData.sort(function (a,b) {
+							return b.APP_LINE_SEQ - a.APP_LINE_SEQ;
+						});
+						
+						for(var j in approvalData) {
+							tabbarList[i].component.approval.callEvent('addForm', [approvalData[j]]);
+						}
+			
+						var refererData = result.filter(function(e) {return ['03'].indexOf(e.APP_METHOD) >= 0}).sort(function(a,b) {
+							if (Number(a.APP_LINE_SEQ) < Number(b.APP_LINE_SEQ)) {
+								return -1;
+							}
+							if (Number(a.APP_LINE_SEQ) > Number(b.APP_LINE_SEQ)) {
+								return 1;
+							}
+			
+							return 0;
+						});
+						tabbarList[i].component.referer.removeAll();
+						tabbarList[i].component.referer.base.style.display = 'flex';
+						for(var j in refererData) {
+							tabbarList[i].component.referer.callEvent('addForm', [refererData[j]]);
+						}
+				    }
+				}
+			}
+		</script>
+
+		<script>
+		SepoaTreeView.prototype._initTreeEvent = function() {
+			if(!this.tree) {
+				return;
+			}
+			
+			var that = this;
+		
+			// Data Event area
+			this.tree.attachEvent('initData', function(){
+				if(!this.conf.dynamicLoad) {
+					var so = doServiceAjax('sepoa.svc.approval.SepoaAppLineSettingService', 'CONNECTION', 'doQueryDept', {'DEPT_IS_NULL' : 'true'}, null, false);
+					if(so.status == '1') {
+						var deptData = new SepoaFormater(so.result[0]).getArrayMap();
+						this.setTreeItem(deptData);
+					}
+				} else {
+					this.setTreeData();
+				}
+				this.tree.callEvent('onXLE', []);
+			}.bind(this));
+		
+			this.tree.attachEvent('onXLE', function() {
+				SUX.callEvent("onWindowResize");
+				this.tree.enableContextMenu(true);
+				this.tree.setSizes();
+		
+				if(this.tree.base.clientWidth === 0 || this.tree.base.clientHeight === 0) {
+					var loadTimer = setInterval(function(){
+						if(this.tree.base.clientHeight > 0) {
+							this.tree.setSizes();
+							clearInterval(loadTimer);
+						}
+					}.bind(this), 1);
+				}
+			}.bind(this));
+		
+			// Mouse Event area
+			if(this.conf.dynamicLoad) {
+				document.body.addEventListener('click', function(e) {
+					if($(e.target).parents('.dhxtreeview_item_DEPT').length <= 0) {
+						return false;
+					}
+					
+					var data = this.tree.items[this.tree.getSelectedId()].userdata.DATA;
+					if(data.TYPE != 'DEPT') {
+						return false;
+					}
+					
+					this.setTreeData(data);
+		
+				}.bind(this))
+			}
+		
+			document.body.addEventListener('dblclick', function(e) {
+				if($(e.target).parents('.dhxtreeview_item_EMPLOYEE').length > 0) {
+					var data = this.tree.items[this.tree.getSelectedId()].userdata.DATA;
+		
+					var target = $('.dhx_cell_tabbar').filter(function(e, i) {
+						return i.style.visibility == 'visible' && $(i).find('.set-approval-form-list-container').length > 0
+					}).find('.set-approval-form-list-container')[0];
+		
+					if(target) {
+						target = target.obj;
+						this._setTargetData(target, data);
+					}
+				} else if($(e.target).parents('.dhxtreeview_item_DEPT').length > 0){
+					if(e.target.classList.contains('dhxtreeview_item_label') === false) {
+						const target = $(e.target).parents('.dhxtreeview_item_DEPT')[0];
+						if(target._itemId) {
+							this.tree._openCloseItem(target._itemId, true);
+						}
+					}
+				}
+			}.bind(this))
+			
+			document.body.addEventListener('dragstart', function(e) {
+				if(!e.target.classList.contains('dhxtreeview_item_EMPLOYEE')) {
+					return false;
+				}
+		
+				var data = this.tree.getSelectedId().filter(function(e) {
+					return this.tree.items[e].userdata.DATA.TYPE != 'DEPT';
+				}.bind(this));
+		
+				e.dataTransfer.setData("text", data[0]);
+				
+				if(navigator.userAgent.indexOf('Trident') == -1) {
+					e.dataTransfer.setDragImage($('<div></div>')[0], 0, 0);	
+				}
+		
+			}.bind(this))
+			
+			document.body.addEventListener("dragover", function(e) {
+				// 드롭을 허용하도록 prevetDefault() 호출
+				e.preventDefault();	
+			});
+				
+			document.body.addEventListener('drop', function(e) {
+				if(e.target.length <= 0 || !e.target.classList.contains('set-approval-form-list-container')) {
+					return false;
+				}
+		
+				var list = e.dataTransfer.getData("text").split(',');
+				for(var i in list) {
+					var data = this.tree.items[list[i]].userdata.DATA;
+					var target = e.target;
+					target = target ? target.obj : e.target.children[0].obj;
+		
+					this._setTargetData(target, data);
+				}
+			}.bind(this));
+		
+			// ContextMenu Event area
+			if(this.context) {
+				this.tree.attachEvent('onContextMenu', function(id, x, y, ev){
+				    // show context menu here
+					this.context.setItemText('itemText', this.tree.getItemText(id));
+					this.context.showContextMenu(x, y);
+		
+				    // optionally, you can select treeview item
+					this.tree.selectItem(id);
+		
+				    // prevent default context menu
+				    return false;
+				}.bind(this));
+			}
+		}
+		</script>
+		
+    ]]>
+    </link>
+    <variable>
+        <var name="container" value="$($sObject._vp).find('#NJdjrVdUzejrVdWVIX')[0]"/>
+        <var name="NJdjrVdUzejrVdkNCA" value="$($sObject._vp).find('#NJdjrVdUzejrVdkNCA')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+        	$.extend(true, Sepoa.params, {approverInsertPos: "top", selfApproval: false});
+            var popup = $sObject.$popup = new SepoaContractApprovalPopup(container, Sepoa.params);
+            popup.tabbar.tabbar1.tabbarObj.setSizes();
+            popup.tabbar.tabbar2.tabbarObj.setSizes();
+            
+            const tree = popup.tabbar.tabbar1.treeView.tree;
+            const id = `EMPLOYEE_${Sepoa.info.ID}`;
+			var openTimer = setInterval(function(){
+				if(tree.base.clientHeight > 0) {
+					var start = tree.items[id];
+					var list = [];
+					
+					while(true){
+					    if(start.pId) {
+							list.push(start.pId)
+							start = tree.items[start.pId];
+					    } else {
+							break;
+					    }
+					}
+					
+					list.reverse();
+					for(var i of list) {
+						tree.openItem(i);
+					}
+					
+					setTimeout(function() {
+						tree.selectItem(id);
+						$(tree.cont).animate({scrollTop: 0}, 50, () => {
+						    $(tree.cont).animate({scrollTop: tree.items[id].item.getBoundingClientRect().top - tree.cont.getBoundingClientRect().top}, 50);
+						});
+					}, 100);
+				
+					clearInterval(openTimer);
+				}
+			}.bind(this), 1);
+        ]]></onloadscript>
+    <userscript/>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTkpkanJWZE9KZGpyVmRGanFxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUFBST1ZBTExJTkVfUE9QVVAifSwiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSJ9LCJOSmRqclZkVXplanJWZFdWSVgiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiMTAwJSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVktOTHlQMnRSS2d6IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJjb250YWluZXIiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJW
+        ZFdWSVgifSwiaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiTkpkanJWZFV6ZWpyVmRrTkNBIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9vQ1ZxRXo4Tk1jVFIiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3hNeDVoSFhlSUxEayI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9SdkxrUWFBZ216aTkiOiJudWxsIiwiQ0xBU1Mi
+        OiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVXhEZWZhdWx0L0FwcHJvdmFsTGluZS9Qb3B1cC54bWwiLCJQ
+        Uk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlV4RGVmYXVsdC9BcHByb3ZhbExpbmUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJQb3B1cCIsIkNPREUiOiJQT1BVUCIsIlBSRUZJWCI6IkFQUFJPVkFMTElORSIsIlNDUkVFTl9JRCI6IkFQUFJPVkFMTElORV9QT1BVUCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJOSmRqclZkT0pkanJWZEZqcXFcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOSmRqclZkVXplanJWZGtOQ0FcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIGxvd2VyRGl2XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2Nv
+        bXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk5KZGpyVmRVemVqclZkV1ZJWFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiaGVpZ2h0OjEwMCU7XCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

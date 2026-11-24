@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_453" header="false">
+    <variable>
+        <var name="codeMirrorArea" value="$($sObject._vp).find('#cPMWsReuIZWsReTFHN')[0]"/>
+        <var name="cPMWsReuIZWsReXwvr" value="$($sObject._vp).find('#cPMWsReuIZWsReXwvr')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="pageInit"/>
+    </onloadscript>
+    <userscript>
+        <var name="formObj_S"/>
+        <var name="codeObj" value="{}"/>
+        <function name="pageInit">
+        <![CDATA[
+            CodeMirror.commands.autocomplete = function(cm) {
+                cm.showHint({
+                    hint: CodeMirror.hint.javascript
+                });
+            }
+            
+            var codeMode = "text/html"
+            
+            formObj_S = $sObject.formObj_S = new SepoaMultiDhtmlXFormObject(codeMirrorArea, 'formObj_S', []);
+            
+            codeObj = $sObject.codeObj = CodeMirror(codeMirrorArea, {
+                lineNumbers: true,
+                theme: "default",
+                viewportMargin: 0,
+                indentUnit: 4,
+                extraKeys: {
+                    "Ctrl-Q": "toggleComment",
+                    "Ctrl-Space": "autocomplete"
+                },
+                mode: codeMode
+            });
+            
+            codeObj.on("change", function(obj, e) {
+                callFunction('AD_454', 'setFrameCode', [codeObj.getValue()]);
+            });
+            
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+        <function name="setCmData" args="html">
+        <![CDATA[
+            codeObj.setValue(html.replaceAll("'", "'"));
+        ]]>
+        </function>
+        <function name="getCmData">
+        <![CDATA[
+            var codeValue = codeObj.getValue();
+            
+            return codeValue;
+        ]]>
+        </function>
+        <function name="clearCmData">
+        <![CDATA[
+            codeObj.setValue('');
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiT3BiRnFSZU9wYkZxUmVrSnFTIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF80NTMifSwiaWQiOiJPcGJGcVJlT3BiRnFSZWtKcVMiLCJ0eXBlIjoiYm9keSJ9LCJjUE1Xc1JldUlaV3NSZVRGSE4iOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY29kZU1pcnJvckFyZWEiLCJPQkpFQ1RfSUQiOiJjUE1Xc1JldUlaV3NSZVRGSE4ifSwiaWQiOiJjUE1Xc1JldUlaV3NSZVRGSE4iLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiY1BNV3NSZXVJWldzUmVYd3Zy
+        Ijp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF81czFLTjliQnV5SVUiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX1BweWhlUUVSY0lhayI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF8wbm5TUjJlakI2UkYiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJjUE1Xc1JldUlaV3NSZVh3dnIiLCJPQkpFQ1RfSUQiOiJjUE1Xc1JldUla
+        V3NSZVh3dnIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6ImNQTVdzUmV1SVpXc1JlWHd2ciIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJPcGJGcVJlT3BiRnFSZWtKcVMiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImNQTVdzUmV1SVpXc1JlWHd2ciIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJjUE1Xc1JldUlaV3NSZVRGSE4iLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vTWFpbFRlbXBsYXRlTWFuYWdlbWVudC9BZG1pbk1haWxUZW1wbGF0ZU1hbmFnZW1lbnRUYWJiYXJXcml0ZS54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIkNPREUiOiI0NTMiLCJQUkVGSVgiOiJBRCIs
+        IlBBVEhfMiI6Ik1haWxUZW1wbGF0ZU1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbk1haWxUZW1wbGF0ZU1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlRhYmJhcldyaXRlIiwiU0NSRUVOX0lEIjoiQURfNDUzIn19LCJodG1sIjoiPGRpdiBpZD1cIk9wYkZxUmVPcGJGcVJla0pxU1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5l
+        clwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImNQTVdzUmV1SVpXc1JlWHd2clwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAw
+        JTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiY1BNV3NSZXVJWldzUmVURkhOXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+
+        XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

@@ -1,0 +1,1058 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	 <method name="doSelectSSETL">
+	<![CDATA[
+			SELECT 
+		  		 SETL.HOUSE_CODE
+			   , SETL.COMPANY_CODE
+			   , SETL.SMR_NUMBER
+			   , SETL.SMR_STATUS
+			   , SETL.ADD_DATE
+			   , SETL.ADD_TIME
+			   , SETL.ADD_USER_ID
+			   , #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.ADD_USER_ID, ${session.LANGUAGE}) AS ADD_USER_NAME
+			   , SETL.CHANGE_DATE
+			   , SETL.CHANGE_TIME
+			   , SETL.CHANGE_USER_ID
+			   , SETL.DEL_FLAG
+			   , SETL.APPLY_TYPE
+			   , SETL.SUBJECT
+			   , SETL.SUBMISSION_PLACE
+			   , CAST(SETL.REMARK AS VARCHAR(MAX)) AS REMARK
+			   , CAST(SETL.REJECT_REMARK AS VARCHAR(MAX)) AS REJECT_REMARK
+			   , SETL.CONFIRM_DATE
+			   , SETL.CONFIRM_TIME
+			   , SETL.CONFIRM_USER_ID
+			   , SETL.SUBMIT_TYPE
+			   , CAST(SETL.SUBMIT_REMARK AS VARCHAR(MAX)) AS SUBMIT_REMARK
+			   , SETL.EXT_OUT_EXPECT_DATE
+			   , SETL.EXT_USE_USER_ID
+			   , SETL.EXT_USE_PLACE
+			   , SETL.SEAL_USE_TYPE
+			   , SUBSTRING(SETL.EXT_OUT_EXPECT_TIME,1,2) AS EXT_OUT_EXPECT_HOUR
+	           , SUBSTRING(SETL.EXT_OUT_EXPECT_TIME,3,2) AS EXT_OUT_EXPECT_MINUTE
+	   		   , SETL.EXT_IN_EXPECT_DATE 
+	   		   , SUBSTRING(SETL.EXT_IN_EXPECT_TIME,1,2) AS EXT_IN_EXPECT_HOUR
+	           , SUBSTRING(SETL.EXT_IN_EXPECT_TIME,3,2) AS EXT_IN_EXPECT_MINUTE    
+			   , #DB_OWNER#GETUSERDEPTNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) AS EXT_USE_DEPT_NAME_LOC
+			   , #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) as EXT_USE_USER_NAME_LOC
+			   , #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.CONFIRM_USER_ID, ${session.LANGUAGE}) as CONFIRM_USER_NAME_LOC
+			   , STUFF((
+		            SELECT ', '+SEAL.SUBJECT
+		              FROM SSEDC_SEAL DC_SEAL WITH(NOLOCK)
+		              JOIN SSEAL SEAL WITH(NOLOCK)
+		                ON SEAL.HOUSE_CODE = DC_SEAL.HOUSE_CODE
+		               AND SEAL.COMPANY_CODE = DC_SEAL.COMPANY_CODE
+		               AND SEAL.MANAGE_NUMBER = DC_SEAL.MANAGE_NUMBER
+		             WHERE DC_SEAL.HOUSE_CODE = SETL.HOUSE_CODE
+		               AND DC_SEAL.COMPANY_CODE = SETL.COMPANY_CODE
+		               AND DC_SEAL.SMR_NUMBER = SETL.SMR_NUMBER
+		             GROUP BY DC_SEAL.HOUSE_CODE, DC_SEAL.COMPANY_CODE, DC_SEAL.MANAGE_NUMBER, SEAL.SUBJECT
+		               FOR XML PATH('')
+		            ), 1, 1, '') AS SEAL_NAMES
+			   , STUFF((
+		            SELECT ', '+DC_SEAL.MANAGE_NUMBER
+		              FROM SSEDC_SEAL DC_SEAL WITH(NOLOCK)
+		             WHERE DC_SEAL.HOUSE_CODE = SETL.HOUSE_CODE
+		               AND DC_SEAL.COMPANY_CODE = SETL.COMPANY_CODE
+		               AND DC_SEAL.SMR_NUMBER = SETL.SMR_NUMBER
+		             GROUP BY DC_SEAL.HOUSE_CODE, DC_SEAL.COMPANY_CODE, DC_SEAL.MANAGE_NUMBER
+		            FOR XML PATH('')
+		            ), 1, 1, '') AS MANAGE_NUMBERS
+			FROM SSETL SETL WITH(NOLOCK)
+		LEFT OUTER JOIN SSEDC SEDC WITH(NOLOCK)
+			ON SETL.HOUSE_CODE 		= SEDC.HOUSE_CODE 
+			AND SETL.COMPANY_CODE 	= SEDC.COMPANY_CODE 
+			AND SETL.SMR_NUMBER  	= SEDC.SMR_NUMBER
+		LEFT OUTER JOIN SUSMT USMT WITH(NOLOCK)
+			ON SETL.HOUSE_CODE		= USMT.HOUSE_CODE
+			AND SETL.COMPANY_CODE	= USMT.COMPANY_CODE
+			AND SETL.ADD_USER_ID 	= USMT.USER_ID
+		LEFT JOIN SDEPT ADD_USER_DEPT WITH(NOLOCK)
+		     ON ADD_USER_DEPT.HOUSE_CODE = USMT.HOUSE_CODE 
+		     AND ADD_USER_DEPT.COMPANY_CODE = USMT.COMPANY_CODE 
+		     AND ADD_USER_DEPT.DEPT = USMT.DEPT 
+		WHERE SETL.HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND SETL.COMPANY_CODE 	= ${session.COMPANY_CODE}
+			AND SETL.SMR_NUMBER 	= $S{SMR_NUMBER}
+			AND SETL.ADD_USER_ID	= $S{REQ_USER_ID}
+			AND ISNULL(SETL.APPLY_TYPE,'') != 'CEXT'
+	]]>
+	<if test="${REQ_USER_DEPT}" operator="ne" value="">
+    <![CDATA[
+    	AND (SETL.ADD_USER_ID = ${session.ID} 
+    	     OR (ADD_USER_DEPT.DEPT = ${session.DEPARTMENT}
+    	         AND SETL.SMR_STATUS != 'T')
+    	    )
+	]]>
+	</if>
+	<![CDATA[			
+			AND SETL.APPLY_TYPE		IN ($INS{APPLY_TYPE})
+			AND SETL.SMR_STATUS		IN($INS{SMR_STATUS})
+			AND (SETL.SUBJECT 	LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR	SETL.ADD_USER_ID LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR SETL.SMR_NUMBER  LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR SETL.SUBMISSION_PLACE LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR USMT.USER_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%')
+			AND SETL.SEAL_USE_TYPE  IN ($INS{REQ_SEAL_USE_TYPE})			 
+			AND SETL.ADD_DATE >= $S{F_CALENDAR_FROM}
+			AND SETL.ADD_DATE <= $S{F_CALENDAR_TO}
+			AND SEDC.SEAL_MG_USER_ID  = $S{SEAL_MG_USER_ID}
+		GROUP BY 
+			SETL.HOUSE_CODE
+			   , SETL.COMPANY_CODE
+			   , SETL.SMR_NUMBER
+			   , SETL.SMR_STATUS
+			   , SETL.ADD_DATE
+			   , SETL.ADD_TIME
+			   , SETL.ADD_USER_ID
+			   , SETL.CHANGE_DATE
+			   , SETL.CHANGE_TIME
+			   , SETL.CHANGE_USER_ID
+			   , SETL.DEL_FLAG
+			   , SETL.APPLY_TYPE
+			   , SETL.SUBJECT
+			   , SETL.SUBMISSION_PLACE
+			   , CAST(SETL.REMARK AS VARCHAR(MAX))
+			   , CAST(SETL.REJECT_REMARK AS VARCHAR(MAX))
+			   , SETL.CONFIRM_DATE
+			   , SETL.CONFIRM_TIME
+			   , SETL.CONFIRM_USER_ID
+			   , SETL.SUBMIT_TYPE
+			   , CAST(SETL.SUBMIT_REMARK AS VARCHAR(MAX)) 
+			   , SETL.EXT_OUT_EXPECT_DATE
+			   , SETL.EXT_USE_USER_ID
+			   , SETL.EXT_USE_PLACE
+			   , SETL.SEAL_USE_TYPE
+			   , SUBSTRING(SETL.EXT_OUT_EXPECT_TIME,1,2)
+			   , SUBSTRING(SETL.EXT_OUT_EXPECT_TIME,3,2)
+			   , SETL.EXT_IN_EXPECT_DATE 
+			   , SUBSTRING(SETL.EXT_IN_EXPECT_TIME,1,2)
+			   , SUBSTRING(SETL.EXT_IN_EXPECT_TIME,3,2) 
+			ORDER BY SETL.SMR_NUMBER DESC
+	]]>
+	</method>
+	<method name="doInsertSSETL">
+	<![CDATA[
+		INSERT 
+		  INTO SSETL
+	         ( HOUSE_CODE
+		     , COMPANY_CODE
+		     , SMR_NUMBER
+		     , SMR_STATUS
+		     , ADD_DATE
+		     , ADD_TIME
+		     , ADD_USER_ID
+		     , CHANGE_DATE
+		     , CHANGE_TIME
+		     , CHANGE_USER_ID
+		     , DEL_FLAG
+		     , SIGN_STATUS
+		     , APPLY_TYPE
+		     , SUBJECT
+		     , SEAL_USE_TYPE
+		     , SUBMISSION_PLACE
+		     , ATTACH_NO
+		     , REMARK
+             , SUBMIT_TYPE
+             , SUBMIT_REMARK		     
+             , EXT_USE_DETAIL
+             , EXT_OUT_EXPECT_DATE
+             , EXT_OUT_EXPECT_TIME
+             , EXT_IN_EXPECT_DATE
+             , EXT_IN_EXPECT_TIME
+             , EXT_USE_PLACE
+             , EXT_USE_USER_ID 
+             , EXT_CPNO_USER_ID
+             , EXT_OUT_DATE
+             , EXT_OUT_TIME
+             , EXT_IN_DATE
+             , EXT_IN_TIME
+             , EMERGENCY_FLAG
+             , EMERGENCY_REMARK
+             , ROOT_PATH_TYPE
+             , REJECT_REMARK 			 
+             , APVID 			 
+	         )
+	   VALUES( 
+	           ${session.HOUSE_CODE}
+	         , ${session.COMPANY_CODE}
+	         , ${SMR_NUMBER}
+	         , 'N'
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , ${current.DATE}
+	         , ${current.TIME}
+	         , ${session.ID}
+	         , 'N'
+	         , 'T'
+	         , ${APPLY_TYPE}
+			 , ${SUBJECT}       
+	         , ${SEAL_USE_TYPE}
+			 , ${SUBMISSION_PLACE}
+			 , ${ATTACH_NO}
+			 , ${REMARK}
+             , ${SUBMIT_TYPE}
+             , ${SUBMIT_REMARK}			 
+             , ${EXT_USE_DETAIL}			 
+             , ${EXT_OUT_EXPECT_DATE}			 
+             , LEFT((#DB_OWNER#NVL(${EXT_OUT_EXPECT_HOUR}, '') + 
+             		#DB_OWNER#NVL(${EXT_OUT_EXPECT_MINUTE}, ''))+'000000',6)			 
+             , ${EXT_IN_EXPECT_DATE}
+             , LEFT((#DB_OWNER#NVL(${EXT_IN_EXPECT_HOUR}, '') + 
+             		#DB_OWNER#NVL(${EXT_IN_EXPECT_MINUTE}, ''))+'000000',6)			 
+             , ${EXT_USE_PLACE}			 
+             , ${EXT_USE_USER_ID} 			 
+             , ${EXT_CPNO_USER_ID}
+             , ${EXT_OUT_DATE}
+             , ${EXT_OUT_TIME}
+             , ${EXT_IN_DATE}
+             , ${EXT_IN_TIME}
+             , ${EMERGENCY_FLAG}
+             , ${EMERGENCY_REMARK}
+             , ${ROOT_PATH_TYPE}
+             , ${REJECT_REMARK} 			 
+             , ${APVID} 			 
+	       ) 
+	]]>
+	</method>
+	<method name="doUpdateSSETL">
+	<![CDATA[
+		UPDATE SSETL SET
+			  CHANGE_DATE      = ${current.DATE}
+			, CHANGE_TIME      = ${current.TIME}
+			, CHANGE_USER_ID   = ${session.ID}
+			, DEL_FLAG         = #DB_OWNER#nvl(${DEL_FLAG    	 }  , DEL_FLAG        )
+			, SMR_STATUS 	   = #DB_OWNER#nvl(${SMR_STATUS		 }  , SMR_STATUS   )
+			, SEAL_USE_TYPE    = #DB_OWNER#nvl(${SEAL_USE_TYPE   }  , SEAL_USE_TYPE   )
+			, SUBJECT          = #DB_OWNER#nvl(${SUBJECT    	 }  , SUBJECT         )
+			, REMARK           = #DB_OWNER#nvl(${REMARK    	 	 }  , REMARK    	  )
+			, REJECT_REMARK	   = #DB_OWNER#nvl(${REJECT_REMARK 	 }  , REJECT_REMARK	  ) 
+			, SUBMISSION_PLACE = #DB_OWNER#nvl(${SUBMISSION_PLACE}  , SUBMISSION_PLACE)
+			, EXT_USE_PLACE    = #DB_OWNER#nvl(${EXT_USE_PLACE   }  , EXT_USE_PLACE   )
+			, EXT_USE_USER_ID  = #DB_OWNER#nvl(${EXT_USE_USER_ID }  , EXT_USE_USER_ID )
+			, ATTACH_NO        = #DB_OWNER#nvl(${ATTACH_NO       }  , ATTACH_NO       )
+			, EXT_OUT_EXPECT_DATE  = #DB_OWNER#nvl(${EXT_OUT_EXPECT_DATE  }  , EXT_OUT_EXPECT_DATE  )
+			, EXT_OUT_EXPECT_TIME  = LEFT((#DB_OWNER#NVL(${EXT_OUT_EXPECT_HOUR}, '') + 
+             		#DB_OWNER#NVL(${EXT_OUT_EXPECT_MINUTE}, ''))+'000000',6)
+			, EXT_IN_EXPECT_DATE   = #DB_OWNER#nvl(${EXT_IN_EXPECT_DATE   }  , EXT_IN_EXPECT_DATE   )
+			, EXT_IN_EXPECT_TIME   = LEFT((#DB_OWNER#NVL(${EXT_IN_EXPECT_HOUR}, '') + 
+             		#DB_OWNER#NVL(${EXT_IN_EXPECT_MINUTE}, ''))+'000000',6)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doDeleteSSETL">
+	<![CDATA[
+		DELETE FROM SSETL
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSSEDC">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMR_NUMBER
+			, SMR_SEQ
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, SEAL_TYPE
+			, SEAL_MG_DEPT 
+			, #DB_OWNER#GETDEPTNAME(${session.HOUSE_CODE}, 
+							  ${session.COMPANY_CODE}, SEAL_MG_DEPT , '') AS DEPT_NAME
+			, SUBJECT
+			, COUNT
+			, ATTACH_NO
+			, ATTACH2_NO
+			, MANAGE_NUMBER
+			, SMD_NUMBER
+			, SEAL_MG_USER_ID
+			, SEAL_MG_SUBJECT
+		FROM SSEDC WITH(NOLOCK)
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		AND COMPANY_CODE = ${session.COMPANY_CODE}
+		AND SMR_NUMBER   = ${SMR_NUMBER}
+		AND SMD_NUMBER   = $S{SMD_NUMBER}
+		AND DEL_FLAG = 'N'
+	]]>
+	</method>
+	<method name="doGetSeq_SEDC">
+	<![CDATA[
+		SELECT 
+			#DB_OWNER#NVL(MAX(SMR_SEQ),0) AS MAXSEQ
+  		FROM SSEDC WITH(NOLOCK)
+		WHERE HOUSE_CODE 	= ${session.HOUSE_CODE}
+   		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+   		AND SMR_NUMBER 	= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doInsertSSEDC">
+	<![CDATA[
+		INSERT INTO SSEDC (
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMR_NUMBER
+			, SMR_SEQ
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, DEL_FLAG
+			, SEAL_TYPE
+			, SUBJECT
+			, COUNT
+			, ATTACH_NO
+			, MANAGE_NUMBER
+			, SMD_NUMBER
+			, SEAL_MG_USER_ID
+			, SEAL_MG_DEPT
+			, SEAL_MG_SUBJECT
+		) VALUES (
+			  ${session.HOUSE_CODE  }
+			, ${session.COMPANY_CODE}
+			, ${SMR_NUMBER          }
+			, ${SMR_SEQ             }
+			, ${current.DATE        }
+			, ${current.TIME        }
+			, ${session.ID          }
+			, 'N'
+			, ${SEAL_TYPE           }
+			, ${SUBJECT             }
+			, ${COUNT               }
+			, ${ATTACH_NO			}
+			, ${MANAGE_NUMBER		}
+			, ${SMD_NUMBER			}
+			, ${SEAL_MG_USER_ID		}
+			, ${SEAL_MG_DEPT		}
+			, ${SEAL_MG_SUBJECT		}
+		)
+	]]>
+	</method>
+	<method name="doUpdateSSEDC">
+	<![CDATA[
+		UPDATE SSEDC SET
+			  CHANGE_DATE    	= ${current.DATE}
+			, CHANGE_TIME    	= ${current.TIME}
+			, CHANGE_USER_ID 	= ${session.ID}
+			, DEL_FLAG       	= #DB_OWNER#nvl(${DEL_FLAG    }        , DEL_FLAG    )
+			, SEAL_TYPE      	= #DB_OWNER#nvl(${SEAL_TYPE   }        , SEAL_TYPE   )
+			, SUBJECT        	= #DB_OWNER#nvl(${SUBJECT     }        , SUBJECT     )
+			, COUNT          	= #DB_OWNER#nvl(${COUNT       }        , COUNT       )
+			, ATTACH_NO        	= #DB_OWNER#nvl(${ATTACH_NO   }        , ATTACH_NO   )
+			, ATTACH2_NO        = #DB_OWNER#nvl(${ATTACH2_NO   }       , ATTACH2_NO   )
+			, MANAGE_NUMBER   	= #DB_OWNER#nvl(${MANAGE_NUMBER }      , MANAGE_NUMBER  )
+			, SMD_NUMBER    	= #DB_OWNER#nvl(${SMD_NUMBER  } 	   , SMD_NUMBER  )
+			, SEAL_MG_USER_ID	= #DB_OWNER#nvl(${SEAL_MG_USER_ID  }   , SEAL_MG_USER_ID  )
+			, SEAL_MG_DEPT		= #DB_OWNER#nvl(${SEAL_MG_DEPT  }	   , SEAL_MG_DEPT  )
+			, SEAL_MG_SUBJECT	= #DB_OWNER#nvl(${SEAL_MG_SUBJECT  }   , SEAL_MG_SUBJECT  )
+			, ACCESS_LINK		= #DB_OWNER#nvl(${ACCESS_LINK  }	   , ACCESS_LINK  )
+		WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER 		= ${SMR_NUMBER}
+		AND SMD_NUMBER 		= ${SMD_NUMBER}
+	]]>
+	</method>
+	<method name="doDeleteSSEDC">
+	<![CDATA[
+		DELETE FROM SSEDC
+		WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER 		= ${SMR_NUMBER}
+		AND SMD_NUMBER 		= ${SMD_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSSEDC_SEAL">
+	<![CDATA[
+		SELECT
+			  PDSE.HOUSE_CODE
+			, PDSE.COMPANY_CODE
+			, PDSE.SMR_NUMBER
+			, PDSE.SMD_NUMBER
+			, PDSE.MANAGE_NUMBER
+			, PDSE.ADD_DATE
+			, PDSE.ADD_TIME
+			, PDSE.ADD_USER_ID
+			, PDSE.ACCEPT_FLAG
+			, PDSE.COMPLETE_FLAG
+			, PDSE.MANAGER_ID
+			, PDSE.MANAGE_DEPT
+			, UPIM.ITEM_NAME 
+			, UPIM.ITEM_CODE 
+			, UPIM.ITEM_TYPE
+			, UPIM.SEAL_WIDTH 
+			, UPIM.SEAL_HEIGHT 
+			, UPIM.ITEM_NO
+			, SEAL.SEAL_USE_DEPT
+			, SEAL.SEAL_MG_DEPT
+			, SEAL.SUBJECT
+			, SEAL.SEAL_MG_USER_ID
+			, MAND.RECE_USER_ID 
+			, #DB_OWNER#GETUSERNAME(${session.HOUSE_CODE}, 
+							  ${session.COMPANY_CODE}, SEAL.SEAL_MG_USER_ID , '#session.LANGUAGE#') AS SEAL_MG_USER_NAME
+			, #DB_OWNER#GETDEPTNAME(${session.HOUSE_CODE}, 
+							  ${session.COMPANY_CODE}, SEAL.SEAL_MG_DEPT , '#session.LANGUAGE#') AS DEPT_NAME
+			, SEAL.SEAL_TYPE
+			, #DB_OWNER#GETCODETEXT(${session.HOUSE_CODE}, 'SM003', #DB_OWNER#NVL(SEAL.SEAL_TYPE, ''), 
+							  ${session.LANGUAGE}) AS SEAL_TYPE_NAME
+		FROM SSEDC_SEAL PDSE WITH(NOLOCK)
+		 INNER JOIN SSEAL SEAL WITH(NOLOCK) 
+			ON SEAL.HOUSE_CODE = PDSE.HOUSE_CODE 
+			AND SEAL.COMPANY_CODE = PDSE.COMPANY_CODE 
+			AND SEAL.MANAGE_NUMBER = PDSE.MANAGE_NUMBER 
+		 INNER JOIN SUPIM UPIM WITH(NOLOCK)
+			ON UPIM.HOUSE_CODE = SEAL.HOUSE_CODE 
+			AND UPIM.COMPANY_CODE = SEAL.COMPANY_CODE 
+			AND UPIM.ITEM_CODE = SEAL.SEAL_TYPE
+		 LEFT OUTER JOIN SMAND MAND WITH(NOLOCK)
+		    ON MAND.HOUSE_CODE = PDSE.HOUSE_CODE 
+		    AND MAND.COMPANY_CODE = PDSE.COMPANY_CODE 
+		    AND MAND.GIVE_COMPANY_CODE = PDSE.COMPANY_CODE
+		    AND MAND.RECE_COMPANY_CODE = PDSE.COMPANY_CODE
+		    AND MAND.GIVE_USER_ID = PDSE.MANAGER_ID
+		    AND MAND.RECE_USER_ID = ${session.ID}
+		    AND ${current.DATE} BETWEEN MAND.START_DATE AND MAND.END_DATE 
+		WHERE PDSE.HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND PDSE.COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND PDSE.SMR_NUMBER		= ${SMR_NUMBER}
+		AND PDSE.SMD_NUMBER		= $S{SMD_NUMBER}
+		AND PDSE.ACCEPT_FLAG	= $S{ACCEPT_FLAG}
+		AND PDSE.COMPLETE_FLAG	= $S{COMPLETE_FLAG}
+	]]>
+	</method>
+	<method name="doInsertSSEDC_SEAL">
+	<![CDATA[
+		INSERT INTO SSEDC_SEAL (
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMR_NUMBER
+			, SMD_NUMBER
+			, MANAGE_NUMBER
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG 
+			, MANAGER_ID
+			, MANAGE_DEPT
+			, ACCEPT_FLAG
+			, COMPLETE_FLAG
+		) VALUES (
+			  ${session.HOUSE_CODE  }
+			, ${session.COMPANY_CODE}
+			, ${SMR_NUMBER          }
+			, ${SMD_NUMBER          }
+			, ${MANAGE_NUMBER       }
+			, ${current.DATE        }
+			, ${current.TIME        }
+			, ${session.ID          }
+			, ${current.DATE        }
+			, ${current.TIME        }
+			, ${session.ID          }
+			, 'N'
+			, ${SEAL_MG_USER_ID}
+			, ${SEAL_MG_DEPT}
+			, 'N'
+			, ${COMPLETE_FLAG}
+		)
+	]]>
+	</method>
+	<method name="doUpdateSSEDC_SEAL">
+	<![CDATA[
+		UPDATE SSEDC_SEAL SET
+			  CHANGE_DATE			= ${current.DATE}
+			, CHANGE_TIME			= ${current.TIME}
+			, CHANGE_USER_ID		= ${session.ID}
+			, DEL_FLAG				= #DB_OWNER#nvl(${DEL_FLAG}, DEL_FLAG)
+			, ACCEPT_FLAG			= #DB_OWNER#nvl(${ACCEPT_FLAG}, ACCEPT_FLAG)
+			, COMPLETE_FLAG			= #DB_OWNER#nvl(${COMPLETE_FLAG}, COMPLETE_FLAG)
+			, MANAGER_ID			= #DB_OWNER#nvl(${MANAGER_ID}, MANAGER_ID)
+			, MANAGE_DEPT			= #DB_OWNER#nvl(${MANAGE_DEPT}, MANAGE_DEPT)
+			, MANAGE_NUMBER			= #DB_OWNER#nvl(${MANAGE_NUMBER}, MANAGE_NUMBER)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+		AND SMD_NUMBER		= ${SMD_NUMBER}
+	]]>
+	</method>
+	<method name="doUpdateAppSSEDC_SEAL">
+	<![CDATA[
+		UPDATE SSEDC_SEAL SET
+			  CHANGE_DATE			= ${current.DATE}
+			, CHANGE_TIME			= ${current.TIME}
+			, CHANGE_USER_ID		= ${session.ID}
+			, DEL_FLAG				= #DB_OWNER#nvl(${DEL_FLAG}, DEL_FLAG)
+			, ACCEPT_FLAG			= #DB_OWNER#nvl(${ACCEPT_FLAG}, ACCEPT_FLAG)
+			, COMPLETE_FLAG			= #DB_OWNER#nvl(${COMPLETE_FLAG}, COMPLETE_FLAG)
+			, MANAGER_ID			= #DB_OWNER#nvl(${MANAGER_ID}, MANAGER_ID)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doDeleteSSEDC_SEAL">
+	<![CDATA[
+		DELETE FROM SSEDC_SEAL
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+		AND SMD_NUMBER		= ${SMD_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSUPIM">
+	<![CDATA[
+		SELECT 
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, ITEM_NO
+			, ITEM_CODE
+			, ITEM_SEQ
+			, ITEM_NAME
+			, ITEM_TYPE
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, SYSTEM
+			, CLASS
+			, METHOD
+			, DISPLAY_TEMPLATE
+			, DISPLAY_EDIT
+			, DEL_FLAG
+			, SEAL_WIDTH
+			, SEAL_HEIGHT
+		  FROM SUPIM WITH(NOLOCK)
+		 WHERE #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		   AND HOUSE_CODE                   = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE                 = ${session.COMPANY_CODE}
+		   AND DISPLAY_EDIT					= '1'
+		 ORDER 
+            BY ITEM_CODE
+              ,ITEM_SEQ ASC
+	]]>
+	</method>
+	<method name="doSelectSSISD">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMR_NUMBER
+			, SMI_NUMBER
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, DOC_TYPE
+			, CONTENTS
+			, COUNT
+			, PRINT_COUNT
+			, DOWN_COUNT
+			, CERTIFICATE_NO
+		FROM SSISD WITH(NOLOCK)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+		AND SMI_NUMBER		= $S{SMI_NUMBER}
+	]]>
+	</method>
+	<method name="doInsertSSISD">
+	<![CDATA[
+		INSERT INTO SSISD(
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMR_NUMBER
+			, SMI_NUMBER
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, DEL_FLAG
+			, DOC_TYPE
+			, CONTENTS
+			, COUNT
+		) VALUES (
+			  ${session.HOUSE_CODE  }
+			, ${session.COMPANY_CODE}
+			, ${SMR_NUMBER          }
+			, ${SMI_NUMBER          }
+			, ${current.DATE        }
+			, ${current.TIME        }
+			, ${session.ID          }
+			, 'N'                   
+			, ${DOC_TYPE            }
+			, ${CONTENTS            }
+			, ${COUNT               }
+		)
+	]]>
+	</method>
+	<method name="doDeleteSSISD">
+	<![CDATA[
+		DELETE FROM SSISD
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+		AND SMI_NUMBER		= ${SMI_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSSRAD">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMI_NUMBER
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, SUBJECT
+			, CONTENT
+			, DOC_TYPE
+		FROM SSRAD WITH(NOLOCK)
+		WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND SMI_NUMBER 		= $S{SMI_NUMBER}
+	]]>
+	</method>
+	<method name="doInsertSSRAD">
+	<![CDATA[
+		INSERT INTO SSRAD (
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, SMI_NUMBER
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, DEL_FLAG
+			, SUBJECT
+			, CONTENT
+			, DOC_TYPE
+		) VALUES (
+			  ${session.HOUSE_CODE  }
+			, ${session.COMPANY_CODE}
+			, ${SMI_NUMBER          }
+			, ${current.DATE        }
+			, ${current.TIME        }
+			, ${session.ID          }
+			, 'N'
+			, ${SUBJECT             }
+			, ${CONTENT             }
+			, ${DOC_TYPE            }
+		)
+	]]>
+	</method>
+	<method name="doUpdateSSRAD">
+	<![CDATA[
+		UPDATE SSRAD SET
+			  CHANGE_DATE		= ${current.DATE}
+			, CHANGE_TIME		= ${current.TIME}
+			, CHANGE_USER_ID	= ${session.ID}
+			, DEL_FLAG			= #DB_OWNER#nvl(${DEL_FLAG}  , DEL_FLAG)
+			, SUBJECT			= #DB_OWNER#nvl(${SUBJECT }  , SUBJECT )
+			, CONTENT			= #DB_OWNER#nvl(${CONTENT }  , CONTENT )
+			, DOC_TYPE			= #DB_OWNER#nvl(${DOC_TYPE}  , DOC_TYPE)
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMI_NUMBER		= ${SMI_NUMBER}
+	]]>
+	</method>
+	<method name="doDeleteSSRAD">
+	<![CDATA[
+		DELETE 
+		FROM SSRAD
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMI_NUMBER		= ${SMI_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSUSMT">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+			,COMPANY_CODE
+			,USER_ID
+		FROM
+			SUSMT WITH(NOLOCK)
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+			AND COMPANY_CODE = ${COMPANY_CODE}
+			AND USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doSelectSPMGT">
+    <![CDATA[
+        SELECT COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+              ,#DB_OWNER#GETUSERNAME(${session.HOUSE_CODE}, 
+              			   ${session.COMPANY_CODE}, USER_ID, 
+              			   ${session.LANGUAGE}) AS USER_NAME
+              ,#DB_OWNER#GETUSERDEPTNAME(${session.HOUSE_CODE}, 
+                               ${session.COMPANY_CODE}, USER_ID, 
+                               ${session.LANGUAGE}) AS USER_DEPT_NAME
+              ,#DB_OWNER#GETCOMPANYNAME(${session.HOUSE_CODE}, 
+                               ${session.COMPANY_CODE},
+                               ${session.LANGUAGE}) AS USER_COMPANY_NAME
+          FROM SPMGT WITH(NOLOCK)
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+         ORDER
+            BY SEQ
+    ]]>
+    </method>	
+    <method name="doInsertSPMGT">
+    <![CDATA[
+        INSERT
+          INTO SPMGT
+             ( HOUSE_CODE       
+              ,COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}       
+              ,${session.COMPANY_CODE}     
+              ,${SMR_NUMBER}        
+              ,'1'      
+              ,(SELECT COUNT(*) + 1
+                  FROM SPMGT InPMGT WITH(NOLOCK)
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${session.COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${SMR_NUMBER}
+                   AND InPMGT.CONT_GL_SEQ  = '1'
+               )
+              ,${current.DATE}         
+              ,${current.TIME}         
+              ,${session.COMPANY_CODE}
+              ,${session.ID}
+              ,${ACTION}           
+              ,${IP}
+             )
+    ]]>
+    </method>
+    <method name="doDeleteSPMGT">
+    <![CDATA[
+        DELETE
+          FROM SPMGT
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+    ]]>
+    </method>
+    
+    <method name="doSelectLedgerList">
+    <![CDATA[
+    	SELECT 
+		  		 SETL.HOUSE_CODE
+			   , SETL.COMPANY_CODE
+			   , SETL.SMR_NUMBER
+			   , SETL.SMR_STATUS
+			   , SETL.ADD_DATE
+			   , SETL.ADD_TIME
+			   , SETL.ADD_USER_ID
+			   , SETL.CHANGE_DATE
+			   , SETL.CHANGE_TIME
+			   , SETL.CHANGE_USER_ID
+			   , SETL.DEL_FLAG
+			   , SETL.SEAL_USE_TYPE
+			   , SETL.APPLY_TYPE
+			   , SETL.SUBJECT
+			   , CAST(SETL.REMARK AS VARCHAR(MAX)) AS REMARK
+			   , SETL.SUBMISSION_PLACE
+			   , SETL.CONFIRM_DATE
+			   , SETL.CONFIRM_TIME
+			   , SETL.CONFIRM_USER_ID
+			   , SETL.SUBMIT_TYPE
+			   , SETL.EXT_OUT_DATE
+			   , SETL.EXT_IN_DATE
+			   , #DB_OWNER#GETUSERDEPTNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) AS DEPT_NAME_LOC
+			   , #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.ADD_USER_ID, ${session.LANGUAGE}) as ADD_USER_NAME_LOC
+			   , #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE, SETL.EXT_USE_USER_ID, ${session.LANGUAGE}) as USE_USER_NAME_LOC
+			   , #DB_OWNER#GETUSERNAME(SETL.HOUSE_CODE, SETL.COMPANY_CODE,SETL.CONFIRM_USER_ID, ${session.LANGUAGE}) as CONFIRM_USER_NAME_LOC
+			FROM SSETL SETL WITH(NOLOCK)
+		LEFT OUTER JOIN SSEDC SEDC WITH(NOLOCK)
+			ON SETL.HOUSE_CODE 		= SEDC.HOUSE_CODE 
+			AND SETL.COMPANY_CODE 	= SEDC.COMPANY_CODE 
+			AND SETL.SMR_NUMBER  	= SEDC.SMR_NUMBER
+		LEFT OUTER JOIN SUSMT ADD_USMT WITH(NOLOCK)
+			ON ADD_USMT.HOUSE_CODE = SETL.HOUSE_CODE 
+			AND ADD_USMT.USER_ID = SETL.ADD_USER_ID
+		LEFT OUTER JOIN SUSMT USE_USMT WITH(NOLOCK)	
+			ON USE_USMT.HOUSE_CODE = SETL.HOUSE_CODE 
+			AND USE_USMT.USER_ID = SETL.EXT_USE_USER_ID
+		LEFT OUTER JOIN SUSMT CONFIRM_USMT WITH(NOLOCK)	
+			ON CONFIRM_USMT.HOUSE_CODE = SETL.HOUSE_CODE 
+			AND CONFIRM_USMT.USER_ID = SETL.CONFIRM_USER_ID
+		WHERE SETL.HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND SETL.COMPANY_CODE 	= ${session.COMPANY_CODE}
+			AND SETL.SMR_NUMBER 	= $S{SMR_NUMBER}
+			AND SETL.ADD_USER_ID	= $S{REQ_USER_ID}
+			AND SETL.SMR_STATUS		IN($INS{SMR_STATUS})
+			AND ISNULL(SETL.APPLY_TYPE,'') != 'CEXT'
+			AND (SETL.SUBJECT 		 LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR	SETL.ADD_USER_ID LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR SETL.SMR_NUMBER	 LIKE '%' + $S{F_KEYWORD} + '%'
+				 OR	SETL.SUBMISSION_PLACE LIKE '%' + $S{F_KEYWORD} + '%'
+			 	 OR ADD_USMT.USER_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%'
+			 	 OR USE_USMT.USER_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%' 
+			 	 OR CONFIRM_USMT.USER_NAME_LOC LIKE '%' + $S{F_KEYWORD} + '%') 
+			AND SETL.SEAL_USE_TYPE  IN($INS{SEAL_USE_TYPE})			 
+			AND SETL.ADD_DATE >= $S{F_CALENDAR_FROM}
+			AND SETL.ADD_DATE <= $S{F_CALENDAR_TO}
+			AND (EXISTS(SELECT 1 FROM SSEDC_SEAL DCSE WITH(NOLOCK) WHERE DCSE.HOUSE_CODE = SETL.HOUSE_CODE AND DCSE.COMPANY_CODE = SETL.COMPANY_CODE AND DCSE.SMR_NUMBER = SETL.SMR_NUMBER AND DCSE.MANAGER_ID = $S{MANAGER_ID}))
+		GROUP BY 
+			SETL.HOUSE_CODE
+			   , SETL.COMPANY_CODE
+			   , SETL.SMR_NUMBER
+			   , SETL.SMR_STATUS
+			   , SETL.ADD_DATE
+			   , SETL.ADD_TIME
+			   , SETL.ADD_USER_ID
+			   , SETL.CHANGE_DATE
+			   , SETL.CHANGE_TIME
+			   , SETL.CHANGE_USER_ID
+			   , SETL.DEL_FLAG
+			   , SETL.SEAL_USE_TYPE
+			   , CAST(SETL.REMARK AS VARCHAR(MAX))
+			   , SETL.APPLY_TYPE
+			   , SETL.SUBJECT
+			   , SETL.SUBMISSION_PLACE
+			   , SETL.CONFIRM_DATE
+			   , SETL.CONFIRM_TIME
+			   , SETL.CONFIRM_USER_ID
+			   , SETL.SUBMIT_TYPE
+			   , SETL.EXT_USE_USER_ID
+			   , SETL.CONFIRM_USER_ID
+			   , SETL.EXT_OUT_DATE
+			   , SETL.EXT_IN_DATE
+			ORDER BY SETL.SMR_NUMBER DESC
+    ]]>
+    </method>
+    <method name="doInsertSDOIS">
+    <![CDATA[
+        INSERT
+          INTO SDOIS
+             (       
+				HOUSE_CODE
+			   ,COMPANY_CODE
+			   ,ISSUE_NO
+			   ,ADD_DATE
+			   ,ADD_TIME
+			   ,ADD_USER_ID
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}       
+              ,${session.COMPANY_CODE}     
+              ,${ISSUE_NO}           
+              ,${ADD_DATE}
+              ,${ADD_TIME}
+              ,${session.ID}
+             )
+    ]]>
+    </method>
+	<method name="doConfirmSignSSETL">
+    <![CDATA[
+    	UPDATE SSETL
+		   SET CHANGE_DATE    = ${current.DATE}
+	         , CHANGE_TIME    = ${current.TIME}
+	         , CHANGE_USER_ID = ${session.ID}
+	         , SMR_STATUS     = #DB_OWNER#nvl(${SMR_STATUS		 }  , SMR_STATUS   )
+	         , SIGN_DATE      = ${current.DATE}
+	         , SIGN_TIME   	  = ${current.TIME}	
+	         , SIGN_USER_ID	  = ${session.ID}
+	         , REJECT_REMARK  = #DB_OWNER#nvl(${REJECT_REMARK    }  , REJECT_REMARK)
+	     WHERE HOUSE_CODE     = ${session.HOUSE_CODE}
+	       AND COMPANY_CODE   = ${session.COMPANY_CODE}
+	       AND SMR_NUMBER     = ${SMR_NUMBER}  
+    ]]>
+    </method>
+    <method name="doConfirmReqSSETL">
+    <![CDATA[
+    	UPDATE SSETL
+		   SET CHANGE_DATE    = ${current.DATE}
+	         , CHANGE_TIME    = ${current.TIME}
+	         , CHANGE_USER_ID = ${session.ID}
+	         , SMR_STATUS     = #DB_OWNER#nvl(${SMR_STATUS		 }  , SMR_STATUS   )
+             , EXT_OUT_DATE   = #DB_OWNER#nvl(${EXT_OUT_EXPECT_DATE  }  , EXT_OUT_EXPECT_DATE  )
+             , EXT_OUT_TIME   = LEFT((#DB_OWNER#NVL(${EXT_OUT_EXPECT_HOUR}, '') + 
+             		#DB_OWNER#NVL(${EXT_OUT_EXPECT_MINUTE}, ''))+'000000',6)
+             , EXT_IN_DATE    = ${current.DATE}
+             , EXT_IN_TIME    = ${current.TIME}    	                  	         
+	     WHERE HOUSE_CODE     = ${session.HOUSE_CODE}
+	       AND COMPANY_CODE   = ${session.COMPANY_CODE}
+	       AND SMR_NUMBER     = ${SMR_NUMBER} 
+    ]]>
+    </method>
+    <method name="doConfirmSSETL">
+    <![CDATA[
+    	UPDATE SSETL
+		   SET CHANGE_DATE    = ${current.DATE}
+	         , CHANGE_TIME    = ${current.TIME}
+	         , CHANGE_USER_ID = ${session.ID}
+	         , SMR_STATUS     = #DB_OWNER#nvl(${SMR_STATUS		 }  , SMR_STATUS   )
+	         , CONFIRM_DATE   = ${current.DATE}
+	         , CONFIRM_TIME   = ${current.TIME}	
+	         , CONFIRM_USER_ID= ${session.ID}
+	     WHERE HOUSE_CODE     = ${session.HOUSE_CODE}
+	       AND COMPANY_CODE   = ${session.COMPANY_CODE}
+	       AND SMR_NUMBER     = ${SMR_NUMBER} 
+    ]]>
+    </method>
+    <method name="doSearchExtUseList">
+    <![CDATA[
+    	SELECT
+			SETL.SMR_NUMBER, 
+			SETL.EXT_OUT_EXPECT_DATE,
+			SETL.EXT_IN_EXPECT_DATE,
+			SETL.EXT_OUT_EXPECT_TIME,
+			SETL.EXT_IN_EXPECT_TIME,
+			SEDC.MANAGE_NUMBER ,
+			SEDC.SEAL_MG_DEPT,
+			SEDC.SEAL_MG_USER_ID,
+			SEDC.SEAL_MG_SUBJECT,
+			SETL.SMR_STATUS   
+		FROM
+			SSETL SETL WITH(NOLOCK)
+			LEFT OUTER JOIN SSEDC SEDC WITH(NOLOCK)
+			ON SETL.HOUSE_CODE = SEDC.HOUSE_CODE 
+			AND SETL.COMPANY_CODE = SEDC.COMPANY_CODE 
+			AND SETL.SMR_NUMBER  = SEDC.SMR_NUMBER 
+		WHERE
+		(
+			(
+				(${EXT_OUT_EXPECT_DATE}
+					+LEFT((#DB_OWNER#NVL(${EXT_OUT_EXPECT_HOUR}, ''))+'000000',6)
+				 BETWEEN EXT_OUT_EXPECT_DATE+EXT_OUT_EXPECT_TIME AND EXT_IN_EXPECT_DATE+EXT_IN_EXPECT_TIME) 
+				OR
+				(${EXT_IN_EXPECT_DATE}
+					+LEFT((#DB_OWNER#NVL(${EXT_IN_EXPECT_HOUR}, ''))+'000000',6)
+				 BETWEEN EXT_OUT_EXPECT_DATE+EXT_OUT_EXPECT_TIME AND EXT_IN_EXPECT_DATE+EXT_IN_EXPECT_TIME)
+			)
+			OR 
+			(
+				(EXT_OUT_EXPECT_DATE+EXT_OUT_EXPECT_TIME BETWEEN ${EXT_OUT_EXPECT_DATE}
+					+LEFT((#DB_OWNER#NVL(${EXT_OUT_EXPECT_HOUR}, ''))+'000000',6)
+					AND ${EXT_IN_EXPECT_DATE}
+					+LEFT((#DB_OWNER#NVL(${EXT_IN_EXPECT_HOUR}, ''))+'000000',6))
+				OR
+				(EXT_IN_EXPECT_DATE+EXT_IN_EXPECT_TIME BETWEEN ${EXT_OUT_EXPECT_DATE}
+					+LEFT((#DB_OWNER#NVL(${EXT_OUT_EXPECT_HOUR}, ''))+'000000',6)
+					AND ${EXT_IN_EXPECT_DATE}
+					+LEFT((#DB_OWNER#NVL(${EXT_IN_EXPECT_HOUR}, ''))+'000000',6))
+			)
+		)
+		AND SMR_STATUS IN ('RW','RR','I','W')
+		AND SEDC.MANAGE_NUMBER = ${MANAGE_NUMBER}
+    ]]>
+    </method>
+    <method name="doSearchExtUseList_2">
+    <![CDATA[
+    	SELECT
+			SETL.SMR_NUMBER, 
+			SETL.EXT_OUT_EXPECT_DATE,
+			SETL.EXT_IN_EXPECT_DATE,
+			SETL.EXT_OUT_EXPECT_TIME,
+			SETL.EXT_IN_EXPECT_TIME,
+			SEDC.MANAGE_NUMBER ,
+			SEDC.SEAL_MG_DEPT,
+			SEDC.SEAL_MG_USER_ID,
+			SEDC.SEAL_MG_SUBJECT,
+			SETL.SMR_STATUS   
+		FROM
+			SSETL SETL WITH(NOLOCK)
+		LEFT OUTER JOIN SSEDC SEDC WITH(NOLOCK)
+			ON SETL.HOUSE_CODE = SEDC.HOUSE_CODE 
+			AND SETL.COMPANY_CODE = SEDC.COMPANY_CODE 
+			AND SETL.SMR_NUMBER  = SEDC.SMR_NUMBER
+		LEFT OUTER JOIN SSEDC_SEAL DCSL
+			ON SEDC.HOUSE_CODE = DCSL.HOUSE_CODE
+			AND SEDC.COMPANY_CODE = DCSL.COMPANY_CODE
+			AND SEDC.MANAGE_NUMBER = DCSL.MANAGE_NUMBER   
+		    AND SEDC.SMR_NUMBER = DCSL.SMR_NUMBER 
+		    AND SEDC.SMD_NUMBER = DCSL.SMD_NUMBER 
+		WHERE
+		DCSL.COMPLETE_FLAG = 'N'
+		AND SMR_STATUS IN ('RW','RR','I','W')
+		AND SEDC.MANAGE_NUMBER = ${MANAGE_NUMBER}
+    ]]>
+    </method>
+    <method name="doSelectMAND">
+    <![CDATA[
+    	SELECT
+			GIVE_USER_ID
+		FROM
+			SMAND WITH(NOLOCK)
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND MAND_TYPE ='01'
+			AND RECE_USER_ID =${session.ID}
+			AND ${current.DATE} BETWEEN START_DATE AND END_DATE
+    ]]>
+    </method>
+    <method name="doCheckExtSealWithdrawable">
+	<![CDATA[
+		SELECT SMR_STATUS
+		     , (SELECT CURRENT_STAGE FROM SGWGL  WHERE HOUSE_CODE = SETL.HOUSE_CODE AND SUX_WKEY1 = SETL.SMR_NUMBER AND APP_STATUS = 'I' AND NVL(DEL_FLAG,'N') = 'N') AS APP_STAGE
+		 FROM SSETL SETL 
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND SMR_NUMBER  = ${SMR_NUMBER}
+		  AND NVL(DEL_FLAG,'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="doDeleteAppInfo">
+	<![CDATA[
+		UPDATE SGWGL 
+		   SET DEL_FLAG = 'Y' 
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SUX_WKEY1 = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doSearchDataFMFI">
+	<![CDATA[
+		SELECT *
+		FROM SFMFI 
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+		     AND DOC_NUMBER = ${DOC_NUMBER}
+		     AND LAYER = $S{LAYER}
+	]]>
+	</method>
+</service>

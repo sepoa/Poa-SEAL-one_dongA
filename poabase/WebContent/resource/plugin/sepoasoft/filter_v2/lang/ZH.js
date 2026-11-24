@@ -1,0 +1,32 @@
+{
+	"FILTERBAR":{
+		"STATUS":"状态",
+		"CONFIRM":"申请",
+		"SEARCH":"搜索",
+		"CONDITION":"过滤条件",
+		"CONDITION_RESET":"重置条件",
+		"ALL":"全部",
+		"YEAR":"年",
+		"MONTH":"月",
+		"WEEK":"周",
+		"WEEKS_AGO":"一周前",
+		"WEEKS_AFTER":"一周后",
+		"THIS_WEEK":"本周",
+		"MONTHS":"月",
+		"MONTHS_AGO":"几个月前",
+		"MONTHS_AFTER":"几个月后",
+		"DAYS_AGO":"几天前",
+		"DAYS":"天",
+		"TODAY":"今天",
+		"DAY":"天",
+		"QUARTER":"季度",
+		"HALF":"半年",
+		"RESET":"过滤器",
+		"FILTER":"过滤",
+		"ADVANCED_SEARCH":"高级搜索",
+		"SEARCH_2":"搜索",
+		"MESSAGE_01":"请选择日期.",
+		"SELECT_ALL":"全选 检查",
+		"CHECKED":"检查"
+	}
+}

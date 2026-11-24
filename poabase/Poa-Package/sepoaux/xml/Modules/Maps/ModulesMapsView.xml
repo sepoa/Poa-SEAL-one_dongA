@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="MODULE_001_1" header="false">
+    <template>
+    <![CDATA[
+        <div class="container" id="container" style="overflow:hidden;">
+        </div>
+    ]]>
+    </template>
+    <scriptlet>
+    <![CDATA[
+    ]]>
+    </scriptlet>
+    <link>
+    <![CDATA[
+        <%
+            String kakaoAppKey = CommonUtil.getConfig("sepoa.maps.kakao.apikey");
+        %>
+    	
+        <script type="text/javascript" charset="utf-8" src="http://sepoaapi.sepoasoft.co.kr/Modules/Maps/js/SepoaMapsLanguagePack.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://sepoaapi.sepoasoft.co.kr/Modules/Maps/js/SepoaMaps.js"></script>
+    	<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?libraries=services&appkey=<%=kakaoAppKey%>"></script>
+    	<link rel="stylesheet" type="text/css" href="http://sepoaapi.sepoasoft.co.kr/Modules/Maps/css/SepoaMaps.css">
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+    	.sepoa_maps_base{
+    		width:100%;
+    		height:100%;
+    	}
+    	.sepoa_maps_tabbar{
+    		height:100%;
+    	}
+    	.sepoa_maps_panel{
+    		width:420px;
+    		height: 100%;
+    		float:left;
+    	}
+    	.sepoa_maps_map{
+    		width:calc(100% - 420px);
+    		height:100%;
+    		float:right;
+    	}
+    	.search_area{
+    		padding:20px 25px;
+    		width:calc(100% - 50px);
+    	}
+    	.search_box{
+    		width:100%;
+    		position: relative;
+            font-size: 0;
+            border: 1px solid rgba(0,0,0,.5);
+            border-radius: 4px;
+    	}
+    	.search_inner{
+    		position: relative;
+            height: 40px;
+            border-top: 1px solid rgba(0,0,0,.1);
+    		position: relative;
+    		min-height: 40px;
+    	}
+    	.input_box{
+    		overflow: hidden;
+            position: relative;
+            margin-right: 8px;
+            padding-left:16px;
+    	}
+    	.input_label{
+    		position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 0 0;
+            color: rgba(51,51,51,.2);
+            line-height: 40px;
+            font-size: 16px;
+            letter-spacing: -.5px;
+            height: 38px;
+    	}
+    	.input_search{
+    		position: relative;
+            width: 100%;
+            color: #333;
+            box-sizing: border-box;
+            background: 0 0;
+            font-size: 16px;
+            letter-spacing: -.5px;
+            height: 38px;
+            margin: 0;
+            border: 0;
+            padding: 0;
+            outline: 0;
+            -webkit-appearance: none;
+            -ms-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: transparent;
+    	}
+    	.btn_box {
+    		margin: 15px 0px;
+    		height:40px;
+    	}
+    	.maps_btn {
+    		height: 35px;
+            padding: 0 10px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,.2);
+            font-size: 12px;
+            color: #333;
+            letter-spacing: -.4px;
+            background-color:transparent;
+            cursor: pointer;
+    	}
+    	.maps_btn_clear{
+    		float:left;
+    	}
+    	.maps_btn_waypoint{
+    		float:left;
+    		margin-left: 5px;
+    	}
+    	.maps_btn_get_directions {
+    		float: right;
+            padding: 0 12px;
+            font-weight: 500;
+            font-size: 14px;
+            margin-right:5px;
+    	}
+    	.maps_btn_save_bookmark {
+    		float: right;
+            padding: 0 12px;
+            font-weight: 500;
+            font-size: 14px;
+    	}
+    	.maps_btn_save_bookmark::before {
+    		overflow: hidden;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            font-size: 0;
+            color: transparent;
+            margin: -1px 5px 1px 0;
+            vertical-align: middle;
+            content: '';
+    	}
+    	.maps_btn_clear::before, .maps_btn_waypoint::before{
+    		overflow: hidden;
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            font-size: 0;
+            color: transparent;
+            margin: -1px 5px 1px 0;
+            vertical-align: middle;
+            content: '';
+    	}
+    	.maps_btn_clear::before {
+    		background-image: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/directions.png);
+ 			background-size: 188px 185px;
+ 			background-position: -157px -28px;
+    	}
+    	.maps_btn_waypoint::before {
+    		background-image: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/directions.png);
+    		background-size: 188px 185px;
+    		background-position: -158px -39px;
+    	}
+    	.maps_btn_save_bookmark::before {
+    		background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/bookmark.png) no-repeat center center;
+    		background-size: 14px 14px;
+    	}
+    	.input_waypoint {
+    		max-width:90%;
+    	}
+    	.remove_waypoint {
+    		background-image: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/directions.png);
+    		background-size: 188px 185px;
+            background-position: 0 -44px;
+            width: 30px;
+    		height: 30px;
+            position: absolute;
+    		right: 1%;
+    		top: 10%;
+            background-color: transparent;
+            color: transparent;
+            border: transparent;
+            cursor:pointer;
+    	}
+    	.searchResultArea {
+    		background-color: #ffffff;
+    		border: 1px solid rgba(0,0,0,.5);
+    		width: 100%;
+    		margin: 0 0 0 -1px;
+    	}
+    	.item_area {
+    		display: flex;
+    		min-height: 40px;
+    		padding: 3px 0px 3px 16px;
+    		cursor: pointer;
+    	}
+    	.item_name {
+    		font-size: 16px;
+    		font-family: Roboto,'Noto Sans KR';
+            font-weight:300;
+    	}
+    	.item_address {
+    		font-size: 8px;
+    		font-family: Roboto,'Noto Sans KR';
+            font-weight:300;
+    	}
+    	.item_marker {
+            background-image: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/common.png);
+    		background-size: 250px 216px;
+    		vertical-align: top;
+    		background-position: -160px -130px;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+    	}
+    	.item_marker_wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+    	}
+    	.box_effect {
+    		box-shadow: 0 0 0 3px rgb(4, 117,244,.2);
+    	}
+    	.focus_search_box{
+    		z-index: 99;
+    	}
+    	.route_item {
+    		cursor: pointer;
+    		margin-top: 20px;
+    		border-bottom: 1px solid rgba(0,0,0,.05);
+    	}
+    	.route_time {
+    		font-weight: 600;
+            font-size: 20px;
+            color: #333;
+            line-height: 19px;
+    	}
+    	.info_split_point::before {
+   		    display: inline-block;
+            width: 1px;
+            margin: -1px 6px 1px;
+            vertical-align: -1px;
+            height: 9px;
+            background-color: #d9d9d9;
+            content: '';
+    	}
+    	.route_away {
+    		font-size: 13px;
+    		line-height: 15px;
+        	color: #767676;
+    	}
+    	.route_item_second_section {
+    		margin-top: 5px;
+        	font-size: 12px;
+    		color: #767676;
+    	}
+    	.price_split_point::before {
+        	display: inline-block;
+            width: 2px;
+            height: 2px;
+            margin: -1px 4px 1px;
+            border-radius: 50%;
+            background-color: #555;
+            vertical-align: middle;
+            content: '';
+        }
+        .pageNavigationArea {
+            text-align: center;
+            margin: 5px;
+        }
+        .pageNavigationArea span {
+            font-size :13px;
+            height: 15px;
+            width: 15px;
+            padding: 0px 5px;
+            cursor: pointer;
+        }
+        .on {
+            font-weight: bold;
+            cursor: default;
+            color: #777;
+        }
+        .searchItemArea {
+            max-height: 250px;
+        }
+        .maps_btn_disabled {
+            background-color : #eaeaea;
+        }
+        .remove_waypoint_disabled{
+            background-image: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/directions.png);
+    		background-size: 188px 185px;
+            background-position: -46px 0px;
+            width: 30px;
+    		height: 30px;
+            position: absolute;
+    		right: 1%;
+    		top: 10%;
+            background-color: transparent;
+            color: transparent;
+            border: transparent;
+            cursor:pointer;
+        }
+        .modify_btn {
+            position: relative;
+    		left: 88%;
+        	margin-bottom: 5px;
+    	}
+    	.node_area {
+    		margin-left:5px;
+            color: #767676;
+            font-size : 14px;
+    	}   	
+    	.node_arrow{
+    		width: 20px;
+    		display: inline-block;
+    		font-size: 20px;
+    		font-weight: 600;
+    	}
+    	.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_right{
+            display: none;
+        }
+        .dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_left{
+            display: none;
+        }
+        .node_list{
+            text-align: center;
+        }
+        .node_input{
+            width: 80%;
+        }
+        .bookmark_item {
+            list-style: none;
+            padding: 1%;
+        }
+        .bookmark_item:first-child::before {
+            content: '';
+            display: inline-block;
+            height: 9px;
+            width: 15px;
+            background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/start_dot.png) no-repeat center center;
+            background-size: 9px 9px;
+        }
+        .bookmark_item::before {
+            content: '';
+            display: inline-block;
+            height: 9px;
+            width: 15px;
+            background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/way_dot.png) no-repeat center center;
+            background-size: 9px 9px;
+        }
+        .bookmark_item:last-child::before {
+            content: '';
+            display: inline-block;
+            height: 9px;
+            width: 15px;
+            background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/end_dot.png) no-repeat center center;
+            background-size: 9px 9px;
+        }
+        .bookmark_item_line{
+            position: relative;
+    		margin: 0 0 -3% 0;
+        }
+        .bookmark_item_line::before{
+            content: '';
+            display: inline-block;
+            height: 15px;
+            width: 15px;
+            background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/dot_line.png) no-repeat center center;
+            background-size: 14px 14px;
+        }
+        .bookmark_area {
+            border-bottom: 1px solid #dfe0e4;
+            margin-bottom: 2%;
+            padding: 0% 2% 0% 5%;
+        }
+        .bookmark_btn_area{
+            display: flex;
+            float: right;
+        }
+        .bookmark_btn {
+            width: 30px;
+            height: 30px;
+            margin: 1px 2px 1px 1px;
+            cursor: pointer;
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
+    		border-radius: 5px;
+    		border: 1px solid #dfe0e4;
+        }
+        .bookmark_delete_btn {
+            background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/bookmark_delete_btn.png) no-repeat center center;
+    		background-size: 23px 23px;
+        }
+        .bookmark_modify_btn {
+            background: url(http://sepoaapi.sepoasoft.co.kr/Modules/Maps/icon/bookmark_modify_btn.png) no-repeat center center;
+    		background-size: 23px 23px;
+        }
+        
+        .bookmark_node_array{
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        .bookmark_name {
+            font-size: 15px;
+    		font-weight: 500;
+    		margin-top: 15px;
+        }
+        .dhxtabbar_tab_actv .dhxtabbar_tab_text{
+            background: #00adbd;
+        }
+        .node_wrapper{
+            margin-top: 7px;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+    	<var name="naverMapTmpVar" value=""/>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+    	<var name="maps"/>
+    	
+    	<function name="init">
+    	<![CDATA[
+    		var base = $sObject._vp.children('#container')[0].appendChild(document.createElement("div"));
+    		var mode = Sepoa.params.mode;
+    		var props = Sepoa.params.props;       
+            
+    		new SepoaMaps({base:base, module:'naver', mode: mode, props:props});
+       	]]>
+    	</function>
+    </userscript>
+</body>

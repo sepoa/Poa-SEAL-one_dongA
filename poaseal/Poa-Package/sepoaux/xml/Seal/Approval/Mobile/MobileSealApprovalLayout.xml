@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="APM_101" header="false" pageCloseWarn="false">
+    <layout id="layoutObj" div="f8b8c77ae3484cd6839bd89f2bcc71" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header type="contents" text=""/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+        </cell>
+    </layout>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="urlLink" value="{
+        	MS01: {ID : 'MSLM_200', SCREEN : '/Seal/Document/Mobile/Corp/MobileSealDocumentCorpWrite.sux'}, 
+        	MS02: {ID : 'MSLM_210', SCREEN : '/Seal/Document/Mobile/Use/MobileSealDocumentUseWrite.sux'},
+        	MS09: {ID : 'MSLM_220', SCREEN : '/Seal/Document/Mobile/Cert/MobileSealDocumentCertWrite.sux'}
+        }"/>
+        <function name="init">
+        <![CDATA[
+        	if(Sepoa.request.isPopup) {
+        		layoutObj.attachEvent("onContentLoaded", function(id) {
+        			callFunction(urlLink[config.SCREEN_TYPE].ID, "doQuery", [Sepoa.request])
+        		});
+        		
+				var config = Sepoa.request
+        		var url = urlLink[config.SCREEN_TYPE].SCREEN;
+        		layoutObj.cells('a').attachURL(url);
+        	}
+        ]]>
+        </function>
+        <function name="changeHeader" args="headerText">
+        <![CDATA[
+   			layoutObj.cells('a').setText(headerText);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiYTVhMWM1NWQ4NDdkNGNmYzgxODkyZDU1MjYwNGNmIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBUE1fMTAxIn0sImlkIjoiYTVhMWM1NWQ4NDdkNGNmYzgxODkyZDU1MjYwNGNmIiwidHlwZSI6ImJvZHkifSwiZTdlMDJjYjUwYTM4NDEwYzgyYzNlNDI4MDQyZDlkIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6IiIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoidHJ1ZSJ9LCJpZCI6ImU3ZTAyY2I1MGEzODQxMGM4MmMzZTQyODA0MmQ5ZCIsIm1heENoaWxkQ291bnQi
+        OjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYSJ9LCJmOGI4Yzc3YWUzNDg0Y2Q2ODM5YmQ4OWYyYmNjNzEiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9BRHRvYnJ0c01DN00iOiJudWxsIiwiZGh4SWRfdkl1TTRoUkNBUjBFIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzNrQk1EZ2FzeUE0TSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25l
+        bnQiOnsiUEFUVEVSTiI6IjFDIiwiVkFSIjoibGF5b3V0T2JqIiwiT0JKRUNUX0lEIjoiZjhiOGM3N2FlMzQ4NGNkNjgzOWJkODlmMmJjYzcxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJQQVRURVJOX1NBTVBMRSI6IjEifSwiaWQiOiJmOGI4Yzc3YWUzNDg0Y2Q2ODM5YmQ4OWYyYmNjNzEiLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX19LCJ0cmVlIjp7ImlkIjoiYTVhMWM1NWQ4NDdkNGNmYzgxODkyZDU1MjYwNGNmIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJmOGI4Yzc3YWUzNDg0Y2Q2ODM5YmQ4OWYyYmNjNzEiLCJ0eXBlIjoibGF5b3V0IiwiY2VsbHMiOlt7ImlkIjoiZTdlMDJjYjUwYTM4NDEwYzgyYzNlNDI4MDQyZDlkIiwidHlwZSI6
+        ImxheW91dENlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9TZWFsL0FwcHJvdmFsL01vYmlsZS9Nb2JpbGVTZWFsQXBwcm92YWxMYXlvdXQueG1sIiwiUFJPSkVDVCI6IlNFQUwiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJTZWFsL0FwcHJvdmFsL01vYmlsZSIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6Ik1vYmlsZVNlYWxBcHByb3ZhbExheW91dCIsIkNPREUiOiIxMDEiLCJQUkVGSVgiOiJBUE0iLCJTQ1JFRU5fSUQiOiJBUE1fMTAxIn19LCJodG1sIjoiPGRpdiBpZD1cImE1YTFjNTVkODQ3ZDRjZmM4MTg5MmQ1NTI2MDRjZlwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9h
+        dXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBp
+        ZD1cImY4YjhjNzdhZTM0ODRjZDY4MzliZDg5ZjJiY2M3MVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

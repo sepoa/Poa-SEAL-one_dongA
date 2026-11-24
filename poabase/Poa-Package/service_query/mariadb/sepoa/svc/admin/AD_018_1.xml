@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doList">
+	<![CDATA[
+      	SELECT SCREEN_ID
+          FROM SLANG
+         WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+    	   AND UPPER(SCREEN_ID) LIKE CONCAT('%' , UPPER($S{F_KEYWORD}) , '%')
+         GROUP BY SCREEN_ID
+         ORDER 
+            BY SCREEN_ID
+	]]>
+	</method>
+</service>

@@ -1,0 +1,107 @@
+.dhx_cell_cont_tabbar > iframe{
+	height:100%;
+	width:100%;
+	border:0px;
+	margin:0px;
+	padding:0px;
+}
+.dhxtabbar_base_material{
+	box-shadow:none;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs_bottom div.dhx_cell_tabbar div.dhx_cell_cont_tabbar,
+.dhxtabbar_base_material div.dhxtabbar_tabs_top div.dhx_cell_tabbar div.dhx_cell_cont_tabbar{
+	border:0px;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_left, 
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_right{
+	margin:0px;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs{
+	height:	32px;
+	border:0px;
+	/*background-color:#f1f1f1;*/
+	color:#222222;
+	font-size:14px;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_left,
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_right{
+	height:100%;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_left div.dhxtabbar_arrow_img, 
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_right div.dhxtabbar_arrow_img{
+	background:inherit;
+	height:100%;
+	width:100%;
+	top:0;
+	left:0;
+	
+	position: inherit;
+    text-align: center;
+    line-height: 32px;
+    font-size: 14px;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_left div.dhxtabbar_arrow_img::before{
+	content: "\e93b"
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_ar_right div.dhxtabbar_arrow_img::before{
+	content: "\e93e"
+}
+
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base,
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_left,
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_right{
+	height:32px;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab{
+	height:32px;
+	line-height:33px;
+	padding:0 16px;
+	display:flex;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab div.dhxtabbar_tab_text{
+	height:32px;
+	line-height:33px;
+	padding:0px;
+	border:0px;
+	margin:0px;
+	background-color:transparent;
+	width:100%;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab div.dhxtabbar_tab_text.dhxtabbar_tab_text_close{
+	padding-right:0px;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab.dhxtabbar_tab_actv{
+	background-color:#1746A3;
+	color:#FFFFFF;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab div.dhxtabbar_tab_close{
+	position: static;
+	height:100%;
+	margin-left:16px;
+	font-family: xeicon !important;
+	display: inline-block;
+	speak: none;
+	font-style: normal;
+	font-weight: 600;
+	font-variant: normal;
+	text-transform: none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	
+	background-image:none;
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab div.dhxtabbar_tab_close:before{
+	content: "\e921"
+}
+.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tab.dhxtabbar_tab_hidden{
+	padding: 0px;
+}
+.container.sepoaux_screen_preset_default .dhxtabbar_base_material > .dhxtabbar_cont.sepoa-custom-hide-tabs .dhxtabbar_tabs{
+	display:none;
+}
+.container.sepoaux_screen_preset_default .dhxtabbar_base_material > .dhxtabbar_cont:not(.sepoa-custom-hide-tabs) > div.dhxtabbar_tabs_top div.dhx_cell_tabbar div.dhx_cell_cont_tabbar{
+	border-style:solid;
+	border-color:#f1f1f1;
+	border-width:0 1px 1px 1px;
+	width:calc(100% - 2px) !important;
+}

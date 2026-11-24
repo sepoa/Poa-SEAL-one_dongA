@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQuery">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, COMPANY_NAME
+		FROM
+			USERVICE
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND COMPANY_CODE = '1000'
+	]]>
+	</method>
+</service>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryDeptData">
+	<![CDATA[
+		SELECT
+			  DeptCode
+			, DeptName
+			, DeptNameEn
+			, ParentDeptCode
+			, Manager
+			, UsageState
+		FROM
+			[EumCommon].[dbo].[V_INTERFACE_DEPT]
+	]]>
+	</method>
+	
+	<method name="checkExistSDEPT">
+	<![CDATA[
+		SELECT
+			DEPT
+		FROM
+			SDEPT
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND DEPT 			= ${DEPTCODE}
+	]]>
+	</method>
+	
+	<method name="doUpdateSDEPT">
+	<![CDATA[
+		UPDATE SDEPT
+			SET
+				  DEPT_NAME_LOC	  = ${DEPTNAME}
+				, DEPT_NAME_ENG	  = ${DEPTNAMEEN}  
+				, PARENT_DEPT	  = ${PARENTDEPTCODE}
+				, MANAGER_ID	  = ${MANAGER}  
+				, DEL_FLAG		  = ${DEL_FLAG}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+				AND COMPANY_CODE  = ${session.COMPANY_CODE}
+				AND DEPT		  = ${DEPTCODE}
+	]]>
+	</method>
+	
+	<method name="doInsertSDEPT">
+	<![CDATA[
+		INSERT INTO SDEPT
+			(
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, DEPT
+				, DEPT_NAME_LOC
+				, DEPT_NAME_ENG
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID				
+				, PARENT_DEPT
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${session.COMPANY_CODE}
+				, ${DEPTCODE}
+				, ${DEPTNAME}
+				, ${DEPTNAMEEN}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, ${PARENTDEPTCODE}
+				, ${DEL_FLAG}
+			)	
+	]]>
+	</method>		
+</service>

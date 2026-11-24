@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQueryList">
+	<![CDATA[
+		SELECT
+			  USMT.USER_ID
+			, USMT.USER_NAME_LOC
+			, DEPT.DEPT_NAME_LOC
+			, GETCODETEXT('000','UX049', USMT.POSITION, ${session.LANGUAGE}) AS "POSITION"
+			, USMT.HOUSE_CODE
+		FROM
+			SUSMT USMT
+			LEFT JOIN SDEPT DEPT
+			ON 	USMT.DEPT = DEPT.DEPT
+			AND USMT.HOUSE_CODE = DEPT.HOUSE_CODE
+		WHERE
+			1=1
+		AND (USMT.USER_ID LIKE '%' || UPPER($S{F_KEYWORD}) || '%'
+		OR  USMT.USER_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'
+		OR  DEPT.DEPT_NAME_LOC LIKE '%' || $S{F_KEYWORD} || '%'
+		OR  GETCODETEXT('000','UX049', USMT.POSITION, '#session.LANGUAGE#') LIKE '%' || $S{F_KEYWORD} || '%')
+	]]>
+	</method>
+	
+	<method name="doUserCheck">
+	<![CDATA[
+		SELECT
+			  USER_ID
+			, HOUSE_CODE
+		FROM
+			SUSMT
+		WHERE
+			USER_ID = UPPER(${USER_ID})
+		AND	HOUSE_CODE = ${HOUSE_CODE}
+	]]>
+	</method>
+	
+	<method name="doQueryForm">
+	<![CDATA[
+		SELECT
+			  USMT.USER_ID
+			, USMT.USER_NAME_LOC
+			, USMT.USER_NAME_ENG
+			, USMT.EMAIL
+			, USMT.COUNTRY
+			, USMT.DATE_FORMAT
+			, USMT.DEPT
+			, USMT.POSITION
+   			, USMT.HOUSE_CODE
+			, USMT.EMAIL
+			, ADDR.PHONE_NO1
+			, ADDR.PHONE_NO2
+			, ADDR.ZIP_CODE
+			, ADDR.ADDRESS_LOC
+		FROM
+			SUSMT USMT
+			LEFT JOIN SADDR ADDR
+			ON  USMT.USER_ID = ADDR.CODE_NO
+			AND USMT.HOUSE_CODE = ADDR.HOUSE_CODE
+		WHERE
+			USMT.HOUSE_CODE = ${ HOUSE_CODE }
+		AND USMT.USER_ID = ${ USER_ID }
+	]]>
+	</method>
+	
+	<method name="doUpdateUSMT">
+	<![CDATA[
+		UPDATE
+			SUSMT
+		SET
+		  	  CHANGE_DATE = ${current.DATE}
+			, CHANGE_TIME = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+			, DEPT = ${DEPT}
+			, USER_NAME_LOC = ${USER_NAME_LOC}
+			, POSITION = ${POSITION}
+			, COUNTRY = ${COUNTRY}
+			, DATE_FORMAT = ${DATE_FORMAT}
+			, EMAIL = ${EMAIL}
+			, PW_RESET_FLAG = 'Y'
+	]]>
+			<if test="${PASSWORD}" operator="ne" value="">
+		    , PASSWORD = ${PASSWORD}
+		    , PW_RESET_DATE = ${current.DATE}
+		    , PASS_CHECK_CNT = 0
+			</if>
+	<![CDATA[
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doUpdateADDR">
+	<![CDATA[
+		UPDATE
+			SADDR
+		SET
+			  CHANGE_DATE = ${current.date}
+			, CHANGE_TIME = ${current.time}
+			, CHANGE_USER_ID = ${session.ID}
+			, PHONE_NO1 = ${PHONE_NO1}
+			, PHONE_NO2 = ${PHONE_NO2}
+			, ZIP_CODE = ${ZIP_CODE}
+			, ADDRESS_LOC = ${ADDRESS_LOC}
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND CODE_NO = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doInsertUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+		(
+			  DEPT
+			, USER_NAME_LOC
+			, POSITION
+			, COUNTRY
+			, DATE_FORMAT
+			, EMAIL
+			, HOUSE_CODE
+			, USER_ID
+			, COMPANY_CODE
+			, USER_TYPE
+			, PW_RESET_FLAG
+			, PW_RESET_DATE
+			, DEL_FLAG
+			, MENU_PROFILE_CODE
+			, SIGN_STATUS
+			, WORK_TYPE
+			, PASSWORD
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+		) VALUES
+		(
+			  ${DEPT}
+			, ${USER_NAME_LOC}
+			, ${POSITION}
+			, ${COUNTRY}
+			, ${DATE_FORMAT}
+			, ${EMAIL}
+			, ${HOUSE_CODE}
+			, UPPER(${USER_ID})
+			, '1000'
+			, 'SEPOA'
+			, 'Y'
+			, ${current.DATE}
+			, 'N'
+			, 'MUP190300001'
+			, 'A'
+			, 'Z'
+			, ${PASSWORD}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+		)
+	]]>
+	</method>
+	
+	<method name="doInsertADDR">
+	<![CDATA[
+		INSERT INTO SADDR
+		(
+			  PHONE_NO1
+			, PHONE_NO2
+			, ZIP_CODE
+			, ADDRESS_LOC
+			, HOUSE_CODE
+			, CODE_NO
+			, CODE_TYPE
+			, DEL_FLAG
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+		) VALUES
+		(
+			  ${PHONE_NO1}
+			, ${PHONE_NO2}
+			, ${ZIP_CODE}
+			, ${ADDRESS_LOC}
+			, ${HOUSE_CODE}
+			, UPPER(${USER_ID})
+			, 'USER'
+			, 'N'
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+		)
+	]]>
+	</method>
+	
+	<method name="doRestore">
+	<![CDATA[
+		UPDATE
+			SUSMT
+		SET
+			  CHANGE_DATE = ${current.DATE}
+			, CHANGE_TIME = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+			, DEL_FLAG = 'N'
+		WHERE
+			1=1
+		AND HOUSE_CODE = ${HOUSE_CODE}
+		AND USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doDeleteUSMT">
+	<![CDATA[
+		UPDATE
+			SUSMT
+		SET
+			  DEL_FLAG = 'Y'
+			, CHANGE_DATE = ${current.DATE}
+			, CHANGE_TIME = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+		WHERE
+			1=1
+		AND HOUSE_CODE = ${HOUSE_CODE}
+		AND	USER_ID = ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doDeleteADDR">
+	<![CDATA[
+		UPDATE
+			SADDR
+		SET
+			  DEL_FLAG = 'Y'
+			, CHANGE_DATE = ${current.DATE}
+			, CHANGE_TIME = ${current.TIME}
+			, CHANGE_USER_ID = ${session.ID}
+		WHERE
+			1=1
+		AND HOUSE_CODE = ${HOUSE_CODE}
+		AND	CODE_NO = ${USER_ID}
+	]]>
+	</method>
+</service>

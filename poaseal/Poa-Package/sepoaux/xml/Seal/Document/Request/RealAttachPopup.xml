@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_203" header="false">
+    <grid id="gridObj" div="McPfYYfflXfYYfRCzc" grid-id="SLM_203" drag="false" merge="false" dynamic="false">
+    	<event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onXLE" callback="onXLE"/>
+    </grid>
+	<onloadscript>
+    	<call name="doQuery"/>
+    </onloadscript>
+    <userscript>
+    	<function name="doQuery">
+    	<![CDATA[
+    		dataOutput.setValue('SMR_NUMBER', Sepoa.request.SMR_NUMBER);
+    		dataOutput.setValue('MODE', Sepoa.request.MODE);
+    		if(Sepoa.config.get('sepoa.seal.process') =='mk2'){
+    			gridObj.postConnection(window.CONTEXT_NAME+'/SepoaGrid.sux', ['mode=doQuery', 'METHOD=doSelectDocumentList', 'PROCESS_ID=sepoa.svc.sealmk2.SepoaReqSealService']);
+    		}else {
+    			gridObj.postConnection(window.CONTEXT_NAME+'/SepoaGrid.sux', ['mode=doQuery', 'METHOD=doSelectDocumentList', 'PROCESS_ID=sepoa.svc.seal.SepoaReqSealService']);
+    		}
+    		
+    	]]>
+    	</function>
+    	<function name="onRowSelect" args="id, ind">
+    	<![CDATA[
+    		var header = gridObj.getColumnId(ind);
+    		var mode = dataOutput.getValue('MODE');
+
+    		if (header == 'REAL_ATTACH_IMG') {
+    			vaultPopup({
+	                attach_key: gridObj.cells(id, gridObj.getColIndexById("SMD_NUMBER")).getValue(),
+	                type: "realSealDoc",
+	                mode: mode,
+	                callback: setAttach_callback,
+	                rowId: id
+	            });
+    		}
+    	]]>
+    	</function>
+    	<function name="setAttach_callback" args="e, a, r">
+        <![CDATA[
+            /*if (e.fileCount > 0) {
+	            gridObj.cells(r.rowId, gridObj.getColIndexById('REAL_ATTACH_IMG')).setIcon('ATTACH_IMG2');
+	            gridObj.cells(r.rowId, gridObj.getColIndexById('REAL_ATTACH_IMG')).cell.children[0].style = 'filter:none';
+            } else {
+	            gridObj.cells(r.rowId, gridObj.getColIndexById('REAL_ATTACH_IMG')).setIcon('ATTACH_IMG');
+	            gridObj.cells(r.rowId, gridObj.getColIndexById('REAL_ATTACH_IMG')).cell.children[0].style = 'filter:none';
+            }*/
+            doQuery();
+        ]]>
+        </function>
+        <function name="onXLE" args="obj, count">
+        <![CDATA[
+        	var flag = true;
+        	for (var i=0; i<count; i++) {
+            	if (gridObj.cells2(i, gridObj.getColIndexById('REAL_ATTACH_CNT')).getValue() > 0) {
+            		gridObj.cells2(i, gridObj.getColIndexById('REAL_ATTACH_IMG')).setIcon('ATTACH_IMG2');
+            		gridObj.cells2(i, gridObj.getColIndexById('REAL_ATTACH_IMG')).cell.children[0].style = 'filter:none';
+            	} else {
+            		flag = false;
+            	}
+            }
+            window.parent.callFunction('SLM_201', 'realAttach', [{ROW_ID:Sepoa.request.ROW_ID, FLAG:flag}]);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTWNQZllZZk1jUGZZWWZ2SElDIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9DZDlkQlltaHVycjUiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX0ZhbmNIaVZqUGJtTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IlNMTV8yMDMiLCJPQkpFQ1RfSUQiOiJNY1BmWVlmTWNQZllZZnZISUMiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJNY1BmWVlmTWNQZllZZnZISUMiLCJ0eXBl
+        IjoiYm9keSJ9LCJNY1BmWVlmZmxYZllZZlJDemMiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF85OHhDd1ZWeEljYlEiOiJudWxsIiwiZGh4SWRfaUpCRzA3d1lISk1QIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2RmQWJ5NHdQZnNuZSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZE9iaiIsIk1FUkdFIjoiZmFsc2UiLCJE
+        UkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJPQkpFQ1RfSUQiOiJNY1BmWVlmZmxYZllZZlJDemMiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkdSSURfSUQiOiJTTE1fMjAzIn0sImlkIjoiTWNQZllZZmZsWGZZWWZSQ3pjIiwidHlwZSI6ImdyaWQifX0sInRyZWUiOnsiaWQiOiJNY1BmWVlmTWNQZllZZnZISUMiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Ik1jUGZZWWZmbFhmWVlmUkN6YyIsInR5cGUiOiJncmlkIn1dfSwiaW5mbyI6eyJQUk9KRUNUIjoiU0VBTCIsIlBBVEhfMSI6IlNlYWwvRG9jdW1lbnQvUmVxdWVzdCIsIlBBVEhfMyI6IiIsIlBBVEhfMiI6IiIsIk5BTUUiOiJSZWFsQXR0YWNoUG9wdXAiLCJQQVRIIjoiL1NlYWwvRG9j
+        dW1lbnQvUmVxdWVzdC8vUmVhbEF0dGFjaFBvcHVwLnhtbCIsIlBSRUZJWCI6IlNMTSIsIkNPREUiOiIyMDMiLCJTQ1JFRU5fSUQiOiJTTE1fMjAzIn19LCJodG1sIjoiPGRpdiBpZD1cIk1jUGZZWWZNY1BmWVlmdkhJQ1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291
+        dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk1jUGZZWWZmbFhmWVlmUkN6Y1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZ3JpZCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

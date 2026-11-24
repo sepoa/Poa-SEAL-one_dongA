@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_422_2" header="false">
+    <button id="btnObj">
+        <btn div="NLmFqsdpnMJqsdJUfp" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(  )"/>
+    </button>
+    <usercss>
+    <![CDATA[
+        #NLmFqsdNLmFqsdwWoJ {
+            overflow: auto;
+        }
+        
+        .menu-filter-icon {
+            display:none;
+        }
+        
+        .groupbox .menu-filter.inactive .menu-filter-icon{
+            display: flex;
+            position:absolute;
+            bottom: 0px;
+            width: 100%;
+            justify-content: center;
+            cursor:pointer;
+        }
+        
+        .summary-component__item:hover{
+            transform:translateY(0px);
+            box-shadow: none;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="menuContainer" value="$($sObject._vp).find('#NLmFqsdGlRJqsddeZO')[0]"/>
+        <var name="menuArea" value="$($sObject._vp).find('#NLmFqsdGlRJqsdaIEf')[0]"/>
+    </variable>
+    <onloadscript/>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="clearMenuItem">
+        <![CDATA[
+            $('#NLmFqsdGlRJqsddeZO').find('.groupbox').remove();
+        ]]>
+        </function>
+        <function name="init" args="item">
+        <![CDATA[
+            $share.data={
+                HOUSE_CODE:item.house_code,
+                MENU_PROFILE_CODE:item.menu_profile_code
+            }
+            clearMenuItem();
+            
+            doServiceAjax("sepoa.svc.admin.AD_421", "CONNECTION", "doQueryMenuFilter", {
+                "HOUSE_CODE": $share.data.HOUSE_CODE,
+                "CODE": $share.data.MENU_PROFILE_CODE
+            }, function(so) {
+                var sf = new SepoaFormater(so.result[0]); // All Menu
+            
+                var menuItems = {}
+                var menuItemsList = [];
+                for(var i=0;i<sf.getRowCount();i++) {
+                    var menuData = {};
+                    for(var j=0;j<sf.columns.length;j++){
+                        var columnName = sf.columns;
+                        menuData[columnName[j]]= sf.getValue(columnName[j],i);
+                    }
+                    menuData.childs = [];
+                    menuItems[menuData.MENU_ID] = menuData;
+                    menuItemsList.push(menuData);
+                }
+                
+                var menuTree = [];
+                for(var i in menuItemsList){
+                    var item = menuItemsList[i];
+                    var parent = item.PARENT_MENU_ID;
+                    if(parent == "0"){
+                        menuTree.push(item);
+                    }else{
+                        menuItems[item.PARENT_MENU_ID].childs.push(item);
+                    }
+                }
+            
+                doRenderMenu(menuTree);
+            });
+        ]]>
+        </function>
+        <function name="doRenderMenu" args="menuTree">
+        <![CDATA[
+            for (var i in menuTree) {
+                var groupData = menuTree[i];
+                var childNodes = groupData.childs;
+            
+                if (menuTree[i].HIDDEN_FLAG == "Y") {
+                    continue;
+                }
+                if (childNodes.length <= 0) {
+                    continue;
+                }
+                
+                const tileRenderer = new SepoaMenuTileRenderer();
+                tileRenderer.attachEvent("onItemClick", (option, elem)=>{
+                    if(elem.classList.contains("inactive")){
+                        elem.classList.remove("inactive");
+                    }else{
+                        elem.classList.add("inactive");
+                    }
+                });
+                tileRenderer.attachEvent("onItemDraw", (option, elem)=>{
+                    elem.classList.add("menu-filter");
+                    if(option.ext.MENU_FILTERED_YN == "N"){
+                        elem.classList.add("inactive");   
+                    }
+                    const xBtn = elem.appendChild(document.createElement('div'));
+                    xBtn.classList.add("menu-filter-icon");
+                    xBtn.innerHTML = '<i class="xi-close xi-5x"></i>'
+                });
+                
+                for(let j in childNodes){
+                    const node = childNodes[j];
+                    if(node.HIDDEN_FLAG != "Y"){
+                        tileRenderer.addItem({
+                            id:node.MENU_ID,
+                            seq:node.ITEM_SEQ,
+                            label:Sepoa.cache.text.get("MENU_"+node.MENU_PROFILE_CODE+"."+node.MENU_ID),
+                            url:node.URL,
+                            mobileUrl:node.MOBILE_URL,
+                            img:node.MENU_IMG,
+                            ext:{
+                                PARENT_MENU_ID:node.PARENT_MENU_ID,
+                                MENU_FILTERED_YN:node.MENU_FILTERED_YN
+                            }
+                        });
+                    }
+                }
+                
+                if(tileRenderer.getItemCount() > 0){
+                    const div = menuContainer.appendChild(document.createElement("div"));
+                    div.classList.add("groupbox");
+                    tileRenderer.draw({
+                        base:div,
+                        label:Sepoa.cache.text.get("MENU_"+groupData.MENU_PROFILE_CODE+"."+groupData.MENU_ID)
+                    });
+                }
+            }
+        ]]>
+        </function>
+        <function name="doSave">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(result) {
+                if (result) {
+                    const activeList = $('#NLmFqsdGlRJqsddeZO').find('.menu-filter:not(.inactive)');
+                    
+                    const filterData = [];
+                    
+                    for(let i=0;i<activeList.length;i++){
+                        filterData.push({
+                            HOUSE_CODE:$share.data.HOUSE_CODE,
+                            MENU_PROFILE_CODE:$share.data.MENU_PROFILE_CODE,
+                            MENU_ID:activeList[i].itemOption.id,
+                            PARENT_ID:activeList[i].itemOption.ext.PARENT_MENU_ID
+                        })
+                    }
+                    
+                    dataOutput.setValue('FILTER_DATA', JSON.stringify(filterData));
+                    dataOutput.setValue('HOUSE_CODE', $share.data.HOUSE_CODE);
+                    dataOutput.setValue('MENU_PROFILE_CODE', $share.data.MENU_PROFILE_CODE);
+                    
+                    doServiceAjax('sepoa.svc.admin.AD_421', 'TRANSACTION', 'doSaveMenuFilter', null, function(so) {
+                        if (so.status == '1') {
+                            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                        } else {
+                            Alert(so.msg);
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTkxtRnFzZE5MbUZxc2R3V29KIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9WMk9Xck05TU9RNEoiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1ZGUXhET25kSE1SUyI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQyMl8yIiwiT0JKRUNUX0lEIjoiTkxtRnFzZE5MbUZxc2R3V29KIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiTkxtRnFzZE5MbUZxc2R3V29KIiwidHlw
+        ZSI6ImJvZHkifSwiTkxtRnFzZHBuTUpxc2RKVWZwIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnRuT2JqIiwiSVRFTV8wX1JFVkVSU0UiOmZhbHNlLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLnNhdmUiLCJJVEVNXzBfVFlQRSI6InNhdmUiLCJJVEVNXzBfUEFSQU0iOiIiLCJPQkpFQ1RfSUQiOiJOTG1GcXNkcG5NSnFzZEpVZnAiLCJJVEVNXzBfT05DTElD
+        SyI6ImRvU2F2ZSIsIklURU1fMF9JRCI6IlNBVkUiLCJJVEVNXzBfVE9HR0xFIjpmYWxzZSwiSVRFTV8wX1RFWFQiOiLA+sDlIiwiSVRFTV8wX1NPUlQiOiIxIn0sImlkIjoiTkxtRnFzZHBuTUpxc2RKVWZwIiwidHlwZSI6ImJ1dHRvbiJ9LCJOTG1GcXNkR2xSSnFzZGRlWk8iOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9lNWpzSllpelVsYjciOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF80YnZabnE0RDU4RkQiOiJudWxsIiwiZGh4SWRfRVJGMWt4ekd6cWZPIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoibWVudUNvbnRh
+        aW5lciIsIk9CSkVDVF9JRCI6Ik5MbUZxc2RHbFJKcXNkZGVaTyJ9LCJpZCI6Ik5MbUZxc2RHbFJKcXNkZGVaTyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJOTG1GcXNkR2xSSnFzZGFJRWYiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX1JqaGwwQ2o2U2NXMyI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfTUNvVFRiZ1BLdmRrIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRo
+        eElkX3h6TG80SHVHNExTRSI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX0pBM3hzN2tONXVuQSI6Im51bGwiLCJkaHhJZF9Demw5QVFkWkc3cFkiOiJudWxsIiwiZGh4SWRfWmY3VmdmSU5XaTV1IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6Im1lbnVBcmVhIiwiT0JKRUNUX0lEIjoiTkxtRnFzZEdsUkpxc2RhSUVmIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJOTG1GcXNkR2xSSnFzZGFJRWYiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiTkxtRnFzZE5MbUZxc2R3V29KIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJOTG1GcXNkcG5NSnFzZEpVZnAiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6
+        Ik5MbUZxc2RHbFJKcXNkYUlFZiIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJOTG1GcXNkR2xSSnFzZGRlWk8iLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vTWVudUZpbHRlck1hbmFnZW1lbnQvQWRtaW5NZW51RmlsdGVyTWFuYWdlbWVudFdyaXRlLnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6IjQyMl8yIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJNZW51RmlsdGVyTWFuYWdlbWVudCIsIlBBVEhfMyI6IkFkbWluTWVudUZpbHRlck1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IldyaXRlIiwiU0NSRUVOX0lEIjoiQURfNDIyXzIifX0sImh0bWwiOiI8
+        ZGl2IGlkPVwiTkxtRnFzZE5MbUZxc2R3V29KXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9p
+        bm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiTkxtRnFzZHBuTUpxc2RKVWZwXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0
+        eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOTG1GcXNkR2xSSnFzZGFJRWZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk5MbUZx
+        c2RHbFJKcXNkZGVaT1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

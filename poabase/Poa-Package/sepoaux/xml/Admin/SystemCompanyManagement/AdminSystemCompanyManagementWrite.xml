@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_416" header="false" tpl="editor.tpl">
+    <button id="btnObj">
+        <btn div="mgDUHsdxpvVHsdrfCF" id="NEW" type="new" text="{AD_416.CREATE_NEW}" onclick="doNew(  )"/>
+        <btn div="mgDUHsdxpvVHsdrfCF" id="DELETE" type="delete" text="{BUTTON.delete}" onclick="doDelete(  )"/>
+    </button>
+    <tabbar id="tabbarObj" div="IubXHsdAzTYHsdPRzn">
+        <item id="BASIC" name="AD_416.TABBAR_BASIC_NAME" selected="true">
+            <attach file="/Admin/ConfigManagement/AdminConfigManagementBasicInfoWrite.xml"/>
+        </item>
+        <item id="MODULE" name="AD_416.TABBAR_MODULE_NAME" selected="false">
+            <attach file="/Admin/SystemClientManagement/AdminSystemClientManagementModule.xml"/>
+        </item>
+    </tabbar>
+    <onloadscript>
+        <call name="pageInit"/>
+    </onloadscript>
+    <userscript>
+        <function name="pageInit" args="">
+        <![CDATA[
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+        <function name="doQuery" args="item">
+        <![CDATA[
+            dataOutput.setValue('CLIENT_CODE', item.client_code);
+            dataOutput.setValue('COMPANY_CODE', item.company_code);
+            
+            setLayoutHeaderText(item);
+            checkMasterCompany(item);
+            
+            var tabs = tabbarObj.t;
+            
+            for(var key in tabs) {
+            	var t = tabs[key].cell;
+            	var sid = getChildScreenId(t.cell);
+            	
+            	tabActivate(t, true);
+            	callFunction(sid, 'doQuery', [item.client_code, item.company_code]); // AdminConfigManagementConfigurationWrite.xml, AdminSystemClientManagementModule.xml
+            }
+        ]]>
+        </function>
+        <function name="tabActivate" args="t, flag">
+        <![CDATA[
+        	if(flag == true) {
+        		t.show();
+        		t.enable();
+        	} else {
+        		t.hide();
+        		t.disable();
+        	}
+        ]]>
+        </function>
+        <function name="setLayoutHeaderText" args="item">
+        <![CDATA[
+            var name = getOAObject('AD_411').tabbarObj.tabs('COMPANY').getText();
+            
+            var str = '[' + item.client_code + ' - ' + item.company_code + '] ' + name + ' - ' + item.company_name;
+            callFunction(['p', 'p'], 'changeHeaderText', ['b', str]);
+        ]]>
+        </function>
+        <function name="checkMasterCompany" args="item">
+        <![CDATA[
+            btnObj.btn('DELETE').setHide();
+            if (item.company_code != '1000') {
+                btnObj.btn('DELETE').setShow();
+            }
+        ]]>
+        </function>
+        <function name="doNew" args="">
+        <![CDATA[
+            PopupOpenPost('/Admin/SystemCompanyManagement/AdminSystemCompanyManagementCreateNew.sux', {}, createNewPopupCallbackFn, 350, 200, Sepoa.cache.text.get('AD_416.CREATE_NEW'));
+        ]]>
+        </function>
+        <function name="createNewPopupCallbackFn" args="item">
+        <![CDATA[
+            var selectList = getOAObject('AD_413').listObj;
+            
+            selectList.unselectAll();
+            callFunction(['p', 'p'], 'changeHeaderText', ['b', '-']);
+            callFunction('AD_342_1', 'doQuery', [item.CLIENT_CODE, item.COMPANY_CODE]);
+                        
+            tabActivate(tabbarObj.tabs('MODULE'), false);
+        ]]>
+        </function>
+        <function name="doDelete" args="">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('MESSAGE.1015'), function(flag) {
+                if (flag) {
+                    doServiceAjax('sepoa.svc.admin.AD_416', 'TRANSACTION', 'doDeleteCompany', null, function(so) {
+                        if (so.status != 1) {
+                            Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                            return;
+                        }
+            
+                        Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                        callFunction('AD_413', 'doQuery', [{
+                            SERVICE_CODE: dataOutput.getValue('CLIENT_CODE')
+                        }]);
+                    });
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        ew0KCSJkYXRhIjogew0KCQkib2JqZWN0cyI6IHsNCgkJCSJzYWdTR3Nkc2FnU0dzZHBZd0wiOiB7DQoJCQkJImxheW91dCI6IHsNCgkJCQkJIlNDUk9MTCI6ICIiDQoJCQkJfSwNCgkJCQkiY29tcG9uZW50Ijogew0KCQkJCQkiQ09MVU1OIjogMSwNCgkJCQkJIlZBUiI6ICJBRF80MTYiDQoJCQkJfSwNCgkJCQkiaWQiOiAic2FnU0dzZHNhZ1NHc2RwWXdMIiwNCgkJCQkidHlwZSI6ICJib2R5Ig0KCQkJfSwNCgkJCSJtZ0RVSHNkeHB2VkhzZHJmQ0YiOiB7DQoJCQkJImxheW91dCI6IHsNCgkJCQkJIk1BUkdJTl9CT1RUT00iOiAiIiwNCgkJCQkJIk1BUkdJTl9MRUZUIjogIiIsDQoJCQkJCSJNQVJHSU5fUklHSFQiOiAiIiwNCgkJCQkJIk1BUkdJTl9UT1AiOiAiIiwNCgkJCQkJIlNJWkVfV0lEVEgiOiAiIiwNCgkJCQkJIlNJWkVfSEVJR0hUIjogIiIsDQoJCQkJCSJBTElHTl9IT1JJWk9OVEFMIjogInJpZ2h0IiwNCgkJCQkJIkFSRUFfRElWSVNJT04iOiAibnVsbCIsDQoJCQkJCSJDTEFTUyI6ICIiDQoJCQkJfSwNCgkJCQkiY29tcG9uZW50Ijogew0KCQkJCQkiVkFSIjogImJ0bk9iaiIsDQoJCQkJCSJJVEVNXzBfU0xDT0RFIjogIkJVVFRPTi5ORVdXUklURSIsDQoJCQkJCSJJVEVNXzFfU0xDT0RFIjogIkJVVFRPTi5kZWxldGUiLA0KCQkJCQkiSVRFTV8wX1RZUEUiOiAibmV3IiwNCgkJCQkJIklURU1fMF9QQVJBTSI6ICIiLA0KCQkJCQkiSVRFTV8xX09OQ0xJQ0siOiAiZG9EZWxldGUiLA0KCQkJCQkiSVRFTV8xX1BBUkFNIjogIiIsDQoJCQkJCSJJVEVNXzBfT05DTElDSyI6ICJkb05ldyIsDQoJCQkJCSJJVEVNXzFfVEVYVCI6ICLsgq3soJwiLA0KCQkJCQkiSVRFTV8wX1NPUlQiOiAiMSIsDQoJCQkJCSJJVEVNXzFfU09SVCI6ICIyIiwNCgkJCQkJIk9CSkVDVF9JRCI6ICJtZ0RVSHNkeHB2VkhzZHJmQ0YiLA0KCQkJCQkiSVRFTV8xX1RZUEUiOiAiZGVsZXRlIiwNCgkJCQkJIklURU1fMF9JRCI6ICJORVciLA0KCQkJCQkiSVRFTV8xX0lEIjogIkRFTEVURSIsDQoJCQkJCSJJVEVNXzBfVEVYVCI6ICLsi6Dqt5zsg53shLEiDQoJCQkJfSwNCgkJCQkiaWQiOiAibWdEVUhzZHhwdlZIc2RyZkNGIiwNCgkJCQkidHlwZSI6ICJidXR0b24iDQoJCQl9LA0KCQkJIkl1YlhIc2RBelRZSHNkUFJ6biI6IHsNCgkJCQkibGF5b3V0Ijogew0KCQkJCQkiTUFSR0lOX0JPVFRPTSI6ICIiLA0KCQkJCQkiTUFSR0lOX0xFRlQiOiAiIiwNCgkJCQkJIk1BUkdJTl9SSUdIVCI6ICIiLA0KCQkJCQkiTUFSR0lOX1RPUCI6ICIiLA0KCQkJCQkiU0laRV9XSURUSCI6ICIiLA0KCQkJCQkiU0laRV9IRUlHSFQiOiAiIiwNCgkJCQkJIlNJWkVfQVVUT0hFSUdIVCI6ICIxIiwNCgkJCQkJIkFSRUFfRElWSVNJT04iOiAibnVsbCIsDQoJCQkJCSJkaHhJZF9EV0ZSWVBoc2ZGNEEiOiAibnVsbCIsDQoJCQkJCSJkaHhJZF9veHc2YVFTWmRVY0ciOiAibnVsbCIsDQoJCQkJCSJBTElHTl9IT1JJWk9OVEFMIjogIiIsDQoJCQkJCSJBTElHTl9WRVJUSUNBTCI6ICIiLA0KCQkJCQkiZGh4SWRfRk1DZ0lESVo2RzN5IjogIm51bGwiLA0KCQkJCQkiQ0xBU1MiOiAiIiwNCgkJCQkJImRoeElkX0E5TEZhZEFyRXJ0OCI6ICJudWxsIiwNCgkJCQkJImRoeElkX0NubEtNcGxDd1paSSI6ICJudWxsIiwNCgkJCQkJImRoeElkXzFFc3A1VktEMUFxVCI6ICJudWxsIiwNCgkJCQkJImRoeElkX1VIVzFYWGhjelB4eCI6ICJudWxsIiwNCgkJCQkJImRoeElkX2E5ek5UQjRVQkZTSCI6ICJudWxsIiwNCgkJCQkJImRoeElkXzdPVE1NZ3RZODJJNiI6ICJudWxsIg0KCQkJCX0sDQoJCQkJImNvbXBvbmVudCI6IHsNCgkJCQkJIlZBUiI6ICJ0YWJiYXJPYmoiLA0KCQkJCQkiSVRFTV9RV1VRRlNEU0VERVBZREZGUF9TRUxFQ1RFRCI6ICJ0cnVlIiwNCgkJCQkJIklURU1fUVdVUUZTRFFGV0VQWURQRlJfTkFNRSI6ICLrqqjrk4gg7ISk7KCVIiwNCgkJCQkJIklURU1fUVdVUUZTRFFGV0VQWURQRlJfVEFSR0VUIjogIi9BZG1pbi9TeXN0ZW1DbGllbnRNYW5hZ2VtZW50L0FkbWluQ2xpZW50U2VydmljZU1hbmFnZW1lbnRNb2R1bGUueG1sIiwNCgkJCQkJIklURU1fUVdVUUZTRFNFREVQWURGRlBfVFlQRSI6ICJVIiwNCgkJCQkJIklURU1fUVdVUUZTRElBTkZQWURaQVBfU0VMRUNURUQiOiAiZmFsc2UiLA0KCQkJCQkiSVRFTV9RV1VRRlNEU0VERVBZREZGUF9JRCI6ICJCQVNJQyIsDQoJCQkJCSJJVEVNX1FXVVFGU0RTRURFUFlERkZQX1RBUkdFVCI6ICIvQWRtaW4vQ29uZmlnTWFuYWdlbWVudC9BZG1pbkNvbmZpZ01hbmFnZW1lbnRCYXNpY0luZm9Xcml0ZS54bWwiLA0KCQkJCQkiSVRFTV9RV1VRRlNEU0VERVBZREZGUF9TT1JUIjogIjEiLA0KCQkJCQkiSVRFTV9RV1VRRlNEUUZXRVBZRFBGUl9TRUxFQ1RFRCI6ICJmYWxzZSIsDQoJCQkJCSJJVEVNX1FXVVFGU0RRRldFUFlEUEZSX1RZUEUiOiAiVSIsDQoJCQkJCSJJVEVNX1FXVVFGU0RRRldFUFlEUEZSX0lEIjogIk1PRFVMRSIsDQoJCQkJCSJJVEVNX1FXVVFGU0RTRURFUFlERkZQX05BTUUiOiAi6riw67O4IOygleuztCIsDQoJCQkJCSJJVEVNX1FXVVFGU0RRRldFUFlEUEZSX1NPUlQiOiAiMiIsDQoJCQkJCSJPQkpFQ1RfSUQiOiAiSXViWEhzZEF6VFlIc2RQUnpuIiwNCgkJCQkJIkFSRUFfRElWSVNJT04iOiAibnVsbCINCgkJCQl9LA0KCQkJCSJpZCI6ICJJdWJYSHNkQXpUWUhzZFBSem4iLA0KCQkJCSJ0eXBlIjogInRhYmJhciIsDQoJCQkJImV2ZW50cyI6IFtdDQoJCQl9LA0KCQkJIlFXVVFGU0RTRURFUFlERkZQIjogew0KCQkJCSJsYXlvdXQiOiB7fSwNCgkJCQkiY29tcG9uZW50Ijogew0KCQkJCQkiU0VMRUNURUQiOiAidHJ1ZSIsDQoJCQkJCSJUWVBFIjogIlUiLA0KCQkJCQkiSUQiOiAiQkFTSUMiLA0KCQkJCQkiaXRlbUlEIjogIlFXVVFGU0RTRURFUFlERkZQIiwNCgkJCQkJIlRBUkdFVCI6ICIvQWRtaW4vQ29uZmlnTWFuYWdlbWVudC9BZG1pbkNvbmZpZ01hbmFnZW1lbnRCYXNpY0luZm9Xcml0ZS54bWwiLA0KCQkJCQkiU09SVCI6ICIxIiwNCgkJCQkJIk5BTUUiOiAi6riw67O4IOygleuztCINCgkJCQl9LA0KCQkJCSJpZCI6ICJRV1VRRlNEU0VERVBZREZGUCIsDQoJCQkJIm1heENoaWxkQ291bnQiOiAxLA0KCQkJCSJ0eXBlIjogInRhYmJhckNlbGwiLA0KCQkJCSJuYW1lIjogIkJBU0lDIg0KCQkJfSwNCgkJCSJRV1VRRlNEUUZXRVBZRFBGUiI6IHsNCgkJCQkibGF5b3V0Ijoge30sDQoJCQkJImNvbXBvbmVudCI6IHsNCgkJCQkJIk5BTUUiOiAi66qo65OIIOyEpOyglSIsDQoJCQkJCSJUQVJHRVQiOiAiL0FkbWluL1N5c3RlbUNsaWVudE1hbmFnZW1lbnQvQWRtaW5TeXN0ZW1DbGllbnRNYW5hZ2VtZW50TW9kdWxlLnhtbCIsDQoJCQkJCSJTRUxFQ1RFRCI6ICJmYWxzZSIsDQoJCQkJCSJUWVBFIjogIlUiLA0KCQkJCQkiSUQiOiAiTU9EVUxFIiwNCgkJCQkJIml0ZW1JRCI6ICJRV1VRRlNEUUZXRVBZRFBGUiIsDQoJCQkJCSJTT1JUIjogIjIiDQoJCQkJfSwNCgkJCQkiaWQiOiAiUVdVUUZTRFFGV0VQWURQRlIiLA0KCQkJCSJtYXhDaGlsZENvdW50IjogMSwNCgkJCQkidHlwZSI6ICJ0YWJiYXJDZWxsIiwNCgkJCQkibmFtZSI6ICJNT0RVTEUiDQoJCQl9DQoJCX0sDQoJCSJ0cmVlIjogew0KCQkJImlkIjogInNhZ1NHc2RzYWdTR3NkcFl3TCIsDQoJCQkidHlwZSI6ICJib2R5IiwNCgkJCSJjZWxscyI6IFsNCgkJCQl7DQoJCQkJCSJpZCI6ICJtZ0RVSHNkeHB2VkhzZHJmQ0YiLA0KCQkJCQkidHlwZSI6ICJidXR0b24iDQoJCQkJfSwNCgkJCQl7DQoJCQkJCSJpZCI6ICJJdWJYSHNkQXpUWUhzZFBSem4iLA0KCQkJCQkidHlwZSI6ICJ0YWJiYXIiLA0KCQkJCQkiY2VsbHMiOiBbDQoJCQkJCQl7DQoJCQkJCQkJImlkIjogIlFXVVFGU0RTRURFUFlERkZQIiwNCgkJCQkJCQkidHlwZSI6ICJ0YWJiYXJDZWxsIg0KCQkJCQkJfSwNCgkJCQkJCXsNCgkJCQkJCQkiaWQiOiAiUVdVUUZTRFFGV0VQWURQRlIiLA0KCQkJCQkJCSJ0eXBlIjogInRhYmJhckNlbGwiDQoJCQkJCQl9DQoJCQkJCV0NCgkJCQl9DQoJCQldDQoJCX0sDQoJCSJpbmZvIjogew0KCQkJIlBBVEgiOiAiL0FkbWluL1N5c3RlbUNvbXBhbnlNYW5hZ2VtZW50L0FkbWluU3lzdGVtQ29tcGFueU1hbmFnZW1lbnRXcml0ZS54bWwiLA0KCQkJIlBST0pFQ1QiOiAiRlJXSyIsDQoJCQkiQ09ERSI6ICI0MTYiLA0KCQkJIlBSRUZJWCI6ICJBRCIsDQoJCQkiUEFUSF8yIjogIlN5c3RlbUNvbXBhbnlNYW5hZ2VtZW50IiwNCgkJCSJQQVRIXzMiOiAiQWRtaW5TeXN0ZW1Db21wYW55TWFuYWdlbWVudCIsDQoJCQkiUEFUSF8xIjogIkFkbWluIiwNCgkJCSJIRUFERVIiOiAiZmFsc2UiLA0KCQkJIk5BTUUiOiAiV3JpdGUiLA0KCQkJIlNDUkVFTl9JRCI6ICJBRF80MTYiDQoJCX0NCgl9LA0KCSJodG1sIjogIjxkaXYgaWQ9XCJzYWdTR3Nkc2FnU0dzZHBZd0xcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm1nRFVIc2R4cHZWSHNkcmZDRlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJJdWJYSHNkQXpUWUhzZFBSem5cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X3RhYmJhciBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+Ig0KfQ==
+    </template>
+</body>

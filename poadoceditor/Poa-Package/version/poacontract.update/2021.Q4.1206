@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD COLUMN `PUSH_SEND_DATE` VARCHAR(8)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD [PUSH_SEND_DATE] VARCHAR(8)
+		]]>
+		</query>
+	</item>
+</body>

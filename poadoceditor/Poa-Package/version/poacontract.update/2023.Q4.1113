@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SCFPM (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스 코드',
+				COMPANY_CODE varchar(20) NOT NULL COMMENT '회사 코드',
+				CONT_NO varchar(20)  NOT NULL COMMENT '계약번호',
+				CONT_GL_SEQ varchar(5) NOT NULL COMMENT '계약차수',
+				SEQ varchar(6) NOT NULL COMMENT '이력순번',
+				ADD_DATE varchar(8) DEFAULT NULL COMMENT '입력일자',
+				ADD_TIME varchar(6) DEFAULT NULL COMMENT '입력시간',
+				USER_COMPANY_CODE varchar(30)  DEFAULT NULL COMMENT '입력 회사 코드',
+				USER_ID varchar(30) DEFAULT NULL COMMENT '입력 ID',
+				[ACTION] varchar(20) DEFAULT NULL COMMENT '행위',
+				IP varchar(40) DEFAULT NULL COMMENT 'IP',
+				REASON varchar(4000) DEFAULT NULL COMMENT '사유'
+				PRIMARY KEY (HOUSE_CODE, COMPANY_CODE, CONT_NO, CONT_GL_SEQ, SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SCFPM (
+				HOUSE_CODE varchar(5) NOT NULL,
+				COMPANY_CODE varchar(20) NOT NULL,
+				CONT_NO varchar(20)  NOT NULL,
+				CONT_GL_SEQ varchar(5) NOT NULL,
+				SEQ varchar(6) NOT NULL,
+				ADD_DATE varchar(8) DEFAULT NULL,
+				ADD_TIME varchar(6) DEFAULT NULL,
+				USER_COMPANY_CODE varchar(30)  DEFAULT NULL,
+				USER_ID varchar(30) DEFAULT NULL,
+				[ACTION] varchar(20) DEFAULT NULL,
+				IP varchar(40) DEFAULT NULL,
+				REASON varchar(4000) DEFAULT NULL
+				CONSTRAINT SCFPM_PK PRIMARY KEY (HOUSE_CODE, COMPANY_CODE, CONT_NO, CONT_GL_SEQ, SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SCFPM (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				COMPANY_CODE VARCHAR2(20) NOT NULL,
+				CONT_NO VARCHAR2(20)  NOT NULL,
+				CONT_GL_SEQ VARCHAR2(5) NOT NULL,
+				SEQ VARCHAR2(6) NOT NULL,
+				ADD_DATE VARCHAR2(8) DEFAULT NULL,
+				ADD_TIME VARCHAR2(6) DEFAULT NULL,
+				USER_COMPANY_CODE VARCHAR2(30)  DEFAULT NULL,
+				USER_ID VARCHAR2(30) DEFAULT NULL,
+				[ACTION] VARCHAR2(20) DEFAULT NULL,
+				IP VARCHAR2(40) DEFAULT NULL,
+				REASON VARCHAR2(4000) DEFAULT NULL
+				CONSTRAINT PK_SCFPM PRIMARY KEY (HOUSE_CODE, COMPANY_CODE, CONT_NO, CONT_GL_SEQ, SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TEMPLATE_CREATE"/>
+					<entry key="CONTENTS" val="서식 생성"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TEMPLATE_COPY"/>
+					<entry key="CONTENTS" val="서식 복사"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TEMPLATE_UPDATE"/>
+					<entry key="CONTENTS" val="서식 수정"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="AUDIT_TRAIL_ACTION_TEMPLATE_DELETE"/>
+					<entry key="CONTENTS" val="서식 삭제"/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

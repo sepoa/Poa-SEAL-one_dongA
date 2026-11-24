@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectContractData">
+	<![CDATA[
+		SELECT DISTINCT
+               CTGL.HOUSE_CODE
+             , CTGL.COMPANY_CODE
+             , CTGL.CONT_NO
+             , CASE WHEN CONT_GL_SEQ = (SELECT TO_CHAR(MAX(TO_NUMBER(CONT_GL_SEQ)))
+                                        FROM SCTGL
+                                        WHERE HOUSE_CODE   = CTGL.HOUSE_CODE
+                                          AND COMPANY_CODE = CTGL.COMPANY_CODE
+                                          AND CONT_NO      = CTGL.CONT_NO
+                                          AND STATUS      in ('A', 'X')
+                                       )
+                                           
+                    THEN 'Y'
+                    ELSE 'N'
+                     END                                      AS CONT_GL_LAST
+             , CTGL.CONT_GL_SEQ
+             , CTGL.CATEGORY
+             , CTGL.CONT_FORM_NO
+             , CFGL.CONT_FORM_NAME
+             , CTGL.STATUS                                    AS CONT_STATUS
+             , CTGL.STATUS                                    AS MANUAL_STATUS
+             , CTGL.CONT_SUBJECT
+             , CTGL.CONT_FROM
+             , CTGL.CONT_TO
+             , CTGL.ADD_DATE
+             , CTGL.CONT_DATE
+             , CTGL.CONT_TYPE
+             , CTGL.CONT_METHOD
+             , CTGL.EXPIRED_ALARM
+             , CTGL.CREATOR
+             , CTGL.DATA_SOURCE
+             , CTGL.INNER_MANAGER_NAME
+             , CTGL.INNER_MANAGER_ID  
+             , CTGL.OUTER_COMPANY_NAME
+             , CTGL.OUTER_COMPANY_CODE
+             , CTGL.OUTER_MANAGER_NAME
+             , CTGL.OUTER_MANAGER_ID
+             , CTGL.CONT_AMT
+             , CTGL.PUSH_SEND_DATE
+             , CTGL.AP_STATUS
+             , TO_CHAR(CTGL.AP_MESSAGE) AS AP_MESSAGE
+             , LNUS.PRIVATE_CODE AS LINK_CODE
+          FROM SDCAM DCAM
+         INNER
+          JOIN SCTGL CTGL
+            ON DCAM.HOUSE_CODE                          = CTGL.HOUSE_CODE 
+           AND DCAM.COMPANY_CODE                        = CTGL.COMPANY_CODE 
+           AND DCAM.CODE                                = CTGL.CONT_NO
+           AND DCAM.SEQ                                 = CTGL.CONT_GL_SEQ
+          LEFT OUTER
+          JOIN SCFGL CFGL
+            ON CTGL.HOUSE_CODE                          = CFGL.HOUSE_CODE
+           AND CTGL.CONT_FORM_NO                        = CFGL.CONT_FORM_NO
+          LEFT JOIN ULNMA LNMA
+         	ON DCAM.HOUSE_CODE							= LNMA.HOUSE_CODE 
+           AND CTGL.CONT_NO 							= LNMA.DOC_NUMBER
+           AND CTGL.CONT_GL_SEQ							= LNMA.DOC_SEQ
+           AND LNMA.DOC_TYPE 							= 'contdownload' 
+          LEFT JOIN ULNUS LNUS
+            ON DCAM.HOUSE_CODE 							= LNUS.HOUSE_CODE 
+           AND LNMA.CODE = LNUS.CODE
+         WHERE DCAM.HOUSE_CODE                          = ${session.HOUSE_CODE}
+           AND DCAM.USER_COMPANY_CODE                   = ${session.COMPANY_CODE}
+           
+           AND #DB_OWNER#NVL(CTGL.DEL_FLAG, 'N')        = 'N'
+           AND CTGL.STATUS                              #MODE_TYPE_OPERATOR# ($INS{MODE_TYPE_STATUS})
+           AND CTGL.ADD_DATE   >= $S{F_CALENDAR_FROM}
+           AND CTGL.ADD_DATE   <= $S{F_CALENDAR_TO}
+         ORDER 
+            BY CASE WHEN CTGL.STATUS = 'T' THEN 0
+                    ELSE 1 
+                END
+             , #ORDER_COLUMN# #ORDER_SORT#
+        ]]>
+	</method>	
+</service>

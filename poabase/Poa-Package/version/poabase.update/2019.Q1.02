@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="MESSAGE"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="2500"/>
+					<entry key="CONTENTS" val="첨부가 제한된 파일포멧입니다.\n파일 : #FILE_NAME#\n파일포멧: #MIME_TYPE#\n첨부가능 포멧 : #AVAILABLE#"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="MESSAGE"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="2501"/>
+					<entry key="CONTENTS" val="첨부파일 포멧 확인에 실패하였습니다. 관리자에게 문의해주세요."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="MESSAGE"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="2500"/>
+					<entry key="CONTENTS" val="Attached file is not allowed format\nfile : #FILE_NAME#\nformat : #MIME_TYPE#\nAvailable formats : #AVAILABLE#"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="MESSAGE"/>
+					<entry key="LANGUAGE" val="EN"/>
+					<entry key="CODE" val="2501"/>
+					<entry key="CONTENTS" val="Attachment format verification failed. Please contact the administrator."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="MESSAGE"/>
+					<entry key="LANGUAGE" val="VI"/>
+					<entry key="CODE" val="2500"/>
+					<entry key="CONTENTS" val="Tệp đính kèm không được phép định dạng \nfile: #FILE_NAME# \nđịnh dạng: #MIME_TYPE#\n Định dạng có sẵn: #AVAILABLE#"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="MESSAGE"/>
+					<entry key="LANGUAGE" val="VI"/>
+					<entry key="CODE" val="2501"/>
+					<entry key="CONTENTS" val="Xác minh định dạng tệp đính kèm không thành công. Vui lòng liên hệ với quản trị viên."/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

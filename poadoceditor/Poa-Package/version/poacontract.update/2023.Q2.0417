@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SCTRV (
+				HOUSE_CODE varchar(5) NOT NULL COMMENT '하우스 코드',
+				CONT_NO varchar(20) NOT NULL COMMENT '계약 문서 번호',
+				CONT_GL_SEQ varchar(4) NOT NULL COMMENT '계약 문서 시퀀스 번호',
+				SEQ varchar(6) NOT NULL COMMENT '검토 요청 횟수',
+				REVIEWER_NO varchar(20) NOT NULL COMMENT '검토자 번호',
+				ADD_DATE varchar(8) NOT NULL COMMENT '생성 일자',
+				ADD_TIME varchar(6) NOT NULL COMMENT '생성 시간',
+				ADD_USER_ID varchar(4000) NOT NULL COMMENT '생성자',
+				CHANGE_DATE varchar(8) DEFAULT NULL COMMENT '변경 일자',
+				CHANGE_TIME varchar(6) DEFAULT NULL COMMENT '변경 시간',
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL COMMENT '변경자',
+				REVIEW_SEQ varchar(6) NOT NULL COMMENT '검토 순서 번호',
+				REVIEWER_ID varchar(4000) NOT NULL COMMENT '검토자 계정 ID',
+				REVIEWER_NAME varchar(300) DEFAULT NULL COMMENT '검토자 이름',
+				REVIEWER_EMAIL varchar(300) DEFAULT NULL COMMENT '검토자 E메일',
+				REVIEWER_PHONE varchar(100) DEFAULT NULL COMMENT '검토자 연락처',
+				REVIEWER_COMPANY_CODE varchar(20) NOT NULL COMMENT '검토자 회사 코드',
+				REVIEWER_COMPANY_NAME varchar(300) DEFAULT NULL COMMENT '검토자 회사 이름',
+				REVIEWER_COMPANY_OWNER varchar(300) DEFAULT NULL COMMENT '검토자 회사 대표자 이름',
+				REVIEWER_COMPANY_ADDR varchar(300) DEFAULT NULL COMMENT '검토자 회사 주소',
+				DEL_FLAG varchar(1) NOT NULL COMMENT '삭제 FLAG',
+				REVIEW_FLAG varchar(10) NOT NULL COMMENT '검토 상태 코드',
+				REVIEW_COMMENT varchar(4000) DEFAULT NULL COMMENT '검토자 코멘트',
+				PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SEQ,REVIEWER_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SCTRV (
+				HOUSE_CODE varchar(5) NOT NULL,
+				CONT_NO varchar(20) NOT NULL,
+				CONT_GL_SEQ varchar(4) NOT NULL,
+				SEQ varchar(6) NOT NULL,
+				REVIEWER_NO varchar(20) NOT NULL,
+				ADD_DATE varchar(8) NOT NULL,
+				ADD_TIME varchar(6) NOT NULL,
+				ADD_USER_ID varchar(4000) NOT NULL,
+				CHANGE_DATE varchar(8) DEFAULT NULL NULL,
+				CHANGE_TIME varchar(6) DEFAULT NULL NULL,
+				CHANGE_USER_ID varchar(4000) DEFAULT NULL NULL,
+				REVIEW_SEQ varchar(6) NOT NULL,
+				REVIEWER_ID varchar(4000) NOT NULL,
+				REVIEWER_NAME varchar(300) DEFAULT NULL NULL,
+				REVIEWER_EMAIL varchar(300) DEFAULT NULL NULL,
+				REVIEWER_PHONE varchar(100) DEFAULT NULL NULL,
+				REVIEWER_COMPANY_CODE varchar(20) NOT NULL,
+				REVIEWER_COMPANY_NAME varchar(300) DEFAULT NULL NULL,
+				REVIEWER_COMPANY_OWNER varchar(300) DEFAULT NULL NULL,
+				REVIEWER_COMPANY_ADDR varchar(300) DEFAULT NULL NULL,
+				DEL_FLAG varchar(1) NOT NULL,
+				REVIEW_FLAG varchar(10) NOT NULL,
+				REVIEW_COMMENT varchar(4000) DEFAULT NULL NULL,
+				CONSTRAINT SCTRV_PK PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SEQ,REVIEWER_NO)
+			)
+		]]>
+		</query>
+	</item>
+	
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SCTRV (
+				HOUSE_CODE VARCHAR2(5) NOT NULL,
+				CONT_NO VARCHAR2(20) NOT NULL,
+				CONT_GL_SEQ VARCHAR2(4) NOT NULL,
+				SEQ VARCHAR2(6) NOT NULL,
+				REVIEWER_NO VARCHAR2(20) NOT NULL,
+				ADD_DATE VARCHAR2(8) NOT NULL,
+				ADD_TIME VARCHAR2(6) NOT NULL,
+				ADD_USER_ID VARCHAR2(4000) NOT NULL,
+				CHANGE_DATE VARCHAR2(8),
+				CHANGE_TIME VARCHAR2(6),
+				CHANGE_USER_ID VARCHAR2(4000),
+				REVIEW_SEQ VARCHAR2(6) NOT NULL,
+				REVIEWER_ID VARCHAR2(4000) NOT NULL,
+				REVIEWER_NAME VARCHAR2(300),
+				REVIEWER_EMAIL VARCHAR2(300),
+				REVIEWER_PHONE VARCHAR2(100),
+				REVIEWER_COMPANY_CODE VARCHAR2(20) NOT NULL,
+				REVIEWER_COMPANY_NAME VARCHAR2(300),
+				REVIEWER_COMPANY_OWNER VARCHAR2(300),
+				REVIEWER_COMPANY_ADDR VARCHAR2(300),
+				DEL_FLAG VARCHAR2(1) NOT NULL,
+				REVIEW_FLAG VARCHAR2(10) NOT NULL,
+				REVIEW_COMMENT VARCHAR2(4000),
+				CONSTRAINT PK_SCTRV PRIMARY KEY (HOUSE_CODE,CONT_NO,CONT_GL_SEQ,SEQ,REVIEWER_NO)
+			)
+		]]>
+		</query>
+	</item>
+
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_014" method="doInsertDetail" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="TYPE" val="CT002"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="RP"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="48"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="검토진행중"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val="검토진행중"/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val="REVIEW"/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="CT002"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="RW"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="49"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val=""/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val="검토대기"/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val="REVIEW"/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="CT002"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="RV"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="50"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val=""/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val="검토대상"/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val="REVIEW"/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="CT002"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="RA"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="51"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="검토완료"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val="검토완료"/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val="REVIEW"/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+				<map>
+					<entry key="TYPE" val="CT002"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="RR"/>
+					<entry key="FLAG" val=""/>
+					<entry key="SORT" val="52"/>
+					<entry key="USE_FLAG" val="1"/>
+					<entry key="TEXT1" val="검토반려"/>
+					<entry key="TEXT2" val=""/>
+					<entry key="TEXT3" val="검토반려"/>
+					<entry key="TEXT4" val=""/>
+					<entry key="TEXT5" val="REVIEW"/>
+					<entry key="TEXT6" val=""/>
+					<entry key="TEXT7" val=""/>
+					<entry key="TEXT8" val=""/>
+				</map>
+			</list>
+		</params>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_40"/>
+					<entry key="CONTENTS" val="검토 완료하시겠습니까?"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_41"/>
+					<entry key="CONTENTS" val="검토 반려하시겠습니까?"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_42"/>
+					<entry key="CONTENTS" val="현재 계약서를 재작성하시겠습니까?"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_43"/>
+					<entry key="CONTENTS" val="계약 품의를 진행하시겠습니까?"/>
+				</map>
+			
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101201"/>
+					<entry key="CONTENTS" val="검토자 데이터 조회에 실패하였습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101202"/>
+					<entry key="CONTENTS" val="검토자 데이터 생성에 실패하였습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101203"/>
+					<entry key="CONTENTS" val="검토 대상자가 없습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101204"/>
+					<entry key="CONTENTS" val="검토자 상태 업데이트에 실패하였습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101205"/>
+					<entry key="CONTENTS" val="검토 대상자 조회 결과에 오류가 있습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101206"/>
+					<entry key="CONTENTS" val="현재 검토 대상자가 아닙니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101207"/>
+					<entry key="CONTENTS" val="유효하지 않는 히스토리 타입입니다."/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START"/>
+					<entry key="CONTENTS" val="검토 요청"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="님이 검토하실 차례입니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="자세한 내용은 바로가기를 통해 확인하시기 바랍니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_LABEL_1"/>
+					<entry key="CONTENTS" val="검토대상자"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_ALL"/>
+					<entry key="CONTENTS" val="검토 요청"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_ALL_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="님이 검토하실 차례입니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_ALL_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="자세한 내용은 바로가기를 통해 확인하시기 바랍니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_START_ALL_LABEL_1"/>
+					<entry key="CONTENTS" val="검토대상자"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_NEXT"/>
+					<entry key="CONTENTS" val="검토 요청"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_NEXT_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="님이 검토하실 차례입니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_NEXT_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="자세한 내용은 바로가기를 통해 확인하시기 바랍니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_NEXT_LABEL_1"/>
+					<entry key="CONTENTS" val="검토대상자"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_REJECT"/>
+					<entry key="CONTENTS" val="검토 반려"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_REJECT_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="검토가 반려되었습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_REJECT_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="자세한 내용은 바로가기를 통해 확인하시기 바랍니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_REQ_REJECT_LABEL_1"/>
+					<entry key="CONTENTS" val="검토반려자"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_COMPLETE"/>
+					<entry key="CONTENTS" val="검토 완료"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_COMPLETE_TITLE_COMMENT"/>
+					<entry key="CONTENTS" val="님이 검토를 완료하셨습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_COMPLETE_NOTICE_COMMENT"/>
+					<entry key="CONTENTS" val="자세한 내용은 바로가기를 통해 확인하시기 바랍니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEW_COMPLETE_LABEL_1"/>
+					<entry key="CONTENTS" val="검토자"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEWER_INFO"/>
+					<entry key="CONTENTS" val="$.{REVIEWER_NAME}($.{REVIEWER_EMAIL})"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEWER_STATUS_RW"/>
+					<entry key="CONTENTS" val="대기"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEWER_STATUS_RV"/>
+					<entry key="CONTENTS" val="진행"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEWER_STATUS_RA"/>
+					<entry key="CONTENTS" val="완료"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="REVIEWER_STATUS_RR"/>
+					<entry key="CONTENTS" val="반려"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TITLE_REVIEW"/>
+					<entry key="CONTENTS" val="계약서 검토"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TITLE_REVIEW_DONE"/>
+					<entry key="CONTENTS" val="계약서 검토"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TITLE_REVIEWCOMMENT"/>
+					<entry key="CONTENTS" val="검토 의견"/>
+				</map>
+				
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="TITLE_APPROVAL_REJECT"/>
+					<entry key="CONTENTS" val="결재 반려"/>
+				</map>
+				
+				
+				
+			</list>
+		</params>
+	</item>
+</body>

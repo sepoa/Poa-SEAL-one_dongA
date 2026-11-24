@@ -1,0 +1,1809 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectSSHNE">
+	<![CDATA[
+		/* SepoaSealManagementManager.doSelectSSHNE */
+	  SELECT DISTINCT
+			 SHNE.HOUSE_CODE
+			,SHNE.COMPANY_CODE
+			,SHNE.MANAGE_NUMBER
+			,SHNE.DOC_NO
+			,SHNE.STATUS
+			,SHNE.ADD_DATE
+			,SHNE.ADD_TIME
+			,SHNE.ADD_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHNE.HOUSE_CODE AND USMT.USER_ID = SHNE.ADD_USER_ID) AS ADD_USER_NAME_LOC
+			,SHNE.CHANGE_DATE
+			,SHNE.CHANGE_TIME
+			,SHNE.CHANGE_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHNE.HOUSE_CODE AND USMT.USER_ID = SHNE.CHANGE_USER_ID) AS CHANGE_USER_NAME_LOC
+			,SHNE.DEL_FLAG
+			,SHNE.SUBJECT
+			,SHNE.SEAL_TYPE
+			,SHNE.SEAL_MG_DEPT
+			,SHNE.SEAL_MG_USER_ID
+			,SHNE.SUB_MG_DEPT
+			,SHNE.SUB_MG_USER_ID
+			,SHNE.SEAL_USE
+			,SHNE.CAL_BASIS_131
+			,SHNE.CAL_BASIS_132
+			,SHNE.RECV_TYPE
+			,SHNE.SEAL_DATE
+			,SHNE.SEAL_ATTACH_NO
+			,SHNE.CONFIRM_DATE
+			,SHNE.SEND_DATE
+			,SHNE.SEND_USER_ID
+			,SHNE.RECV_USER_ID
+			,SHNE.RECV_DATE
+			,SHNE.RECV_ADDR
+			,SHNE.SEAL_USE_DEPT
+			,SHNE.ELECTRON_FLAG
+			,SHNE.REAL_FLAG
+			,SHNE.EXTERNAL_FLAG
+			,SHNE.REASON
+			,SHNE.CAL_REMARK
+			,SHNE.SEAL_CATEGORY
+			,SHNE.PUBLIC_YN
+			,#DB_OWNER#GETDEPTNAME(SHNE.HOUSE_CODE, SHNE.COMPANY_CODE, SHNE.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SHNE.HOUSE_CODE, SHNE.COMPANY_CODE, SHNE.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME
+			,#DB_OWNER#GETDEPTNAME(SHNE.HOUSE_CODE, SHNE.COMPANY_CODE, SHNE.SUB_MG_DEPT, ${session.LANGUAGE}) AS SUB_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SHNE.HOUSE_CODE, SHNE.COMPANY_CODE, SHNE.SUB_MG_USER_ID, ${session.LANGUAGE}) AS SUB_MG_USER_NAME
+			,'NE' AS APPLY_TYPE
+			, (SELECT SEAL_ID FROM SSEAL WHERE SSEAL.HOUSE_CODE = SHNE.HOUSE_CODE AND SSEAL.COMPANY_CODE = SHNE.COMPANY_CODE AND SSEAL.MANAGE_NUMBER = SHNE.MANAGE_NUMBER) AS SEAL_ID
+          FROM SDCAM DCAM 
+          INNER
+          JOIN SSHNE SHNE 
+            ON
+               DCAM.HOUSE_CODE			= SHNE.HOUSE_CODE
+           AND DCAM.COMPANY_CODE		= SHNE.COMPANY_CODE
+           AND DCAM.CODE				= SHNE.MANAGE_NUMBER
+           AND DCAM.SEQ					= SHNE.DOC_NO	
+          LEFT OUTER JOIN SUSMT USMT
+          	ON
+          		USMT.HOUSE_CODE			= SHNE.HOUSE_CODE
+          	AND USMT.USER_ID			= SHNE.SEAL_MG_USER_ID
+         WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+    ]]>
+    <if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="ne" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="eq" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE = $S{COMPANY_CODE}
+	    	AND DCAM.USER_COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>    
+	<![CDATA[
+			AND SHNE.MANAGE_NUMBER	= $S{MANAGE_NUMBER}
+			AND SHNE.DOC_NO			= $S{DOC_NO}
+			AND #DB_OWNER#NVL(SHNE.DEL_FLAG, 'N') = 'N'
+			AND SHNE.STATUS			IN( $INS{STATUS})
+			AND SHNE.STATUS			= $S{F_STATUS}
+			AND SHNE.ADD_DATE	   	>= $S{F_CALENDAR_FROM}
+			AND SHNE.ADD_DATE	   	<= $S{F_CALENDAR_TO}		   
+			AND (
+				1=1
+				AND UPPER(SHNE.MANAGE_NUMBER) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+				OR UPPER(SHNE.DOC_NO) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+				OR UPPER(SHNE.SUBJECT) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+				OR UPPER(USMT.USER_NAME_LOC) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+			)				     
+			AND 'NE' IN ($INS{F_APPLY_TYPE})
+	]]>
+	</method>
+	<method name="doSelectSSHRE">
+	<![CDATA[
+		/* SepoaSealManagementManager.doSelectSSHRE */
+	  SELECT DISTINCT
+			 SHRE.HOUSE_CODE
+			,SHRE.COMPANY_CODE
+			,SHRE.MANAGE_NUMBER
+			,SHRE.DOC_NO
+			,SHRE.STATUS
+			,SHRE.ADD_DATE
+			,SHRE.ADD_TIME
+			,SHRE.ADD_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHRE.HOUSE_CODE AND USMT.USER_ID = SHRE.ADD_USER_ID) AS ADD_USER_NAME_LOC
+			,SHRE.CHANGE_DATE
+			,SHRE.CHANGE_TIME
+			,SHRE.CHANGE_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHRE.HOUSE_CODE AND USMT.USER_ID = SHRE.CHANGE_USER_ID) AS CHANGE_USER_NAME_LOC
+			,SHRE.DEL_FLAG
+			,SHRE.REASON
+			,SHRE.RETURN_REMARK
+			,'RE' AS APPLY_TYPE			 	 
+			,SEAL.MANAGE_NUMBER
+			,SEAL.SUBJECT
+			,SEAL.SEAL_TYPE
+			,SEAL.SEAL_DATE
+			,SEAL.SEAL_MG_USER_ID
+			,SEAL.SEAL_MG_DEPT
+			,SEAL.SEAL_CATEGORY
+			,SEAL.PUBLIC_YN
+			,#DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME					 
+       FROM SDCAM DCAM 
+       INNER
+       JOIN SSHRE SHRE 
+         ON
+       		DCAM.HOUSE_CODE			= SHRE.HOUSE_CODE
+       	AND DCAM.COMPANY_CODE		= SHRE.COMPANY_CODE
+		AND DCAM.CODE				= SHRE.MANAGE_NUMBER
+		AND DCAM.SEQ				= SHRE.DOC_NO	
+       	INNER 
+       	JOIN SSEAL SEAL 
+       	  ON 
+       	  	 SHRE.HOUSE_CODE		= SEAL.HOUSE_CODE
+       	 AND SHRE.COMPANY_CODE		= SEAL.COMPANY_CODE
+       	 AND SHRE.MANAGE_NUMBER		= SEAL.MANAGE_NUMBER
+       	 LEFT OUTER JOIN SUSMT USMT
+       	 	ON
+       	 		USMT.HOUSE_CODE		= SEAL.HOUSE_CODE 
+       	 	AND USMT.USER_ID		= SEAL.SEAL_MG_USER_ID
+       WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+	]]>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+		<if test="${IS_ADMIN}" operator="ne" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="eq" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE = $S{COMPANY_CODE}
+	    	AND DCAM.USER_COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>    
+	<![CDATA[
+			AND SHRE.MANAGE_NUMBER = $S{MANAGE_NUMBER}
+			AND SHRE.DOC_NO			= $S{DOC_NO}
+			AND SHRE.STATUS        	IN( $INS{STATUS})
+			AND SHRE.STATUS			= $S{F_STATUS}
+			AND SHRE.ADD_DATE	   		>= $S{F_CALENDAR_FROM}
+			AND SHRE.ADD_DATE	   		<= $S{F_CALENDAR_TO}		            
+			AND #DB_OWNER#NVL(SHRE.DEL_FLAG, 'N') = 'N'
+			AND (
+				1=1	
+				AND UPPER(SHRE.MANAGE_NUMBER) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+				OR UPPER(SHRE.DOC_NO) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 		    	   
+				OR UPPER(SEAL.SUBJECT) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+				OR UPPER(USMT.USER_NAME_LOC) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+			)
+			AND 'RE' IN ($INS{F_APPLY_TYPE})
+	]]>
+	</method>	
+	<method name="doSelectSSHLO">
+	<![CDATA[
+		/* SepoaSealManagementManager.doSelectSSHLO */
+	  SELECT DISTINCT
+			 SHLO.HOUSE_CODE
+			,SHLO.COMPANY_CODE
+			,SHLO.MANAGE_NUMBER
+			,SHLO.DOC_NO
+			,SHLO.STATUS
+			,SHLO.ADD_DATE
+			,SHLO.ADD_TIME
+			,SHLO.ADD_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHLO.HOUSE_CODE AND USMT.USER_ID = SHLO.ADD_USER_ID) AS ADD_USER_NAME_LOC
+			,SHLO.CHANGE_DATE
+			,SHLO.CHANGE_TIME
+			,SHLO.CHANGE_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHLO.HOUSE_CODE AND USMT.USER_ID = SHLO.CHANGE_USER_ID) AS CHANGE_USER_NAME_LOC
+			,SHLO.DEL_FLAG
+			,SHLO.LOSS_DEPT
+			,SHLO.LOSS_USER_ID
+			,SHLO.LOSS_DT_PLACE
+			,SHLO.LOSS_REMARK
+			,SHLO.REASON
+			,SHLO.ATTACH_NO
+			,'LO' AS APPLY_TYPE			 	 
+			,#DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SHLO.LOSS_DEPT, ${session.LANGUAGE}) AS LOSS_USER_NAME
+			,#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SHLO.LOSS_USER_ID, ${session.LANGUAGE}) AS LOSS_DEPT_NAME								 
+			,SEAL.MANAGE_NUMBER
+			,SEAL.SUBJECT
+			,SEAL.SEAL_TYPE
+			,SEAL.SEAL_DATE
+			,SEAL.SEAL_MG_USER_ID
+			,SEAL.SEAL_MG_DEPT
+			,SEAL.SEAL_CATEGORY
+			,SEAL.PUBLIC_YN
+			,#DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME		
+       FROM SDCAM DCAM 
+       INNER
+       JOIN SSHLO SHLO 
+         ON
+       		DCAM.HOUSE_CODE			= SHLO.HOUSE_CODE
+       	AND DCAM.COMPANY_CODE		= SHLO.COMPANY_CODE
+		AND DCAM.CODE				= SHLO.MANAGE_NUMBER
+		AND DCAM.SEQ				= SHLO.DOC_NO	
+       	INNER 
+       	JOIN SSEAL SEAL 
+       	  ON 
+       	  	 SHLO.HOUSE_CODE		= SEAL.HOUSE_CODE
+       	 AND SHLO.COMPANY_CODE		= SEAL.COMPANY_CODE
+       	 AND SHLO.MANAGE_NUMBER		= SEAL.MANAGE_NUMBER
+       	LEFT OUTER JOIN SUSMT USMT
+       		ON
+       			USMT.HOUSE_CODE		= USMT.HOUSE_CODE
+       		AND USMT.USER_ID		= SEAL.SEAL_MG_USER_ID
+       WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+    ]]>
+    <if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="ne" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="eq" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE = $S{COMPANY_CODE}
+	    	AND DCAM.USER_COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>
+    <![CDATA[
+         AND SHLO.MANAGE_NUMBER		= $S{MANAGE_NUMBER}				
+         AND SHLO.DOC_NO			= $S{DOC_NO}
+         AND SHLO.STATUS        	IN( $INS{STATUS})
+		 AND SHLO.STATUS			= $S{F_STATUS}
+	     AND SHLO.ADD_DATE	   		>= $S{F_CALENDAR_FROM}
+		 AND SHLO.ADD_DATE	   		<= $S{F_CALENDAR_TO}			               
+         AND #DB_OWNER#NVL(SHLO.DEL_FLAG, 'N') = 'N'
+	     AND (
+	   		        1=1	
+	    	    AND UPPER(SHLO.MANAGE_NUMBER)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+	    	     OR UPPER(SHLO.DOC_NO)			LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 		    	   
+	    	     OR UPPER(SEAL.SUBJECT) 		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+	    	     OR UPPER(USMT.USER_NAME_LOC)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+	      	 )              
+         AND 'LO'					IN ($INS{F_APPLY_TYPE})		
+				
+	]]>
+	</method>	
+	<method name="doSelectSSHUP">
+	<![CDATA[
+	/* SepoaSealManagementManager.doSelectSSHUP */
+	  SELECT DISTINCT
+			 SHUP.HOUSE_CODE
+			,SHUP.COMPANY_CODE
+			,SHUP.MANAGE_NUMBER
+			,SHUP.DOC_NO
+			,SHUP.STATUS
+			,SHUP.ADD_DATE
+			,SHUP.ADD_TIME
+			,SHUP.ADD_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHUP.HOUSE_CODE AND USMT.USER_ID = SHUP.ADD_USER_ID) AS ADD_USER_NAME_LOC
+			,SHUP.CHANGE_DATE
+			,SHUP.CHANGE_TIME
+			,SHUP.CHANGE_USER_ID
+			,(SELECT USER_NAME_LOC FROM SUSMT USMT WHERE USMT.HOUSE_CODE = SHUP.HOUSE_CODE AND USMT.USER_ID = SHUP.CHANGE_USER_ID) AS CHANGE_USER_NAME_LOC
+			,SHUP.DEL_FLAG
+			,SHUP.SUBJECT
+			,SHUP.CHANGE_SEAL_MG_DEPT
+			,SHUP.CHANGE_SEAL_MG_USER_ID
+			,SHUP.CHANGE_SUB_MG_DEPT
+			,SHUP.CHANGE_SUB_MG_USER_ID
+			,SHUP.CHANGE_REQUEST_DATE
+			,SHUP.CHANGE_ELECTRON_FLAG
+			,SHUP.CHANGE_REAL_FLAG
+			,SHUP.CHANGE_EXTERNAL_FLAG
+			,SHUP.CHANGE_SEAL_USE
+			,SHUP.CHANGE_REMARK1
+			,SHUP.CHANGE_REMARK2
+			,SHUP.CHANGE_REMARK3
+			,SHUP.ELECTRON_FLAG
+			,SHUP.REAL_FLAG
+			,SHUP.EXTERNAL_FLAG
+			,SHUP.REASON
+			,SHUP.SEAL_TYPE
+			,SHUP.SEAL_MG_DEPT
+			,SHUP.SEAL_MG_USER_ID
+			,SHUP.SUB_MG_DEPT
+			,SHUP.SUB_MG_USER_ID
+			,SHUP.SEAL_USE
+			,SHUP.CAL_BASIS_131
+			,SHUP.CAL_BASIS_132
+			,SHUP.SEAL_ATTACH_NO
+			,SHUP.SEAL_USE_DEPT
+			,SHUP.SEAL_CATEGORY
+			,SHUP.PUBLIC_YN
+			,SHUP.CHANGE_SEAL_CATEGORY
+			,SHUP.CHANGE_PUBLIC_YN
+			,'UP' AS APPLY_TYPE
+			,#DB_OWNER#GETDEPTNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.CHANGE_SEAL_MG_DEPT, ${session.LANGUAGE}) AS CHANGE_SEAL_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.CHANGE_SEAL_MG_USER_ID, ${session.LANGUAGE}) AS CHANGE_SEAL_MG_USER_NAME								 	 
+			,#DB_OWNER#GETDEPTNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME
+			,#DB_OWNER#GETDEPTNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.CHANGE_SUB_MG_DEPT, ${session.LANGUAGE}) AS CHANGE_SUB_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.CHANGE_SUB_MG_USER_ID, ${session.LANGUAGE}) AS CHANGE_SUB_MG_USER_NAME								 	 
+			,#DB_OWNER#GETDEPTNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.SUB_MG_DEPT, ${session.LANGUAGE}) AS SUB_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SHUP.HOUSE_CODE, SHUP.COMPANY_CODE, SHUP.SUB_MG_USER_ID, ${session.LANGUAGE}) AS SUB_MG_USER_NAME
+			,SHUP.SEAL_DATE					 
+       FROM SDCAM DCAM 
+       INNER
+       JOIN SSHUP SHUP 
+         ON
+       		DCAM.HOUSE_CODE			= SHUP.HOUSE_CODE
+       	AND DCAM.COMPANY_CODE		= SHUP.COMPANY_CODE
+		AND DCAM.CODE				= SHUP.MANAGE_NUMBER
+		AND DCAM.SEQ				= SHUP.DOC_NO	
+		LEFT OUTER JOIN SUSMT USMT
+			ON
+				USMT.HOUSE_CODE		= SHUP.HOUSE_CODE
+			AND USMT.USER_ID		= SHUP.SEAL_MG_USER_ID
+       WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+    ]]>
+    <if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="ne" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+	    <if test="${IS_ADMIN}" operator="eq" value="true">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+	           AND (
+	           
+	                    DCAM.USER_ID                           = ${session.ID}
+	                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+	
+	               )
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND DCAM.USER_COMPANY_CODE = $S{COMPANY_CODE}
+	    	AND DCAM.USER_COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>
+    <![CDATA[
+         AND SHUP.MANAGE_NUMBER		= $S{MANAGE_NUMBER}				
+         AND SHUP.DOC_NO			= $S{DOC_NO}
+         AND SHUP.STATUS        	IN( $INS{STATUS})
+		 AND SHUP.STATUS			= $S{F_STATUS}
+	     AND SHUP.ADD_DATE	   		>= $S{F_CALENDAR_FROM}
+		 AND SHUP.ADD_DATE	   		<= $S{F_CALENDAR_TO}		                
+         AND #DB_OWNER#NVL(SHUP.DEL_FLAG, 'N') = 'N'
+	     AND (
+	   		        1=1	
+	    	    AND UPPER(SHUP.MANAGE_NUMBER)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+	    	     OR UPPER(SHUP.DOC_NO)			LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 		    	   
+	    	     OR UPPER(SHUP.SUBJECT) 		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+	    	     OR UPPER(USMT.USER_NAME_LOC)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+	      	 )         
+         AND 'UP'					IN ($INS{F_APPLY_TYPE})
+	]]>
+	</method>		
+	<method name="doUpdateSSHNE">
+	<![CDATA[
+	/* SepoaSealManagementManager.doUpdateSSHNE */
+	 UPDATE SSHNE
+	   SET
+			 STATUS             = #DB_OWNER#NVL(${STATUS          }, STATUS           )
+			,CHANGE_DATE        = ${current.DATE}
+			,CHANGE_TIME        = ${current.TIME}
+			,CHANGE_USER_ID     = ${session.ID}
+			,DEL_FLAG			= #DB_OWNER#NVL(${DEL_FLAG        }, DEL_FLAG         )
+			,SUBJECT            = #DB_OWNER#NVL(${SUBJECT         }, SUBJECT          )
+			,SEAL_TYPE          = #DB_OWNER#NVL(${SEAL_TYPE       }, SEAL_TYPE        )
+			,SEAL_MG_DEPT       = #DB_OWNER#NVL(${SEAL_MG_DEPT    }, SEAL_MG_DEPT     )
+			,SEAL_MG_USER_ID    = #DB_OWNER#NVL(${SEAL_MG_USER_ID }, SEAL_MG_USER_ID  )
+			,SUB_MG_DEPT        = #DB_OWNER#NVL(${SUB_MG_DEPT     }, SUB_MG_DEPT      )
+			,SUB_MG_USER_ID     = #DB_OWNER#NVL(${SUB_MG_USER_ID  }, SUB_MG_USER_ID   )
+			,SEAL_USE           = #DB_OWNER#NVL(${SEAL_USE        }, SEAL_USE         )
+			,CAL_BASIS_131      = #DB_OWNER#NVL(${CAL_BASIS_131   }, CAL_BASIS_131    )
+			,CAL_BASIS_132      = #DB_OWNER#NVL(${CAL_BASIS_132   }, CAL_BASIS_132    )
+			,RECV_TYPE          = #DB_OWNER#NVL(${RECV_TYPE       }, RECV_TYPE        )
+			,SEAL_DATE          = #DB_OWNER#NVL(${SEAL_DATE       }, SEAL_DATE        )
+			,SEAL_ATTACH_NO     = #DB_OWNER#NVL(${SEAL_ATTACH_NO  }, SEAL_ATTACH_NO   )
+			,CONFIRM_DATE       = #DB_OWNER#NVL(${CONFIRM_DATE    }, CONFIRM_DATE     )
+			,SEND_DATE          = #DB_OWNER#NVL(${SEND_DATE       }, SEND_DATE        )
+			,SEND_USER_ID       = #DB_OWNER#NVL(${SEND_USER_ID    }, SEND_USER_ID     )
+			,RECV_USER_ID       = #DB_OWNER#NVL(${RECV_USER_ID    }, RECV_USER_ID     )
+			,RECV_DATE          = #DB_OWNER#NVL(${RECV_DATE       }, RECV_DATE        )
+			,RECV_ADDR          = #DB_OWNER#NVL(${RECV_ADDR       }, RECV_ADDR        )
+			,SEAL_USE_DEPT      = #DB_OWNER#NVL(${SEAL_USE_DEPT   }, SEAL_USE_DEPT    )
+			,ELECTRON_FLAG      = #DB_OWNER#NVL(${ELECTRON_FLAG   }, ELECTRON_FLAG    )
+			,REAL_FLAG          = #DB_OWNER#NVL(${REAL_FLAG       }, REAL_FLAG        )
+			,EXTERNAL_FLAG      = #DB_OWNER#NVL(${EXTERNAL_FLAG   }, EXTERNAL_FLAG    )
+			,REASON             = #DB_OWNER#NVL(${REASON          }, REASON           )
+			,CAL_REMARK			= #DB_OWNER#NVL(${CAL_REMARK      }, CAL_REMARK       )
+			,SEAL_CATEGORY		= #DB_OWNER#NVL(${SEAL_CATEGORY   }, SEAL_CATEGORY    )
+			,PUBLIC_YN			= #DB_OWNER#NVL(${PUBLIC_YN		  }, PUBLIC_YN        )
+	 WHERE
+	 		HOUSE_CODE 		= ${session.HOUSE_CODE}
+	    AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+	    AND MANAGE_NUMBER   = ${MANAGE_NUMBER}
+	    AND DOC_NO 			= ${DOC_NO}
+	]]>                                                           
+	</method>
+	<method name="doDeleteSSHNE">
+	<![CDATA[
+	 DELETE
+	   FROM SSHNE
+	  WHERE 
+	 	 	HOUSE_CODE 		= ${session.HOUSE_CODE}  
+	 	AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+	 	AND MANAGE_NUMBER	= ${MANAGE_NUMBER}
+	 	AND DOC_NO			= ${DOC_NO}	
+	]]>
+	</method>
+	<method name="doInsertSSHNE">
+	<![CDATA[
+	 INSERT
+	   INTO SSHNE (
+			 HOUSE_CODE
+			,COMPANY_CODE
+			,MANAGE_NUMBER
+			,DOC_NO
+			,STATUS
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SUBJECT
+			,SEAL_TYPE
+			,SEAL_MG_DEPT
+			,SEAL_MG_USER_ID
+			,SUB_MG_DEPT
+			,SUB_MG_USER_ID
+			,SEAL_USE
+			,CAL_BASIS_131
+			,CAL_BASIS_132
+			,RECV_TYPE
+			,SEAL_DATE
+			,SEAL_ATTACH_NO
+			,CONFIRM_DATE
+			,SEND_DATE
+			,SEND_USER_ID
+			,RECV_USER_ID
+			,RECV_DATE
+			,RECV_ADDR
+			,SEAL_USE_DEPT
+			,ELECTRON_FLAG
+			,REAL_FLAG
+			,EXTERNAL_FLAG
+			,REASON
+			,CAL_REMARK	
+			,SEAL_CATEGORY
+			,PUBLIC_YN 
+	   	  )
+	  VALUES (
+			 ${session.HOUSE_CODE}
+			,${session.COMPANY_CODE}
+			,${MANAGE_NUMBER}
+			,${DOC_NO}
+			,${STATUS}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,'N'
+			,${SUBJECT}
+			,${SEAL_TYPE}
+			,${SEAL_MG_DEPT}
+			,${SEAL_MG_USER_ID}
+			,${SUB_MG_DEPT}
+			,${SUB_MG_USER_ID}
+			,${SEAL_USE}
+			,${CAL_BASIS_131}
+			,${CAL_BASIS_132}
+			,${RECV_TYPE}
+			,${SEAL_DATE}
+			,${SEAL_ATTACH_NO}
+			,${CONFIRM_DATE}
+			,${SEND_DATE}
+			,${SEND_USER_ID}
+			,${RECV_USER_ID}
+			,${RECV_DATE}
+			,${RECV_ADDR}
+			,${SEAL_USE_DEPT}
+			,${ELECTRON_FLAG}
+			,${REAL_FLAG}
+			,${EXTERNAL_FLAG}
+			,${REASON}
+			,${CAL_REMARK}
+			,${SEAL_CATEGORY}
+			,${PUBLIC_YN}
+	  	  ) 	  
+	]]>
+	</method>
+	<method name="doInsertSSHUP">
+	<![CDATA[
+	 INSERT
+	   INTO SSHUP (
+			 HOUSE_CODE
+			,COMPANY_CODE
+			,MANAGE_NUMBER
+			,DOC_NO
+			,STATUS
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SUBJECT
+			,CHANGE_SEAL_MG_DEPT
+			,CHANGE_SEAL_MG_USER_ID
+			,CHANGE_SUB_MG_DEPT
+			,CHANGE_SUB_MG_USER_ID
+			,CHANGE_REQUEST_DATE
+			,CHANGE_ELECTRON_FLAG
+			,CHANGE_REAL_FLAG
+			,CHANGE_EXTERNAL_FLAG
+			,CHANGE_SEAL_USE
+			,CHANGE_REMARK1
+			,CHANGE_REMARK2
+			,CHANGE_REMARK3
+			,ELECTRON_FLAG
+			,REAL_FLAG
+			,EXTERNAL_FLAG
+			,REASON
+			,SEAL_TYPE
+			,SEAL_MG_DEPT
+			,SEAL_MG_USER_ID
+			,SUB_MG_DEPT
+			,SUB_MG_USER_ID
+			,SEAL_USE
+			,CAL_BASIS_131
+			,CAL_BASIS_132
+			,SEAL_ATTACH_NO
+			,SEAL_USE_DEPT
+			,SEAL_DATE
+			,SEAL_CATEGORY
+			,PUBLIC_YN  
+			,CHANGE_SEAL_CATEGORY
+			,CHANGE_PUBLIC_YN  
+	   	  )
+	  VALUES (
+			 ${session.HOUSE_CODE     }
+			,${session.COMPANY_CODE   } 
+			,${MANAGE_NUMBER          }
+			,${DOC_NO                 }
+			,${STATUS                 }
+			,${current.DATE           }
+			,${current.TIME           }
+			,${session.ID             }
+			,${current.DATE           }
+			,${current.TIME           }
+			,${session.ID             }
+			,'N'
+			,${SUBJECT                }
+			,${CHANGE_SEAL_MG_DEPT    }
+			,${CHANGE_SEAL_MG_USER_ID }
+			,${CHANGE_SUB_MG_DEPT     }
+			,${CHANGE_SUB_MG_USER_ID  }
+			,${CHANGE_REQUEST_DATE    }
+			,${CHANGE_ELECTRON_FLAG	  }
+			,${CHANGE_REAL_FLAG	      }
+			,${CHANGE_EXTERNAL_FLAG	  }
+			,${CHANGE_SEAL_USE        }
+			,${CHANGE_REMARK1         }
+			,${CHANGE_REMARK2         }
+			,${CHANGE_REMARK3         }
+			,${ELECTRON_FLAG          }
+			,${REAL_FLAG              }
+			,${EXTERNAL_FLAG          }
+			,${REASON                 }
+			,${SEAL_TYPE              }
+			,${SEAL_MG_DEPT           }
+			,${SEAL_MG_USER_ID        }
+			,${SUB_MG_DEPT            }
+			,${SUB_MG_USER_ID         }
+			,${SEAL_USE               }
+			,${CAL_BASIS_131          }
+			,${CAL_BASIS_132          }
+			,${SEAL_ATTACH_NO         }
+			,${SEAL_USE_DEPT          }
+			,${SEAL_DATE              }
+			,${SEAL_CATEGORY   		  }
+			,${PUBLIC_YN		  	  }
+			,${CHANGE_SEAL_CATEGORY   }
+			,${CHANGE_PUBLIC_YN		  }
+	  	  ) 	  	
+	]]>
+	</method>
+	<method name="doUpdateSSHUP">
+	<![CDATA[
+	 UPDATE SSHUP
+	    SET                                                                                               
+             STATUS                    = #DB_OWNER#NVL(${STATUS                 }, STATUS                 )
+            ,CHANGE_DATE               = #DB_OWNER#NVL(${current.DATE           }, CHANGE_DATE            )
+            ,CHANGE_TIME               = #DB_OWNER#NVL(${current.TIME           }, CHANGE_TIME            )
+            ,CHANGE_USER_ID            = #DB_OWNER#NVL(${session.ID             }, CHANGE_USER_ID         )
+			,DEL_FLAG				   = #DB_OWNER#NVL(${DEL_FLAG               }, DEL_FLAG               )            
+            ,SUBJECT                   = #DB_OWNER#NVL(${SUBJECT                }, SUBJECT                )
+            ,CHANGE_SEAL_MG_DEPT       = #DB_OWNER#NVL(${CHANGE_SEAL_MG_DEPT    }, CHANGE_SEAL_MG_DEPT    )
+            ,CHANGE_SEAL_MG_USER_ID    = #DB_OWNER#NVL(${CHANGE_SEAL_MG_USER_ID }, CHANGE_SEAL_MG_USER_ID )
+            ,CHANGE_SUB_MG_DEPT        = #DB_OWNER#NVL(${CHANGE_SUB_MG_DEPT     }, CHANGE_SUB_MG_DEPT     )
+            ,CHANGE_SUB_MG_USER_ID     = #DB_OWNER#NVL(${CHANGE_SUB_MG_USER_ID  }, CHANGE_SUB_MG_USER_ID  )
+            ,CHANGE_REQUEST_DATE       = #DB_OWNER#NVL(${CHANGE_REQUEST_DATE    }, CHANGE_REQUEST_DATE    )
+            ,CHANGE_ELECTRON_FLAG      = #DB_OWNER#NVL(${CHANGE_ELECTRON_FLAG   }, CHANGE_ELECTRON_FLAG   )
+            ,CHANGE_REAL_FLAG          = #DB_OWNER#NVL(${CHANGE_REAL_FLAG       }, CHANGE_REAL_FLAG       )
+            ,CHANGE_EXTERNAL_FLAG      = #DB_OWNER#NVL(${CHANGE_EXTERNAL_FLAG   }, CHANGE_EXTERNAL_FLAG   )
+            ,CHANGE_SEAL_USE           = #DB_OWNER#NVL(${CHANGE_SEAL_USE        }, CHANGE_SEAL_USE        )
+            ,CHANGE_REMARK1            = #DB_OWNER#NVL(${CHANGE_REMARK1         }, CHANGE_REMARK1         )
+            ,CHANGE_REMARK2            = #DB_OWNER#NVL(${CHANGE_REMARK2         }, CHANGE_REMARK2         )
+            ,CHANGE_REMARK3            = #DB_OWNER#NVL(${CHANGE_REMARK3         }, CHANGE_REMARK3         )
+            ,ELECTRON_FLAG             = #DB_OWNER#NVL(${ELECTRON_FLAG          }, ELECTRON_FLAG          )
+            ,REAL_FLAG                 = #DB_OWNER#NVL(${REAL_FLAG              }, REAL_FLAG              )
+            ,EXTERNAL_FLAG             = #DB_OWNER#NVL(${EXTERNAL_FLAG          }, EXTERNAL_FLAG          )
+            ,REASON                    = #DB_OWNER#NVL(${REASON                 }, REASON                 )
+            ,SEAL_TYPE                 = #DB_OWNER#NVL(${SEAL_TYPE              }, SEAL_TYPE              )
+            ,SEAL_MG_DEPT              = #DB_OWNER#NVL(${SEAL_MG_DEPT           }, SEAL_MG_DEPT           )
+            ,SEAL_MG_USER_ID           = #DB_OWNER#NVL(${SEAL_MG_USER_ID        }, SEAL_MG_USER_ID        )
+            ,SUB_MG_DEPT               = #DB_OWNER#NVL(${SUB_MG_DEPT            }, SUB_MG_DEPT            )
+            ,SUB_MG_USER_ID            = #DB_OWNER#NVL(${SUB_MG_USER_ID         }, SUB_MG_USER_ID         )
+            ,SEAL_USE                  = #DB_OWNER#NVL(${SEAL_USE               }, SEAL_USE               )
+            ,CAL_BASIS_131             = #DB_OWNER#NVL(${CAL_BASIS_131          }, CAL_BASIS_131          )
+            ,CAL_BASIS_132             = #DB_OWNER#NVL(${CAL_BASIS_132          }, CAL_BASIS_132          )
+            ,SEAL_ATTACH_NO            = #DB_OWNER#NVL(${SEAL_ATTACH_NO         }, SEAL_ATTACH_NO         )
+            ,SEAL_USE_DEPT	           = #DB_OWNER#NVL(${SEAL_USE_DEPT          }, SEAL_USE_DEPT          )
+            ,SEAL_DATE				   = #DB_OWNER#NVL(${SEAL_DATE              }, SEAL_DATE              )
+            ,SEAL_CATEGORY			   = #DB_OWNER#NVL(${SEAL_CATEGORY   		}, SEAL_CATEGORY   		  )
+            ,PUBLIC_YN		  		   = #DB_OWNER#NVL(${PUBLIC_YN		  		}, PUBLIC_YN  			  )
+            ,CHANGE_SEAL_CATEGORY	   = #DB_OWNER#NVL(${CHANGE_SEAL_CATEGORY   }, CHANGE_SEAL_CATEGORY   )
+            ,CHANGE_PUBLIC_YN  		   = #DB_OWNER#NVL(${CHANGE_PUBLIC_YN  		}, CHANGE_PUBLIC_YN		  )
+       WHERE
+       		 HOUSE_CODE           = ${session.HOUSE_CODE}
+       	 AND COMPANY_CODE         = ${session.COMPANY_CODE}
+       	 AND MANAGE_NUMBER        = ${MANAGE_NUMBER}
+       	 AND DOC_NO	              = ${DOC_NO}
+	]]>
+	</method>
+	<method name="doDeleteSSHUP">
+	<![CDATA[
+	 DELETE
+	   FROM SSHUP
+	  WHERE 
+	 	 	HOUSE_CODE 		= ${session.HOUSE_CODE}  
+	 	AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+	 	AND MANAGE_NUMBER	= ${MANAGE_NUMBER}
+	 	AND DOC_NO			= ${DOC_NO}		
+	]]>
+	</method>
+	<method name="doSelectSSEAL">
+	<![CDATA[
+	 SELECT
+			 SEAL.HOUSE_CODE
+			,SEAL.COMPANY_CODE
+			,SEAL.MANAGE_NUMBER
+			,SEAL.ADD_DATE
+			,SEAL.ADD_TIME
+			,SEAL.ADD_USER_ID
+			,SEAL.CHANGE_DATE
+			,SEAL.CHANGE_TIME
+			,SEAL.CHANGE_USER_ID
+			,SEAL.DEL_FLAG
+			,SEAL.SUBJECT
+			,SEAL.SEAL_STATUS
+			,SEAL.SEAL_TYPE
+			,SEAL.SEAL_MG_DEPT
+			,SEAL.SEAL_MG_USER_ID
+			,SEAL.SUB_MG_DEPT
+			,SEAL.SUB_MG_USER_ID
+			,SEAL.CAL_BASIS_131
+			,SEAL.CAL_BASIS_132
+			,SEAL.RECV_TYPE
+			,SEAL.RECV_DATE
+			,SEAL.RECV_USER_ID
+			,SEAL.RECV_ADDR
+			,SEAL.SEAL_DATE
+			,SEAL.SEAL_ATTACH_NO
+			,SEAL.SEAL_USE_DEPT
+			,SEAL.CONFIRM_DATE
+			,SEAL.SEND_DATE
+			,SEAL.SEND_USER_ID
+			,CASE WHEN SEAL.ELECTRON_FLAG = 'Y' THEN '1' ELSE '0' END AS ELECTRON_FLAG
+			,CASE WHEN SEAL.REAL_FLAG  = 'Y' THEN '1' ELSE '0' END AS REAL_FLAG
+			,CASE WHEN SEAL.EXTERNAL_FLAG = 'Y' THEN '1' ELSE '0' END AS EXTERNAL_FLAG
+			,#DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME
+			,#DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SUB_MG_DEPT, ${session.LANGUAGE}) AS SUB_MG_DEPT_NAME
+			,#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SUB_MG_USER_ID, ${session.LANGUAGE}) AS SUB_MG_USER_NAME
+			,SEAL.CAL_REMARK	
+			,SEAL.SEAL_ID
+			,SEAL.SEAL_CATEGORY
+			,SEAL.PUBLIC_YN
+	   FROM
+	  		SSEAL SEAL 
+	  	LEFT OUTER JOIN SUSMT USMT
+	  		ON
+	  			USMT.HOUSE_CODE = SEAL.HOUSE_CODE
+	  		AND USMT.USER_ID = SEAL.SEAL_MG_USER_ID
+	  WHERE	
+			SEAL.HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND SEAL.MANAGE_NUMBER   = $S{MANAGE_NUMBER}
+	    AND #DB_OWNER#NVL(SEAL.DEL_FLAG, 'N') = 'N'
+	    AND (
+	    			1=1	
+	    	   AND	UPPER(SEAL.SUBJECT) 		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+	    		OR	UPPER(SEAL.MANAGE_NUMBER)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+	    		OR	UPPER(USMT.USER_NAME_LOC)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+	    	)	
+	    AND SEAL.SEAL_STATUS		= $S{SEAL_STATUS}
+	    AND SEAL.SEAL_MG_USER_ID = $S{SEAL_MG_USER_ID}
+		AND SEAL.SEAL_MG_DEPT	= $S{USER_DEPT}
+       	AND SEAL.SEAL_DATE	   >= $S{F_CALENDAR_FROM}
+		AND SEAL.SEAL_DATE	   <= $S{F_CALENDAR_TO}
+	    AND SEAL.SEAL_TYPE IN($INS{SEAL_TYPE})
+	]]>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+    <![CDATA[
+    	AND SEAL.COMPANY_CODE   = ${session.COMPANY_CODE}
+	]]>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND SEAL.COMPANY_CODE   = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND SEAL.COMPANY_CODE   = $S{COMPANY_CODE}
+	    	AND SEAL.COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>
+	<![CDATA[
+		ORDER BY SEAL.COMPANY_CODE, SEAL.MANAGE_NUMBER DESC
+	]]>
+	</method>
+	<method name="doInsertSSEAL">
+	<![CDATA[
+	 INSERT
+	 INTO SSEAL (
+				   HOUSE_CODE
+				  ,COMPANY_CODE
+				  ,MANAGE_NUMBER
+				  ,ADD_DATE
+				  ,ADD_TIME
+				  ,ADD_USER_ID
+				  ,CHANGE_DATE
+				  ,CHANGE_TIME
+				  ,CHANGE_USER_ID
+				  ,DEL_FLAG
+				  ,SUBJECT
+				  ,SEAL_STATUS
+				  ,SEAL_TYPE
+				  ,SEAL_MG_DEPT
+				  ,SEAL_MG_USER_ID
+				  ,SUB_MG_DEPT
+				  ,SUB_MG_USER_ID
+				  ,CAL_BASIS_131
+				  ,CAL_BASIS_132
+				  ,RECV_TYPE
+				  ,RECV_DATE
+				  ,RECV_USER_ID
+				  ,RECV_ADDR
+				  ,SEAL_DATE
+				  ,SEAL_ATTACH_NO
+				  ,SEAL_USE_DEPT
+				  ,CONFIRM_DATE
+				  ,SEND_DATE
+				  ,SEND_USER_ID
+				  ,ELECTRON_FLAG
+				  ,REAL_FLAG
+				  ,EXTERNAL_FLAG
+				  ,CAL_REMARK
+				  ,SEAL_ID
+				  ,SEAL_CATEGORY
+				  ,PUBLIC_YN
+	 	) VALUES (                       
+				   ${session.HOUSE_CODE}
+				  ,${session.COMPANY_CODE}
+				  ,${MANAGE_NUMBER}
+				  ,${current.DATE}
+				  ,${current.TIME}
+				  ,${session.ID}
+				  ,${current.DATE}
+				  ,${current.TIME}
+				  ,${session.ID}
+				  ,'N'
+				  ,${SUBJECT        }
+				  ,${SEAL_STATUS    }
+				  ,${SEAL_TYPE      }
+				  ,${SEAL_MG_DEPT   }
+				  ,${SEAL_MG_USER_ID}
+				  ,${SUB_MG_DEPT    }
+				  ,${SUB_MG_USER_ID }
+				  ,${CAL_BASIS_131  }
+				  ,${CAL_BASIS_132  }
+				  ,${RECV_TYPE      }
+				  ,${RECV_DATE      }
+				  ,${RECV_USER_ID   }
+				  ,${RECV_ADDR      }
+				  ,${SEAL_DATE      }
+				  ,${SEAL_ATTACH_NO }
+				  ,${SEAL_USE_DEPT  }
+				  ,${CONFIRM_DATE   }
+				  ,${SEND_DATE      }
+				  ,${SEND_USER_ID   }
+				  ,${ELECTRON_FLAG  }
+				  ,${REAL_FLAG      }
+				  ,${EXTERNAL_FLAG	}
+				  ,${CAL_REMARK		} 
+				  ,${SEAL_ID		}
+				  ,${SEAL_CATEGORY	}
+				  ,${PUBLIC_YN		}
+	 		)
+	]]>
+	</method>						
+	<method name="doUpdateSSEAL">
+	<![CDATA[
+	 UPDATE SSEAL
+	    SET
+			 CHANGE_DATE      = ${current.DATE}
+			,CHANGE_TIME      = ${current.TIME}
+			,CHANGE_USER_ID   = ${session.ID}
+			,DEL_FLAG		  = #DB_OWNER#NVL(${DEL_FLAG           }, DEL_FLAG       )			
+			,SUBJECT          = #DB_OWNER#NVL(${SUBJECT            }, SUBJECT        )
+			,SEAL_STATUS      = #DB_OWNER#NVL(${SEAL_STATUS        }, SEAL_STATUS    )
+			,SEAL_TYPE        = #DB_OWNER#NVL(${SEAL_TYPE          }, SEAL_TYPE      )
+			,SEAL_MG_DEPT     = #DB_OWNER#NVL(${SEAL_MG_DEPT       }, SEAL_MG_DEPT   )
+			,SEAL_MG_USER_ID  = #DB_OWNER#NVL(${SEAL_MG_USER_ID    }, SEAL_MG_USER_ID)
+			,SUB_MG_DEPT      = #DB_OWNER#NVL(${SUB_MG_DEPT        }, ''  			 )
+			,SUB_MG_USER_ID   = #DB_OWNER#NVL(${SUB_MG_USER_ID     }, ''			 )
+			,CAL_BASIS_131    = #DB_OWNER#NVL(${CAL_BASIS_131      }, CAL_BASIS_131  )
+			,CAL_BASIS_132    = #DB_OWNER#NVL(${CAL_BASIS_132      }, CAL_BASIS_132  )
+			,RECV_TYPE        = #DB_OWNER#NVL(${RECV_TYPE          }, RECV_TYPE      )
+			,RECV_DATE        = #DB_OWNER#NVL(${RECV_DATE          }, RECV_DATE      )
+			,RECV_USER_ID     = #DB_OWNER#NVL(${RECV_USER_ID       }, RECV_USER_ID   )
+			,RECV_ADDR        = #DB_OWNER#NVL(${RECV_ADDR          }, RECV_ADDR      )
+			,SEAL_DATE        = #DB_OWNER#NVL(${SEAL_DATE          }, SEAL_DATE      )
+			,SEAL_ATTACH_NO   = #DB_OWNER#NVL(${SEAL_ATTACH_NO     }, SEAL_ATTACH_NO )
+			,SEAL_USE_DEPT    = #DB_OWNER#NVL(${SEAL_USE_DEPT      }, SEAL_USE_DEPT  )
+			,CONFIRM_DATE     = #DB_OWNER#NVL(${CONFIRM_DATE       }, CONFIRM_DATE   )
+			,SEND_DATE        = #DB_OWNER#NVL(${SEND_DATE          }, SEND_DATE      )
+			,SEND_USER_ID     = #DB_OWNER#NVL(${SEND_USER_ID       }, SEND_USER_ID   )
+			,ELECTRON_FLAG    = #DB_OWNER#NVL(${ELECTRON_FLAG      }, ELECTRON_FLAG  )
+			,REAL_FLAG        = #DB_OWNER#NVL(${REAL_FLAG          }, REAL_FLAG      )
+			,EXTERNAL_FLAG	  = #DB_OWNER#NVL(${EXTERNAL_FLAG      }, EXTERNAL_FLAG  )
+			,SEAL_CATEGORY	  = #DB_OWNER#NVL(${SEAL_CATEGORY      }, SEAL_CATEGORY  )
+			,PUBLIC_YN		  = #DB_OWNER#NVL(${PUBLIC_YN		   }, PUBLIC_YN  	 )
+	  WHERE	
+			HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND	COMPANY_CODE    = ${session.COMPANY_CODE}
+	    AND MANAGE_NUMBER   = ${MANAGE_NUMBER}	
+	]]>                        
+	</method>
+	<method name="doUpdateSSHLO">
+	<![CDATA[
+	 UPDATE SSHLO
+	    SET
+			 STATUS           = #DB_OWNER#NVL(${STATUS        }, STATUS        )
+			,CHANGE_DATE      = ${current.DATE}
+			,CHANGE_TIME      = ${current.TIME}
+			,CHANGE_USER_ID   = ${session.ID}
+			,DEL_FLAG		  = #DB_OWNER#NVL(${DEL_FLAG      }, DEL_FLAG      )			
+			,LOSS_DEPT        = #DB_OWNER#NVL(${LOSS_DEPT     }, LOSS_DEPT     )
+			,LOSS_USER_ID     = #DB_OWNER#NVL(${LOSS_USER_ID  }, LOSS_USER_ID  )
+			,LOSS_DT_PLACE    = #DB_OWNER#NVL(${LOSS_DT_PLACE }, LOSS_DT_PLACE )
+			,LOSS_REMARK      = #DB_OWNER#NVL(${LOSS_REMARK   }, LOSS_REMARK   )
+			,REASON           = #DB_OWNER#NVL(${REASON        }, REASON        )
+			,ATTACH_NO		  = #DB_OWNER#NVL(${ATTACH_NO     }, ATTACH_NO     )
+	  WHERE
+			HOUSE_CODE 		= ${session.HOUSE_CODE}
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND MANAGE_NUMBER	= ${MANAGE_NUMBER}
+		AND DOC_NO			= ${DOC_NO}	
+	]]>
+	</method>
+	<method name="doInsertSSHLO">
+	<![CDATA[
+	 INSERT 
+	   INTO SSHLO (
+					 HOUSE_CODE
+					,COMPANY_CODE
+					,MANAGE_NUMBER
+					,DOC_NO
+					,STATUS
+					,ADD_DATE
+					,ADD_TIME
+					,ADD_USER_ID
+					,CHANGE_DATE
+					,CHANGE_TIME
+					,CHANGE_USER_ID
+					,DEL_FLAG
+					,LOSS_DEPT
+					,LOSS_USER_ID
+					,LOSS_DT_PLACE
+					,LOSS_REMARK
+					,REASON
+					,ATTACH_NO	  	
+		    )
+		 VALUES (
+					 ${session.HOUSE_CODE}
+					,${session.COMPANY_CODE}
+					,${MANAGE_NUMBER }
+					,${DOC_NO        }
+					,${STATUS        }
+					,${current.DATE}
+					,${current.TIME}
+					,${session.ID}
+					,${current.DATE}
+					,${current.TIME}
+					,${session.ID}
+					,'N'
+					,${LOSS_DEPT     }
+					,${LOSS_USER_ID  }
+					,${LOSS_DT_PLACE }
+					,${LOSS_REMARK   }
+					,${REASON	 	 }
+					,${ATTACH_NO     }
+		 )
+	]]>
+	</method>
+	<method name="doInsertSSHRE">
+	<![CDATA[
+	 INSERT 
+	 	INTO SSHRE (
+					 HOUSE_CODE
+					,COMPANY_CODE
+					,MANAGE_NUMBER
+					,DOC_NO
+					,STATUS
+					,ADD_DATE
+					,ADD_TIME
+					,ADD_USER_ID
+					,CHANGE_DATE
+					,CHANGE_TIME
+					,CHANGE_USER_ID
+					,DEL_FLAG
+					,REASON
+					,RETURN_REMARK	 	
+	 	)
+	 	VALUES (
+					 ${session.HOUSE_CODE}
+					,${session.COMPANY_CODE}
+					,${MANAGE_NUMBER}
+					,${DOC_NO}
+					,${STATUS}
+					,${current.DATE}
+					,${current.TIME}
+					,${session.ID}
+					,${current.DATE}
+					,${current.TIME}
+					,${session.ID}
+					,'N'
+					,${REASON}
+					,${RETURN_REMARK}	 		
+	 	)	
+	]]>
+	</method>
+	<method name="doUpdateSSHRE">
+	<![CDATA[
+	 UPDATE SSHRE
+	 	SET
+			 STATUS         = #DB_OWNER#NVL(${STATUS        }, STATUS         )
+			,CHANGE_DATE    = ${current.DATE}
+			,CHANGE_TIME    = ${current.TIME}
+			,CHANGE_USER_ID = ${session.ID}
+			,DEL_FLAG		= #DB_OWNER#NVL(${DEL_FLAG        }, DEL_FLAG     )			
+			,REASON         = #DB_OWNER#NVL(${REASON        }, REASON         )
+			,RETURN_REMARK	= #DB_OWNER#NVL(${RETURN_REMARK }, RETURN_REMARK  )
+	 WHERE	
+		   HOUSE_CODE 		= ${session.HOUSE_CODE}
+	   AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+	   AND MANAGE_NUMBER 	= ${MANAGE_NUMBER}
+	   AND DOC_NO			= ${DOC_NO}
+	]]>
+	</method>
+	<method name="doInsertSSUSE">
+	<![CDATA[
+	 INSERT 
+	   INTO SSUSE (
+			 HOUSE_CODE
+			,COMPANY_CODE
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,MANAGE_NUMBER
+			,USE_NUMBER	   
+	   ) VALUES (
+			 ${session.HOUSE_CODE     }
+			,${session.COMPANY_CODE   }
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,'N'
+			,${MANAGE_NUMBER  }
+			,${USE_NUMBER	  }
+	   )
+	]]>	
+	</method>
+	<method name="doDeleteSSUSE">
+	<![CDATA[
+	  DELETE
+	    FROM SSUSE
+	   WHERE 
+	 	 	  HOUSE_CODE 		= ${session.HOUSE_CODE}  
+	 	 AND  COMPANY_CODE 		= ${session.COMPANY_CODE}
+	 	 AND  MANAGE_NUMBER		= ${MANAGE_NUMBER}
+	]]>
+	</method>
+	<method name="selectSealUseLoc">
+	<![CDATA[
+	/* SepoaSealManagementManager.selectSealUseLoc */
+	 SELECT
+	 		SUBJECT
+	   FROM SUDGL 
+  	  WHERE HOUSE_CODE 		= ${session.HOUSE_CODE}
+		AND	COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND USE_NUMBER	    IN( $INS{SEAL_USE}  )
+	 				
+	]]>
+	</method>
+	<method name="doSelectSSEALList">
+	<![CDATA[
+	/* SepoaSealManagementManager.doSelectSSEALList */
+		SELECT 
+			  SEAL.HOUSE_CODE
+			 ,SEAL.COMPANY_CODE
+			 ,SEAL.MANAGE_NUMBER
+			 ,SEAL.ADD_DATE
+			 ,SEAL.ADD_TIME
+			 ,SEAL.ADD_USER_ID
+			 ,SEAL.CHANGE_DATE
+			 ,SEAL.CHANGE_TIME
+			 ,SEAL.CHANGE_USER_ID
+			 ,SEAL.DEL_FLAG
+			 ,SEAL.SUBJECT
+			 ,SEAL.SEAL_STATUS
+			 ,SEAL.SEAL_TYPE
+			 ,SEAL.SEAL_MG_DEPT
+			 ,SEAL.SEAL_MG_USER_ID
+			 ,SEAL.CAL_BASIS_131
+			 ,SEAL.CAL_BASIS_132
+			 ,SEAL.RECV_TYPE
+			 ,SEAL.RECV_DATE
+			 ,SEAL.RECV_USER_ID
+			 ,SEAL.RECV_ADDR
+			 ,SEAL.SEAL_DATE
+			 ,SEAL.SEAL_ATTACH_NO
+			 ,SEAL.SEAL_USE_DEPT
+			 ,SEAL.CONFIRM_DATE
+			 ,SEAL.SEND_DATE
+			 ,SEAL.SEND_USER_ID
+			 ,SEAL.SEAL_CATEGORY
+			 ,CASE WHEN SEAL.ELECTRON_FLAG = 'Y' THEN '1' ELSE '0' END AS ELECTRON_FLAG
+			 ,CASE WHEN SEAL.REAL_FLAG  = 'Y' THEN '1' ELSE '0' END AS REAL_FLAG
+			 ,CASE WHEN SEAL.EXTERNAL_FLAG = 'Y' THEN '1' ELSE '0' END AS EXTERNAL_FLAG
+			 ,#DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_NAME
+			 ,#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME			 
+               FROM SDCAM DCAM 
+               INNER
+               JOIN SSEAL SEAL 
+                 ON
+               		DCAM.HOUSE_CODE			= SEAL.HOUSE_CODE
+               	AND DCAM.COMPANY_CODE		= SEAL.COMPANY_CODE
+               	AND DCAM.CODE				= SEAL.MANAGE_NUMBER	
+         WHERE DCAM.HOUSE_CODE                             = ${session.HOUSE_CODE}
+           AND DCAM.USER_COMPANY_CODE                      = ${session.COMPANY_CODE}
+           AND (
+                    DCAM.USER_ID                           = ${session.ID}
+                 OR DCAM.USER_GROUP_CODE                   = ${session.DEPARTMENT}
+               )     
+	]]>
+	</method>
+	<method name="doSelectSUDGL">
+	 <![CDATA[
+	 /* SepoaSealManagementManager.doSelectSUDGL */
+		 SELECT 
+				HOUSE_CODE
+				,COMPANY_CODE
+				,USE_NUMBER
+				,ADD_DATE
+				,ADD_TIME
+				,ADD_USER_ID
+				,CHANGE_DATE
+				,CHANGE_TIME
+				,CHANGE_USER_ID
+				,DEL_FLAG
+				,SUBJECT
+				,CONTENT
+				,SORT_SEQ
+				,CORP_FLAG
+				,USE_FLAG
+				,EXTERNAL_FLAG
+				,FORM_ID
+		FROM SUDGL 
+		WHERE HOUSE_CODE 		= ${session.HOUSE_CODE}
+		  AND USE_NUMBER		= $S{USE_NUMBER}
+					
+	]]>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+    <![CDATA[
+    	AND COMPANY_CODE   = ${session.COMPANY_CODE}
+	]]>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND COMPANY_CODE   = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND COMPANY_CODE   = $S{COMPANY_CODE}
+	    	AND COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>
+	</method>
+	<method name="doSelectSealUseInfo">
+	 <![CDATA[
+	 /* SepoaSealManagementManager.doSelectSealUseInfo */
+		 SELECT 
+				 SUSE.HOUSE_CODE
+				,SUSE.COMPANY_CODE
+				,SUSE.ADD_DATE
+				,SUSE.ADD_TIME
+				,SUSE.ADD_USER_ID
+				,SUSE.CHANGE_DATE
+				,SUSE.CHANGE_TIME
+				,SUSE.CHANGE_USER_ID
+				,SUSE.DEL_FLAG
+				,SUSE.MANAGE_NUMBER
+				,SUSE.USE_NUMBER
+				,UDGL.SUBJECT
+		 FROM SSUSE SUSE 
+		INNER 
+		 JOIN SUDGL UDGL  		
+		   ON SUSE.HOUSE_CODE		= UDGL.HOUSE_CODE
+		  AND SUSE.COMPANY_CODE		= UDGL.COMPANY_CODE
+		  AND SUSE.USE_NUMBER		= UDGL.USE_NUMBER
+	    WHERE
+	    	  SUSE.HOUSE_CODE		= ${session.HOUSE_CODE}
+		  AND SUSE.MANAGE_NUMBER	= ${MANAGE_NUMBER}			
+	]]>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+    <![CDATA[
+    	AND SUSE.COMPANY_CODE   = ${session.COMPANY_CODE}
+	]]>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND SUSE.COMPANY_CODE   = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND SUSE.COMPANY_CODE   = $S{COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	</method>										
+	
+	<method name="doSelectSealMappedPim">
+	<![CDATA[
+	/* SepoaSealManagementManager.doSelectSealMappedPim */
+		SELECT
+			   SEAL.HOUSE_CODE
+			 , SEAL.COMPANY_CODE
+			 , SEAL.MANAGE_NUMBER
+			 , SEAL.SUBJECT
+			 , SEAL.SEAL_STATUS
+			 , SEAL.SEAL_TYPE
+			 , SEAL.SEAL_MG_DEPT
+			 , SEAL.SEAL_MG_USER_ID
+			 , SEAL.ELECTRON_FLAG 
+    		 , SEAL.REAL_FLAG 
+    		 , SEAL.SEAL_CATEGORY
+    		 , #DB_OWNER#GETCODETEXT1(SEAL.HOUSE_CODE, 'SC001', SEAL.SEAL_CATEGORY, ${session.LANGUAGE}) AS SEAL_CATEGORY_NAME
+			 , UPIM.ITEM_NAME 
+			 , UPIM.ITEM_CODE 
+			 , UPIM.ITEM_TYPE
+			 , UPIM.SEAL_WIDTH 
+			 , UPIM.SEAL_HEIGHT 
+			 , UPIM.ITEM_NO
+		FROM SSEAL SEAL 
+			INNER JOIN SUPIM UPIM 
+			ON UPIM.HOUSE_CODE  		= SEAL.HOUSE_CODE 
+			AND UPIM.COMPANY_CODE 		= SEAL.COMPANY_CODE 
+			AND UPIM.ITEM_CODE 			= SEAL.SEAL_TYPE 
+		WHERE SEAL.HOUSE_CODE 			= ${session.HOUSE_CODE}
+			AND SEAL.COMPANY_CODE 		= ${session.COMPANY_CODE}
+			AND SEAL.MANAGE_NUMBER		= $S{MANAGE_NUMBER}
+			AND SEAL.SEAL_TYPE			IN($INS{SEAL_TYPE})
+			AND UPPER(SEAL.SUBJECT) 			LIKE CONCAT('%', UPPER($S{KEYWORD}), '%')
+			AND SEAL.SEAL_STATUS 		IN($INS{SEAL_STATUS})
+			AND UPIM.DEL_FLAG = 'N'
+			AND SEAL.DEL_FLAG = 'N'
+			AND SEAL.SEAL_MG_DEPT 	= $S{SEAL_MG_DEPT}
+	]]>
+	</method>	
+	<method name="doSelectSealMappedUse">
+	<![CDATA[
+	/* SepoaSealManagementManager.doSelectSealMappedUse */
+		SELECT * FROM(
+			SELECT  
+			   ROW_NUMBER() OVER (PARTITION BY SEAL.MANAGE_NUMBER ORDER BY A.CHANGE_DATE DESC, A.CHANGE_TIME DESC) AS RNUM 
+			 , SEAL.HOUSE_CODE
+			 , SEAL.COMPANY_CODE
+			 , SEAL.MANAGE_NUMBER
+			 , SEAL.SUBJECT
+			 , SEAL.SEAL_STATUS
+			 , SEAL.SEAL_TYPE
+			 , SEAL.SEAL_CATEGORY 
+			 , CODE.TEXT1 AS CATEGORY_NAME 
+			 , SEAL.SEAL_MG_DEPT
+			 , SEAL.SEAL_MG_USER_ID
+			 , SEAL.ELECTRON_FLAG 
+    		 , SEAL.REAL_FLAG 
+			 , UPIM.ITEM_NAME 
+			 , UPIM.ITEM_CODE 
+			 , UPIM.ITEM_TYPE
+			 , UPIM.SEAL_WIDTH 
+			 , UPIM.SEAL_HEIGHT 
+			 , UPIM.ITEM_NO
+			 , #DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, ${session.LANGUAGE}) AS SEAL_MG_USER_NAME
+			 , #DB_OWNER#GETDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_DEPT, ${session.LANGUAGE}) AS SEAL_MG_DEPT_LOC
+			 , CASE WHEN A.COMPLETE_FLAG IS NULL THEN 'Y' ELSE A.COMPLETE_FLAG END AS COMPLETE_FLAG  
+		     , CASE WHEN A.CHANGE_DATE IS NULL THEN '' ELSE A.CHANGE_DATE END AS CHANGE_DATE  
+		     , CASE WHEN A.CHANGE_TIME IS NULL THEN '' ELSE A.CHANGE_TIME END AS CHANGE_TIME  
+			 , SETL.EXT_OUT_EXPECT_DATE 
+			 , SETL.EXT_OUT_EXPECT_TIME 
+			 , SETL.EXT_IN_EXPECT_DATE 
+			 , SETL.EXT_IN_EXPECT_TIME 
+		FROM SSEAL SEAL 
+ 		 INNER JOIN SSUSE SUSE 
+			ON SUSE.HOUSE_CODE 			= SEAL.HOUSE_CODE
+			AND SUSE.COMPANY_CODE 		= SEAL.COMPANY_CODE
+			AND SUSE.MANAGE_NUMBER		= SEAL.MANAGE_NUMBER
+			AND SUSE.USE_NUMBER 		IN($INS{SEAL_USE_TYPE})
+		 INNER JOIN SUPIM UPIM 
+			ON UPIM.HOUSE_CODE  		= SEAL.HOUSE_CODE 
+			AND UPIM.COMPANY_CODE 		= SEAL.COMPANY_CODE 
+			AND UPIM.ITEM_CODE 			= SEAL.SEAL_TYPE 
+		  LEFT OUTER JOIN SCODE CODE 
+		   	ON CODE.HOUSE_CODE = SEAL.HOUSE_CODE 
+		   	AND CODE.TYPE = 'SC001'
+		   	AND CODE.CODE = SEAL.SEAL_CATEGORY 
+		   	AND CODE.LANGUAGE = ${session.LANGUAGE}
+		  LEFT OUTER JOIN SSEDC_SEAL A 
+		    ON A.HOUSE_CODE    			= SEAL.HOUSE_CODE
+		    AND A.COMPANY_CODE   		= SEAL.COMPANY_CODE
+		    AND A.MANAGE_NUMBER 		= SEAL.MANAGE_NUMBER 
+		  LEFT OUTER JOIN SSETL SETL
+		    ON SETL.HOUSE_CODE 			= A.HOUSE_CODE 
+		    AND SETL.COMPANY_CODE 		= A.COMPANY_CODE
+		    AND SETL.SMR_NUMBER  		= A.SMR_NUMBER  	 	
+		WHERE SEAL.HOUSE_CODE			= ${session.HOUSE_CODE}
+			AND SEAL.COMPANY_CODE 		= ${session.COMPANY_CODE}
+			AND SEAL.MANAGE_NUMBER		= $S{MANAGE_NUMBER}
+			AND SEAL.SEAL_TYPE 			IN($INS{SEAL_TYPE})
+			AND (UPPER(SEAL.MANAGE_NUMBER)		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+			     OR UPPER(SEAL.SUBJECT) 		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+				 OR UPPER(#DB_OWNER#GETUSERNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, '#session.LANGUAGE#')) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+				 OR UPPER(#DB_OWNER#GETUSERDEPTNAME(SEAL.HOUSE_CODE, SEAL.COMPANY_CODE, SEAL.SEAL_MG_USER_ID, '#session.LANGUAGE#')) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') )
+			AND SEAL.SEAL_STATUS		IN($INS{SEAL_STATUS})
+			AND SEAL.EXTERNAL_FLAG		= $S{EXTERNAL_FLAG}
+			AND SEAL.ELECTRON_FLAG		= $S{ELECTRON_FLAG}
+    		AND SEAL.REAL_FLAG 			= $S{REAL_FLAG}
+    		AND SEAL.SEAL_MG_DEPT = $S{SEAL_MG_DEPT}
+    ]]>
+    <if test="${SORT_DEPT}" operator="eq" value="Y">
+    <![CDATA[
+         	AND (${session.DEPARTMENT} = SEAL.SEAL_MG_DEPT OR SEAL.PUBLIC_YN ='Y')
+    ]]>
+    </if>
+    	) B
+			WHERE B.RNUM = 1;
+	</method>										
+	<method name="doSelectSSUSE">
+	<![CDATA[ 
+	/* SepoaSealManagementManager.doSelectSSUSE */
+		SELECT
+			  HOUSE_CODE
+			, COMPANY_CODE
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, DEL_FLAG
+			, MANAGE_NUMBER
+			, USE_NUMBER
+		FROM
+			SSUSE 
+		WHERE
+			HOUSE_CODE 			= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+			AND MANAGE_NUMBER 	= ${MANAGE_NUMBER}
+			AND USE_NUMBER 		= ${USE_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSUSMT">
+	<![CDATA[
+	/* SepoaSealManagementManager.doSelectSUSMT */
+		SELECT
+			HOUSE_CODE
+			,COMPANY_CODE
+			,USER_ID
+		FROM
+			SUSMT 
+		WHERE
+			HOUSE_CODE 			= ${HOUSE_CODE}
+			AND COMPANY_CODE 	= ${COMPANY_CODE}
+			AND USER_ID 		= ${USER_ID}
+	]]>
+	</method>
+	
+	<method name="doSelectSPMGT">
+    <![CDATA[
+    /* SepoaSealManagementManager.doSelectSPMGT */
+        SELECT COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+              ,#DB_OWNER#GETUSERNAME(${session.HOUSE_CODE}, 
+              			   ${session.COMPANY_CODE}, USER_ID, 
+              			   ${session.LANGUAGE}) AS USER_NAME
+              ,#DB_OWNER#GETUSERDEPTNAME(${session.HOUSE_CODE}, 
+                               ${session.COMPANY_CODE}, USER_ID, 
+                               ${session.LANGUAGE}) AS USER_DEPT_NAME
+          FROM SPMGT 
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+         ORDER
+            BY SEQ
+    ]]>
+    </method>	
+    <method name="doInsertSPMGT">
+    <![CDATA[
+        INSERT
+          INTO SPMGT
+             ( HOUSE_CODE       
+              ,COMPANY_CODE     
+              ,CONT_NO          
+              ,CONT_GL_SEQ      
+              ,SEQ              
+              ,ADD_DATE         
+              ,ADD_TIME         
+              ,USER_COMPANY_CODE
+              ,USER_ID          
+              ,ACTION           
+              ,IP
+             )
+        VALUES
+             ( ${session.HOUSE_CODE}       
+              ,${session.COMPANY_CODE}     
+              ,${SMR_NUMBER}        
+              ,'1'      
+              ,(SELECT COUNT(*) + 1
+                  FROM SPMGT InPMGT
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${session.COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${SMR_NUMBER}
+                   AND InPMGT.CONT_GL_SEQ  = '1'
+               )
+              ,${current.DATE}         
+              ,${current.TIME}         
+              ,${session.COMPANY_CODE}
+              ,${session.ID}
+              ,${ACTION}           
+              ,${IP}
+             )
+    ]]>
+    </method>
+    <method name="doDeleteSPMGT">
+    <![CDATA[
+        DELETE
+          FROM SPMGT
+         WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+           AND COMPANY_CODE = ${session.COMPANY_CODE}
+           AND CONT_NO      = ${SMR_NUMBER}
+           AND CONT_GL_SEQ  = '1'
+    ]]>
+    </method>
+    <method name="doSealHistoryList">
+    <![CDATA[
+    /* SepoaSealManagementManager.doSealHistoryList */
+    	SELECT TMHI.HOUSE_CODE
+    		  ,TMHI.COMPANY_CODE
+    		  ,TMHI.SEAL_ID 
+    		  ,TMHI.PUBLISH_NO
+    		  ,TMHI.SEAL_TYPE
+    		  ,TMHI.SMR_NUMBER
+    		  ,TMHI.SMD_NUMBER
+    		  ,TMHI.DOC_SUBJECT
+    		  ,TMHI.MANAGE_NUMBER
+    		  ,TMHI.ADD_DATE
+    		  ,TMHI.ADD_TIME
+    		  ,TMHI.ADD_USER_ID
+    		  ,CASE ${session.LANGUAGE} WHEN 'KO' THEN USMT.USER_NAME_LOC
+    		   ELSE USMT.USER_NAME_ENG
+    		   END AS ADD_USER_NAME
+    		  ,SIAD.SUBJECT AS SMR_SUBJECT
+    		  ,#DB_OWNER#GETUSERDEPTNAME('#session.HOUSE_CODE#', '#session.COMPANY_CODE#', TMHI.ADD_USER_ID, '#session.LANGUAGE#') AS DEPT
+    		  ,#DB_OWNER#GETCODETEXT1('#session.HOUSE_CODE#', 'UX049', USMT.POSITION, '#session.LANGUAGE#') AS POSITION
+    	FROM STMHI TMHI
+    		LEFT OUTER JOIN SUSMT USMT
+    		ON TMHI.HOUSE_CODE = USMT.HOUSE_CODE 
+    		AND TMHI.ADD_USER_ID = USMT.USER_ID
+    		INNER JOIN SSIAD SIAD
+    		ON TMHI.HOUSE_CODE = SIAD.HOUSE_CODE
+    		AND TMHI.COMPANY_CODE = SIAD.COMPANY_CODE
+    		AND TMHI.SMR_NUMBER = SIAD.SMR_NUMBER
+    	WHERE TMHI.HOUSE_CODE   = ${session.HOUSE_CODE}
+	      AND TMHI.ADD_DATE	   >= $S{F_CALENDAR_FROM}
+		  AND TMHI.ADD_DATE	   <= $S{F_CALENDAR_TO}
+		  AND TMHI.SEAL_TYPE   IN (#SEAL_TYPE#)
+		  AND (  1=1	
+		    	  AND UPPER(TMHI.SEAL_ID)		LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 
+		    	   OR UPPER(TMHI.PUBLISH_NO)	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%') 		    	   
+		    	   OR UPPER(TMHI.SEAL_TYPE) 	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		    	   OR UPPER(TMHI.SMR_NUMBER) 	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		    	   OR UPPER(TMHI.SMD_NUMBER) 	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		    	   OR UPPER(TMHI.DOC_SUBJECT) 	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		    	   OR UPPER(TMHI.MANAGE_NUMBER) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		    	   OR UPPER(TMHI.ADD_USER_ID) 	LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		    	   OR UPPER(USMT.USER_NAME_LOC) LIKE CONCAT('%', UPPER($S{F_KEYWORD}), '%')
+		      )
+    ]]>
+    <if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+    <![CDATA[
+    	AND TMHI.COMPANY_CODE   = ${session.COMPANY_CODE}
+	]]>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND TMHI.COMPANY_CODE   = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND TMHI.COMPANY_CODE   = $S{COMPANY_CODE}
+	    	AND TMHI.COMPANY_CODE IN ($INS{AFFILIATED_COMPANY})
+		]]>
+		</if>
+	</if>
+	<![CDATA[
+			ORDER BY TMHI.ADD_DATE DESC, TMHI.ADD_TIME DESC, TMHI.SMR_NUMBER, TMHI.SMD_NUMBER, TMHI.MANAGE_NUMBER
+	]]>
+    </method>
+    <method name="doSelectCtrlCode">
+    <![CDATA[
+    /* SepoaSealManagementManager.doSelectCtrlCode */
+    	SELECT
+			BALN.CTRL_PERSON_ID 
+		FROM
+			SBALN BALN
+		LEFT OUTER JOIN SBAGL BAGL ON
+			BAGL.HOUSE_CODE = BALN.HOUSE_CODE
+			AND BAGL.COMPANY_CODE = BALN.COMPANY_CODE 
+			AND BAGL.CTRL_CODE = BALN.CTRL_CODE 
+		WHERE 
+			BALN.HOUSE_CODE =${session.HOUSE_CODE}
+			AND BALN.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND BALN.CTRL_CODE ='MANAGE_CONFIRM'
+    ]]>
+    </method>
+    <method name="doInsertSAPUD">
+    <![CDATA[
+    	INSERT
+	   		INTO SAPUD (
+	   			HOUSE_CODE
+	   			,COMPANY_CODE
+	   			,KEY_NUMBER
+	   			,APP_USER_ID
+	   			,APP_USER_DEPT
+	   			,APP_SORT
+	   			,CHANGE_FLAG
+	   			,DEL_FLAG
+	   		)
+		VALUES (
+		  		${session.HOUSE_CODE}
+	   		   ,${session.COMPANY_CODE}
+	   		   ,${KEY_NUMBER}
+	   		   ,${APP_USER_ID}
+	   		   ,${APP_USER_DEPT}
+	   		   ,${APP_SORT}
+	   		   ,${CHANGE_FLAG}
+	   		   ,${DEL_FLAG}
+		  	)
+    ]]>
+    </method>
+    <method name="doSelectSAPUD">
+    <![CDATA[
+    	SELECT 
+   			APUD.HOUSE_CODE
+   			,APUD.COMPANY_CODE
+   			,APUD.APP_USER_ID
+   			,APUD.APP_USER_DEPT
+   			,APUD.APP_SORT
+   			,APUD.CHANGE_FLAG
+   			,APUD.DEL_FLAG
+   			,USMT.USER_NAME_LOC
+   			,DEPT.DEPT_NAME_LOC
+   		FROM 
+   			SAPUD APUD
+   		INNER JOIN SUSMT USMT
+   			ON USMT.HOUSE_CODE = APUD.HOUSE_CODE
+   			AND USMT.USER_ID = APUD.APP_USER_ID
+   		INNER JOIN SDEPT DEPT
+   			ON DEPT.HOUSE_CODE = USMT.HOUSE_CODE
+   			AND DEPT.COMPANY_CODE = APUD.COMPANY_CODE
+   			AND DEPT.DEPT = APUD.APP_USER_DEPT
+   		WHERE
+   			APUD.HOUSE_CODE = ${session.HOUSE_CODE} 
+   			AND APUD.KEY_NUMBER = ${KEY_NUMBER}
+   			AND APUD.APP_USER_ID = $S{APP_USER_ID}
+   			AND APUD.CHANGE_FLAG IN ($INS{CHANGE_FLAG})
+   			AND APUD.DEL_FLAG IN ($INS{DEL_FLAG})
+    ]]>
+    <if test="${session.MASTER_COMPANY_FLAG}" operator="ne" value="Y">
+    <![CDATA[
+    	AND APUD.COMPANY_CODE   = ${session.COMPANY_CODE}
+	]]>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="ne" value="MUP2011020001">
+	    <![CDATA[
+	    	AND APUD.COMPANY_CODE   = ${session.COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+	<if test="${session.MASTER_COMPANY_FLAG}" operator="eq" value="Y">
+		<if test="${session.MENU_PROFILE_CODE}" operator="eq" value="MUP2011020001">
+	    <![CDATA[
+	    	AND APUD.COMPANY_CODE   = ${COMPANY_CODE}
+		]]>
+		</if>
+	</if>
+    </method>
+    <method name="doUpdateSAPUD_N">
+    <![CDATA[
+    	UPDATE SAPUD
+	    SET
+			CHANGE_FLAG  =  'Y'
+			,DEL_FLAG    =  'Y'
+	  WHERE	
+			HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND	COMPANY_CODE    = ${session.COMPANY_CODE}
+	    AND KEY_NUMBER   	= ${KEY_NUMBER}
+	    AND CHANGE_FLAG 	= 'N'
+	    AND DEL_FLAG 		= 'N'
+    ]]>
+    </method>
+    <method name="doUpdateSAPUD_Y">
+    <![CDATA[
+    	UPDATE SAPUD
+	    SET
+			CHANGE_FLAG  =  'N'
+	  WHERE	
+			HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND	COMPANY_CODE    = ${session.COMPANY_CODE}
+	    AND KEY_NUMBER   	= ${KEY_NUMBER}
+	    AND CHANGE_FLAG 	= 'Y'
+	    AND DEL_FLAG 		= 'N'
+    ]]>
+    </method>
+    <method name="doDeleteSAPUD">
+	<![CDATA[
+	 DELETE
+	   FROM SAPUD
+	  WHERE 
+	 	 	HOUSE_CODE 		= ${session.HOUSE_CODE}  
+	 	AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+	 	AND KEY_NUMBER		= ${KEY_NUMBER}
+	 	AND CHANGE_FLAG 	= ${CHANGE_FLAG}
+	 	AND DEL_FLAG 		= ${DEL_FLAG}
+	]]>
+	</method>
+	<method name="doProcessExtList">
+	<![CDATA[
+		SELECT 
+			SMR_NUMBER,
+			MANAGE_NUMBER
+		FROM SSEDC_SEAL
+		WHERE 
+			HOUSE_CODE 		= ${session.HOUSE_CODE}  
+	 	AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+	 	AND MANAGE_NUMBER 	= ${MANAGE_NUMBER}
+	 	AND COMPLETE_FLAG 	= 'N'
+	 	AND DEL_FLAG 		= 'N'
+	]]>
+	</method>
+	<method name="doUpdateSSEDC">
+	<![CDATA[
+		UPDATE SSEDC
+	    SET
+			SEAL_MG_USER_ID  =  ${SEAL_MG_USER_ID}
+	  WHERE	
+			HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND	COMPANY_CODE    = ${session.COMPANY_CODE}
+	    AND SMR_NUMBER   	= ${SMR_NUMBER}
+	    AND DEL_FLAG 		= 'N'
+	]]>
+	</method>
+	<method name="doUpdateSSEDC_SEAL">
+	<![CDATA[
+		UPDATE SSEDC_SEAL
+	    SET
+			MANAGER_ID  =  ${SEAL_MG_USER_ID}
+			,MANAGE_DEPT  =  ${SEAL_MG_DEPT}
+	  WHERE	
+			HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND	COMPANY_CODE    = ${session.COMPANY_CODE}
+	    AND SMR_NUMBER   	= ${SMR_NUMBER}
+	    AND DEL_FLAG 		= 'N'
+	]]>
+	</method>
+	<method name="doProcessUseList">
+	<![CDATA[
+		SELECT 
+	 		SIAD.SMR_NUMBER,
+	 		PDSE.MANAGE_NUMBER,
+			SIAD.ADD_DATE 
+	 	FROM SSIAD SIAD
+	 	INNER JOIN SSIPD_SEAL PDSE
+		 	ON SIAD.HOUSE_CODE = PDSE.HOUSE_CODE 
+		 	AND SIAD.COMPANY_CODE = PDSE.COMPANY_CODE 
+		 	AND SIAD.SMR_NUMBER = PDSE.SMR_NUMBER 
+	 	WHERE 
+			SIAD.HOUSE_CODE 	= ${session.HOUSE_CODE}  
+	 	AND SIAD.COMPANY_CODE 	= ${session.COMPANY_CODE}
+	 	AND PDSE.MANAGE_NUMBER 	= ${MANAGE_NUMBER}
+	 	AND PDSE.ACCEPT_FLAG 	= 'N'
+	 	AND SIAD.DEL_FLAG 		= 'N'
+		AND SIAD.SMR_STATUS		<> 'C'
+	]]>      	
+	</method>
+	<method name="doUpdateSSIPD_SEAL">
+	<![CDATA[
+		UPDATE SSIPD_SEAL
+	    SET
+			MANAGER_ID  =  ${SEAL_MG_USER_ID}
+			,MANAGE_DEPT  =  ${SEAL_MG_DEPT}
+	  WHERE	
+			HOUSE_CODE      = ${session.HOUSE_CODE}
+	    AND	COMPANY_CODE    = ${session.COMPANY_CODE}
+	    AND SMR_NUMBER   	= ${SMR_NUMBER}
+	    AND DEL_FLAG 		= 'N'
+	]]>
+	</method>
+</service>

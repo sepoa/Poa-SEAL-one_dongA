@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_125" header="false">
+    <filterbar id="filterObj" div="qBJABreoAKABresypT">
+        <keyword id="F_KEYWORD"/>
+        <event type="onSearch" callback="onSearch"/>
+    </filterbar>
+    <grid id="gridObj" div="mwdvAreqZlvArejnIA" grid-id="SLM_125" drag="false" merge="false" dynamic="false">
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onEditCell" callback="onEditCell"/>
+        <event type="onXLE" callback="onXLE"/>
+        <event type="onTXE" callback="onTXE"/>
+    </grid>
+    <onloadscript>
+    <![CDATA[
+    	doQuery();
+    ]]>
+    </onloadscript>
+    <userscript>
+        <function name="doQuery" args="">
+        <![CDATA[
+        	var workType = Sepoa.request.WORK_TYPE;
+        	
+		 	switch (workType) {
+            	case "UPDATE":
+		            if (sUtils.workflow.check('SM1638865322885')) { //변경-사용자소속부서기준 검색 모듈
+						dataOutput.setValue("USER_DEPT", Sepoa.info.DEPARTMENT);
+		            } else {
+		            	dataOutput.setValue("SEAL_MG_USER_ID", Sepoa.info.ID);
+		            }
+                	break;
+            	case "RETURN":
+		            if (sUtils.workflow.check('SR1638865367996')) { //반납-사용자소속부서기준 검색 모듈
+						dataOutput.setValue("USER_DEPT", Sepoa.info.DEPARTMENT);
+		            } else {
+		            	dataOutput.setValue("SEAL_MG_USER_ID", Sepoa.info.ID);
+		            }           	
+                	break;
+            	case "LOSS":
+		            if (sUtils.workflow.check('SL1638865750070')) { //분실-사용자소속부서기준 검색 모듈
+						dataOutput.setValue("USER_DEPT", Sepoa.info.DEPARTMENT);
+		            } else {
+		            	dataOutput.setValue("SEAL_MG_USER_ID", Sepoa.info.ID);
+		            }
+                	break;                	                	
+			}
+        
+            dataOutput.addFilter(filterObj);
+            dataOutput.setValue("SEAL_STATUS", "C");
+            dataOutput.setValue("SEAL_TYPE", "U");
+            
+            gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'PROCESS_ID=sepoa.svc.seal.SepoaSealManagementService', 'METHOD=doSealList']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        <function name="onRowSelect" args="id, ind">
+        <![CDATA[
+            var header = this.getColumnId();
+            var manageNumber = gridObj.cells(id, gridObj.getColIndexById("MANAGE_NUMBER")).getValue();
+            var sealStatus = gridObj.cells(id, gridObj.getColIndexById("SEAL_STATUS")).getValue();
+            if(sealStatus != "C"){
+            	Alert(Sepoa.cache.text.get('SLM_143.MESSAGE007'));
+            	return;
+            }
+            
+            var data = {
+                MANAGE_NUMBER: manageNumber
+            };
+            Sepoa.params.callback(data);
+            window.selfObj.close();
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+            var header = this.getColumnId();
+            if (stage == 0) {
+                return true;
+            } else if (stage == 1) {
+                return true;
+            } else if (stage == 2) {
+                return true;
+            }
+            return false;
+        ]]>
+        </function>
+		<function name="onXLE" args="obj, count">
+        <![CDATA[
+            if (count == 0) {
+                Alert(Sepoa.cache.text.get('MESSAGE.1001'));
+                return;
+            }
+        ]]>
+        </function>
+        <function name="onTXE" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            if (status == "true") {} else {
+                Alert(message);
+            }
+        ]]>
+        </function>
+        <function name="onSearch" args="flag">
+        <![CDATA[
+            doQuery();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsia3RTa0FyZWt0U2tBcmVlZHpUIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJTTE1fMTI1In0sImlkIjoia3RTa0FyZWt0U2tBcmVlZHpUIiwidHlwZSI6ImJvZHkifSwibXdkdkFyZXFabHZBcmVqbklBIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfQjA4NWxPNGhFRzgzIjoibnVsbCIsImRoeElkX1NQZUNMSTNNZGVl
+        bCI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF93UmFWTE9tWDNGdkEiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImdyaWRPYmoiLCJNRVJHRSI6ImZhbHNlIiwiRFJBRyI6ImZhbHNlIiwiRFlOQU1JQyI6ImZhbHNlIiwiT0JKRUNUX0lEIjoibXdkdkFyZXFabHZBcmVqbklBIiwiR1JJRF9JRCI6IlNMTV8xMjUifSwiaWQiOiJtd2R2QXJlcVpsdkFyZWpuSUEiLCJ0eXBlIjoiZ3JpZCJ9LCJxQkpBQnJlb0FLQUJyZXN5cFQiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIs
+        ImRoeElkX3U5dnNoU0J2ME1IOCI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfVmh2QmxnY2pJRjd1IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX1daaWVxRmNURkwyRyI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX2R2QkdMQTVKTkRUViI6Im51bGwiLCJkaHhJZF9BUW5mV0hUWjNzbkUiOiJudWxsIiwiZGh4SWRfUVpjY3N1QlluMURmIjoibnVsbCIsImRoeElkX2V2aUlqNHVGOXBUWSI6Im51bGwiLCJkaHhJZF9qVmlmUmhGYU44OGwiOiJudWxsIiwiZGh4SWRfclFLeVY5V1NoZHp2IjoibnVsbCIs
+        ImRoeElkX3kxbzNQRW5mQzVNayI6Im51bGwiLCJkaHhJZF9OMHdWU0ZVZWp6OFMiOiJudWxsIiwiZGh4SWRfaFB6QXVKWElsOWVXIjoibnVsbCIsImRoeElkX2piZml6OU01UXZHMSI6Im51bGwiLCJkaHhJZF9jTlhiM3lIaVRRWGUiOiJudWxsIiwiZGh4SWRfcEpiVTY1WHdwa202IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZmlsdGVyT2JqIiwiS0VZV09SRF9BQ1RJVkUiOiJ0cnVlIiwiS0VZV09SRF9JRCI6IkZfS0VZV09SRCIsIlNUQVRVU19BQ1RJVkUiOiJ0cnVlIiwiU1RBVFVTX0lEIjoiRl9TRUFMX1NUQVRVUyIsIkNBTEVOREFSX0FDVElWRSI6InRydWUiLCJDQUxFTkRBUl9JRCI6IkZfQ0FMRU5EQVIiLCJGSUxURVJfQUNUSVZFIjoiZmFsc2Ui
+        LCJPQkpFQ1RfSUQiOiJxQkpBQnJlb0FLQUJyZXN5cFQiLCJTVEFUVVNfREVGQVVMVCI6IkMiLCJTVEFUVVNfQ09NQk8iOiJTTDAwMzQse0hPVVNFX0NPREV9I3tMQU5HVUFHRX0jU00wMDUjWSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfYndPRGpXbGZXTWlCIjoibnVsbCJ9LCJpZCI6InFCSkFCcmVvQUtBQnJlc3lwVCIsInR5cGUiOiJmaWx0ZXJiYXIifX0sInRyZWUiOnsiaWQiOiJrdFNrQXJla3RTa0FyZWVkelQiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6InFCSkFCcmVvQUtBQnJlc3lwVCIsInR5cGUiOiJmaWx0ZXJiYXIifSx7ImlkIjoibXdkdkFyZXFabHZBcmVqbklBIiwidHlwZSI6ImdyaWQifV19LCJpbmZvIjp7IlBBVEgiOiIv
+        U2VhbC9NYW5hZ2UvU2VhbE1hbmFnZVNlbGVjdFBvcHVwTGlzdC54bWwiLCJQUk9KRUNUIjoiU0VBTCIsIkNPREUiOiIxMjUiLCJQUkVGSVgiOiJTTE0iLCJQQVRIXzIiOiJNYW5hZ2UiLCJQQVRIXzMiOiJTZWFsTWFuYWdlIiwiUEFUSF8xIjoiU2VhbCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlNlbGVjdFBvcHVwTGlzdCIsIlNDUkVFTl9JRCI6IlNMTV8xMjUifX0sImh0bWwiOiI8ZGl2IGlkPVwia3RTa0FyZWt0U2tBcmVlZHpUXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xh
+        c3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZmlsdGVyYmFyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9maWx0ZXJiYXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwicUJKQUJyZW9BS0FCcmVzeXBUXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCBzZXBvYXV4X2ZpbHRlcmJhciBzc2ZpbHRl
+        cl9jb250XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJtd2R2QXJlcVpsdkFyZWpuSUFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2dyaWQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAg
+        ICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

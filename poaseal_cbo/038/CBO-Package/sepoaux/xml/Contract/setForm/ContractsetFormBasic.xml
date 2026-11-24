@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_205_A" header="false">
+    <form id="formObj" div="MrlpSicCArpSicJOxQ" form-id="CT_205_A">
+        <event type="onBeforeChange" callback="onBeforeChange"/>
+        <event type="onChange" callback="onChange"/>
+        <event type="onFocus" callback="onFocus"/>
+    </form>
+    <usercss>
+    <![CDATA[
+        textarea.remarkTA {
+            width: calc(100% - 10px);
+            height: calc(100% - 10px);
+            resize: none;
+            border: none;
+            padding: 5px;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+        <call name="doClear"/>
+        <call name="onReady"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <var name="insGridData" value="{}"/>
+        
+        <function name="init" args="">
+        <![CDATA[
+            $share.items = {};
+            $share.items.tabbarObj1 = new SepoaDhtmlXTabBar(formObj.getContainer('TAP_AREA1'));
+            $share.items.tabbarObj1.addTab('contract', Sepoa.cache.text.get('CT_205_A.CONTRACT'));
+            $share.items.vaultContract = $share.items.tabbarObj1.tabs('contract').attachVault({
+                mode : '',
+                type : 'CONT_C',
+                service : 'sepoa.svc.ct.CT_205',
+                select : 'doFileList',
+                upload : 'doFileUpload',
+                delete : 'doFileDelete'
+            });
+            $share.items.tabbarObj1.addTab('attach', Sepoa.cache.text.get('CT_205_A.ATTACH'));
+            $share.items.vaultAttach = $share.items.tabbarObj1.tabs('attach').attachVault({
+                mode : '',
+                type : 'CONT_A',
+                service : 'sepoa.svc.ct.CT_205',
+                select : 'doFileList',
+                upload : 'doFileUpload',
+                delete : 'doFileDelete'
+            });
+            
+            for(let item of Object.values($share.items)) {
+                if(item.constructor.name == 'SepoaDhtmlXVaultObject') {
+                    initVault(item);
+                }
+            }
+            
+            if (Sepoa.request.DOC_TYPE == 'MANUAL') {
+                formObj.hideItem('TAP_AREA2');
+            } else {
+                $share.items.tabbarObj2 = new SepoaDhtmlXTabBar(formObj.getContainer('TAP_AREA2'));
+                $share.items.tabbarObj2.addTab('remark', Sepoa.cache.text.get('CT_205_A.REMARK'));
+                $share.items.remark = $('<textarea rows="10" class="remarkTA"></textarea>')[0];
+                $share.items.tabbarObj2.tabs('remark').attachObject($share.items.remark);
+            }
+            
+          
+            
+        ]]>
+        </function>
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name:'BASIC',
+                id: $sObject.aliasCode,
+                fn:{
+                    doOpenDocument:doOpenDocument,
+                    doClear:doClear,
+                    doValidate:doValidate,
+                    doValidateAttach:doValidateAttach,
+                    setViewMode:setViewMode,
+                    hideVaultContract:hideVaultContract
+                }
+            }])
+        ]]>
+        </function>
+        
+        <function name="isSealBasedContract">
+        <![CDATA[
+            const hasSmrNumber = !sUtils.string.isBlank($share.config?.document?.SMR_NUMBER);
+            const hasSourceNo = !sUtils.string.isBlank($share.config?.data?.EXTRA?.EX_SOURCE_NO);
+            return hasSmrNumber || hasSourceNo;
+        ]]>
+        </function>
+        
+        <function name="initVault" args="vaultObj">
+        <![CDATA[
+            const taskList = [];
+            vaultObj.attachEvent('onUploadComplete', function(info) {
+                if(taskList.length > 0) {
+                    for(let task of taskList) {
+                        task.item.setAttachKey(task.key);
+                    }
+                    
+                    taskList.length = 0;
+                }
+            });
+            
+            vaultObj.attachEvent('onFileRemove', function(info) {
+                const data = vaultObj.getData();
+                if(vaultObj.conf.type == 'CONT_C' && data.length === 0 && !isSealBasedContract()) {
+                    callFunction('p', 'hideTemplateFormItem', [false]);
+                }
+            });
+            
+            vaultObj.attachEvent('onUploadFile', function(info) {
+                if($share.config?.data) {
+                    const data = $share.config.data;
+                    
+                    if(info.serviceObj) {
+                        const currentObj = {
+                            SIGN_ORDER : data.SIGN_ORDER,
+                            CONT_METHOD : data.CONT_METHOD ?? ''
+                        };
+                        
+                        sUtils.object.extend(true,
+                            data,
+                            info.serviceObj,
+                            currentObj
+                        );
+                        
+                        if(!sUtils.string.isBlank(data.CONT_NO) && !sUtils.string.isBlank(data.CONT_GL_SEQ)) {
+                            for(let item of Object.values($share.items)) {
+                                if(item.constructor.name == 'SepoaDhtmlXVaultObject') {
+                                    const currentKey = item.getAttachKey();
+                                    const newKey = [data.CONT_NO, data.CONT_GL_SEQ, item.conf.type].join('#');
+                                    if(currentKey != newKey) {
+                                        taskList.push({
+                                            item : item,
+                                            key : newKey
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if(vaultObj.conf.type == 'CONT_C') {
+                        const data = vaultObj.getData();
+                        if(data.length > 0) {
+                            callFunction('p', 'hideTemplateFormItem', [true]);
+                        }
+                    }
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doValidateAttach" args="">
+        <![CDATA[
+            if($share.items.tabbarObj1.tabs('contract').isVisible()) {
+                const cnt = $share.items.vaultContract.getData().length;
+                
+                return cnt > 0 ? true : false;
+            } else {
+                return true;
+            }
+        ]]>
+        </function>
+        
+        <function name="setViewMode" args="flag">
+        <![CDATA[
+            if(flag){
+                formObj.setViewMode(true);
+                $share.items.vaultContract.changeMode("VI");
+                $share.items.vaultAttach.changeMode("VI");
+                $share.items.remark.readOnly = true;
+            }else{
+                formObj.setViewMode(false);
+                $share.items.vaultContract.changeMode("");
+                $share.items.vaultAttach.changeMode("");
+                $share.items.remark.readOnly = false;
+                var config = $share.config
+            }
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+            $share.config = config;
+            
+            //default date
+            if(!config.data) {
+                config.data = {};
+            }
+            if(!config.data.CONT_DATE) {
+                config.data.CONT_DATE = sUtils.date.getToday();
+            }
+            if(!config.data.CONT_FROM) {
+                config.data.CONT_FROM = sUtils.date.getToday();
+            }
+            
+            formObj.dataMapper(structuredClone(config.data), "JSON");
+            
+            if(config.data.CONT_TO != '' && config.data.EXPIRED_ALARM_DATE == ''){
+                if(sUtils.workflow.check('CT1662605670342')){//계약만료알림일 자동계산
+                    var cont_to = config.data.CONT_TO;
+                    var month = sUtils.workflow.getOptions('CT1662605670342');
+                    if(month == undefined) {
+                        month =2;
+                    } 
+                       var alarm_date = calDate(cont_to,month);
+                       formObj.setValue('EXPIRED_ALARM_DATE',alarm_date);
+                   }
+            }
+            
+            if($share.config.document) {
+                if($share.config.document.SMR_NUMBER) {     // 날인 완료건에 대한 계약 문서일 경우 계약 문서 파일 첨부를 제한한다.
+                    $share.items.tabbarObj1.tabs('contract').hide();
+                    callFunction('p', 'hideTemplateFormItem', [true]);
+                }
+                
+                if($share.config.document.CONT_NO && $share.config.document.CONT_GL_SEQ) {
+                    const docNo = [
+                        $share.config.document.CONT_NO,
+                        $share.config.document.CONT_GL_SEQ
+                    ].join('#');
+                    
+                    //vault - contract
+                    const extraData = getDocumentExtra($share.config.document.CONT_NO, $share.config.document.CONT_GL_SEQ);
+                    $share.config.data.EXTRA = extraData.EXTRA;
+                    for(let entry of Object.entries($share.config.data.EXTRA)) {
+                        const [key, value] = entry;
+                        formObj.setValue(key.replace('EX_', ''), value);
+                    }
+                    
+                    const hasSourceNo = !sUtils.string.isBlank(extraData.EXTRA?.EX_SOURCE_NO);
+                    const hasFormNo = !sUtils.string.isBlank($share.config.data.CONT_FORM_NO);
+                    if(hasSourceNo) {
+                        hideVaultContract(true);
+                        callFunction('p', 'hideTemplateFormItem', [true]);
+                    } else {
+                        if(hasFormNo) {
+                            hideVaultContract(true);
+                        } else {
+                            $share.items.vaultContract.setAttachKey(docNo + '#CONT_C');
+                        }
+                    }
+                    
+                    //vault - attach
+                    $share.items.vaultAttach.setAttachKey(docNo + '#CONT_A');
+                }
+            }
+            
+            //remark
+            if($share.items.remark){
+                $share.items.remark.value = config.data.REMARK
+            }
+            if (!config.data.CONT_AMT || config.data.CONT_AMT == '') {
+                onChange('SUPPLY_AMT', config.data.SUPPLY_AMT)
+            }
+            
+            if("0" == formObj.getValue('TAX_AMT')){
+            	formObj.setValue('TAX_CHK','0');
+           	} else {
+           		formObj.setValue('TAX_CHK','1');
+           	}
+        ]]>
+        </function>
+        <function name="doClear">
+        <![CDATA[
+            formObj.clear();
+            
+            $share.items.tabbarObj1.tabs('contract').setActive();
+            $share.items.tabbarObj2.tabs('remark').setActive();
+            
+            $share.items.vaultContract.setAttachKey("");
+            $share.items.vaultAttach.setAttachKey("");
+            
+            hideVaultContract(false);
+            
+            if($share.items.remark){
+                $share.items.remark.value = "";
+            }
+            
+            delete $share.config;
+        ]]>
+        </function>
+        <function name="doValidate">
+        <![CDATA[
+            if(!formObj.validate()){
+                Alert(Sepoa.cache.text.get('CT_205.MSG6'));//입력되지않은 필수값이 존재합니다.
+                return false;
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="onFocus" args="name, value">
+        <![CDATA[
+            if($share.config && !$share.config.data.CONT_FORM_NO && !$share.config.document.CONT_TYPE == 'NEW'){
+                Alert(Sepoa.cache.text.get('CT_205.MSG1')); //템플릿 문서가 선택되지 않았습니다.
+            }
+        ]]>
+        </function>
+        
+        <function name="onBeforeChange" args="id,oValue,nValue">
+        <![CDATA[
+            if(id =='SUPPLY_AMT' || id == 'TAX_AMT' || id == 'CONT_AMT'){
+                const check =/[^0-9]/g;
+                if (check.test(nValue)){
+                    formObj.setValue(id,nValue.replace(check,''));
+                    return false;
+                }
+            }
+            
+            return true;
+        ]]>
+        </function>
+        
+        <var name="contTo" value=""/>
+        <var name="contFrom" value=""/>
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+            if(name == 'CONT_TO') {
+                $share.config.data.CONT_TO = sUtils.date.toString(value).replace(/\D/g, '')
+            } else if(name == 'CONT_FROM') {
+                $share.config.data.CONT_FROM = sUtils.date.toString(value).replace(/\D/g, '')
+            } else if(name == 'TAX_CHK') {
+            	if("0" == formObj.getValue('TAX_CHK')){
+	            	const taxAmt = parseInt(formObj.getValue('SUPPLY_AMT') || 0) * 0.1;
+                	formObj.setValue('TAX_AMT', taxAmt.toString());
+                    const contAmt = parseInt(formObj.getValue('SUPPLY_AMT') || 0) + parseInt(formObj.getValue('TAX_AMT') || 0);
+                    formObj.setValue('CONT_AMT', contAmt.toString());
+				} else {
+					const contAmt = parseInt(formObj.getValue('SUPPLY_AMT') || 0);
+	            	const taxAmt = parseInt(0);
+	            	formObj.setValue('CONT_AMT', contAmt.toString());
+	            	formObj.setValue('TAX_AMT', taxAmt.toString());
+				}
+				            	
+            } else {
+                if(['SUPPLY_AMT'].includes(name)) {
+                	if("0" == formObj.getValue('TAX_CHK')){
+	                	const taxAmt = parseInt(formObj.getValue('SUPPLY_AMT') || 0) * 0.1;
+	                	formObj.setValue('TAX_AMT', taxAmt.toString());
+	                    const contAmt = parseInt(formObj.getValue('SUPPLY_AMT') || 0) + parseInt(formObj.getValue('TAX_AMT') || 0);
+	                    formObj.setValue('CONT_AMT', contAmt.toString());
+                    } else {
+                    	const contAmt = parseInt(formObj.getValue('SUPPLY_AMT') || 0);
+	                    formObj.setValue('CONT_AMT', formObj.getValue('SUPPLY_AMT'));
+                    }
+                    
+                }
+                
+                $.extend(true, $share.config.data, formObj.getFormData(true));
+            }
+            
+            callFunction('p', 'onChangeData', ['BASIC']);
+        ]]>
+        </function>
+        
+        <function name="calDate" args ="date,clDateMonth">
+        <![CDATA[
+            var year = Number(date.substring(0,4));
+            var month = Number(date.substring(4,6));
+            var day = Number(date.substring(6,8));
+            
+            var changeMonth = month - clDateMonth;
+            if( changeMonth <= 0){
+                changeMonth = 12 + changeMonth
+                year = year - (Math.floor(clDateMonth/12)+1)
+            }else if (changeMonth > 12){
+                changeMonth = changeMonth - 12
+                year = year + (Math.floor(clDateMonth/12)+1)
+            }
+            
+            var lastDate = new Date(year,changeMonth,0).getDate();
+            if(lastDate < day){
+                day = lastDate;
+            }
+            
+            if (changeMonth > 12){
+                changeMonth = changeMonth - 12
+                year = year + 1
+            }
+            
+            if(changeMonth < 10){
+                changeMonth = '0'+changeMonth;
+            }
+            if(day < 10){
+                day = '0'+day;
+            }
+            
+            return String(year)+String(changeMonth)+String(day);
+        ]]>
+        </function>
+        
+        <function name="hideVaultContract" args="flag">
+        <![CDATA[
+            const targetVault = $share.items.vaultContract;
+            const targetTab = $share.items.tabbarObj1.tabs('contract');
+            if(flag) {
+               targetVault.clear();
+               targetTab.hide();
+            } else {
+                targetTab.show();
+                targetTab.setActive();
+                
+                const attachKey = targetVault.getAttachKey();
+                if(attachKey) {
+                    targetVault.setAttachKey(attachKey);
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="getDocumentExtra" args="contNo, contGlSeq">
+        <![CDATA[
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                async : false,
+            }
+            
+            const params = {
+                module: "contract",
+                action: "doDocumentExtra",
+                CONT_NO: contNo,
+                CONT_GL_SEQ: contGlSeq
+            };
+            
+            const so = sUtils.multipart.send(config, params);
+            
+            return {
+                EXTRA : so.result[0],
+                SIGNER_LIST : so.result[1]
+            };
+            
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTXJscFNpY01ybHBTaWNQYWRCIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8zVXQ0UjNyT3J0dGIiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3p2QjZYTE1wa3dQOSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNUXzIwNV9BIiwiT0JKRUNUX0lEIjoiTXJscFNpY01ybHBTaWNQYWRCIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiTXJscFNpY01ybHBTaWNQYWRCIiwidHlw
+        ZSI6ImJvZHkifSwiTXJscFNpY0NBcnBTaWNKT3hRIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfTms2aXhLanp6TFhSIjoibnVsbCIsImRoeElkX2kxZUo4N09pOUpFViI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiY2VudGVyIiwiQUxJR05fVkVSVElDQUwiOiJtaWRkbGUiLCJkaHhJZF9CWm5JN3ZTYUpndnQiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF96c1JYV1l0aUdxVWwiOiJudWxsIiwiZGh4SWRf
+        TE1zaDU4TW1WNjhXIjoibnVsbCIsImRoeElkX3d0QVQ0cWpiVXNLMyI6Im51bGwiLCJkaHhJZF9pQTNHTDduTnUyWFMiOiJudWxsIiwiZGh4SWRfdnlSWHdoRGV4ZWhIIjoibnVsbCIsImRoeElkXzJEWUVzdDVKYlBPNyI6Im51bGwiLCJkaHhJZF9hS0t0Y0RmS0ZMRFAiOiJudWxsIiwiZGh4SWRfNUlSZXFscm1NaWtKIjoibnVsbCIsImRoeElkX3lnYnYzSmppUnpnSyI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJNcmxwU2ljQ0FycFNpY0pPeFEiLCJGT1JNX0lEIjoiQ1RfMjA1X0EifSwiaWQiOiJNcmxwU2ljQ0FycFNpY0pPeFEiLCJ0eXBlIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvbkNoYW5nZSIs
+        InR5cGUiOiJldmVudCIsIkNBTExCQUNLX1RZUEUiOiJuYW1lIiwiTkFNRSI6Im9uQ2hhbmdlIn0seyJDQUxMQkFDSyI6Im9uRm9jdXMiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvbkZvY3VzIn0seyJDQUxMQkFDSyI6ImRvUXVlcnlFbmQiLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDS19UWVBFIjoibmFtZSIsIk5BTUUiOiJvblhMRSJ9XX19LCJ0cmVlIjp7ImlkIjoiTXJscFNpY01ybHBTaWNQYWRCIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJNcmxwU2ljQ0FycFNpY0pPeFEiLCJ0eXBlIjoiZm9ybSJ9XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9zZXRGb3JtL0NvbnRyYWN0c2V0Rm9ybUJhc2ljLnht
+        bCIsIlBST0pFQ1QiOiJTUk0iLCJDT0RFIjoiMjA1X0EiLCJQUkVGSVgiOiJDVCIsIlBBVEhfMiI6InNldEZvcm0iLCJQQVRIXzMiOiJDb250cmFjdHNldEZvcm0iLCJQQVRIXzEiOiJDb250cmFjdCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkJhc2ljIiwiU0NSRUVOX0lEIjoiQ1RfMjA1X0EifX0sImh0bWwiOiI8ZGl2IGlkPVwiTXJscFNpY01ybHBTaWNQYWRCXCIgY2xhc3M9XCJjb250YWluZXIgc2Vwb2F1eF9zY3JlZW5fc2Nyb2xsXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29t
+        cG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2VudGVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV92YWxpZ25fbWlkZGxlXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk1ybHBTaWNDQXJwU2ljSk94UVwiIGNsYXNz
+        PVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

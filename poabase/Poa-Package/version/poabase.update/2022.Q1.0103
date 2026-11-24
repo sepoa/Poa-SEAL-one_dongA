@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SIF_LOG ADD DOC_TYPE VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SIF_LOG ADD DOC_TYPE VARCHAR(20)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SIF_LOG ADD DOC_NUMBER VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SIF_LOG ADD DOC_NUMBER VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SIF_LOG ADD DOC_SEQ VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SIF_LOG ADD DOC_SEQ VARCHAR(10)
+		]]>
+		</query>
+	</item>		
+</body>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="MAINFRAME" header="false" tpl="editor.tpl">
+    <link>
+    <![CDATA[
+        <script type="text/javascript" src="MainFrame/plugin/basic.js"></script>
+        <link rel="stylesheet" type="text/css" href="MainFrame/plugin/basic.css"></link>
+        <link rel="stylesheet" type="text/css" href="MainFrame/plugin/leftaccordionmenu.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/theme/<%=theme%>/MainFrame/leftaccordionmenu.css" />
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+        body {
+            overflow: hidden;
+        }
+        
+        .headerToolbar>div {
+            width: 100%;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="headerToolbar" value="$($sObject._vp).find('#EipXfEccptXfEcIubk')[0]"/>
+        <var name="EipXfEcbptXfEcKuRq" value="$($sObject._vp).find('#EipXfEcbptXfEcKuRq')[0]"/>
+        <var name="menuContainer" value="$($sObject._vp).find('#aCxneEcWYMoeEcXAjc')[0]"/>
+        <var name="mainContainer" value="$($sObject._vp).find('#NeMIXFcvYsZYFcbUTF')[0]"/>
+        <var name="aCxneEcWYMoeEcusdy" value="$($sObject._vp).find('#aCxneEcWYMoeEcusdy')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+        <call name="drawMenu"/>
+        <call name="checkNotice"/>
+    </onloadscript>
+    <userscript>
+        <var name="headerObj"/>
+        <var name="containerObj"/>
+        <var name="menuObj" value="{}"/>
+        <var name="sInfoObj">
+        <![CDATA[
+            new SepoaScreenInfoObject()
+        ]]>
+        </var>
+        <function name="init">
+        <![CDATA[
+            window.Sepoa = $sObject.Sepoa
+            
+            headerObj = $sObject.headerObj = new SepoaHeaderToolbarObject({
+                parent: headerToolbar,
+                height: 50,
+                logo: {
+                    align: "center",
+                    file: window.CONTEXT_NAME + "/theme/" + Sepoa.common.THEME + "/imgs/logo.png"
+                },
+                items: [{
+                        type: "text",
+                        id: "id",
+                        text: Sepoa.info.ID + " (" + Sepoa.info.NAME_LOC + ")"
+                    },
+                    {
+                        type: "img",
+                        id: "logout",
+                        cursor: "pointer",
+                        img: window.CONTEXT_NAME + "/theme/" + Sepoa.common.THEME + "/imgs/icon/logout.png"
+                    }
+                ]
+            });
+            headerObj.attachEvent("onClick", onHeaderClick)
+            
+            containerObj = $sObject.containerObj = new SepoaMainContainerObject({
+                type: (dhx4.isIPad || dhx4.isIPhone) ? '' : Sepoa.config.get('sepoa.frame.type'),
+                parent: mainContainer,
+                tabbar: {
+                    mode: "bottom",
+                    align: "left",
+                    close_button: true,
+                    maxTabCount: Sepoa.config.get('sepoa.frame.maxcount'),
+                    tabs: [{
+                        id: "SUMMARY",
+                        text: Sepoa.cache.text.get("SUMMARY.TITLE"),
+                        active: true,
+                        close: false,
+                        url: window.CONTEXT_NAME + "/Summary/SummaryLayout.sux"
+                    }]
+                },
+                layout: {
+                    pattern: "1C",
+                    skin: "material",
+                    contents: true,
+                    cells: [{
+                        header: false,
+                        text: " ",
+                        id: "a",
+                        url: window.CONTEXT_NAME + "/Summary/SummaryLayout.sux"
+                    }]
+                }
+            });
+            
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+        <function name="onHeaderClick" args="id">
+        <![CDATA[
+            if (id == "logout") {
+                Confirm("<span style='font-size: 1.2em;display: inline-block;text-align: left;'>" + Sepoa.cache.text.get('MAIN.ID') + Sepoa.info.ID + "\\n" +
+                    Sepoa.cache.text.get('MAIN.USER') + Sepoa.info.NAME_LOC + "</span>",
+                    function(flag) {
+                        if (flag) {
+                            location.href = window.CONTEXT_NAME + "/common/logout_process.jsp";
+                        } else {
+                            linkTo('AD_050', '/Admin/UpdateUserInfo/AdminUpdateUserInfoLayout.sux');
+                        }
+                    }, undefined, Sepoa.cache.text.get('MAIN.LOG_OUT'), Sepoa.cache.text.get('MAIN.CHANGE_USER_INFO'));
+            } else if (id == "logo") {
+                openContainerUrl("SUMMARY", "/Summary/SummaryLayout.sux");
+            }
+        ]]>
+        </function>
+        <function name="checkNotice">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.AD_201', 'CONNECTION', 'getPopupNotice', {}, function(so) {
+                if (so.status == 1) {
+                    var l = so.message.split(',');
+                    var c = getCookie("sepoa.notice.ignore");
+                    if (c) {
+                        c = c.split(',');
+                        for (var i in c) {
+                            if (l.indexOf(c[i]) + 1) {
+                                l.splice(l.indexOf(c[i]), 1);
+                            }
+                        }
+                    }
+                    if (l.length > 0) {
+                        PopupOpenPost(window.CONTEXT_NAME + '/Admin/NoticeView/AdminNoticeViewCarousel.sux', {
+                            NOTICELIST: l.join(',')
+                        }, '', 1300, '', Sepoa.cache.text.get('MAIN.NOTICE'), 'common');
+                    }
+                }
+            });
+        ]]>
+        </function>
+        <function name="drawMenu">
+        <![CDATA[
+            menuTree = getMenuData(Sepoa.info.MENU_PROFILE_CODE);
+            
+            menuObj.onGroupClick = function(obj) {
+                $(".sepoa_menu_screen").slideUp();
+                $(".sepoa_menu_group_li").removeClass("group_active")
+                if (!$(obj).next().is(":visible")) {
+                    $(obj).parent().addClass("group_active")
+                    $(obj).next().slideDown();
+                }
+            }
+            
+            menuContainer.innerHTML = "";
+            menuContainer.classList.add("sepoa_menu")
+            
+            var ul = menuContainer.appendChild(document.createElement('ul'));
+            ul.id = 'sepoa_menu_group'
+            
+            for (var i in menuTree) {
+                var groupData = menuTree[i];
+                var childNodes = groupData.childs;
+            
+                if (groupData.HIDDEN_FLAG == "Y") {
+                    continue;
+                }
+                if (childNodes.length <= 0) {
+                    continue;
+                }
+            
+                var li = ul.appendChild(document.createElement('li'));
+                li.id = "sepoa_menu_group_" + groupData.MENU_ID
+                li.classList.add("sepoa_menu_group_li")
+            
+                var h3 = li.appendChild(document.createElement('h3'));
+                h3.innerHTML = '<div style="' + (groupData.MENU_IMG ? ('background-image:url(\'' + window.CONTEXT_NAME + '/theme/<%=theme%>/leftmenu/icon/' + groupData.MENU_IMG + '\');') : ('')) + '"></div>' + groupData.MENU_NAME + '<div class="group_collapse_icon"></div>';
+                h3.onclick = function() {
+                    menuObj.onGroupClick(this);
+                }
+            
+                var subUl = li.appendChild(document.createElement('ul'));
+                subUl.classList.add("sepoa_menu_screen");
+            
+                for (var j in childNodes) {
+                    var detailData = childNodes[j];
+                    var screenID = detailData.SCREEN_ID || "";
+                    var menuID = detailData.MENU_ID || "";
+                    var url = detailData.URL || "";
+                    var menuImage = detailData.MENU_IMG || "";
+            
+                    var li = subUl.appendChild(document.createElement('li'))
+                    li.id = "sepoa_menu_screen_" + detailData.MENU_ID
+                    li.classList.add("sepoa_menu_screen_li");
+                    li.style.display = (detailData.HIDDEN_FLAG == 'Y') ? "none" : ""
+                    li.innerHTML = detailData.MENU_NAME
+                    li.screenId = detailData.SCREEN_ID;
+                    li.url = detailData.URL;
+                    li.onclick = function() {
+                        var _id = this.screenId
+                        var _url = this.url
+                        var _param = this.param
+                        var _menuName = this.innerHTML
+                        callFunction('MAINFRAME', 'openContainerUrl', [_id, _url, _param, _menuName]);
+                    }
+                }
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiakJ4bmVFY0lKQ0lOTXVobXhZIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiTUFJTkZSQU1FIn0sImlkIjoiakJ4bmVFY0lKQ0lOTXVobXhZIiwidHlwZSI6ImJvZHkifSwiYUN4bmVFY1dZTW9lRWNYQWpjIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQUxJR05fVkVSVElDQUwiOiJ0b3AifSwiY29tcG9uZW50Ijp7IlZBUiI6Im1lbnVDb250YWluZXIiLCJPQkpFQ1RfSUQiOiJhQ3huZUVjV1lNb2VFY1hBamMifSwiaWQiOiJhQ3huZUVjV1lNb2VFY1hBamMiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiYUN4bmVFY1dZTW9lRWN1c2R5Ijp7Imxh
+        eW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9HTkNla1N1R0F4WEkiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3RlOXZkNWdra1ZPZiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9ZNUNET1dkTXRQNGkiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjIiLCJWQVIiOiJhQ3huZUVjV1lNb2VFY3VzZHkiLCJPQkpFQ1RfSUQiOiJhQ3huZUVjV1lNb2VFY3Vz
+        ZHkiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIzMDBweCIsIkNPTFVNTl9JVEVNXzEiOiIxIn0sImlkIjoiYUN4bmVFY1dZTW9lRWN1c2R5IiwidHlwZSI6ImNvbnRhaW5lciJ9LCJFaXBYZkVjY3B0WGZFY0l1YmsiOnsibGF5b3V0Ijp7IkNMQVNTIjoiaGVhZGVyVG9vbGJhciJ9LCJjb21wb25lbnQiOnsiVkFSIjoiaGVhZGVyVG9vbGJhciIsIk9CSkVDVF9JRCI6IkVpcFhmRWNjcHRYZkVjSXViayJ9LCJpZCI6IkVpcFhmRWNjcHRYZkVjSXViayIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJFaXBYZkVjYnB0WGZFY0t1UnEiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiRWlwWGZFY2JwdFhm
+        RWNLdVJxIn0sImlkIjoiRWlwWGZFY2JwdFhmRWNLdVJxIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJOZU1JWEZjdllzWllGY2JVVEYiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBTElHTl9WRVJUSUNBTCI6InRvcCJ9LCJjb21wb25lbnQiOnsiVkFSIjoibWFpbkNvbnRhaW5lciIsIk9CSkVDVF9JRCI6Ik5lTUlYRmN2WXNaWUZjYlVURiJ9LCJpZCI6Ik5lTUlYRmN2WXNaWUZjYlVURiIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYiJ9fSwidHJlZSI6eyJpZCI6ImpCeG5lRWNJSkNJTk11aG14WSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiRWlwWGZFY2JwdFhmRWNLdVJxIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6
+        IkVpcFhmRWNjcHRYZkVjSXViayIsInR5cGUiOiJjb2x1bW4ifV19LHsiaWQiOiJhQ3huZUVjV1lNb2VFY3VzZHkiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiYUN4bmVFY1dZTW9lRWNYQWpjIiwidHlwZSI6ImNvbHVtbiJ9LHsiaWQiOiJOZU1JWEZjdllzWllGY2JVVEYiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvTWFpbkZyYW1lL0xlZnRBY2NvcmRpb25NZW51LnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiTWFpbkZyYW1lIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiTGVmdEFjY29yZGlvbk1lbnUiLCJDT0RFIjoiTUFJTkZS
+        QU1FIiwiUFJFRklYIjoiIiwiU0NSRUVOX0lEIjoiTUFJTkZSQU1FIn19LCJodG1sIjoiPGRpdiBpZD1cImpCeG5lRWNJSkNJTk11aG14WVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRp
+        diBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiRWlwWGZFY2JwdFhmRWNLdVJxXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyIGhlYWRlclRvb2xiYXJcIiBz
+        dHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiRWlwWGZFY2NwdFhmRWNJdWJrXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAg
+        ICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYUN4bmVFY1dZTW9lRWN1c2R5XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6bm9uZTt3aWR0aDozMDBweDtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0
+        eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJhQ3huZUVjV1lNb2VFY1hBamNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX3ZhbGlnbl90b3AgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiTmVNSVhGY3ZZc1pZRmNiVVRGXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV92YWxpZ25fdG9wIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAg
+        ICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

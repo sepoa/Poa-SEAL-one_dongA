@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="poabase" default="compile">
+
+    <property name="workspace">${jenkins.home}/workspace/${jenkins.job.name}</property>
+
+    <property name="poa.package.src.dir">${source.dir}/Poa-Package</property>
+    <property name="webcontent.src.dir">${source.dir}/WebContent</property>
+    <property name="servlet.src.dir">${source.dir}/servlet_src</property>
+    <property name="service.src.dir">${source.dir}/serviceclasses_src</property>
+
+    <property name="poa.package.build.dir">${build.dir}/poabase/Poa-Package</property>
+    <property name="webcontent.build.dir">${build.dir}/WebContent</property>
+    <property name="servlet.build.dir">${build.dir}/WebContent/WEB-INF/classes</property>
+    <property name="service.build.dir">${build.dir}/poabase/Poa-Package/sepoaserviceclasses</property>
+
+    <!-- Set Class Path -->
+    <path id="classpath"> 
+        <pathelement location="${servlet.build.dir}" />
+        <fileset dir="${source.dir}/WebContent/WEB-INF/lib" includes="*.jar"/>
+        <fileset dir="${workspace}/ext/lib" includes="*.jar"/>
+    </path>
+
+    <!-- Delete Dir -->
+    <target name="clean">
+        <delete dir="${poa.package.build.dir}" />
+	<delete dir="${webcontent.src.dir}/WEB-INF/classes" />
+    </target>
+
+    <!-- Make Dir -->
+    <target name="makedir" depends="clean">
+        <mkdir dir="${poa.package.build.dir}"/>
+        <mkdir dir="${poa.package.build.dir}/sepoaserviceclasses"/>
+        <mkdir dir="${poa.package.build.dir}/sepoaux"/>
+        <mkdir dir="${poa.package.build.dir}/service_query"/>
+        <mkdir dir="${poa.package.build.dir}/template"/>
+    </target>
+
+    <!-- Copy & Compile -->
+    <target name="compile" depends="makedir">
+        <copy todir="${poa.package.build.dir}/sepoaux" overwrite="true" force="true">
+        	<fileset dir="${poa.package.src.dir}/sepoaux"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/service_query" overwrite="true" force="true">
+        	<fileset dir="${poa.package.src.dir}/service_query"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/template" overwrite="true" force="true">
+        	<fileset dir="${poa.package.src.dir}/template"/>
+    	</copy>
+        <copy todir="${webcontent.build.dir}" overwrite="true" force="true">
+        	<fileset dir="${webcontent.src.dir}"/>
+    	</copy>
+        <mkdir dir="${servlet.build.dir}"/>
+        <javac srcdir="${servlet.src.dir}" destdir="${servlet.build.dir}" encoding="UTF-8">
+            <classpath refid="classpath" />
+        </javac>
+		<touch datetime="01/01/2022 4:30 pm">
+			<fileset dir="${servlet.build.dir}"/>
+		</touch>
+        <javac srcdir="${service.src.dir}" destdir="${service.build.dir}" encoding="UTF-8">
+            <classpath refid="classpath" />
+        </javac>
+    </target>
+     
+</project>
+
+

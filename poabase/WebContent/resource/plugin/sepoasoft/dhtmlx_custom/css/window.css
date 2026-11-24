@@ -1,0 +1,24 @@
+div.dhx_cell_cont_wins > iframe{
+	height:100%;
+	z-index:999;
+}
+
+.dhxwins_vp_material div.dhxwin_active{
+	z-index:999 !important;
+}
+.dhxwins_vp_material div.dhxwin_hdr{
+	background-color:#1746A3;	
+}
+.dhxwins_vp_material div.dhxwin_brd{
+	border:0px;
+}
+.dhxwins_vp_material div.dhxwin_active div.dhxwin_hdr div.dhxwin_btns div.dhxwin_button:hover{
+	background-color:transparent;
+}
+.dhxwins_vp_material div.dhxwin_active div.dhx_cell_wins, .dhxwins_vp_material div.dhxwin_inactive div.dhx_cell_wins{
+	left:0px !important;
+	width:100%;
+}
+.dhxwins_vp_material div.dhxwin_brd.dhxwin_hdr_hidden{
+	top:0px !important;
+}

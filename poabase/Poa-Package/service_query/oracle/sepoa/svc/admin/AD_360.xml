@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="getSettings">
+	<![CDATA[
+		SELECT
+			  "KEY"
+			, VALUE
+		FROM
+			UCONF
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE}
+		AND COMPANY_CODE = ${COMPANY_CODE}
+		AND "GROUP" = ${GROUP}
+	]]>
+	</method>
+	
+	<method name="getNotice">
+	<![CDATA[
+		SELECT
+			  NOTICE_NUMBER
+			, HOUSE_CODE
+			, SUBJECT
+			, PUBLISH_FROM_DATE
+			, PUBLISH_TO_DATE
+		FROM
+			SNOTE
+		WHERE
+			HOUSE_CODE = ${CLIENT_CODE}
+		AND GONGJI_GUBUN = 'A'
+		AND POPUP_LOCATION = 'M'
+		AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+		AND ROWNUM >= 1 
+		AND ROWNUM <= 4
+		ORDER BY
+			  ADD_DATE DESC
+			, ADD_TIME DESC
+	]]>
+	</method>
+</service>

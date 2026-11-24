@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doList">
+	<![CDATA[
+	      SELECT DOC_TYPE
+	            ,COMPANY_CODE
+	            ,ADD_DATE
+	            ,ADD_USER_ID
+	            ,CHANGE_DATE
+	            ,CHANGE_USER_ID
+	            ,DESCRIPTION
+	            ,DEL_FLAG
+	            ,HOUSE_CODE
+			FROM SDCGL
+			WHERE 1=1
+			AND nvl(DEL_FLAG, 'N') = 'N'
+			AND (
+				 UPPER(DESCRIPTION) like '%' || upper($S{F_KEYWORD}) || '%' OR
+			     UPPER(DOC_TYPE)    like '%' || upper($S{F_KEYWORD}) || '%' OR
+			     UPPER(ADD_USER_ID) like '%' || upper($S{F_KEYWORD}) || '%' OR
+			     UPPER(ADD_DATE)    like '%' || upper($S{F_KEYWORD}) || '%' AND
+				 1=1
+			     )
+			ORDER BY DOC_TYPE
+	]]>
+	</method>
+
+	<method name="doQueryHeader">
+	<![CDATA[
+		    SELECT 
+            	  DOC_TYPE
+            	 ,COMPANY_CODE
+            	 ,PLANT_CODE
+            	 ,ADD_DATE
+            	 ,ADD_USER_ID
+            	 ,CHANGE_DATE
+            	 ,CHANGE_USER_ID
+            	 ,DESCRIPTION
+            	 ,DEL_FLAG
+            	 ,HOUSE_CODE
+			FROM SDCGL
+		   WHERE 1=1
+		     AND DEL_FLAG = 'N'
+		     AND DOC_TYPE = ${DOC_TYPE}
+	]]>
+	</method>
+
+	<method name="doQuery">
+	<![CDATA[
+		SELECT DOC_TYPE
+			  ,SEQ
+			  ,COMPANY_CODE
+			  ,PLANT_CODE
+			  ,ADD_DATE
+			  ,ADD_USER_ID
+			  ,CHANGE_DATE
+			  ,CHANGE_USER_ID
+			  ,PREFIX_FORMAT
+			  ,START_NO
+			  ,END_NO
+			  ,CURRENT_NO
+			  ,USE_FLAG
+			  ,YEAR_FLAG
+			  ,MONTH_FLAG
+			  ,DAY_FLAG
+			  ,ADD_TIME
+			  ,CHANGE_TIME
+			  ,DEL_FLAG
+		  FROM SDCLN
+		 WHERE 1=1
+		   AND DEL_FLAG = 'N'
+		   AND DOC_TYPE = ${DOC_TYPE}
+	]]>
+	</method>
+
+	<method name="doDelete_SDCGL">
+	<![CDATA[
+		UPDATE SDCGL
+		   SET DEL_FLAG = 'Y'
+		      ,CHANGE_DATE    = ${current.DATE}
+		      ,CHANGE_TIME    = ${current.TIME}
+		      ,CHANGE_USER_ID = ${session.ID}
+		 WHERE 1=1
+		   AND DOC_TYPE       = ${DOC_TYPE}
+	]]>
+	</method>
+	
+	<method name="doDelete_SDCLN">
+	<![CDATA[
+		UPDATE SDCLN
+		   SET DEL_FLAG       = 'Y'
+		      ,CHANGE_DATE    = ${current.DATE}
+		      ,CHANGE_TIME    = ${current.TIME}
+		      ,CHANGE_USER_ID = ${session.ID}
+		 WHERE 1=1
+		   AND DOC_TYPE  = ${DOC_TYPE}
+		   AND SEQ       = ${SEQ}
+	]]>
+	</method>
+	
+	<method name="doInsert_SCODE">
+	<![CDATA[
+		INSERT INTO SCODE (
+			HOUSE_CODE,
+			TYPE,
+			CODE,
+			LANGUAGE,
+			ADD_DATE,
+			ADD_TIME,
+			ADD_USER_ID,
+			CHANGE_DATE,
+			CHANGE_TIME,
+			CHANGE_USER_ID,
+			FLAG,
+			SORT_SEQ,
+			USE_FLAG,
+			IF_FLAG,
+			TEXT1,
+			TEXT2,
+			TEXT3,
+			TEXT4,
+			TEXT5,
+			TEXT6,
+			TEXT7,
+			TEXT8,
+			DEL_FLAG,
+			ACC_DATE
+		) VALUES (
+			${session.HOUSE_CODE},
+			'M999',
+			${CODE},
+			${session.LANGUAGE},
+			${current.DATE},
+			${current.TIME},
+			${session.ID},
+			${current.DATE},
+			${current.TIME},
+			${session.ID},
+			${FLAG},
+			'1',
+			'Y',
+			'N',
+			${DESCRIPTION},
+			${TEXT2},
+			${TEXT3},
+			${TEXT4},
+			${TEXT5},
+			${TEXT6},
+			${TEXT7},
+			${TEXT8},
+			'N',
+			${current.DATE}
+		) 
+	]]>
+	</method>
+	
+	<method name="doInsert_SDCGL">
+	<![CDATA[
+			INSERT 
+			  INTO SDCGL (
+			       DOC_TYPE
+			      ,COMPANY_CODE
+			      ,PLANT_CODE
+			      ,ADD_DATE
+			      ,ADD_USER_ID
+			      ,CHANGE_DATE
+			      ,CHANGE_USER_ID
+			      ,DESCRIPTION
+			      ,ADD_TIME
+			      ,CHANGE_TIME
+			      ,DEL_FLAG	
+			      ,HOUSE_CODE
+		  )VALUES(
+        		  ${DOC_TYPE}
+        		 ,${session.COMPANY_CODE}
+        		 ,${session.PLANT_CODE}
+        		 ,${current.date}
+        		 ,${session.ID}
+        		 ,${current.date}
+        		 ,${session.ID}
+        		 ,${DESCRIPTION}
+        		 ,${current.time}
+        		 ,${current.time}
+        		 ,'N'
+        		 ,${session.HOUSE_CODE}
+	        )
+	]]>
+	</method>
+	
+	<method name="doInsert_SDCLN">
+	<![CDATA[
+			INSERT 
+			  INTO SDCLN (
+			       DOC_TYPE
+			      ,SEQ
+			      ,COMPANY_CODE
+			      ,PLANT_CODE
+			      ,ADD_DATE
+			      ,ADD_USER_ID
+			      ,CHANGE_DATE
+			      ,CHANGE_USER_ID
+			      ,PREFIX_FORMAT
+			      ,START_NO
+			      ,END_NO
+			      ,CURRENT_NO
+			      ,MANUAL_FLAG
+			      ,USE_FLAG
+			      ,YEAR_FLAG
+			      ,MONTH_FLAG
+			      ,DAY_FLAG
+			      ,ADD_TIME
+			      ,CHANGE_TIME
+			      ,DEL_FLAG
+		  )VALUES(
+        		  ${DOC_TYPE}
+         		 ,${SEQ}
+        		 ,${session.COMPANY_CODE}
+        		 ,${session.PLANT_CODE}
+        		 ,${current.date}
+        		 ,${session.ID}
+        		 ,${current.date}
+        		 ,${session.ID}
+        		 ,${PREFIX_FORMAT}
+        		 ,${START_NO}
+        		 ,${END_NO}
+        		 ,${CURRENT_NO}
+        		 ,(CASE ${MANUAL_FLAG} WHEN '자동' THEN '1' WHEN '수동' THEN '0' ELSE '0' END)
+			     ,(CASE ${USE_FLAG}		WHEN '1' THEN 'Y' ELSE '0' END)
+			     ,(CASE ${YEAR_FLAG}	WHEN '1' THEN 'Y' ELSE '0' END)
+			     ,(CASE ${MONTH_FLAG}	WHEN '1' THEN 'Y' ELSE '0' END)
+			     ,(CASE ${DAY_FLAG}		WHEN '1' THEN 'Y' ELSE '0' END)
+        		 ,${current.time}
+        		 ,${current.time}
+        		 ,'N'
+	        )
+	]]>
+	</method>
+	
+	<method name="doUpdate_SDCLN">
+	<![CDATA[
+			UPDATE  SDCLN
+			   SET  PREFIX_FORMAT   = ${PREFIX_FORMAT}
+			       ,START_NO        = ${START_NO}
+			       ,END_NO          = ${END_NO}
+			       ,YEAR_FLAG       = (CASE ${YEAR_FLAG}	WHEN '1' THEN 'Y' ELSE '0' END)
+			       ,MONTH_FLAG      = (CASE ${MONTH_FLAG}	WHEN '1' THEN 'Y' ELSE '0' END)
+			       ,DAY_FLAG        = (CASE ${DAY_FLAG}		WHEN '1' THEN 'Y' ELSE '0' END)
+			       ,CURRENT_NO      = ${CURRENT_NO}
+			       ,MANUAL_FLAG     = CASE
+								           WHEN MANUAL_FLAG = '자동' THEN '1'
+								           WHEN MANUAL_FLAG = '수동' THEN '0'
+								           ELSE '2'
+								       END
+			       ,USE_FLAG        = (CASE ${USE_FLAG}		WHEN '1' THEN 'Y' ELSE '0' END)
+			       ,CHANGE_DATE     = ${current.DATE}
+			       ,CHANGE_TIME     = ${current.TIME}
+			       ,CHANGE_USER_ID  = ${session.ID}   
+			 WHERE DOC_TYPE = ${DOC_TYPE}
+			   AND SEQ      = ${SEQ}				
+	]]>
+	</method>
+	
+	<method name="doUpdate_SDCGL">
+	<![CDATA[
+			UPDATE  SDCGL
+			   SET  COMPANY_CODE   = ${session.COMPANY_CODE}
+			       ,PLANT_CODE     = ${session.PLANT_CODE}
+             	   ,CHANGE_DATE    = ${current.DATE}
+             	   ,CHANGE_USER_ID = ${current.ID}
+             	   ,DESCRIPTION    = ${DESCRIPTION}
+             	   ,CHANGE_TIME    = ${current.TIME}
+             	   ,HOUSE_CODE     = ${session.HOUSE_CODE}
+			 WHERE DOC_TYPE        = ${DOC_TYPE}
+	]]>
+	</method>
+	
+	<method name="existDocType">
+		<![CDATA[
+			SELECT a.DOC_TYPE
+			  FROM SDCLN a
+			  JOIN SCODE b
+			    ON a.DOC_TYPE = b.CODE
+			   AND a.DOC_TYPE = ${DOC_TYPE}
+			   AND b.TYPE     = 'M999'
+		]]>
+	</method>
+	
+	<method name="getMaxSeq">
+		<![CDATA[
+			SELECT nvl(MAX(SEQ),'0')   AS MAXSEQ
+			  FROM SDCLN
+			 WHERE DOC_TYPE = ${DOC_TYPE}
+		]]>
+	</method>
+
+	<method name="doQueryExistRow">
+		<![CDATA[
+			SELECT COUNT(SEQ) 
+			FROM SDCLN
+			 WHERE DOC_TYPE = ${DOC_TYPE}
+			   AND SEQ      = ${SEQ}
+		]]>
+	</method>
+	
+	<method name="doQueryExistSeq">
+		<![CDATA[
+			SELECT SEQ
+			FROM SDCLN
+			 WHERE DEL_FLAG = 'Y'
+			   AND SEQ      = ${SEQ}
+		]]>
+	</method>
+
+</service>

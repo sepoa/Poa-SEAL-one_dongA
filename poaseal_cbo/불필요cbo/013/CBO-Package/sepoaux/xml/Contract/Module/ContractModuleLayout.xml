@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_502_L" header="false">
+    <link>
+    <![CDATA[
+        <script type="text/javascript">
+            sUtils.cache.text.load({
+                url: CONTEXT_NAME + '/resource/plugin/sepoasoft/contract/lang/sepoa.contract.lang.' + Sepoa.info.LANGUAGE + '.js',
+                def: CONTEXT_NAME + '/resource/plugin/sepoasoft/contract/lang/sepoa.contract.lang.KO.js'
+            });
+        </script>
+    ]]>
+    </link>
+    <layout id="layoutObj" div="lhmSjOeVGuSjOemxye" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="contents" />
+            <collapse icon="false" collapsed="false"/>
+        </cell>
+    </layout>
+    <onloadscript>
+        <call name="init" />
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        
+        <function name="init">
+        <![CDATA[
+            $share.editor = { 
+                frame:$(layoutObj.cells('a').cell).find('.dhx_cell_cont_layout')[0].appendChild($('<iframe class="contract-editor-frame" style="width:100%;height:100%;border:0px;padding:0px;margin:0px;"></iframe>')[0])
+            } 
+            if(Sepoa.request.isPopup && $sObject._vp.parents('.sepoaux.screen_area').length <= 0){
+                var config = {
+                    module:{
+                        WORK_TYPE : Sepoa.request.WORK_TYPE || 'C',
+                        CONT_TYPE : Sepoa.request.CONT_TYPE || 'B',
+                        CONT_MODULE : Sepoa.request.CONT_MODULE || 'EDITOR'
+                    },
+                    document : {
+                        CONT_NO : Sepoa.request.CONT_NO,
+                        CONT_GL_SEQ : Sepoa.request.CONT_GL_SEQ,
+                        CONT_TYPE : Sepoa.request.CONT_TYPE || 'B'
+                    },
+                    editor:{}
+                }
+                doOpenDocument(config);
+            }else {
+                callFunction('p', 'childScreenReady', [{
+                    name:"MODULE",
+                    id: $sObject.aliasCode,
+                    fn:{
+                        doOpenDocument:doOpenDocument,
+                        doUpdateShare:doUpdateShare,
+                        doClear:doClear
+                    }
+                }])
+            }
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="data, flag">
+        <![CDATA[
+            if(flag !== false){
+                var config = {
+                    url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                    on:{
+                        callback:function(res, config, params){
+                            if(res.status == "1"){
+                                data.document = $.extend(true, data.document, res.result[0]);
+                                adjustConfiguration(data);
+                                loadEditor();
+                            }else{
+                                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0002'), function(){
+                                    doClose();
+                                });
+                            }
+                        }
+                    }
+                }
+                var params = {
+                    module:"contract" + (data.module.WORK_TYPE=='T'?".template":""),
+                    action: "doDocumentDetail",
+                    CONNECTION: "CONNECTION",
+                    CONT_TYPE: data.module.CONT_TYPE,
+                    CONT_NO: data.document.CONT_NO,
+                    CONT_GL_SEQ: data.document.CONT_GL_SEQ
+                }
+                
+                sUtils.multipart.send(config, params);
+                changeHeaderText('a', sUtils.cache.text.get('POA_CONTRACT.TITLE_'+data.module.CONT_MODULE))
+            }else{
+                $share.config = data;
+                loadEditor();
+            }
+        ]]>
+        </function>
+        
+        <function name="doClear">
+        <![CDATA[
+            $share.config = {};
+            if($share.editor && $share.editor.isReady){
+                $share.editor.frame.src = "";
+                $share.editor.isReady = false;
+                delete $share.editor.fn;
+            }
+        ]]>
+        </function>
+        
+        <function name="doClose" args="isCloseForm">
+        <![CDATA[
+            if(Sepoa.request.isPopup && Sepoa.request.isRealPopup){
+                if(!Sepoa.request.onLink){
+                    window.close();
+                }else{
+                    //document.location.reload();
+                }
+            }else if(Sepoa.request.isPopup){
+                selfObj.close();
+            }else{
+                doClear();
+            }
+            
+            if(isCloseForm === true) {
+                if(Sepoa.params && Sepoa.params.PARENT) {
+                    Sepoa.params.PARENT({view:'LIST'});
+                } else {
+                    if(Sepoa.request.isPopup && Sepoa.request.isRealPopup){
+                		document.location.reload();
+                	} else {
+                    	callFunction('p', 'changeView', [{view:'LIST'}])
+                	}
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="loadEditor">
+        <![CDATA[
+            //$share.editor.frame.src = window.CONTEXT_NAME+"/Contract/Module/ContractModuleViewer.sux?s-token="+window.sTokenString;
+            
+            $share.editor.frame.src = window.CONTEXT_NAME+"/Contract/Module/ContractModuleEditor.sux?s-token="+window.sTokenString;
+        ]]>
+        </function>
+        
+        <function name="childScreenReady" args="fn">
+        <![CDATA[
+            $share.editor.fn = fn;
+            $share.editor.fn.doClose = doClose;
+            $share.editor.isReady=true;
+            fn.doOpenDocument($share.config);
+        ]]>
+        </function>
+        
+        <function name="doUpdateShare">
+        <![CDATA[
+            return $share.editor.fn.doUpdateShare();
+        ]]>
+        </function>
+        
+        <function name="adjustConfiguration" args="config">
+        <![CDATA[
+            $share.config = config;
+    
+            if('C' != config.module.WORK_TYPE) {
+                return;
+            }
+            
+            if('EDITOR' == config.module.CONT_MODULE) {
+                const headerButton = [];      // 에디터 화면 상단 기본 버튼 구성
+                
+                if(checkBusiness(Sepoa, 'CT1681717123594')) {   // 계약 검토 모듈 체크 및 버튼 추가
+                    const button = {id : "REVIEW_REQ",   text : "{BUTTON.review_req}",  type:"save",      onclick : function(){ onButtonClick('REVIEW_REQ')} };
+                    headerButton.push(button);
+                }
+                
+                if(sUtils.string.isBlank($share.config.document.DOC_ITEM?.EX_SOURCE_NO)) {
+                    if(checkBusiness(Sepoa, 'CT1681717125054')) {   // 계약 결재 모듈 체크 및 버튼 추가
+                        const button = {id : "APPROVAL_REQ", text : "{BUTTON.app_request}", type:"save",      onclick : function(){ onButtonClick('APPROVAL_REQ')} };
+                        headerButton.push(button);
+                    } else {
+                        const button = {id : "SEND", text : "{BUTTON.send}", type:"primary", onclick : function(){ onButtonClick('SEND')} };
+                        headerButton.push(button);
+                    }
+                } else {
+                    const button = {id : "SEND", text : "{BUTTON.send}", type:"primary", onclick : function(){ onButtonClick('SEND')} };
+                    headerButton.push(button);
+                }
+                
+                headerButton.push({id : "SAVE", text : "{BUTTON.save}", type:"save", onclick : function(){ onButtonClick('SAVE')}});
+                headerButton.push({id : "CANCEL", text : "{BUTTON.cancel}", type:"back", onclick : function(){ onButtonClick('CANCEL')} });
+                
+                const header = [
+                    {
+                        type : 'button',
+                        position : 'float',
+                        list : headerButton
+                    }
+                ];
+            
+                config.editor.header = header;
+            } else if(['SIGN', 'COMPLETE'].includes(config.module.CONT_MODULE)) {
+                const signStatusMap = {
+                    'M' : {lang: sUtils.cache.text.get('POA_CONTRACT.LABEL_SIGN_STATUS_M'), status : 'PROGRESS'},
+                    'W' : {lang: sUtils.cache.text.get('POA_CONTRACT.LABEL_SIGN_STATUS_W'), status : 'WAIT'},
+                    'C' : {lang: sUtils.cache.text.get('POA_CONTRACT.LABEL_SIGN_STATUS_C'), status : 'REJECT'},
+                    'S' : {lang: sUtils.cache.text.get('POA_CONTRACT.LABEL_SIGN_STATUS_S'), status : 'COMPLETE'}
+                };
+            
+                let currentSignerNo = null;
+                const signerFlowItemList = [];
+                for(let signer of $share.config.document.SIGNER) {
+                    if(signer.SIGN_FLAG == 'M'
+                        && signer.SIGNER_COMPANY_CODE == Sepoa.info.COMPANY_CODE
+                        && signer.SIGNER_ID == Sepoa.info.ID) {
+                            currentSignerNo = signer.SIGNER_NO;
+                    }
+            
+                    const flowItem = {
+                        id : signer.SIGNER_NO,
+                        label : signStatusMap[signer.SIGN_FLAG].lang,
+                        status : signStatusMap[signer.SIGN_FLAG].status,
+                        data : { status : signer.SIGN_FLAG },
+                        list : [
+                            {text : signer.SIGNER_COMPANY_NAME},
+                            {text : signer.SIGNER_NAME}
+                        ]
+                    };
+            
+                    if(signer.SIGN_COMMENT) {
+                        flowItem.data.SIGN_COMMENT = signer.SIGN_COMMENT;
+                        flowItem.list[1].icon = 'message';
+                    }
+            
+                    signerFlowItemList.push(flowItem);
+                }
+            
+                const headerButton = [];
+                if('SIGN' == config.module.CONT_MODULE) {
+                    if(Sepoa.request?.SIGN_VALUE) {
+                        headerButton.push({id : 'DOWNLOAD'  , text : '{BUTTON.download}'  , type : 'secondary', onclick : function(){ onButtonClick('DOWNLOAD')} });
+                    }
+                    
+                    if(currentSignerNo != null) {
+                        config.editor.signerNo = currentSignerNo;
+                        headerButton.push({id : 'SIGN', text : '{BUTTON.sign}', type : 'primary'});
+                        headerButton.push({id : 'SIGN_REJECT', text : '{POA_CONTRACT.BUTTON_SIGN_REJECT}', type : 'default'});
+                    }
+                } else if('COMPLETE' == config.module.CONT_MODULE) {
+                    if(config.document.DOC_INFO_DATA.STATUS != 'A') {
+                        if(sUtils.string.toBoolean(config.document.DOC_INFO_DATA.IS_WRITABLE)) {
+                            headerButton.push({id : 'DELETE', text : '{BUTTON.delete}', type : 'delete', onclick : function() { onButtonClick('DELETE') }});
+                        }
+                    } else if(Sepoa.info.USER_TYPE != 'S') {
+                    }
+                    
+                    headerButton.push({id : 'DOWNLOAD'  , text : '{BUTTON.download}'  , type : 'secondary', onclick : function(){ onButtonClick('DOWNLOAD')} });
+                }
+            
+                if(!Sepoa.request.onLink){
+                    headerButton.push({id : 'CANCEL', text : '{BUTTON.cancel}', type : 'back'     , onclick : function(){ onButtonClick('CANCEL') }});
+                }
+            
+                const header = [
+                    {
+                        type : 'button',
+                        position : 'float',
+                        list : headerButton
+                    },
+                    {
+                        type : 'flowview',
+                        options : [
+                            {
+                                view : 'fix',
+                                contents : 'show',
+                                template : {
+                                    iconContent : '<div class="sepoa-flow-view-item-contents-default">#CONTENT#<div class="sepoa-flow-view-item-contents-icon-#ICONTYPE#"></div></div>'
+                                }
+                            },
+                            signerFlowItemList
+                        ],
+                        events : {
+                            onIconClick : function(id, data) {
+                                const title = Sepoa.cache.text.get('POA_CONTRACT.TITLE_SIGNCOMMENT');
+                                sUtils.popup.modal({
+                                    url : '/UxDefault/Common/WindowForm.sux',
+                                    title : title,
+                                    header : false,
+                                    params : {
+                                        mode : 'VIEW',
+                                        form : 'POA_CONTRACT_SIGNCOMMENT',
+                                        data : data
+                                    }
+                                });
+                            }
+                        }
+                    }
+                ];
+            
+                if('SIGN' == config.module.CONT_MODULE && currentSignerNo) {
+                    header.push({type : 'form', id : 'POA_CONTRACT_SIGNCOMMENT'});
+                }
+            
+                config.editor.header = header;
+            } else if('TERMINATION' == config.module.CONT_MODULE){
+                var signStatusMap = {
+                    'M': {lang: sUtils.cache.text.get('POA_CONTRACT.LABEL_TERMINATION_STATUS_M'), status:'PROGRESS'},
+                    'S': {lang: sUtils.cache.text.get('POA_CONTRACT.LABEL_TERMINATION_STATUS_S'), status:'COMPLETE'}
+                }  
+            
+                var currSignInfo = null
+                var signerItemList = [];
+                for(var i in $share.config.document.TERMINATOR){
+                    var signer = $share.config.document.TERMINATOR[i];
+                    if(signer.TERMINATION_STATUS == "M" 
+                        && signer.SIGNER_COMPANY_CODE == Sepoa.info.COMPANY_CODE
+                        && signer.SIGNER_ID == Sepoa.info.ID){
+                        currSignInfo = signer.SIGNER_NO;
+                    }
+                    
+                    var flowItem = {
+                        id:signer.SIGNER_NO,
+                        label:signStatusMap[signer.TERMINATION_STATUS].lang,
+                        status:signStatusMap[signer.TERMINATION_STATUS].status,
+                        data:{
+                            status:signer.TERMINATION_STATUS
+                        },
+                        list:[
+                            {text: signer.SIGNER_COMPANY_NAME},
+                            {text: signer.SIGNER_NAME}
+                        ]
+                    }
+                    if(signer.SIGN_COMMENT){
+                        flowItem.data.SIGN_COMMENT = signer.SIGN_COMMENT;
+                        flowItem.list[1].icon = 'message'
+                    }
+                    signerItemList.push(flowItem);
+                }
+                
+                var headerButton = [];
+                if(currSignInfo){
+                    config.editor.signerNo = currSignInfo;
+                    headerButton.push({id:"TERMINATION_AGREE"  , text:"{POA_CONTRACT.BUTTON_TERMINATION}"  , type:"primary", onclick:function(){onButtonClick('TERMINATION_AGREE')}});
+                }
+                
+                if(!Sepoa.request.onLink){
+                    headerButton.push({id:"CANCEL", text:"{BUTTON.cancel}", type:"back"     , onclick:function(){onButtonClick('CANCEL')}});
+                }
+            
+                config.editor.header=[
+                    {
+                        type:'button',
+                        position:'float',
+                        list:headerButton
+                    },
+                    {
+                        type:'flowview',
+                        options:[
+                            {
+                                view:'fix',
+                                contents:"show",
+                                template:{
+                                    iconContent:'<div class="sepoa-flow-view-item-contents-default">#CONTENT#<div class="sepoa-flow-view-item-contents-icon-#ICONTYPE#"></div></div>'
+                                }
+                            },
+                            signerItemList
+                        ]
+                    }
+                ];
+            } else if('VIEW' == config.module.CONT_MODULE){
+                config.editor.header=[
+                    {
+                        type:'button',
+                        position:'float',
+                        list:[
+                            {id:"CANCEL"    , text:"{BUTTON.cancel}"    , type:"back"       , onclick:function(){onButtonClick('CANCEL')}}
+                        ]
+                    }
+                ]
+                
+                if(config.document.DOC_INFO_DATA.STATUS == 'I') {
+                    config.module.CONT_MODULE = 'APPROVAL';
+                }
+            } else if(['APPROVAL'].includes(config.module.CONT_MODULE)) {
+                const headerButton = [];
+                if(!Sepoa.request.onLink){
+                    headerButton.push({id : "CANCEL", text : "{BUTTON.cancel}", type:"back", onclick : function(){ onButtonClick('CANCEL')} });
+                }
+                
+                const header = [
+                    {
+                        type : 'button',
+                        position : 'float',
+                        list : headerButton
+                    }
+                ];
+                
+                config.editor.header = header;
+            } else if(['APPROVAL_REJECT'].includes(config.module.CONT_MODULE)) {
+                config.module.CONT_MODULE = 'APPROVAL';
+                
+                const headerButton = [];
+                if(sUtils.string.toBoolean(config.document.DOC_INFO_DATA.IS_WRITABLE)) {
+                    const button = {id : "REWRITE",      text : "{BUTTON.rewrite}",  type:"save",      onclick : function(){ onButtonClick('REWRITE')} };
+                    headerButton.push(button);
+                }
+                
+                if(!Sepoa.request.onLink){
+                    headerButton.push({id : 'CANCEL', text : '{BUTTON.cancel}', type : 'back'     , onclick : function(){ onButtonClick('CANCEL') }});
+                }
+            
+                const header = [
+                    {
+                        type : 'button',
+                        position : 'float',
+                        list : headerButton
+                    }
+                ];
+            
+                config.editor.header = header;
+            } else if(['REVIEW', 'REVIEW_DONE'].includes(config.module.CONT_MODULE)) {
+                if(!$share.config.document.REVIEWER) {
+                    Alert(Sepoa.cache.text.get('POA_CONTRACT.STATUS_101205'), function() {
+                        doClose();
+                    });
+                    return;
+                }
+                
+                const reviewerStatusMap = {
+                    'RV' : {lang: sUtils.cache.text.get('POA_CONTRACT.REVIEWER_STATUS_RV'), status : 'PROGRESS'},
+                    'RW' : {lang: sUtils.cache.text.get('POA_CONTRACT.REVIEWER_STATUS_RW'), status : 'WAIT'},
+                    'RR' : {lang: sUtils.cache.text.get('POA_CONTRACT.REVIEWER_STATUS_RR'), status : 'REJECT'},
+                    'RA' : {lang: sUtils.cache.text.get('POA_CONTRACT.REVIEWER_STATUS_RA'), status : 'COMPLETE'}
+                };
+            
+                let currentReviewerNo = null;
+                const reviewerFlowItemList = [];
+                for(let reviewer of $share.config.document.REVIEWER) {
+                    if(reviewer.REVIEW_FLAG == 'RV'
+                        && reviewer.REVIEWER_COMPANY_CODE == Sepoa.info.COMPANY_CODE
+                        && reviewer.REVIEWER_ID == Sepoa.info.ID) {
+                            currentReviewerNo = reviewer.REVIEWER_NO;
+                    }
+            
+                    const flowItem = {
+                        id : reviewer.REVIEWER_NO,
+                        label : reviewerStatusMap[reviewer.REVIEW_FLAG].lang,
+                        status : reviewerStatusMap[reviewer.REVIEW_FLAG].status,
+                        data : { status : reviewer.REVIEW_FLAG },
+                        list : [
+                            {text : reviewer.REVIEWER_COMPANY_NAME},
+                            {text : reviewer.REVIEWER_NAME}
+                        ]
+                    };
+            
+                    if(reviewer.REVIEW_COMMENT) {
+                        flowItem.data.REVIEW_REQ_COMMENT = reviewer.REVIEW_COMMENT;
+                        flowItem.list[1].icon = 'message';
+                    }
+            
+                    reviewerFlowItemList.push(flowItem);
+                }
+            
+                const headerButton = [];
+                if('REVIEW' == config.module.CONT_MODULE) {
+                    if(currentReviewerNo != null) {
+                        headerButton.push({id : 'REVIEW_ACCEPT', text : '{BUTTON.approval}', type : 'primary'});
+                        headerButton.push({id : 'REVIEW_REJECT', text : '{POA_CONTRACT.REVIEWER_STATUS_RR}', type : 'default'});
+                    }
+                } else if('REVIEW_DONE' == config.module.CONT_MODULE) {
+                    config.module.CONT_MODULE = 'REVIEW';
+                    
+                    if(config.document.DOC_INFO_DATA.CREATOR == Sepoa.info.ID && config.document.DOC_INFO_DATA.COMPANY_CODE == Sepoa.info.COMPANY_CODE) {
+                        if(checkBusiness(Sepoa, 'CT1681717123594')) {    // 계약 검토 모듈 체크 및 버튼 추가
+                            const button = {id : "REVIEW_REQ",   text : "{BUTTON.review_req}",  type:"save",      onclick : function(){ onButtonClick('REVIEW_REQ')} };
+                            headerButton.push(button);
+                        }
+
+                        if(checkBusiness(Sepoa, 'CT1681717125054')) {  // 계약 결재 모듈 체크 및 버튼 추가
+                            const button = {id : "APPROVAL_REQ", text : "{BUTTON.app_request}", type:"save",      onclick : function(){ onButtonClick('APPROVAL_REQ')} };
+                            headerButton.push(button);
+                        }
+
+                        if(config.document.DOC_INFO_DATA.STATUS == 'RR') {
+                            const button = {id : "REWRITE",      text : "{BUTTON.rewrite}",  type:"save",      onclick : function(){ onButtonClick('REWRITE')} };
+                            headerButton.push(button);
+                        } else {
+                            const button = {id : "SEND", text : "{BUTTON.send}", type : "primary", onclick : function(){ onButtonClick('SEND')} };
+                            headerButton.push(button);
+                        }
+                    }
+                }
+            
+                if(!Sepoa.request.onLink){
+                    headerButton.push({id : 'CANCEL', text : '{BUTTON.cancel}', type : 'back'     , onclick : function(){ onButtonClick('CANCEL') }});
+                }
+            
+                const header = [
+                    {
+                        type : 'button',
+                        position : 'float',
+                        list : headerButton
+                    },
+                    {
+                        type : 'flowview',
+                        options : [
+                            {
+                                view : 'fix',
+                                contents : 'show',
+                                template : {
+                                    iconContent : '<div class="sepoa-flow-view-item-contents-default">#CONTENT#<div class="sepoa-flow-view-item-contents-icon-#ICONTYPE#"></div></div>'
+                                }
+                            },
+                            reviewerFlowItemList
+                        ],
+                        events : {
+                            onIconClick : function(id, data) {
+                                const title = Sepoa.cache.text.get('POA_CONTRACT.TITLE_REVIEWCOMMENT');
+                                sUtils.popup.modal({
+                                    url : '/UxDefault/Common/WindowForm.sux',
+                                    title : title,
+                                    header : false,
+                                    params : {
+                                        mode : 'VIEW',
+                                        form : 'POA_CONTRACT_REVIEW_COMMENT',
+                                        data : data
+                                    }
+                                });
+                            }
+                        }
+                    }
+                ];
+            
+                if('REVIEW' == config.module.CONT_MODULE && currentReviewerNo) {
+                    header.push({type : 'form', id : 'POA_CONTRACT_REVIEW_COMMENT'});
+                }
+            
+                config.editor.header = header;
+            }
+            
+            config.editor.watermark = sUtils.cache.text.get("POA_CONTRACT.WATERMARK_" + config.document.DOC_INFO_DATA.STATUS);
+            if(config.editor.watermark.indexOf("Has not found") == 0){
+                delete config.editor.watermark
+            }
+        ]]>
+        </function>
+        
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if(['SAVE', 'SEND', 'REVIEW_REQ'].includes(id)) {
+                const message = sUtils.string.dataReplacer(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_50'), {TASK : sUtils.cache.text.get('POA_CONTRACT.TASK_' + id)});
+                Confirm(message, function(flag) {
+                    if (flag) {
+                        if(!$share.editor.fn.doUpdateShare(id)){
+                            return;
+                        }
+                        
+                        let nextStep;
+                        if(id == 'SAVE') {                // 임시 저장
+                            nextStep = 'MODULE';
+                        } else if(id == 'SEND') {         // 전송
+                            nextStep = 'END';
+                        } else if(id == 'REVIEW_REQ') {   // 검토 요청
+                            nextStep = 'REVIEW_REQ';
+                        }
+                        
+                        doDocumentUpdate(nextStep);
+                    }
+                });
+            } else if(id == "CANCEL") {
+                doClose(true);
+            } else if(id == "DOWNLOAD") {
+                doDownload();
+            } else if(id == "TERMINATION_FORCE"){
+                doTerminationDocument(true);
+            } else if(id == "TERMINATION"){
+                doTerminationDocument();
+            } else if(id == "TERMINATION_AGREE"){
+                doTerminationAgree();
+            } else if(id == "DELETE"){
+                doDeleteDocument();
+            } else if(id == "REWRITE") {
+                doDocumentRewrite();
+            } else if(id == "APPROVAL_REQ") {
+                doApprovalRequest();
+            }
+        ]]>
+        </function>
+        
+        <function name="doDocumentUpdate" args="nextStep">
+        <![CDATA[
+             const config = {
+                url : window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on : {
+                    callback : function(res, config, params){
+                        if(res.flag){
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0001'), function(){
+                                doClose(true);
+                            });
+                        }else{
+                            Alert(res.message);
+                        }
+                    }
+                },
+                contentType : "json"
+            }
+
+            const params = {
+                module      : "contract",
+                action      : "doDocumentUpdate",
+                CONT_NO     : $share.config.document.CONT_NO,
+                CONT_GL_SEQ : $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE   : $share.config.document.CONT_TYPE,
+                NEXT_STEP   : nextStep
+            }
+
+            switch(nextStep) {
+                case "MODULE":
+                case "APPROVAL_REQ":
+                case "REVIEW_REQ":
+                case "END":
+                    params.EDITOR_HTMLS=$share.config.document.EDITOR_HTMLS;
+                    params.DOC_INFO_DATA=$share.config.document.DOC_INFO_DATA;
+                    break;
+            }
+
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doDownload">
+        <![CDATA[
+             var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.flag){
+                            
+                        }else{
+                        	console.log(arguments);
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            
+            var params = {
+                module:"contract",
+                action: "doDocumentDownload",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ:  $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.document.CONT_TYPE
+            }
+            
+            sUtils.multipart.download(config, params);
+        ]]>
+        </function>
+        
+        <function name="doTerminationDocument" args="isForce">
+        <![CDATA[
+            if(isForce){
+                sUtils.popup.modal({
+                    url:window.CONTEXT_NAME + '/Contract/Module/InputTextArea.sux',
+                    width:400,
+                    height:300,
+                    title:sUtils.cache.text.get('POA_CONTRACT_EDITOR.TERMINATION_REASON_TITLE'),
+                    params:{
+                        requiredMessage:sUtils.cache.text.get('POA_CONTRACT_EDITOR.TERMINATION_REASON_VALIDATE_MESSAGE'),
+                        callback:function(message){
+                            doTerminationCall(true, message);
+                        }
+                    }
+                })
+            }else{
+                Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0029'), function(flag){
+                    if(flag){
+                        doTerminationCall(false);
+                    }
+                });
+            }
+        ]]>
+        </function>
+        
+        <function name="doTerminationCall" args="isForce, tMessage">
+        <![CDATA[
+            var config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback:function(res, config, params){
+                        if(res.flag){
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0001'), function(){
+                                doClose(true);
+                            });
+                        }else{
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+    
+            var params = {
+                module: "contract",
+                action: "doDocumentTermination",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ:  $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.document.CONT_TYPE,
+                IS_FORCE:isForce,
+                T_MESSAGE:tMessage||""
+            };
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doTerminationAgree">
+        <![CDATA[
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0028'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback:function(res, config, params){
+                                if(res.flag){
+                                    Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0001'), function(){
+                                        doClose(true);
+                                    });
+                                }else{
+                                    Alert(res.message);
+                                }
+                            }
+                        }
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doDocumentTerminationAgree",
+                        CONT_NO: $share.config.document.CONT_NO,
+                        CONT_GL_SEQ:  $share.config.document.CONT_GL_SEQ,
+                        CONT_TYPE: $share.config.document.CONT_TYPE
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doDeleteDocument">
+        <![CDATA[
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0008'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback:function(res, config, params){
+                                if(res.flag){
+                                    Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0001'), function(){
+                                        doClose(true);
+                                    });
+                                }else{
+                                    Alert(res.message);
+                                }
+                            }
+                        }
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doDocumentDelete",
+                        CONT_NO: $share.config.document.CONT_NO,
+                        CONT_GL_SEQ:  $share.config.document.CONT_GL_SEQ,
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doDocumentRewrite">
+        <![CDATA[
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_42'), function(flag) {
+                if (flag) {
+                    var config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback:function(res, config, params){
+                                if(res.flag){
+                                    Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0001'), function(){
+                                        doClose(true);
+                                    });
+                                }else{
+                                    Alert(res.message);
+                                }
+                            }
+                        }
+                    }
+            
+                    var params = {
+                        module: "contract",
+                        action: "doDocumentRewrite",
+                        CONT_NO: $share.config.document.CONT_NO,
+                        CONT_GL_SEQ:  $share.config.document.CONT_GL_SEQ,
+                    };
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doApprovalRequest">
+        <![CDATA[
+            doUpdateShare();
+            
+            Confirm(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_43'), function(flag) {
+                if(flag) {
+                    sUtils.popup.modal({
+                        url : window.CONTEXT_NAME + '/Contract/Module/ContractModuleApprovalPopup.sux',
+                        height : SUX.getModuleTop().innerHeight * 0.90,
+                        params : $share,
+                        title : '',
+                        code : 'CONTRACT_APPROVAL_POPUP'
+                    })
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVHdaUk5aY1R3WlJOWmNiUkl2Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9yOUQwSGE3R1Q2U3AiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsImRoeElkXzd5dUhvczE4bzJPYSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNUXzUwMF9BIiwiT0JKRUNUX0lEIjoiVHdaUk5aY1R3WlJOWmNiUkl2IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJGVUxMIn0sImlkIjoiVHdaUk5aY1R3WlJOWmNiUkl2IiwidHlwZSI6
+        ImJvZHkifSwibGhtU2pPZVZHdVNqT2VGWmZHIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6ImZhbHNlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJ0cnVlIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9nUGdzTm9HZndwOEsiOiJudWxsIn0sImlkIjoibGhtU2pPZVZHdVNqT2VGWmZHIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sImxobVNqT2VWR3VTak9lbXh5ZSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RP
+        UCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX2ZCMmNYRUVDcXdQZiI6Im51bGwiLCJkaHhJZF90MjZDdHNCVFQ0dWkiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfcEhaZGIxZDN2MlJVIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMUMiLCJWQVIiOiJsYXlvdXRPYmoiLCJPQkpFQ1RfSUQiOiJsaG1Tak9lVkd1U2pPZW14eWUiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlBBVFRFUk5fU0FNUExFIjoiMSJ9LCJpZCI6ImxobVNqT2VWR3VTak9lbXh5ZSIsInR5
+        cGUiOiJsYXlvdXQiLCJldmVudHMiOltdfX0sInRyZWUiOnsiaWQiOiJUd1pSTlpjVHdaUk5aY2JSSXYiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImxobVNqT2VWR3VTak9lbXh5ZSIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJsaG1Tak9lVkd1U2pPZUZaZkciLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L0FkYXB0ZXIvQ29udHJhY3RBZGFwdGVyTW9kdWxlLnhtbCIsIlBST0pFQ1QiOiJDT05UUkFDVCIsIkNPREUiOiI1MDBfQSIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoiQWRhcHRlciIsIlBBVEhfMyI6IkNvbnRyYWN0QWRhcHRlciIsIlBBVEhfMSI6IkNvbnRyYWN0IiwiSEVBREVSIjoi
+        ZmFsc2UiLCJOQU1FIjoiTW9kdWxlIiwiU0NSRUVOX0lEIjoiQ1RfNTAwX0EifX0sImh0bWwiOiI8ZGl2IGlkPVwiVHdaUk5aY1R3WlJOWmNiUkl2XCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9vdXRlciBcIiBzdHls
+        ZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImxobVNqT2VWR3VTak9lbXh5ZVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

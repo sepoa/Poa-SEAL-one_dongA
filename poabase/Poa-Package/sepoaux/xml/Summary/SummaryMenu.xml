@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SUMMARY_MENU" header="false" tpl="editor.tpl">
+    <variable>
+        <var name="menuContainer" value="$($sObject._vp).find('#bjrRoEcRzsRoEcWzPs')[0]"/>
+        <var name="bjrRoEcQzsRoEcXkIU" value="$($sObject._vp).find('#bjrRoEcQzsRoEcXkIU')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="doQueryMenu"/>
+    </onloadscript>
+    <userscript>
+        <function name="doQueryMenu" args="">
+        <![CDATA[
+            doServiceAjax("sepoa.svc.admin.AD_421", "CONNECTION", "doQueryMenuFilter", {HOUSE_CODE: Sepoa.info.HOUSE_CODE, "CODE":Sepoa.info.MENU_PROFILE_CODE}, function(so){
+                var sf = new SepoaFormater(so.result[0]);
+                var menuItems = {}
+                var menuItemsList = [];
+                for(var i=0;i<sf.getRowCount();i++) {
+                    var menuData = {};
+                    for(var j=0;j<sf.columns.length;j++){
+                        var columnName = sf.columns;
+                        menuData[columnName[j]]= sf.getValue(columnName[j],i);
+                    }
+                    menuData.childs = [];
+                    menuItems[menuData.MENU_ID] = menuData;
+                    menuItemsList.push(menuData);
+                }
+                
+                var menuTree = [];
+                for(var i in menuItemsList){
+                    var item = menuItemsList[i];
+                    var parent = item.PARENT_MENU_ID;
+                    if(parent == "0"){
+                        menuTree.push(item);
+                    }else{
+                        menuItems[item.PARENT_MENU_ID].childs.push(item);
+                    }
+                }
+                
+                doRenderMenu(menuTree);
+                doRenderSummary();
+            })
+        ]]>
+        </function>
+        <function name="doRenderMenu" args="menuTree">
+        <![CDATA[
+            for(var i in menuTree){
+                var groupData = menuTree[i];
+                var childNodes = groupData.childs;
+                
+                if(menuTree[i].HIDDEN_FLAG == "Y" || menuTree[i].MENU_FILTERED_YN == "N"){
+                    continue;
+                }
+                if(childNodes.length <= 0){
+                    continue;
+                }
+                
+                const tileRenderer = new SepoaMenuTileRenderer();
+                tileRenderer.attachEvent("onItemClick", (option)=>{
+                    linkTo(option);
+                })
+                
+                for(let j in childNodes){
+                    const node = childNodes[j];
+                    if(node.HIDDEN_FLAG != "Y" && node.MENU_FILTERED_YN != "N"){
+                        tileRenderer.addItem({
+                            id:node.SCREEN_ID,
+                            seq:node.ITEM_SEQ,
+                            label:Sepoa.cache.text.get("MENU_"+node.MENU_PROFILE_CODE+"."+node.MENU_ID),
+                            url:node.URL,
+                            mobileUrl:node.MOBILE_URL,
+                            img:node.MENU_IMG,
+                            summary:node.SUMMARY_FLAG
+                        });
+                    }
+                }
+                
+                if(tileRenderer.getItemCount() > 0){
+                    const div = menuContainer.appendChild(document.createElement("div"));
+                    div.classList.add("groupbox");
+                    tileRenderer.draw({
+                        base:div,
+                        label:Sepoa.cache.text.get("MENU_"+groupData.MENU_PROFILE_CODE+"."+groupData.MENU_ID)
+                    });
+                }
+            }
+        ]]>
+        </function>
+        <function name="doRenderSummary" args="">
+        <![CDATA[
+            $("div[class*=component__summary]").each(function (idx){
+                var url= window.CONTEXT_NAME+'/SepoaAjax.sux';
+                dataOutput.setValue('SCREEN_ID',this.lang);
+                var params = "?nickName=sepoa.svc.summary.Summary&conType=CONNECTION&methodName=getSummaryCount&_encode=true" + dataOutput.getParams();
+                url = url + params;
+                var that = this;
+                $.ajax({
+                    type:"POST",
+                    url:url,
+                    data:params,
+                    dataType:"xml",
+                    success:function(xmlDoc){
+                        var sepoaOut = Object();
+                        var status_nodes  = xmlDoc.getElementsByTagName("status");
+                        var message_nodes = xmlDoc.getElementsByTagName("message");
+                        var result_nodes  = xmlDoc.getElementsByTagName("result");
+                        var status  = "";
+                        if(status_nodes[0].firstChild != null) {
+                            status  = status_nodes[0].firstChild.nodeValue;
+                        }
+                        var message = "";
+                        if( message_nodes[0].firstChild != null ) {
+                            message = message_nodes[0].firstChild.nodeValue;
+                        }
+                        
+                        var result  = new Array();
+                        var result_size = result_nodes.length;
+                        for(var i = 0; i < result_size; i++) {
+                            if( result_nodes[i].firstChild != null ) {
+                                result.push(result_nodes[i].firstChild.nodeValue);
+                            }
+                        }
+                        sepoaOut.status = status;
+                        sepoaOut.message = message;
+                        sepoaOut.result = result;
+                        
+                        if(sepoaOut.status == "0"){
+                            //console.log(that.lang + " Summary 데이타 조회 실패.");
+                            that.innerHTML = "X";
+                        }else if(sepoaOut.status == "SESSIONCLOSE"){
+                            sUtils.system.login();
+                        } else{
+                            that.innerHTML = sepoaOut.result[0];
+                        }
+                    },
+                    error:function(e){
+                        //console.log(that.lang + " AJAX 통신 실패.");
+                    }
+                });
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWmlyUm9FY0lvV0h6WXp4aGRsIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEsIlZBUiI6IlNVTU1BUllfTUVOVSIsIk9CSkVDVF9JRCI6IlppclJvRWNJb1dIell6eGhkbCIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiWmlyUm9FY0lvV0h6WXp4aGRsIiwidHlwZSI6ImJvZHkifSwiYmpyUm9FY1J6c1JvRWNXelBzIjp7ImxheW91dCI6eyJDTEFTUyI6IlNlcG9hU3VtbWFyeSJ9LCJjb21wb25lbnQiOnsiVkFSIjoibWVudUNvbnRhaW5lciIsIk9CSkVDVF9JRCI6ImJqclJvRWNSenNSb0VjV3pQcyJ9
+        LCJpZCI6ImJqclJvRWNSenNSb0VjV3pQcyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJianJSb0VjUXpzUm9FY1hrSVUiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiYmpyUm9FY1F6c1JvRWNYa0lVIn0sImlkIjoiYmpyUm9FY1F6c1JvRWNYa0lVIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IlppclJvRWNJb1dIell6eGhkbCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiYmpyUm9FY1F6c1JvRWNYa0lVIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImJqclJvRWNSenNSb0VjV3pQcyIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9TdW1tYXJ5L1N1
+        bW1hcnlNZW51LnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6Ik1FTlUiLCJQUkVGSVgiOiJTVU1NQVJZIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiU3VtbWFyeSIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlN1bW1hcnlNZW51IiwiU0NSRUVOX0lEIjoiU1VNTUFSWV9NRU5VIn19LCJodG1sIjoiPGRpdiBpZD1cIlppclJvRWNJb1dIell6eGhkbFwiIGNsYXNzPVwiY29udGFpbmVyIHNlcG9hdXhfc2NyZWVuX3Njcm9sbFwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRp
+        diBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImJqclJvRWNRenNSb0VjWGtJVVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNl
+        cG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBTZXBvYVN1bW1hcnlcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYmpyUm9FY1J6c1JvRWNXelBzXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAg
+        ICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

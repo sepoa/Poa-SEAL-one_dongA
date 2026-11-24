@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="getAppType">
+		<![CDATA[
+			SELECT APP_TYPE
+			  FROM SGWGL with(nolock)    
+			 WHERE HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${SEPOA_APPROVAL_S_COMPANY_CODE} 
+			       AND APP_NO       = ${APP_NO} 
+			       AND APP_NO_SEQ   = ${APP_NO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="doBusinessLogic">
+		<![CDATA[
+			SELECT TYPE 
+			     , CODE 
+			     , TEXT1 AS APP_TYPE_NAME1 
+			     , TEXT2 AS APP_TYPE_NAME2 
+			     , TEXT3 AS BUSINESS_SERVICE 
+			     , TEXT4 AS PROGRESS_METHOD 
+			     , TEXT5 AS CONFIRM_METHOD 
+			     , TEXT6 AS REJECT_METHOD
+			     , TEXT7 AS WITHDRAW_METHOD 
+			     , TEXT8 AS REUSE_METHOD
+			     , 'doApprovalDelete' AS DELETE_METHOD
+			  FROM SCODE with(nolock)
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND TYPE = 'AP001' 
+			       AND CODE = ${APP_TYPE} 
+			       AND LANGUAGE = ${session.LANGUAGE}
+		]]>
+	</method>
+</service>

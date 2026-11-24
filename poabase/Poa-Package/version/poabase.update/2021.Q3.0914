@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE UPUSH_HISTORY
+			(
+				  HISTORY_KEY VARCHAR(20) NOT NULL
+				, ACTION_MODE VARCHAR(10)
+				, CODE VARCHAR(90) NOT NULL
+				, DESCRIPTION VARCHAR(200)
+				, ADD_USER_ID VARCHAR(100)
+				, ADD_DATE VARCHAR(8)
+				, ADD_TIME VARCHAR(6)
+				, DEL_FLAG VARCHAR(1)
+				, CONSTRAINT "UPUSH_HISTORY_PK" PRIMARY KEY (HISTORY_KEY, CODE)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE UPUSO_HISTORY
+			(
+				  HISTORY_KEY VARCHAR(20) NOT NULL
+				, ACTION_MODE VARCHAR(10)
+				, HOUSE_CODE VARCHAR(50) NOT NULL
+				, CODE VARCHAR(90) NOT NULL
+				, [TYPE] VARCHAR(50) NOT NULL
+				, OPTION_NAME VARCHAR(20) NOT NULL
+				, OPTION_VALUE TEXT
+				, ADD_USER_ID VARCHAR(60)
+				, ADD_DATE VARCHAR(50)
+				, ADD_TIME VARCHAR(50)
+				, CONSTRAINT "UPUSO_HISTORY_PK" PRIMARY KEY (HISTORY_KEY, HOUSE_CODE, CODE, [TYPE], OPTION_NAME)
+			)
+		]]>
+		</query>
+	</item>
+</body>

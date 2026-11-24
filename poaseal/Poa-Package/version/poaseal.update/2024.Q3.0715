@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SQNAQ ADD COLUMN ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SQNAQ ADD ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SQNAQ ADD ROW_NUM VARCHAR2(10)
+		]]>
+		</query>
+	</item>
+	
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SSIAD ADD COLUMN ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SSIAD ADD ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SSIAD ADD ROW_NUM VARCHAR2(10)
+		]]>
+		</query>
+	</item>
+	
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SSETL ADD COLUMN ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SSETL ADD ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SSETL ADD ROW_NUM VARCHAR2(10)
+		]]>
+		</query>
+	</item>
+	
+	
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD COLUMN ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD ROW_NUM VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCTGL ADD ROW_NUM VARCHAR2(10)
+		]]>
+		</query>
+	</item>
+</body>

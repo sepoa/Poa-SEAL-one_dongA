@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="getAprvSeq">
+	<![CDATA[
+		SELECT #DB_OWNER#NVL(MAX(CONVERT(APRV_SEQ, DECIMAL)), 0) AS APRV_SEQ_MAX 
+		  FROM SSIAD_GW 
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		       AND COMPANY_CODE = ${COMPANY_CODE}
+		       AND APRV_NUMBER = ${APRV_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doInsertSealInfo">
+	<![CDATA[
+		INSERT INTO SSIAD_GW (
+		       HOUSE_CODE
+		     , COMPANY_CODE
+		     , APRV_NUMBER
+		     , APRV_SEQ
+		     , ADD_DATE
+		     , ADD_TIME
+		     , ADD_USER_ID
+		     , DEL_FLAG
+		     , SUBJECT
+		     , REQ_SEAL_USE_TYPE
+		     , DRAFT_USER_ID
+		     , DRAFT_USER_NAME
+		     , DRAFT_USER_DEPT_CODE
+		     , DRAFT_USER_DEPT_NAME
+		     , DRAFT_DATE
+		     , DRAFT_TIME
+		     , CONFIRM_USER_ID
+		     , CONFIRM_USER_NAME
+		     , CONFIRM_USER_DEPT_CODE
+		     , CONFIRM_USER_DEPT_NAME
+		     , CONFIRM_DATE
+		     , CONFIRM_TIME
+		     , SUBMISSION_PLACE
+		     , REMARK
+		     , RCPT_TYPE
+		     , SUBMIT_TYPE
+		     , APP_LINE
+		) VALUES (
+		       ${session.HOUSE_CODE}
+		     , ${COMPANY_CODE}
+		     , ${APRV_NUMBER}
+		     , ${APRV_SEQ}
+		     , ${current.DATE}
+		     , ${current.TIME}
+		     , ${session.ID}
+		     , 'N'
+		     , ${SUBJECT}
+		     , ${REQ_SEAL_USE_TYPE}
+		     , ${DRAFT_USER_ID}
+		     , ${DRAFT_USER_NAME}
+		     , ${DRAFT_USER_DEPT_CODE}
+		     , ${DRAFT_USER_DEPT_NAME}
+		     , ${DRAFT_DATE}
+		     , ${DRAFT_TIME}
+		     , ${CONFIRM_USER_ID}
+		     , ${CONFIRM_USER_NAME}
+		     , ${CONFIRM_USER_DEPT_CODE}
+		     , ${CONFIRM_USER_DEPT_NAME}
+		     , ${CONFIRM_DATE}
+		     , ${CONFIRM_TIME}
+		     , ${SUBMISSION_PLACE}
+		     , ${REMARK}
+		     , ${RCPT_TYPE}
+		     , ${SUBMIT_TYPE}
+		     , ${APP_LINE_JSON}
+		)
+	]]>
+	</method>
+
+	<method name="doInsertDocList">
+	<![CDATA[
+		INSERT INTO SSIPD_GW (
+		       HOUSE_CODE
+		     , COMPANY_CODE
+		     , APRV_NUMBER
+		     , APRV_SEQ
+		     , DOC_NO
+		     , DOC_SUBJECT
+		     , SEAL_TYPE
+		     , COUNT
+		     , PRINT_COUNT
+		     , DOWN_COUNT
+		     , ADD_DATE
+		     , ADD_TIME
+		     , ADD_USER_ID
+		     , DEL_FLAG
+		) VALUES (
+		       ${session.HOUSE_CODE}
+		     , ${COMPANY_CODE}
+		     , ${APRV_NUMBER}
+		     , ${APRV_SEQ}
+		     , ${DOC_NO}
+		     , ${DOC_SUBJECT}
+		     , ${SEAL_TYPE}
+		     , ${COUNT}
+		     , ${PRINT_COUNT}
+		     , ${DOWN_COUNT}
+		     , ${current.DATE}
+		     , ${current.TIME}
+		     , ${session.ID}
+		     , 'N'
+		)
+	]]>
+	</method>
+</service>

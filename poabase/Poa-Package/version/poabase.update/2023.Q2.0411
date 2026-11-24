@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SMUID ADD (MOBILE_URL VARCHAR2(4000))
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SMUID ADD MOBILE_URL VARCHAR(4000)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SMUID ADD COLUMN MOBILE_URL text
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SMUID_HISTORY ADD (MOBILE_URL VARCHAR2(4000))
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SMUID_HISTORY ADD MOBILE_URL VARCHAR(4000)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SMUID_HISTORY ADD COLUMN MOBILE_URL text
+		]]>
+		</query>
+	</item>
+</body>

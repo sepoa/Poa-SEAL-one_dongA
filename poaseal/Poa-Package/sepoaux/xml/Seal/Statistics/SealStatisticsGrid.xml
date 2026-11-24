@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_960" header="false" pageCloseWarn="false">
+    <filterbar id="filterObj" div="SCPeMAhGQujrGbUXox">
+        <calendar id="F_CALENDAR" button="year:0,month:0,week:-4,day:0" default="week:-4"/>
+        <keyword id="F_KEYWORD"/>
+        <filter>
+            <option id="F_APPLY_TYPE" type="select" combo="SL0001,{HOUSE_CODE}#{LANGUAGE}#SM003"/>
+        </filter>
+        <event type="onSearch" callback="onSearch"/>
+    </filterbar>
+    <grid id="gridObj" div="SCPeMAhnozjrGbRYJr" grid-id="SLM_900" drag="false" merge="true" dynamic="true">
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onXLE" callback="onXLE"/>
+    </grid>
+    <style>
+		.even{
+		    background-color:#22FF44;
+		}
+		.uneven{
+		    background-color:#66FF66;
+		}
+	</style>
+    <onloadscript>
+        <![CDATA[
+        	// debugger ;
+        	// gridObj.detachHeader(0);
+        	
+        	// 헤더 다시 구성
+        	gridObj.clearAll(true) ;
+        	
+        	// 헤더 1열
+        	gridObj.setHeader("부서명,인감 구분,합계,완료,#cspan,책임자 승인진행,#cspan,결재진행,#cspan,책임자반려,#cspan,결재반려,#cspan,임시저장,#cspan,증명서,#cspan,#cspan,#cspan,#cspan");
+        	// 헤더 2열
+        	gridObj.attachHeader(["#rspan","#rspan","#rspan","전자","실물","전자","실물","전자","실물","전자","실물","전자","실물","전자","실물","발급완료","결재완료","결재진행","결재반려","임시저장"]);
+        	// 각 헤더 수평 정렬
+        	gridObj.setColAlign("center,left,center,center,center,center,center,center,center,center,center,center,center,center,center,center,center,center,center,center,center");
+        	// 각 컬럼 타입 
+        	gridObj.setColTypes("ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed,ed");
+        	// 헤더, 그리드, 셀, 로우 css
+        	gridObj.setStyle("font-color:blue;font-size:16px;","background-color:white;color:black;font-size:14px;","background-color:black;color:white;font-size:14px;", "background-color:black;color:white;font-size:14px;");
+        	
+        	gridObj.enableAlterCss("even","uneven");
+        	gridObj.init() ;
+        	
+            doQuery();
+        ]]>
+    </onloadscript>
+    <userscript>
+        <function name="onSearch" args="flag">
+        <![CDATA[
+			console.log(flag);        
+            if (flag == "filter") {
+            	doQuery();
+            } else if (flag == "search") {
+            
+            }
+        ]]>
+        </function>
+        <function name="onRowSelect" args="id, ind">
+        <![CDATA[
+        	gridObj.editStop(true) ;
+        ]]>
+        </function>
+        <function name="onXLE" args="obj, count">
+        <![CDATA[
+        	if( count == 0 ) return ;
+        	// 합계 컬럼 계산 
+        	for(var row=1;row <= count;row++) {
+        		var sum = 0 ;
+        		for (var col=3;col<=19;col++) {
+        			sum += Number(gridObj.cells(row, col).getValue()) ;
+        		}
+        		
+        		gridObj.cells(row, 2).setValue(sum) ;
+        		// gridObj.cells(row, 3).setStyle("background-color:black;color:white;font-size:16;");
+        		
+       		}
+
+            var dept_column = 0  ; //  gridObj.getColIndexById("DEPT_NAME") 이거 안됨. clearAll 해서 그런 것 같음 
+            
+            var dept_name = "" ;  // 라인의 부서 명 
+            
+            var old_dept = gridObj.cells(1, dept_column).getValue();  // 첫번째 부서명 으로 초기화 
+
+        	var span_height = 1 ;  // 병합 크기 초기화
+        	var span_start = 1 ;   // 병합 시작 라인 번호 초기화
+        	
+        	var row = 1;  // 그리드 데이터 시작 번호
+        	var add_row = 0 ;  // 추가된 라인 초기화 ( 소계 추가 )
+        	var max_row = count ;  // 전체 라인 초기화 , 처음에는 쿼리 카운트가 됨
+        	
+        	while(true) {
+        	
+        		dept_name = gridObj.cells(row, dept_column).getValue();  // 현재 라인의 부서명 
+        	
+        		// 부서가 같지 않으면 소계를 위한 라인을 추가한다.
+        		if( dept_name != old_dept ) {    
+        		
+        			max_row ++ ;   // 전체 라인 갯수 증가
+		        	gridObj.addRow(max_row, '', row + add_row - 1, "parent_row",'',true);   // 바뀐 부서 바로 앞 라인에 라인 추가 
+
+		        	add_row ++ ;   // 추가된 라인 갯수 증가
+		            gridObj.cells(max_row, dept_column+1).setValue( "소계") ;   // 이름 셋업
+		        	gridObj.setCellTextStyle(max_row, dept_column+1,"background-color: #66FF66;color: black;font-weight: bold; ");
+
+		            gridObj.setRowspan(span_start, dept_column, span_height);   //  같은 부서끼리 셀 병합
+		            
+		            // 소계 계산 
+		            for (var col=2 ; col <= 19 ; col++) {
+		            	var sum = 0 ;
+		            	for( var col_ind = span_start ; col_ind < span_start + span_height - 1 ; col_ind ++ )  
+        					sum += Number(gridObj.cells(col_ind, col).getValue()) ;
+        				if( sum > 0 ) 
+        					gridObj.cells(max_row,col).setValue(sum) ;
+        				gridObj.setCellTextStyle(max_row, col,"background-color:#66FF66;color: black;font-weight: bold;");
+		            
+        			}	
+        			
+		            old_dept = dept_name ;   // 부서 이름 리셋 
+		            span_height = 2 ;    // 병합 칸 리셋 - 기본 2칸에서 시작 
+		            span_start = row ;   // 병합 시작 라인 번호 리셋
+	            }
+	            else {
+	            	span_height ++;
+            	}
+            	
+            	row ++ ;
+            	
+            	if( row > count) break ;
+            	
+            }
+
+            max_row++ ;   // 마지막 부서 소계 추가 하기 위한 라인 추가 
+            gridObj.addRow(max_row, '', max_row ); 
+            gridObj.cells(max_row, dept_column+1).setValue( "소계") ;   // 마지막 부서 소계 
+            gridObj.setCellTextStyle(max_row, dept_column+1,"background-color: #66FF66; color: black;font-weight: bold;");
+            gridObj.setRowspan(span_start, dept_column, span_height);   // 마지막 부서 셀 병합
+
+            // 마지막 부서 소계 계산 
+            for (var col=2 ; col <= 19 ; col++) {
+            	var sum = 0 ;
+            	for( var col_ind = span_start ; col_ind < span_start + span_height - 1 ; col_ind ++ )  
+      					sum += Number(gridObj.cells(col_ind, col).getValue()) ;
+      				if( sum > 0 ) 
+      					gridObj.cells(max_row,col).setValue(sum) ;
+					gridObj.setCellTextStyle(max_row, col,"background-color: #66FF66;color: black; font-weight: bold;");      					
+      		}	
+ 		            
+            max_row++ ;   // 전체 합계 추가 하기 위한 라인 추가 
+            gridObj.addRow(max_row, '', max_row ); 
+            
+            
+            gridObj.cells(max_row, dept_column).setValue( "전체 합계") ;   // 전체 합계 
+            
+            // debugger ;
+            // 전체 합계 계산 
+            for (var col=2 ; col <= 19 ; col++) {
+            	var sum = 0 ;
+            	for( var col_ind = 1 ; col_ind <= count ; col_ind ++ )
+					sum += Number(gridObj.cells(col_ind, col).getValue()) ;
+      				if( sum > 0 ) 
+      					gridObj.cells(max_row,col).setValue(sum) ;
+					      					
+    		}	
+    		gridObj.setRowTextStyle(max_row, "background-color: yellow;color: red; font-weight: bold;font-size:16px");
+            gridObj.enableColSpan(true);
+            gridObj.setColspan(max_row,dept_column,2) ;  // 전체 합계 셀 컬럼 병합
+            gridObj.editStop(true) ;
+
+        ]]>
+        </function>
+        <function name="doQuery" args="">
+        <![CDATA[
+            dataOutput.addFilter(filterObj);
+            gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'PROCESS_ID=sepoa.svc.seal.SepoaReqSealService', 'METHOD=doSealStatistics']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiU0NQZU1BaEdkZmpyR2JPSlRtIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF84WGFuek9SaFNCN3kiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3o4eWoyZUU0a0VPMSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IlNMTV85NjAiLCJPQkpFQ1RfSUQiOiJTQ1BlTUFoR2RmanJHYk9KVG0iLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJTQ1BlTUFoR2RmanJHYk9KVG0iLCJ0eXBl
+        IjoiYm9keSJ9LCJTQ1BlTUFoR1F1anJHYlVYb3giOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6ImZpbHRlck9iaiIsIktFWVdPUkRfQUNUSVZFIjoidHJ1ZSIsIktFWVdPUkRfSUQiOiJGX0tFWVdPUkQiLCJTVEFUVVNfQUNUSVZFIjoiZmFsc2UiLCJTVEFUVVNfSUQiOiJGX1NUQVRVUyIsIkNBTEVOREFSX0FDVElWRSI6ImZhbHNlIiwiQ0FMRU5EQVJfSUQiOiJGX0NBTEVOREFSIiwiRklMVEVSX0FDVElWRSI6ImZhbHNlIiwiT0JKRUNUX0lEIjoiU0NQZU1BaEdRdWpyR2JVWG94In0sImlkIjoiU0NQZU1BaEdRdWpyR2JVWG94IiwidHlwZSI6ImZpbHRlcmJhciJ9LCJTQ1BlTUFobm96anJHYlJZSnIiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00i
+        OiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9WYVlqenNyb2F4dlYiOiJudWxsIiwiZGh4SWRfeUN3ejJBYTdyalhWIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX0s3UHBndlh2dEQxVSI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX0hqR1VnaGtQSHBxVSI6Im51bGwiLCJkaHhJZF9tMlZES1NadnkxQlYiOiJudWxsIiwiZGh4SWRfUVdNbHVXd1NJcVpZIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoi
+        Z3JpZE9iaiIsIk1FUkdFIjoidHJ1ZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJ0cnVlIiwiT0JKRUNUX0lEIjoiU0NQZU1BaG5vempyR2JSWUpyIiwiR1JJRF9JRCI6IlNMTV9TSzkwMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiU0NQZU1BaG5vempyR2JSWUpyIiwidHlwZSI6ImdyaWQifX0sInRyZWUiOnsiaWQiOiJTQ1BlTUFoR2RmanJHYk9KVG0iLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IlNDUGVNQWhHUXVqckdiVVhveCIsInR5cGUiOiJmaWx0ZXJiYXIifSx7ImlkIjoiU0NQZU1BaG5vempyR2JSWUpyIiwidHlwZSI6ImdyaWQifV19LCJpbmZvIjp7IlBBVEgiOiIvU2VhbC9SZXFTdW1tYXJ5L1NlYWxSZXFTdW1tYXJ5R3Jp
+        ZC54bWwiLCJQUk9KRUNUIjoiQ0JPIiwiQ09ERSI6Ijk2MCIsIlBSRUZJWCI6IlNMTSIsIlBBVEhfMiI6IlJlcVN1bW1hcnkiLCJQQVRIXzMiOiJTZWFsUmVxU3VtbWFyeSIsIlBBVEhfMSI6IlNlYWwiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJHcmlkIiwiU0NSRUVOX0lEIjoiU0xNXzk2MCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJTQ1BlTUFoR2RmanJHYk9KVG1cIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNl
+        cG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZmlsdGVyYmFyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2ZpbHRlcmJhcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJTQ1BlTUFoR1F1anJHYlVYb3hcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50IHNlcG9hdXhfZmlsdGVyYmFyIHNzZmlsdGVyX2NvbnRcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8
+        L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIlNDUGVNQWhub3pqckdiUllKclwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZ3JpZCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4g
+        ICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

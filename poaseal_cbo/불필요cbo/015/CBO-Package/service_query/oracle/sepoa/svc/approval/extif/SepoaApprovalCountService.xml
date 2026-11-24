@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectUserInfo">
+	<![CDATA[
+		SELECT 
+			HOUSE_CODE
+			, COMPANY_CODE
+			, USER_ID
+			, DEPT
+			, "LANGUAGE"
+			, EMAIL
+			, USER_NAME_LOC
+			, MENU_PROFILE_CODE
+			, USER_TYPE
+			, WORK_TYPE
+		FROM SUSMT
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND COMPANY_CODE = ${session.COMPANY_CODE}
+		AND USER_ID = ${session.USER_ID}
+		AND DEL_FLAG = 'N'
+	]]>
+	</method>
+	<method name="doSelectSSIAD">
+	<![CDATA[
+		SELECT 
+			*
+		FROM SSIAD
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+		AND COMPANY_CODE = ${session.COMPANY_CODE}
+		AND ADD_USER_ID = ${session.USER_ID}
+		AND SMR_STATUS in ('I', 'CR')
+		AND DEL_FLAG = 'N'
+	]]>
+	</method>
+	<method name="doSelectSGWGL">
+	<![CDATA[
+		SELECT
+			GWGL.HOUSE_CODE
+			, GWGL.COMPANY_CODE
+			, GWGL.APP_NO
+			, GWGL.APP_SUBJECT
+			, GWGL.APP_TYPE
+			, GWGL.SUX_WKEY1
+			, GWGL.APP_STATUS
+			, GWLN.APP_USER_ID 
+		FROM SGWGL GWGL
+		INNER JOIN SGWLN GWLN
+		ON GWGL.HOUSE_CODE= GWLN.HOUSE_CODE
+			AND GWGL.COMPANY_CODE = GWLN.COMPANY_CODE
+			AND GWGL.APP_NO = GWLN.APP_NO
+		WHERE GWGL.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND GWGL.COMPANY_CODE = ${session.COMPANY_CODE}
+			AND GWGL.APP_STATUS = 'I'
+			AND GWLN.APP_LINE_STATUS ='L04'
+			AND GWLN.APP_USER_ID = ${session.USER_ID}
+	]]>
+	</method>
+</service>

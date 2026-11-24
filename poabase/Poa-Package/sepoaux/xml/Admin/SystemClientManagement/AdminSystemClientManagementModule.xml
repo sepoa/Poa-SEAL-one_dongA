@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_403" header="false">
+    <button id="buttonbox"/>
+    <button id="btnObj">
+        <btn div="JuewXrdsdPxXrdBcpn" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave(  )"/>
+    </button>
+    <grid id="gridObj" div="ATYhQIehUahQIeugAn" grid-id="file:///resource/ux/admin/grid/AD_403.js" drag="false" merge="false" dynamic="false">
+    	<event type="onXLE" callback="doQueryEnd"/>
+    	<event type="onTXE" callback="doSaveEnd"/>
+    	<event type="onRowSelect" callback="onRowSelect"/>
+    	<event type="onEditCell" callback="onEditCell"/>
+    	<event type="onOpenEnd" callback="onOpenEnd"/>
+    </grid>
+    <variable>
+        <var name="ad73fc4100474fda8a5d3f0ff86c78" value="$($sObject._vp).find('#ad73fc4100474fda8a5d3f0ff86c78')[0]"/>
+        <var name="baebb7f50e724d36829b74d393f0d9" value="$($sObject._vp).find('#baebb7f50e724d36829b74d393f0d9')[0]"/>
+        <var name="e5ff03b38a49453f8952c45c059112" value="$($sObject._vp).find('#e5ff03b38a49453f8952c45c059112')[0]"/>
+    </variable>
+    <onloadscript>
+    <![CDATA[
+        gridObj.enableSmartRendering(false);
+        addCountBtn();
+        addExtensionBtn();
+    ]]>
+    </onloadscript>
+    <userscript>
+        <var name="currentSelectedRow"/>
+        <var name="$clientCode"/>
+        <var name="$companyCode"/>
+        <var name="$previousSelectedCount"/>
+        <var name="collapseFlag"/>
+        <function name="addCountBtn" args="">
+        <![CDATA[
+        	var btnArr = ['ALL_MODULE_COUNT', 'PRE_SELECTED_MODULE_COUNT', 'SELECTED_MODULE_COUNT'];
+        	
+        	btnArr.forEach((btnId) => {
+			    buttonbox.addButton(ab49658251bb4acc86025b6211c20b, {
+			           id: btnId,
+			           type: 'template'
+			     });
+        	})
+        ]]>
+        </function>
+        <function name="addExtensionBtn" args="">
+        <![CDATA[
+            const extBtnArr = [
+                {
+                    id : 'ALL_COLLAPSE_EXPAND',
+                    type : 'secondary',
+                    text : Sepoa.cache.text.get('AD_403.ALL_EXPAND'),
+                    onclick : () => {
+                        allCollapseExpand(!collapseFlag);
+                        buttonbox.btn('ALL_COLLAPSE_EXPAND').setText(!collapseFlag ? Sepoa.cache.text.get('AD_403.ALL_COLLAPSE') : Sepoa.cache.text.get('AD_403.ALL_EXPAND'));
+                    }
+                }
+            ];
+            
+            extBtnArr.forEach((btn) => {
+                buttonbox.addButton(ab49658251bb4acc86025b6211c20b, {
+                    id : btn.id,
+                    type : btn.type,
+                    text : btn.text,
+                    onclick : btn.onclick
+                });
+            });
+        ]]>
+        </function>
+        <function name="setModuleCount" args="">
+        <![CDATA[
+        	var labelTextPair = [['ALL_MODULE_COUNT', gridObj.getRowsNum()], ['PRE_SELECTED_MODULE_COUNT', $previousSelectedCount], ['SELECTED_MODULE_COUNT', gridObj.getSelectedRows('SELECTED').length]]
+
+			for( let [ btnId, textValue ] of labelTextPair ){
+			    buttonbox.btn(btnId).setText(sUtils.string.dataReplacer(Sepoa.cache.text.get('BUTTON.GRID_ROW_COUNT_TEMPLATE'), {
+			        LABEL: Sepoa.cache.text.get('AD_403.' + btnId),
+			        TEXT: textValue
+			    }));
+			}
+        ]]>
+        </function>
+        
+        <function name="allCollapseExpand" args="flag">
+        <![CDATA[
+            collapseFlag = flag;
+            
+            if(flag === true) {
+                gridObj.collapseAll();
+            } else if(flag === false) {
+                gridObj.expandAll();
+            }
+        ]]>
+        </function>
+        
+        <function name="doQuery" args="houseCode, companyCode">
+        <![CDATA[
+        	if(houseCode && companyCode){
+        		$clientCode = houseCode;
+        		$companyCode = companyCode;	
+        	}
+        	
+        	dataOutput.setValue("COMPANY_CODE", $companyCode);
+            dataOutput.setValue("HOUSE_CODE", $clientCode);
+        	
+            var params = [];
+            params.push('mode=doTreeGridQuery');
+            params.push('PROCESS_ID=sepoa.svc.admin.AD_403');
+            params.push('METHOD=doTreeGridQuery');
+            gridObj.postConnection('/SepoaGrid.sux', params);
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCnt">
+        <![CDATA[
+            var msg = obj.getUserData("", "message");
+            var status = obj.getUserData("", "status");
+            if (status == "false") {
+                Alert(msg);
+            }
+            
+            var rowCount = gridObj.getRowsNum();
+            
+            for(var i = 0; i < rowCount; i++) {
+            	var rowID = gridObj.getRowId(i);
+            	var rowData = gridObj.getRowDataObject(rowID);
+            	var nodeType = rowData.NODE;
+            	var extensionType = rowData.TYPE;
+            	var extensionOptions = rowData.OPTIONS
+            	var extensionIdx = gridObj.getColIndexById('EXTENSION');
+            	
+            	if(nodeType == 'CONDITION') {
+            		
+            		if(extensionType == 'POPUP') {
+            			//gridObj.changeCellType(gridObj.getRowById(rowID), extensionIdx, 'ro');
+            		} else if(extensionType == 'COMBO') {
+            			gridObj.changeCellType(gridObj.getRowById(rowID), extensionIdx, 'comboro');
+
+            			var code = extensionOptions.split(',')[0];
+            			var param = extensionOptions.split(',')[1];
+            			var cell = gridObj.cells(rowID, extensionIdx);
+            			
+            			cell.initCombo();
+            			
+            			if(param) {
+            				param = window.dhx4.comboParam(param);
+            			} else {
+            				param = "";
+            			}
+            			
+            			var comboData = sUtils.cache.combo.get(code+","+param);
+            			
+            			if(comboData) {
+            				for(var idx in comboData) {
+            					var combo = comboData[idx];
+            					
+            					cell.getCellCombo().addOption(combo.value, combo.text);
+            				}
+            			}
+            			
+            		} else if(extensionType == 'INEQUALITY') {
+            			
+            		} else {
+                        gridObj.changeCellType(gridObj.getRowById(rowID), extensionIdx, 'ed');
+                    }
+            	} else {
+            		var cell = gridObj.cells(rowID, extensionIdx);
+
+					cell.setValue('');
+            	}
+            }
+            
+            doServiceAjax('sepoa.svc.admin.AD_403', 'CONNECTION', 'doQueryFilteredData', {HOUSE_CODE: dataOutput.getValue("HOUSE_CODE")}, function(so) {
+            	if(so.status != 1) {
+            		Alert(Sepoa.cache.text.get('AD_403.FILTERED_DATA_LOAD_FAIL'));
+            		return;
+            	}
+            	
+            	var sf = new SepoaFormater(so.result[0]);
+            	$previousSelectedCount = sf.getRowCount();
+            	
+            	if(sf.getRowCount() > 0) {
+            		var sfList = sf.getArrayMap();
+            		var dataPack = {};
+            		
+            		for(var idx in sfList) {
+            			var item = sfList[idx];
+            			
+            			dataPack[item.MODULE] = {'OPTIONS': item.OPTIONS};
+            		}
+            		
+            		var gridRowCount = gridObj.getRowsNum();
+            		var convertInequality = function(str) {
+            			switch(str) {
+            				case 'lt': return '<';
+            				case 'gt': return '>';
+            				case 'eq': return '==';
+            				case 'ne': return '!=';
+            			}
+            		}
+            		
+            		for(var i = 0 ; i < gridRowCount; i++) {
+            			var rID = gridObj.getRowId(i);
+            			var rowData = gridObj.getRowDataObject(rID);
+            			
+            			if(dataPack[rowData.MODULE]) {
+            				var selectedIdx = gridObj.getColIndexById('SELECTED');
+            				
+            				gridObj.cells(rID, selectedIdx).setChecked(true);
+            				
+            				if(rowData.NODE == 'CONDITION') {
+	            				var viewIdx = gridObj.getColIndexById('EXTENSION');
+	            				var extensionIdx = gridObj.getColIndexById('EXTENSION_VALUE');
+	            				
+	            				gridObj.cells(rID, viewIdx).setValue(dataPack[rowData.MODULE].OPTIONS);
+	            				gridObj.cells(rID, extensionIdx).setValue(dataPack[rowData.MODULE].OPTIONS);
+	            				
+	            				if(rowData.TYPE == 'INEQUALITY') {
+	            					var options = dataPack[rowData.MODULE].OPTIONS.split(',');
+	            					var inequality = options[0];
+	            					var value = options[1];
+	            					
+	            					gridObj.cells(rID, viewIdx).setValue(convertInequality(inequality) + ' ' + value);
+	            				}
+	            			}
+            			}
+            		}
+            	}
+            }, false);
+            
+            
+            setModuleCount();
+            
+            if(collapseFlag === undefined) {
+                allCollapseExpand(true);
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+        	gridObj.expandAll();
+        	setModuleCount();
+	        gridObj.editStop();
+	        
+	        var rowCount = gridObj.getRowsNum();
+	        var selectRows = gridObj.getSelectedRows('SELECTED');
+	        
+	        for(var idx in selectRows) {
+	        	var rID = selectRows[idx];
+	        	var rowData = gridObj.getRowDataObject(rID);
+	        	
+	        	if(rowData.NODE == 'CONDITION') {
+	        		if(!rowData.EXTENSION_VALUE) {
+                        Alert(Sepoa.cache.text.get('AD_403.EXTENSION_INVALIDATE') + rowData.DESCRIPTION);
+	        			return;
+	        		}
+	        	}
+	        }
+	
+	        Confirm(selectRows.length + Sepoa.cache.text.get('AD_403.SAVE_CONFIRM'), function(result) {
+	            if (result) {
+	                var params = [];
+	                params.push('mode=doSave');
+	                params.push('PROCESS_ID=sepoa.svc.admin.AD_403');
+	                params.push('METHOD=doSave');
+	                gridObj.postTransaction(window.CONTEXT_NAME + '/SepoaGrid.sux', params, 'SELECTED');
+	            }
+	        });
+        ]]>
+        </function>
+        <function name="doSaveEnd" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            if (status != 'true') {
+                Alert(message);
+            }
+            
+            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            doQuery();
+        ]]>
+        </function>
+        <function name="onRowSelect" args="rID, cIn">
+        <![CDATA[
+        	var header = gridObj.getColumnId(cIn);
+        	
+        	if(header == 'EXTENSION') {
+        		var rowData = gridObj.getRowDataObject(rID);
+        		
+        		if(rowData.TYPE == 'POPUP') {
+        			var extensionOptions = rowData.OPTIONS;
+        			var code = extensionOptions.split(',')[0];
+        			var param = extensionOptions.split(',')[1];
+        			
+        			if(param) {
+        				param = window.dhx4.comboParam(param);
+        				param = param.split('#');
+        			} else {
+        				param = [];
+        			}
+        			
+        			currentSelectedRow = rID;
+        			PopupCommonPost(code, extensionPopupCallback, param);
+        		} else if(rowData.TYPE == 'INEQUALITY') {
+        			PopupOpenPost('/Admin/ModuleConfiguration/AdminModuleConfigurationInequalityPopup.sux', {selectedValue: rowData.EXTENSION_VALUE, rowID: rID}, inequalityPopupCallback, 400, 200, Sepoa.cache.text.get('AD_403.INEQUALITY_POPUP_TITLE'), 'INEQUALITY_POPUP');
+        		}
+        	}
+        	
+        	setModuleCount();
+        ]]>
+        </function>
+        <function name="extensionPopupCallback" args="code, name">
+        <![CDATA[
+        	var viewIdx = gridObj.getColIndexById('EXTENSION');
+        	var valueIdx = gridObj.getColIndexById('EXTENSION_VALUE');
+        	var selectedIdx = gridObj.getColIndexById('SELECTED');
+        	
+        	gridObj.cells(currentSelectedRow, viewIdx).setValue(code);
+        	gridObj.cells(currentSelectedRow, valueIdx).setValue(code);
+        	
+        	gridObj.cells(currentSelectedRow, selectedIdx).setChecked(true);
+        ]]>
+        </function>
+        <function name="inequalityPopupCallback" args="data, params">
+        <![CDATA[
+        	var selectedIdx = gridObj.getColIndexById('SELECTED');
+        	var viewIdx = gridObj.getColIndexById('EXTENSION');
+        	var extensionValueIdx = gridObj.getColIndexById('EXTENSION_VALUE');
+        	var rID = params.rowID;
+        	
+        	if(data) {
+				var inequalityType = data.INEQUALITY_TYPE;
+				var text = data.INEQUALITY_TYPE_STR;
+	        	var value = data.VALUE;
+	        	
+	        	gridObj.cells(rID, viewIdx).setValue(text + ' ' + value);
+	        	gridObj.cells(rID, extensionValueIdx).setValue(inequalityType + ',' + value);
+	        	gridObj.cells(rID, selectedIdx).setChecked(true);
+        	} else {
+        		gridObj.cells(rID, viewIdx).setValue('');
+	        	gridObj.cells(rID, extensionValueIdx).setValue('');
+        		gridObj.cells(rID, selectedIdx).setChecked(false);
+        	}
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rID, cIn, nValue, oValue">
+        <![CDATA[
+         	setModuleCount();
+         	
+         	var header = gridObj.getColumnId(cIn)
+         	
+         	if(stage == 0) {
+         		if(header == 'REMARK') {
+         			return false;
+         		}
+         		return true;
+     		} else if(stage == 1) {
+ 	    		return true;
+         	} else if(stage == 2) {
+         		if(header == 'EXTENSION') {
+         			var rowData = gridObj.getRowDataObject(rID);
+         			var valueColumnIdx = gridObj.getColIndexById('EXTENSION_VALUE');
+         			
+         			gridObj.cells(rID, valueColumnIdx).setValue(nValue);
+         		}
+         		return true;
+         	}
+        ]]>
+        </function>
+        <function name="onOpenEnd" args="id, state">
+        <![CDATA[
+            if(state > 0) {
+                collapseFlag = true;
+                buttonbox.btn('ALL_COLLAPSE_EXPAND').setText(!collapseFlag ? Sepoa.cache.text.get('AD_403.ALL_COLLAPSE') : Sepoa.cache.text.get('AD_403.ALL_EXPAND'));
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiSnVld1hyZEp1ZXdYcmRyclpmIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF81UWZ2TlBrbDlnRjMiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3AyRThRMHJuVG94ViI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQwMyIsIk9CSkVDVF9JRCI6Ikp1ZXdYcmRKdWV3WHJkcnJaZiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6Ikp1ZXdYcmRKdWV3WHJkcnJaZiIsInR5cGUi
+        OiJib2R5In0sIkp1ZXdYcmRzZFB4WHJkQmNwbiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV8wX1RZUEUiOiJzYXZlIiwiSVRFTV8wX1BBUkFNIjoiIiwiT0JKRUNUX0lEIjoiSnVld1hyZHNkUHhYcmRCY3BuIiwiSVRFTV8wX09OQ0xJQ0si
+        OiJkb1NhdmUiLCJJVEVNXzBfSUQiOiJTQVZFIiwiSVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9URVhUIjoi7KCA7J6lIiwiSVRFTV8wX1NPUlQiOiIxIn0sImlkIjoiSnVld1hyZHNkUHhYcmRCY3BuIiwidHlwZSI6ImJ1dHRvbiJ9LCJBVFloUUllaFVhaFFJZXVnQW4iOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9WVjBOdWxaeW9NWkQiOiJudWxsIiwiZGh4SWRfWkxOSjRuYzV6dGVOIjoibnVsbCIsIkFM
+        SUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX0dqTGdCR3FWT1I1ciI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZE9iaiIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJPQkpFQ1RfSUQiOiJBVFloUUllaFVhaFFJZXVnQW4iLCJHUklEX0lEIjoiZmlsZTovLy9yZXNvdXJjZS91eC9hZG1pbi9ncmlkL0FEXzQwMy5qcyJ9LCJpZCI6IkFUWWhRSWVoVWFoUUlldWdBbiIsInR5cGUiOiJncmlkIn0sImFkNzNmYzQxMDA0NzRmZGE4YTVkM2YwZmY4NmM3OCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiYWQ3M2ZjNDEwMDQ3NGZkYThhNWQzZjBm
+        Zjg2Yzc4In0sImlkIjoiYWQ3M2ZjNDEwMDQ3NGZkYThhNWQzZjBmZjg2Yzc4IiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sImU1ZmYwM2IzOGE0OTQ1M2Y4OTUyYzQ1YzA1OTExMiI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfeFBXd0lobmh6cHdRIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9aaHlNTGpTUHVmVWoiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfelFu
+        Y0prbHZTRXBYIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIyIiwiVkFSIjoiZTVmZjAzYjM4YTQ5NDUzZjg5NTJjNDVjMDU5MTEyIiwiT0JKRUNUX0lEIjoiZTVmZjAzYjM4YTQ5NDUzZjg5NTJjNDVjMDU5MTEyIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDT0xVTU5fSVRFTV8wIjoiMSIsIkNPTFVNTl9JVEVNXzEiOiIxIn0sImlkIjoiZTVmZjAzYjM4YTQ5NDUzZjg5NTJjNDVjMDU5MTEyIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJiYWViYjdmNTBlNzI0ZDM2ODI5Yjc0ZDM5M2YwZDkiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6ImJhZWJiN2Y1MGU3MjRkMzY4MjliNzRkMzkzZjBkOSJ9LCJpZCI6ImJhZWJiN2Y1
+        MGU3MjRkMzY4MjliNzRkMzkzZjBkOSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYiJ9LCJhYjQ5NjU4MjUxYmI0YWNjODYwMjViNjIxMWMyMGIiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnV0dG9uYm94IiwiT0JKRUNUX0lEIjoiYWI0OTY1ODI1MWJiNGFjYzg2MDI1YjYyMTFjMjBiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJhYjQ5NjU4MjUxYmI0
+        YWNjODYwMjViNjIxMWMyMGIiLCJ0eXBlIjoiYnV0dG9uIn19LCJ0cmVlIjp7ImlkIjoiSnVld1hyZEp1ZXdYcmRyclpmIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJlNWZmMDNiMzhhNDk0NTNmODk1MmM0NWMwNTkxMTIiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiYWQ3M2ZjNDEwMDQ3NGZkYThhNWQzZjBmZjg2Yzc4IiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6ImFiNDk2NTgyNTFiYjRhY2M4NjAyNWI2MjExYzIwYiIsInR5cGUiOiJidXR0b24ifV19LHsiaWQiOiJiYWViYjdmNTBlNzI0ZDM2ODI5Yjc0ZDM5M2YwZDkiLCJ0eXBlIjoiY29sdW1uIiwiY2VsbHMiOlt7ImlkIjoiSnVld1hyZHNkUHhYcmRCY3BuIiwi
+        dHlwZSI6ImJ1dHRvbiJ9XX1dfSx7ImlkIjoiQVRZaFFJZWhVYWhRSWV1Z0FuIiwidHlwZSI6ImdyaWQifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vU3lzdGVtQ2xpZW50TWFuYWdlbWVudC9BZG1pblN5c3RlbUNsaWVudE1hbmFnZW1lbnRNb2R1bGUueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiNDAzIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJTeXN0ZW1DbGllbnRNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5TeXN0ZW1DbGllbnRNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJNb2R1bGUiLCJTQ1JFRU5fSUQiOiJBRF80MDMifX0sImh0bWwiOiI8ZGl2IGlkPVwiSnVld1hyZEp1ZXdYcmRyclpm
+        XCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAg
+        PGRpdiBpZD1cImU1ZmYwM2IzOGE0OTQ1M2Y4OTUyYzQ1YzA1OTExMlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYWQ3M2ZjNDEwMDQ3NGZkYThhNWQzZjBmZjg2Yzc4XCIgY2xh
+        c3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYWI0OTY1ODI1
+        MWJiNGFjYzg2MDI1YjYyMTFjMjBiXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7XCI+XG4gICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYmFlYmI3ZjUwZTcyNGQzNjgyOWI3NGQzOTNmMGQ5XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4g
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJKdWV3WHJkc2RQeFhyZEJjcG5cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9k
+        aXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAg
+        ICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiQVRZaFFJZWhVYWhRSWV1Z0FuXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

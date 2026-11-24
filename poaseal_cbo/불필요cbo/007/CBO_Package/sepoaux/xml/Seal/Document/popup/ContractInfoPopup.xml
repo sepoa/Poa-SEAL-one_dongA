@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CONTRACT_INFO_POPUP" header="false" pageCloseWarn="false">
+    <link>
+    <![CDATA[
+        
+    ]]>
+    </link>
+    <button id="e122995b8e5745f6892093e23e8e73">
+        <btn div="e122995b8e5745f6892093e23e8e73" id="SAVE" type="default" text="{BUTTON.save}" onclick="doSave()"/>
+    </button>
+    <usercss>
+    <![CDATA[
+        .set-approval-container {
+			overflow-y: auto;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="container" value="$($sObject._vp).find('#NJdjrVdUzejrVdWVIX')[0]"/>
+        <var name="NJdjrVdUzejrVdkNCA" value="$($sObject._vp).find('#NJdjrVdUzejrVdkNCA')[0]"/>
+        <var name="a2eb2bdfef4349a786b997320976a3" value="$($sObject._vp).find('#a2eb2bdfef4349a786b997320976a3')[0]"/>
+        <var name="b6d4fef874fe45588ca8a42fab4e9b" value="$($sObject._vp).find('#b6d4fef874fe45588ca8a42fab4e9b')[0]"/>
+        <var name="$formObj" value="{}"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+        <![CDATA[
+        	selfObj._dndUnloadModule();
+        ]]>
+    </onloadscript>
+    <userscript>
+    	<function name="doSave" args="">
+    	<![CDATA[
+    		let formData = $formObj.getFormData();
+    		
+    		if(Sepoa.params.useType == Sepoa.config.get("sepoa.secl.req.seal.contract.use.number")){
+    			let contractPetition = formData.CONTRACT_PETITION;
+	    		if(contractPetition == null || contractPetition == ""){
+	    			Alert("계약체결품의서를 선택해주세요.");
+	    			return;
+	    		}
+	    		if(contractPetition == '2'){
+	    			let reason = formData.NO_PETITION_REASON;
+	    			if(reason == null || reason == "") {
+		    			Alert("계약체결품의서 선택 사유를 입력해주세요.");
+		    			return;
+	    			}
+	    		}
+	    		
+	    		let legalCheck = formData.LEGAL_CHECK;
+	    		if(legalCheck == null || legalCheck == ""){
+	    			Alert("법무검토를 선택해주세요.");
+	    			return;
+	    		}
+	    		if(legalCheck == '2'){
+	    			let reason = formData.LEGAL_CHECK_REASON;
+	    			if(reason == null || reason == "") {
+		    			Alert("미반영사유를 입력해주세요.");
+		    			return;
+	    			}
+	    		}
+	    		
+	    		let contractType = formData.CONTRACT_TYPE;
+	    		if(contractType == null || contractType == ""){
+	    			Alert("계약유형을 선택해주세요.");
+	    			return;
+	    		}
+	    		
+	    		let contractTarget = formData.CONTRACT_TARGET;
+	    		if(contractType == '1' && contractTarget == null) {
+	    			Alert("계약대상을 선택해주세요.");
+	 				return;
+				}
+				
+				if(contractType == '1') {
+					let contractAmount = formData.CONTRACT_AMOUNT;
+					if(contractAmount == null || contractAmount == "") {
+						Alert("계약금액을 입력해주세요.");
+		    			return;
+					}
+				}
+				
+				if(contractType == '1') {
+					let contractFrom = formData.CONTRACT_FROM;
+					let contractTo = formData.CONTRACT_TO;
+					if( (contractFrom == null || contractFrom == "") || (contractTo == null || contractTo == "") ) {
+						Alert("계약기간을 입력해주세요.");
+		    			return;
+					}
+				}
+				
+				if(contractType == '1' && contractTarget == '3') {
+					let siteManual = formData.SITE_MANUAL;
+					if(siteManual == null || siteManual == "") {
+						Alert("현장설명서를 선택해주세요");
+						return;				
+					}
+				}
+				
+				if(contractType == '1' && contractTarget == '3'){
+					let taskDirections = formData.TASK_DIRECTIONS;
+					if(taskDirections == null || taskDirections == "") {
+						Alert("과업지시서를 선택해주세요");
+	   					return;
+					}
+				} 
+	    		
+	    		let changeAmount =  formData.CHANGE_AMOUNT;
+	    		if(contractType == '2' && (changeAmount == null || changeAmount == "") ) {
+	    			Alert("금액변경을 선택해주세요.");
+	   				return;
+	    		}
+	    		
+	    		if(contractType == '2' && changeAmount == '1') {
+	    			let oldContAmount = formData.OLD_CONTRACT_AMOUNT;
+	    			let newContAmount = formData.NEW_CONTRACT_AMOUNT;
+	    			
+	    			if( (oldContAmount == null || oldContAmount == "") || (newContAmount == null || newContAmount == "") ) {
+	    				Alert("금액변경의 내용을 입력해주세요.");
+	   					return;
+	    			} 
+	    			
+	    		}
+	    		
+	    		let changeContFrom = formData.CHANGE_CONT_FROM;
+	    		if(contractType == '2' && (changeContFrom == null || changeContFrom == "") ) {
+	    			Alert("기간변경을 선택해주세요.");
+	   				return;
+	    		}
+	    		
+	    		if(contractType == '2' && changeContFrom == '1') {
+	    			let oldContFrom = formData.OLD_CONTRACT_FROM;
+	    			let oldcontTo = formData.OLD_CONTRACT_TO;
+	    			let newContFrom = formData.NEW_CONTRACT_FROM;
+	    			let newContTo = formData.NEW_CONTRACT_TO;
+	    			
+	    			if( (oldContFrom == null || oldContFrom == "") || (oldcontTo == null || oldcontTo == "") || (newContFrom == null || newContFrom == "") || (newContTo == null || newContTo == "") ) {
+				    	Alert("기간변경을 내용을 입력해주세요.");
+	   					return;		
+	    			}
+	    		}
+	    		
+	    		let contConditionalChange = formData.CONTRACT_CONDITIONAL_CHANGE;
+	    		if(contractType == '2' && (contConditionalChange == null || contConditionalChange == "")) {
+	    			Alert("계약 조건 변경을 입력해주세요.");
+	    			return;
+	    		}
+	    		
+	    		let contConditionalChangeReason = formData.CONTRACT_CONDITIONAL_CHANGE_REASON;
+	    		if(contractType == '2' && (contConditionalChangeReason == null || contConditionalChangeReason == "")) {
+	    			Alert("변경사유를 입력해주세요.");
+	    			return;
+	    		}
+    		}
+    	
+    		let contractObj = formData;
+    		if($formObj.getValue("ATTACH_DOC") && $formObj.getValue("ATTACH_DOC") != ""){
+    			let fileData = Object.values($formObj.getForm(Object.keys($formObj._formList)[0]).getVault("ATTACH_DOC").file_data);
+    			contractObj["FILE_LIST"] = fileData;
+    		}
+    		
+    		if (Sepoa.params && Sepoa.params.callback) {
+    			let convertTarget = ['NEW_CONTRACT_TO', 'NEW_CONTRACT_FROM', 'OLD_CONTRACT_TO', 'OLD_CONTRACT_FROM', 'CONTRACT_TO', 'CONTRACT_FROM'];
+    			for(let i in convertTarget) {
+    				let key = convertTarget[i];
+    				contractObj[key] = $formObj.getValue(key);
+    			}
+				Sepoa.params.callback(contractObj);
+			}
+
+			selfObj.close();
+    	]]>
+    	</function>
+        <function name="init" args="">
+        <![CDATA[
+            var curreny = [
+    			{text: "KRW", value: "KRW", selected: true}
+    		];
+    		curreny = curreny.concat(Sepoa.cache.combo.get("SL0001,007#KO#UX021"));
+    		
+    		var formOption = [
+				{type: "block", width: "auto", blockOffset: "", name: "CONTRACT_PETITION_BLOCK", list: [
+					{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_PETITION'), value: "", position: "label-left", offsetTop: "10", offsetLeft: "30"},
+					{type: "newcolumn"},
+					{type: "radio", value: "1", group: "CONTRACT_PETITION", name: "CONTRACT_PETITION", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_PETITION_1'), position: "label-right", offsetLeft: "40"},
+					{type: "newcolumn"},
+					{type: "radio", value: "2", group: "CONTRACT_PETITION", name: "CONTRACT_PETITION", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_PETITION_2'), position: "label-right", offsetLeft: "40"},
+    			]},
+    			{type: "block", width: "auto", offsetLeft:"25", blockOffset: "", name:"NO_PETITION_REASON_BLOCK", hidden: true, list: [
+					{type: "input", inputWidth: "200", name: "NO_PETITION_REASON", label: Sepoa.cache.text.get('CONTRACT_INFO.NO_PETITION_REASON'), position: "label-left", offsetTop: "0", offsetLeft: "30", labelAlign: "left", labelWidth: "130"}
+				]},
+				{type: "block", width: "auto", blockOffset: "", name: "LEGAL_CHECK_BLOCK", list: [
+					{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.LEGAL_CHECK'), value: "", position: "label-left", offsetTop: "10", offsetLeft: "30"},
+					{type: "newcolumn"},
+					{type: "radio", value: "1", group: "LEGAL_CHECK", name: "LEGAL_CHECK", label: Sepoa.cache.text.get('CONTRACT_INFO.LEGAL_CHECK_1'), position: "label-right", offsetLeft: "75"},
+					{type: "newcolumn"},
+					{type: "radio", value: "2", group: "LEGAL_CHECK", name: "LEGAL_CHECK", label: Sepoa.cache.text.get('CONTRACT_INFO.LEGAL_CHECK_2'), position: "label-right", offsetLeft: "20"},
+					{type: "newcolumn"},
+					{type: "radio", value: "3", group: "LEGAL_CHECK", name: "LEGAL_CHECK", label: Sepoa.cache.text.get('CONTRACT_INFO.LEGAL_CHECK_3'), position: "label-right", offsetLeft: "20"},
+    			]},
+    			{type: "block", width: "auto", offsetLeft:"25", blockOffset: "", name:"LEGAL_CHECK_REASON_BLOCK", hidden: true, list: [
+					{type: "input", value: "", inputWidth: "200", name: "LEGAL_CHECK_REASON", label: Sepoa.cache.text.get('CONTRACT_INFO.LEGAL_CHECK_REASON'), position: "label-left", offsetTop: "0", offsetLeft: "30", labelAlign: "left", labelWidth: "130"}
+				]},
+				{type: "block", width: "auto", blockOffset: "", name: "CONTRACT_TYPE_BLOCK", list: [
+					{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TYPE'), position: "label-left", offsetTop: "10", offsetLeft: "30", labelAlign: "left"},
+					{type: "newcolumn"},
+					{type: "radio", value: "1", group: "CONTRACT_TYPE", name: "CONTRACT_TYPE", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TYPE_1'), position: "label-right", offsetLeft: "75"},
+					{type: "newcolumn"},
+					{type: "radio", value: "2", group: "CONTRACT_TYPE", name: "CONTRACT_TYPE", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TYPE_2'), position: "label-right", offsetLeft: "20"}
+    			]},
+    			{type: "block", width: "auto", offsetLeft:"25", blockOffset: "", name: "ORG_CONTRACT_TARGET_SUMMARY_BLOCK", hidden: true, list: [
+    				{type: "block", width: "auto", blockOffset: "", name: "ORG_CONTRACT_TARGET_BLOCK", list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TARGET'), position: "label-left", offsetTop: "10", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "radio", value: "1", group: "CONTRACT_TARGET", name: "CONTRACT_TARGET", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TARGET_1'), position: "label-right", offsetLeft: "75"},
+						{type: "newcolumn"},
+						{type: "radio", value: "2", group: "CONTRACT_TARGET", name: "CONTRACT_TARGET", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TARGET_2'), position: "label-right", offsetLeft: "20"},
+						{type: "newcolumn"},
+						{type: "radio", value: "3", group: "CONTRACT_TARGET", name: "CONTRACT_TARGET", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TARGET_3'), position: "label-right", offsetLeft: "20"},
+						{type: "newcolumn"},
+						{type: "radio", value: "4", group: "CONTRACT_TARGET", name: "CONTRACT_TARGET", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_TARGET_4'), position: "label-right", offsetLeft: "20"}
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "ORG_CONTRACT_AMOUNT_BLOCK", list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_AMOUNT'), position: "label-left", offsetTop: "12", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "select", name: "ORG_CONTRACT_CURRENCY", options: curreny, position: "label-left", offsetLeft: "75", labelWidth: "40", inputWidth: "50"},
+						{type: "newcolumn"},
+						{type: "input", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_AMOUNT_1'), value: "", inputWidth: "205", name: "CONTRACT_AMOUNT", position: "label-left", offsetLeft: "20", labelWidth: "40"}
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "ORG_CONTRACT_DATE_BLOCK", list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_FROM_TO'), position: "label-left", offsetTop: "12", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "calendar", value: "", name: "CONTRACT_FROM", position: "label-top",  inputWidth: "137",offsetTop: "10", offsetLeft: "75"},
+						{type: "newcolumn"},
+						{type: "label", label: " &nbsp;&nbsp;&nbsp;~ ", position: "label-left", offsetTop: "10"},
+						{type: "newcolumn"},
+						{type: "calendar", value: "", name: "CONTRACT_TO", position: "label-top", inputWidth: "137", offsetTop: "10"},
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "ORG_CONTRACT_REMARK_BLOCK", list: [
+	    				{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.ORG_CONTRACT_REMARK'), position: "label-left", offsetTop: "10", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "input", inputWidth: "315", name: "ORG_CONTRACT_REMARK", position: "label-left", offsetTop: "0", offsetLeft: "75"}
+					]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "SITE_MANUAL_BLOCK", hidden: true, list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.SITE_MANUAL'), position: "label-left", offsetTop: "10", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "radio", value: "1", group: "SITE_MANUAL", name: "SITE_MANUAL", label: Sepoa.cache.text.get('CONTRACT_INFO.SITE_MANUAL_1'), position: "label-right", offsetLeft: "60"},
+						{type: "newcolumn"},
+						{type: "radio", value: "2", group: "SITE_MANUAL", name: "SITE_MANUAL", label: Sepoa.cache.text.get('CONTRACT_INFO.SITE_MANUAL_2'), position: "label-right", offsetLeft: "20"},
+						{type: "newcolumn"},
+						{type: "radio", value: "3", group: "SITE_MANUAL", name: "SITE_MANUAL", label: Sepoa.cache.text.get('CONTRACT_INFO.SITE_MANUAL_3'), position: "label-right", offsetLeft: "20"}
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "TASK_DIRECTIONS_BLOCK", hidden: true, list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.TASK_DIRECTIONS'), position: "label-left", offsetTop: "10", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "radio", value: "1", group: "TASK_DIRECTIONS", name: "TASK_DIRECTIONS", label: Sepoa.cache.text.get('CONTRACT_INFO.TASK_DIRECTIONS_1'), position: "label-right", offsetLeft: "60"},
+						{type: "newcolumn"},
+						{type: "radio", value: "2", group: "TASK_DIRECTIONS", name: "TASK_DIRECTIONS", label: Sepoa.cache.text.get('CONTRACT_INFO.TASK_DIRECTIONS_2'), position: "label-right", offsetLeft: "20"}
+	    			]},
+    			]},
+    			{type: "block", width: "auto", offsetLeft:"25",  blockOffset: "", name: "CHANGE_CONTRACT_SUMMARY_BLOCK", hidden: true, list: [
+	    			{type: "block", width: "auto", blockOffset: "", name: "CHANGE_AMOUNT_BLOCK", list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CHANGE_AMOUNT'), position: "label-left", offsetTop: "10", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "radio", value: "1", group: "CHANGE_AMOUNT", name: "CHANGE_AMOUNT", label: Sepoa.cache.text.get('CONTRACT_INFO.CHANGE_AMOUNT_1'), position: "label-right", offsetLeft: "72"},
+						{type: "newcolumn"},
+						{type: "radio", value: "2", group: "CHANGE_AMOUNT", name: "CHANGE_AMOUNT", label: Sepoa.cache.text.get('CONTRACT_INFO.CHANGE_AMOUNT_2'), position: "label-right", offsetLeft: "20"}
+	    			]},
+	    			{type: "block", width: "auto", offsetLeft:"45", blockOffset: "", name: "CONTRACT_AMOUNT_BLOCK", hidden:true, list: [
+						{type: "select", label: Sepoa.cache.text.get('CONTRACT_INFO.OLD_CONTRACT_CURRENCY'), name: "OLD_CONTRACT_CURRENCY", options: curreny, position: "label-left", inputWidth: "50"},
+						{type: "newcolumn"},
+						{type: "input", label: Sepoa.cache.text.get('CONTRACT_INFO.OLD_CONTRACT_AMOUNT'), value: "", inputWidth: "150", name: "OLD_CONTRACT_AMOUNT", position: "label-left"},
+						{type: "newcolumn"},
+						{type: "label", label: "&nbsp;,&nbsp;&nbsp;&nbsp;", position: "label-left", offsetTop: "20"},
+						{type: "newcolumn"},
+						{type: "select", label: Sepoa.cache.text.get('CONTRACT_INFO.NEW_CONTRACT_AMOUNT'), name: "NEW_CONTRACT_CURRENCY", options: curreny, position: "label-left", inputWidth: "50"},
+						{type: "newcolumn"},
+						{type: "input", label: Sepoa.cache.text.get('CONTRACT_INFO.NEW_CONTRACT_AMOUNT'), value: "", inputWidth: "150", name: "NEW_CONTRACT_AMOUNT", position: "label-left"}
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "CHANGE_CONT_FROM_BLOCK", list: [
+						{type: "label", label: Sepoa.cache.text.get('CONTRACT_INFO.CHANGE_CONT_FROM'), position: "label-left", offsetTop: "10", offsetLeft: "30"},
+						{type: "newcolumn"},
+						{type: "radio", value: "1", group: "CHANGE_CONT_FROM", name: "CHANGE_CONT_FROM", label: Sepoa.cache.text.get('CONTRACT_INFO.CHANGE_CONT_FROM_1'), position: "label-right", offsetLeft: "72"},
+						{type: "newcolumn"},
+						{type: "radio", value: "2", group: "CHANGE_CONT_FROM", name: "CHANGE_CONT_FROM", label: Sepoa.cache.text.get('CONTRACT_INFO.CHANGE_CONT_FROM_2'), position: "label-right", offsetLeft: "20"}
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", offsetLeft:"45", name: "CHANGE_CONT_FROM_DETAIL_BLOCK", hidden:true, list: [
+						{type: "calendar", label: Sepoa.cache.text.get('CONTRACT_INFO.OLD_CONTRACT_FROM'), position: "label-left", name: "OLD_CONTRACT_FROM", inputWidth: "106"},
+						{type: "newcolumn"},
+						{type: "label", label: "&nbsp;&nbsp;&nbsp;&nbsp;~", position: "label-left", offsetTop: "10"},
+						{type: "newcolumn"},
+						{type: "calendar", value: "", name: "OLD_CONTRACT_TO", position: "label-left", inputWidth: "106"},
+						{type: "newcolumn"},
+						{type: "label", label: "&nbsp;,&nbsp;&nbsp;&nbsp;", position: "label-left", offsetTop: "20"},
+						{type: "newcolumn"},
+						{type: "calendar", label: Sepoa.cache.text.get('CONTRACT_INFO.NEW_CONTRACT_FROM'), position: "label-left", name: "NEW_CONTRACT_FROM", inputWidth: "106"},
+						{type: "newcolumn"},
+						{type: "label", label: "&nbsp;&nbsp;&nbsp;&nbsp;~ ", position: "label-left", offsetTop: "10"},
+						{type: "newcolumn"},
+						{type: "calendar", value: "", name: "NEW_CONTRACT_TO", position: "label-left", inputWidth: "106"}
+	    			]},
+	    			{type: "block", width: "auto", blockOffset: "", name: "CONTRACT_CONDITIONAL_CHANGE_BLOCK", list: [
+						{type: "input", inputWidth: "315", name: "CONTRACT_CONDITIONAL_CHANGE", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_CONDITIONAL_CHANGE'), position: "label-left", offsetTop: "0", offsetLeft: "30", labelAlign: "left", labelWidth: "130"}
+					]},
+					{type: "block", width: "auto", blockOffset: "", name: "CONTRACT_CONDITIONAL_CHANGE_REASON_BLOCK", list: [
+						{type: "input", inputWidth: "315", name: "CONTRACT_CONDITIONAL_CHANGE_REASON", label: Sepoa.cache.text.get('CONTRACT_INFO.CONTRACT_CONDITIONAL_CHANGE_REASON'), position: "label-left", offsetTop: "0", offsetLeft: "30", labelAlign: "left", labelWidth: "130"}
+					]}
+    			]},
+				{type: "block", width: "auto", blockOffset: "", list: [
+					{type: "vault", uploadType: "EXTRA_INFO", name: "ATTACH_DOC", label: "파일첨부", value: "", inputHeight: "200", inputWidth: "600", position: "label-top", offsetLeft: "30"},
+				]}
+			];
+            
+            $formObj = new SepoaMultiDhtmlXFormObject(container, 'contractInfoForm', [formOption], true);
+            $formObj.attachEvent("onChange", initEvent);
+            
+            if(Sepoa.params && Sepoa.params.DATA && Object.keys(Sepoa.params.DATA).length > 0) {
+            	//$formObj.dataMapper(Sepoa.params.DATA, "JSON");
+            	
+            	let keysArr = Object.keys(Sepoa.params.DATA);
+            	for(let i in keysArr) {
+            		let targetKey = keysArr[i];
+            		let targetValue = Sepoa.params.DATA[targetKey];
+            		if(targetValue && targetValue != ''){
+	            		initEvent(targetKey, targetValue);
+	            		$formObj.getForm(Object.keys($formObj._formList)[0]).setItemValue(targetKey, targetValue);
+            		}
+            	}
+            }
+            
+            if(Sepoa.params.useType != Sepoa.config.get("sepoa.secl.req.seal.contract.use.number")){
+            	$formObj.hideItem("CONTRACT_PETITION_BLOCK");
+            	$formObj.hideItem("NO_PETITION_REASON_BLOCK");
+            	$formObj.hideItem("LEGAL_CHECK_BLOCK");
+            	$formObj.hideItem("LEGAL_CHECK_REASON_BLOCK");
+            	$formObj.hideItem("CONTRACT_TYPE_BLOCK");
+            	$formObj.hideItem("ORG_CONTRACT_TARGET_SUMMARY_BLOCK");
+            	$formObj.hideItem("ORG_CONTRACT_AMOUNT_BLOCK");
+            	$formObj.hideItem("ORG_CONTRACT_DATE_BLOCK");
+            	$formObj.hideItem("ORG_CONTRACT_REMARK_BLOCK");
+            	$formObj.hideItem("SITE_MANUAL_BLOCK");
+            	$formObj.hideItem("TASK_DIRECTIONS_BLOCK");
+            	$formObj.hideItem("CHANGE_CONTRACT_SUMMARY_BLOCK");
+            	$formObj.hideItem("CONTRACT_AMOUNT_BLOCK");
+            	$formObj.hideItem("CHANGE_CONT_FROM_BLOCK");
+            }
+            
+            if(Sepoa.params.viewMode == "VIEW") {
+            	$formObj.setViewMode(true);
+            	e122995b8e5745f6892093e23e8e73.showButton("SAVE", false);
+            }
+        ]]>
+        </function>
+        <function name="initEvent" args="name, value, state">
+        <![CDATA[
+            if (name == "CONTRACT_PETITION") { //계약체결품의서 radio 
+                if (value == "1") { // Y일때 사유 입력란 숨기기
+                    $formObj.hideItem("NO_PETITION_REASON_BLOCK");
+                } else { // N일때 사유 입력란 보이기
+                    $formObj.showItem("NO_PETITION_REASON_BLOCK");
+                }
+            } else if (name == "LEGAL_CHECK") { //법무검토 radio
+                if (value == "2") {
+                    $formObj.showItem("LEGAL_CHECK_REASON_BLOCK"); //일부 반영일때 미반영사유란 노출
+                } else {
+                    $formObj.hideItem("LEGAL_CHECK_REASON_BLOCK"); //그 외 미반영사유란 숨기기
+                }
+            } else if (name == "CONTRACT_TYPE") { //계약유형 radio
+                if (value == "1") { //원계약일 때 원계약용 아이템 보이기
+                    $formObj.showItem("ORG_CONTRACT_TARGET_SUMMARY_BLOCK");
+                    $formObj.hideItem("CHANGE_CONTRACT_SUMMARY_BLOCK");
+                } else { //변경계약일 때 원계약용 아이템 숨기기
+                    $formObj.hideItem("ORG_CONTRACT_TARGET_SUMMARY_BLOCK");
+                    $formObj.showItem("CHANGE_CONTRACT_SUMMARY_BLOCK");
+                }
+            } else if (name == "CONTRACT_TARGET") { //계약대상 radio
+                if (value == "3") {
+                    $formObj.showItem("SITE_MANUAL_BLOCK");
+                    $formObj.showItem("TASK_DIRECTIONS_BLOCK"); //협력업체일 때 현장설명서, 과업지시서 노출
+                } else {
+                    $formObj.hideItem("SITE_MANUAL_BLOCK");
+                    $formObj.hideItem("TASK_DIRECTIONS_BLOCK"); //그 외 현장설명서, 과업지시서 숨기기
+                }
+            } else if (name == "CHANGE_AMOUNT") { //금액 변경 radio
+                if (value == "1") {
+                    $formObj.showItem("CONTRACT_AMOUNT_BLOCK"); //금액변경 상세 보이기
+                } else {
+                    $formObj.hideItem("CONTRACT_AMOUNT_BLOCK"); //금액변경 상세 숨기기
+                }
+            } else if (name == "CHANGE_CONT_FROM") { //기간변경 radio
+                if (value == "1") {
+                    $formObj.showItem("CHANGE_CONT_FROM_DETAIL_BLOCK"); //기간변경 상세 보이기
+                } else {
+                    $formObj.hideItem("CHANGE_CONT_FROM_DETAIL_BLOCK"); //기간변경 상세 숨기기
+                }
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTkpkanJWZE9KZGpyVmRGanFxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF96MnVmaUFoWXdVSlUiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2VRYVMzZGVyNnl4OCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNPTlRSQUNUX0lORk9fUE9QVVAiLCJPQkpFQ1RfSUQiOiJOSmRqclZkT0pkanJWZEZqcXEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkZVTEwifSwiaWQiOiJOSmRqclZkT0pkanJWZEZq
+        cXEiLCJ0eXBlIjoiYm9keSJ9LCJOSmRqclZkVXplanJWZFdWSVgiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiMTAwJSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfVktOTHlQMnRSS2d6IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJjb250YWluZXIiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJWZFdWSVgifSwiaWQiOiJOSmRqclZkVXplanJWZFdWSVgiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiTkpkanJWZFV6ZWpyVmRrTkNBIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJT
+        SVpFX1dJRFRIIjoiODAwIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9vQ1ZxRXo4Tk1jVFIiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX3hNeDVoSFhlSUxEayI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiY2VudGVyIiwiQUxJR05fVkVSVElDQUwiOiJtaWRkbGUiLCJkaHhJZF9SdkxrUWFBZ216aTkiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF93bWp6SGU5WWJnS2UiOiJudWxsIiwiZGh4SWRfUWppeW5SZ1dXMzREIjoibnVsbCIsImRoeElkX1NnaThMeHJkRGVMaCI6Im51bGwiLCJkaHhJZF9wdjZEV2JvNlJYaUIiOiJudWxsIiwiZGh4SWRfeG83
+        WTlUSHpJdm9VIjoibnVsbCIsImRoeElkX3FoRlE4ZnZkTlA4ZCI6Im51bGwiLCJkaHhJZF83Z2tlcXN6Y25DNnQiOiJudWxsIiwiZGh4SWRfVFBoUjlFbFhWTFZXIjoibnVsbCIsImRoeElkX1VsMDBkREo0ZUJkdyI6Im51bGwiLCJkaHhJZF95b2dJVFIzZldYeXMiOiJudWxsIiwiZGh4SWRfWnFvYlNneE1ISWtKIjoibnVsbCIsImRoeElkX2w5R2prMElLUjZHMCI6Im51bGwiLCJkaHhJZF9RbXByOXFJandkdUYiOiJudWxsIiwiZGh4SWRfVEF5WUN2SlIzUzJuIjoibnVsbCIsImRoeElkX0U3dFFtTDZkdEJEVyI6Im51bGwiLCJkaHhJZF80TDNtNjZCZFdmNzciOiJudWxsIiwiZGh4SWRfWWtaUWdtcmtYRUIwIjoibnVsbCIsImRoeElkX0xkRGxONzNDSTRhViI6
+        Im51bGwiLCJkaHhJZF9TSEtGRE1jdk1WN1EiOiJudWxsIiwiZGh4SWRfYzdSRmxBTGZWWVN2IjoibnVsbCIsImRoeElkX21lMWVEVDRTZGdQNiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJPQkpFQ1RfSUQiOiJOSmRqclZkVXplanJWZGtOQ0EiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Ik5KZGpyVmRVemVqclZka05DQSIsInR5cGUiOiJjb250YWluZXIifSwiYTJlYjJiZGZlZjQzNDlhNzg2Yjk5NzMyMDk3NmEzIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJhMmViMmJkZmVmNDM0OWE3ODZiOTk3MzIwOTc2YTMifSwiaWQiOiJhMmViMmJkZmVmNDM0OWE3ODZiOTk3
+        MzIwOTc2YTMiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiYjZkNGZlZjg3NGZlNDU1ODhjYThhNDJmYWI0ZTliIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiYjZkNGZlZjg3NGZlNDU1ODhjYThhNDJmYWI0ZTliIn0sImlkIjoiYjZkNGZlZjg3NGZlNDU1ODhjYThhNDJmYWI0ZTliIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJlMTIyOTk1YjhlNTc0NWY2ODkyMDkzZTIzZThlNzMiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoi
+        Y2VudGVyIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZTEyMjk5NWI4ZTU3NDVmNjg5MjA5M2UyM2U4ZTczIiwiT0JKRUNUX0lEIjoiZTEyMjk5NWI4ZTU3NDVmNjg5MjA5M2UyM2U4ZTczIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJJVEVNX0ZDOTQzREMwNzExMDQwMTM4Q0Y5QkQxMjkxRjBFMV9JRCI6IlNBVkUiLCJJVEVNX0ZDOTQzREMwNzExMDQwMTM4Q0Y5QkQxMjkxRjBFMV9UWVBFIjoic2F2ZSIsIklURU1fRkM5NDNEQzA3MTEwNDAxMzhDRjlCRDEyOTFGMEUxX1NPUlQiOiIxIn0sImlkIjoiZTEyMjk5NWI4ZTU3NDVmNjg5MjA5M2UyM2U4ZTczIiwidHlwZSI6ImJ1dHRvbiJ9fSwidHJlZSI6eyJp
+        ZCI6Ik5KZGpyVmRPSmRqclZkRmpxcSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiTkpkanJWZFV6ZWpyVmRrTkNBIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6Ik5KZGpyVmRVemVqclZkV1ZJWCIsInR5cGUiOiJjb2x1bW4ifV19LHsiaWQiOiJiNmQ0ZmVmODc0ZmU0NTU4OGNhOGE0MmZhYjRlOWIiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiYTJlYjJiZGZlZjQzNDlhNzg2Yjk5NzMyMDk3NmEzIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6ImUxMjI5OTViOGU1NzQ1ZjY4OTIwOTNlMjNlOGU3MyIsInR5cGUiOiJidXR0b24ifV19XX1dfSwiaW5mbyI6eyJQQVRIIjoiL1NlYWwvRG9jdW1lbnQvcG9w
+        dXAvQ29udHJhY3RJbmZvUG9wdXAueG1sIiwiUFJPSkVDVCI6IkNCTyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlNlYWwvRG9jdW1lbnQvcG9wdXAiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJDb250cmFjdEluZm9Qb3B1cCIsIkNPREUiOiJJTkZPX1BPUFVQIiwiUFJFRklYIjoiQ09OVFJBQ1QiLCJTQ1JFRU5fSUQiOiJDT05UUkFDVF9JTkZPX1BPUFVQIn19LCJodG1sIjoiPGRpdiBpZD1cIk5KZGpyVmRPSmRqclZkRmpxcVwiIGNsYXNzPVwiY29udGFpbmVyIHNlcG9hdXhfc2NyZWVuX3Njcm9sbFwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhf
+        Y29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiTkpkanJWZFV6ZWpyVmRrTkNBXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlciBsb3dlckRpdiBz
+        ZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfdmFsaWduX21pZGRsZVwiIHN0eWxlPVwid2lkdGg6ODAwcHg7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOSmRqclZkVXplanJWZFdWSVhcIiBjbGFz
+        cz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cImhlaWdodDoxMDAlO1wiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAg
+        ICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImI2ZDRmZWY4NzRmZTQ1NTg4Y2E4YTQyZmFiNGU5YlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJhMmViMmJk
+        ZmVmNDM0OWE3ODZiOTk3MzIwOTc2YTNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlclwiIHN0eWxlPVwiXCI+
+        XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJlMTIyOTk1YjhlNTc0NWY2ODkyMDkzZTIzZThlNzNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2Plxu
+        ICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

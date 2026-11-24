@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectVendorInfo">
+	<![CDATA[
+		SELECT
+			BIZ_CODE
+			, BIZ_CATOGORY
+			, BIZ_TYPE
+			, SELLER_NAME_LOC
+			, IRS_NO
+			, ZIP_CODE
+			, ADDRESS_LOC
+			, PHONE_NO1
+			, EMAIL1
+			, CEO_NAME_LOC
+			, #DB_OWNER#NVL(DEL_FLAG, 'N') AS DEL_FLAG
+		FROM
+			apps.IS_CUST_INJANG_V
+		WHERE
+			DEL_FLAG != 'Y'
+		OR	DEL_FLAG IS NULL
+	]]>
+	</method>
+	<method name="checkExistVendor">
+	<![CDATA[
+		SELECT
+			 HOUSE_CODE
+			,BIZ_CODE
+			,BIZ_CATEGORY
+			,BIZ_TYPE
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SELLER_NAME_LOC
+			,IRS_NO
+			,ZIP_CODE
+			,ADDRESS_LOC
+			,PHONE_NO
+			,EMAIL
+			,CEO_NAME_LOC
+			,FOUNDATION_DATE
+			,IF_FLAG
+		FROM
+			SBUPR
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND BIZ_CODE = ${BIZ_CODE}
+	]]>
+	</method>
+	
+	<method name="doUpdateSBUPR">
+	<![CDATA[
+		UPDATE SBUPR
+		SET	 
+			 SELLER_NAME_LOC	= ${SELLER_NAME_LOC}
+			,IRS_NO				= ${IRS_NO}
+			,ZIP_CODE			= ${ZIP_CODE}
+			,ADDRESS_LOC		= ${ADDRESS_LOC}
+			,PHONE_NO			= ${PHONE_NO1}
+			,EMAIL				= ${EMAIL1}
+			,CEO_NAME_LOC		= ${CEO_NAME_LOC}
+			,DEL_FLAG       	= ${DEL_FLAG}
+			,CHANGE_DATE		= ${current.DATE}
+			,CHANGE_TIME		= ${current.TIME}
+			,CHANGE_USER_ID		= ${session.ID}
+			,FOUNDATION_DATE 	= ${FOUNDATION_DATE}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND BIZ_CODE = ${BIZ_CODE}
+	]]>
+	</method>
+	<method name="doUpdateSBUPI">
+	<![CDATA[
+		UPDATE SBUPI
+		SET  
+			 USER_NAME			= ${CEO_NAME_LOC}
+			,EMAIL				= ${EMAIL1}
+			,PHONE_NO			= ${PHONE_NO}
+			,CHANGE_DATE		= ${current.DATE}
+			,CHANGE_TIME		= ${current.TIME}
+			,CHANGE_USER_ID		= ${session.ID}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND BIZ_CODE = ${BIZ_CODE}
+			AND USER_ID = ${BIZ_CODE}
+	]]>
+	</method>
+	<method name="doUpdateSUSMT">
+	<![CDATA[
+		UPDATE SUSMT
+		SET
+		 	 USER_NAME_LOC		= ${CEO_NAME_LOC}
+			,EMAIL				= ${EMAIL1}
+			,CHANGE_DATE		= ${current.DATE}
+			,CHANGE_TIME		= ${current.TIME}
+			,CHANGE_USER_ID		= ${session.ID}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${BIZ_CODE}
+			AND USER_ID = ${BIZ_CODE}
+	]]>
+	</method>
+	
+	<method name="doInsertSBUPR">
+	<![CDATA[
+		INSERT INTO SBUPR(
+			 HOUSE_CODE
+			,BIZ_CODE
+			,BIZ_CATEGORY
+			,BIZ_TYPE
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,SELLER_NAME_LOC
+			,IRS_NO
+			,ZIP_CODE
+			,ADDRESS_LOC
+			,PHONE_NO
+			,EMAIL
+			,CEO_NAME_LOC
+			,IF_FLAG
+		) VALUES (
+			 ${session.HOUSE_CODE}
+			,${BIZ_CODE}
+			,'S'
+			,${BIZ_TYPE}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${DEL_FLAG}
+			,${SELLER_NAME_LOC}
+			,${IRS_NO}
+			,${ZIP_CODE}
+			,${ADDRESS_LOC}
+			,${PHONE_NO1}
+			,${EMAIL1}
+			,${CEO_NAME_LOC}
+			,'N'
+		)
+	]]>
+	</method>
+	
+	<method name="doInsertSBUPI">
+	<![CDATA[
+		INSERT INTO SBUPI (
+			 HOUSE_CODE
+			,BIZ_CODE
+			,SEQ
+			,USER_ID
+			,ADD_DATE
+			,ADD_TIME
+			,ADD_USER_ID
+			,CHANGE_DATE
+			,CHANGE_TIME
+			,CHANGE_USER_ID
+			,DEL_FLAG
+			,USER_NAME
+			,PHONE_NO
+			,EMAIL
+			,IF_FLAG
+		) VALUES (
+			 ${session.HOUSE_CODE}
+			,${BIZ_CODE}
+			,${SEQ}
+			,${BIZ_CODE}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${DEL_FLAG}
+			,${CEO_NAME_LOC}
+			,${PHONE_NO1}
+			,${EMAIL1}
+			,'N'
+		)
+	]]>
+	</method>
+	
+	<method name="doInsertSUSMT">
+	<![CDATA[
+		INSERT INTO SUSMT
+			(
+				  HOUSE_CODE
+				, USER_ID 
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, COMPANY_CODE
+				, USER_NAME_LOC
+				, PASSWORD
+				, EMAIL		
+				, COUNTRY
+				, SIGN_STATUS
+				, WORK_TYPE
+				, MENU_PROFILE_CODE
+				, USER_TYPE
+				, PASS_CHECK_CNT
+				, PW_RESET_FLAG
+				, DEL_FLAG
+				, DATE_FORMAT
+				, PHONE
+				, LANGUAGE
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${USER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}
+				, ${BIZ_CODE}
+				, ${CEO_NAME_LOC}
+				, ${PASSWORD}
+				, ${EMAIL1}		
+				, 'KR'
+				, 'A'
+				, 'G'
+				, 'MUP23071800000'
+				, 'S_USER'
+				, '0'
+				, 'N'
+				, 'N'
+				, '%Y/%m/%d'
+				, ${PHONE_NO}
+				, 'KO'
+			)	
+	]]>
+	</method>
+</service>

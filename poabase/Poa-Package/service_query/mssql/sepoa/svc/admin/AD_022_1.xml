@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doList">
+	<![CDATA[
+    	SELECT DISTINCT GRID_ID
+      	  FROM SGRID 
+         WHERE HOUSE_CODE = '000'
+           AND DEL_FLAG  <> 'Y'
+           AND UPPER(GRID_ID) LIKE '%' + UPPER($S{F_KEYWORD}) + '%'
+         ORDER 
+            BY GRID_ID
+	]]>
+	</method>
+</service>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doInsertSfileAttach">
+	<![CDATA[
+		INSERT INTO SFILE (
+			  HOUSE_CODE
+			, DOC_NO
+			, DOC_SEQ
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, TYPE
+			, DES_FILE_NAME
+			, SRC_FILE_NAME
+			, FILE_SIZE
+			, DEL_FLAG
+		) VALUES (
+			  ${session.HOUSE_CODE}
+			, ${ATTACH_KEY}
+			, ${ATTACH_SEQ}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${TYPE}
+			, ${UNIQ_FILE_NAME}
+			, ${FILE_NAME}
+			, ${FILE_SIZE}
+			, 'N'
+		)
+	]]>
+	</method>
+</service>

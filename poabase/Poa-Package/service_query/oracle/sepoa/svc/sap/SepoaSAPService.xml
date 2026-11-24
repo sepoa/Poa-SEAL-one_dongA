@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="setIFResult">
+	<![CDATA[
+		UPDATE SAP_IF_#function#
+		   SET IF_DATE_E        = ${current.DATE}
+		      ,IF_TIME_E        = ${current.TIME}
+		      ,RESULT_CODE      = ${RESULT_CODE}   
+              ,RESULT_MESSAGE   = ${RESULT_MESSAGE}
+         WHERE TRANSACTION_CODE = ${TRANSACTION_CODE}
+	]]>
+	</method>
+</service>

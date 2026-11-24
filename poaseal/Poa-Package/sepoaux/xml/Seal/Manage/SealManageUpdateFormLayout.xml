@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_132" header="false">
+    <layout id="KyAQymeedCQymelkho" div="KyAQymeedCQymelkho" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" text="SLM_132.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <attach file="/Seal/Manage/SealManageUpdateForm.xml"/>
+        </cell>
+    </layout>
+    <onloadscript>
+    <![CDATA[
+    	var mode = Sepoa.request.MODE;
+    	if(mode){
+    		if(mode == 'NEW'){
+    			callFunction('SLM_133', 'setModeByStatus', ['NEW']);
+    		};
+    	}     
+    ]]>
+    </onloadscript>
+    <userscript>
+    <function name="setMode" args="manageNo, docNo, applyType, status">
+    <![CDATA[
+		callFunction('SLM_133', 'doLoad', [manageNo, docNo, applyType, status]);
+    ]]>
+    </function>
+    <function name="setUpdateMode" args="manageNo">
+    <![CDATA[
+		callFunction('SLM_133', 'setDirectUpdateMode', [{MANAGE_NUMBER:manageNo}]);
+    ]]>
+    </function>    
+    <function name="changeToFirstCell" args="callbackParams">
+    <![CDATA[
+        callFunction('p', 'changeToFirstCell', [callbackParams]);
+    ]]>
+    </function>	    
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiS3lBUXltZUt5QVF5bWVwa3h6Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJTTE1fMTMyIn0sImlkIjoiS3lBUXltZUt5QVF5bWVwa3h6IiwidHlwZSI6ImJvZHkifSwiS3lBUXltZWVkQ1F5bWVZQ0tHIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6InRydWUiLCJDT0xMQVBTRV9DT0xMQVBTRUQiOiJmYWxzZSIsIkNPTExBUFNFX0lDT04iOiJmYWxzZSIsIkJBU0VfTUVOVSI6InRydWUiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkhFQURFUl9URVhUIjoi7J246rCQ67OA6rK97Iug7LKtIiwiZGh4SWRfUlg4a0pyU0hYU0Q4IjoibnVsbCIs
+        IkFUVEFDSF9UWVBFIjoiVSIsIkFUVEFDSF9UQVJHRVQiOiIvU2VhbC9NYW5hZ2UvU2VhbE1hbmFnZVVwZGF0ZUZvcm0ueG1sIn0sImlkIjoiS3lBUXltZWVkQ1F5bWVZQ0tHIiwibWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoibGF5b3V0Q2VsbCIsIm5hbWUiOiJhIn0sIkt5QVF5bWVlZENReW1lbGtobyI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEifSwiY29tcG9uZW50Ijp7IlBBVFRFUk4iOiIxQyIsIlZBUiI6Ikt5QVF5bWVlZENReW1lbGtobyJ9LCJpZCI6Ikt5
+        QVF5bWVlZENReW1lbGtobyIsInR5cGUiOiJsYXlvdXQifX0sInRyZWUiOnsiaWQiOiJLeUFReW1lS3lBUXltZXBreHoiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6Ikt5QVF5bWVlZENReW1lbGtobyIsInR5cGUiOiJsYXlvdXQiLCJjZWxscyI6W3siaWQiOiJLeUFReW1lZWRDUXltZVlDS0ciLCJ0eXBlIjoibGF5b3V0Q2VsbCJ9XX1dfSwiaW5mbyI6eyJQUk9KRUNUIjoiQ0JPIiwiTk9OU1REX1BBVEgiOiIiLCJQQVRIXzEiOiJTZWFsIiwiUEFUSF8yIjoiTWFuYWdlIiwiUEFUSF8zIjoiU2VhbE1hbmFnZSIsIk5BTUUiOiJVcGRhdGVGb3JtTGF5b3V0IiwiUEFUSCI6Ii9TZWFsL01hbmFnZS9TZWFsTWFuYWdlVXBkYXRlRm9ybUxheW91dC54bWwiLCJB
+        UkVBX0RJVklTSU9OIjpudWxsLCJQUkVGSVgiOiJTTE0iLCJDT0RFIjoiMTMyIiwiU0NSRUVOX0lEIjoiU0xNXzEzMiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJLeUFReW1lS3lBUXltZXBreHpcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1
+        eF9sYXlvdXRfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkt5QVF5bWVlZENReW1lbGtob1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGF5b3V0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

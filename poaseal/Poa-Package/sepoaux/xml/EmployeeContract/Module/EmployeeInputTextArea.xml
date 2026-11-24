@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="E_TEXTAREA" header="false">
+    <button id="btnObj">
+        <btn div="CwJmfPgvNOmfPgcEcA" id="CANCEL" type="back" text="{BUTTON.cancel}" toggle="false" reverse="false" onclick="doClose()"/>
+        <btn div="CwJmfPgvNOmfPgcEcA" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="doSave()"/>
+    </button>
+    <usercss>
+    <![CDATA[
+        .sepoaux_component_outer_wrapper.sepoaux_body_outer {
+            height: 100%;
+        }
+        
+        .sepoaux_component_inner_wrapper.sepoaux_body_inner {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .textContainer,
+        .textContainer * {
+            height: 100%;
+        }
+        
+        .btnContainer {
+            padding-bottom: 10px;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="textArea" value="$($sObject._vp).find('#CwJmfPguyMmfPgHpBv')[0]"/>
+        <var name="textContainer" value="$($sObject._vp).find('#CwJmfPgtyMmfPgqfvR')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            textArea.innerHTML = `<textarea id="textbox" style="box-sizing:border-box;width:calc(100% - 20px);height:calc(100% - 20px);resize:none;padding:10px;margin:10px;"></textarea>`
+            $share.text = textArea.children[0];
+            if (Sepoa.params.value) {
+                $share.text.value = Sepoa.params.value;
+            }
+        ]]>
+        </function>
+        <function name="doSave">
+        <![CDATA[
+            var text = $share.text.value||'';
+            if (Sepoa.params.requiredMessage && text.trim().length <= 0) {
+                Alert(Sepoa.params.requiredMessage);
+                return;
+            }
+            
+            if (Sepoa.params.callback && Sepoa.params.callback(text) !== false) {
+                selfObj.close();
+            }
+        ]]>
+        </function>
+        
+        <function name="doClose">
+        <![CDATA[
+            selfObj.close();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiaHJKbWZQZ29DbmFFZ01zV2dTIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJURVhUQVJFQSJ9LCJpZCI6ImhySm1mUGdvQ25hRWdNc1dnUyIsInR5cGUiOiJib2R5In0sIkN3Sm1mUGd1eU1tZlBnSHBCdiI6eyJsYXlvdXQiOnsiU0laRV9IRUlHSFQiOiIxMDAlIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoidGV4dEFyZWEiLCJPQkpFQ1RfSUQiOiJDd0ptZlBndXlNbWZQZ0hwQnYifSwiaWQiOiJDd0ptZlBndXlNbWZQZ0hwQnYiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiQ3dKbWZQZ3R5TW1mUGdxZnZS
+        Ijp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9KdDdZaDNiVno0U3kiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX1pyVnc1bmE2eTdkaSI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9CSUhEcE14UjF2U1UiOiJudWxsIiwiQ0xBU1MiOiJ0ZXh0Q29udGFpbmVyIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoidGV4dENvbnRhaW5lciIsIk9CSkVDVF9JRCI6IkN3
+        Sm1mUGd0eU1tZlBncWZ2UiIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiQ3dKbWZQZ3R5TW1mUGdxZnZSIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJDd0ptZlBndk5PbWZQZ2NFY0EiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoiY2VudGVyIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6ImJ0bkNvbnRhaW5lciJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnRuT2JqIiwiSVRFTV8wX1JFVkVSU0UiOmZhbHNlLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLmNh
+        bmNlbCIsIklURU1fMV9TTENPREUiOiJCVVRUT04uc2F2ZSIsIklURU1fMF9UWVBFIjoiYmFjayIsIklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX1RFWFQiOiLsoIDsnqUiLCJJVEVNXzFfVE9HR0xFIjpmYWxzZSwiSVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9TT1JUIjoiMSIsIklURU1fMV9TT1JUIjoiMiIsIk9CSkVDVF9JRCI6IkN3Sm1mUGd2Tk9tZlBnY0VjQSIsIklURU1fMV9UWVBFIjoic2F2ZSIsIklURU1fMF9JRCI6IkNBTkNFTCIsIklURU1fMV9JRCI6IlNBVkUiLCJJVEVNXzBfVEVYVCI6Iuy3qOyGjCJ9LCJpZCI6IkN3Sm1mUGd2Tk9tZlBnY0VjQSIsInR5cGUiOiJidXR0b24ifX0sInRyZWUiOnsiaWQiOiJockptZlBnb0NuYUVnTXNX
+        Z1MiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IkN3Sm1mUGd0eU1tZlBncWZ2UiIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJDd0ptZlBndXlNbWZQZ0hwQnYiLCJ0eXBlIjoiY29sdW1uIn1dfSx7ImlkIjoiQ3dKbWZQZ3ZOT21mUGdjRWNBIiwidHlwZSI6ImJ1dHRvbiJ9XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9Nb2R1bGUvSW5wdXRUZXh0QXJlYS54bWwiLCJQUk9KRUNUIjoiQ09OVFJBQ1QiLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJDb250cmFjdC9Nb2R1bGUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJJbnB1dFRleHRBcmVhIiwiQ09ERSI6IlRFWFRBUkVBIiwi
+        UFJFRklYIjoiIiwiU0NSRUVOX0lEIjoiVEVYVEFSRUEifX0sImh0bWwiOiI8ZGl2IGlkPVwiaHJKbWZQZ29DbmFFZ01zV2dTXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHRleHRDb250YWluZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAg
+        ICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIkN3Sm1mUGd0eU1tZlBncWZ2UlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1c
+        IlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiQ3dKbWZQZ3V5TW1mUGdIcEJ2XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJoZWlnaHQ6MTAwJTtcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVy
+        IGJ0bkNvbnRhaW5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9jZW50ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiQ3dKbWZQZ3ZOT21mUGdjRWNBXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

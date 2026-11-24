@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="OPTION_POPUP" header="false" tpl="editor.tpl">
+	<button id="btnObj">
+		<btn div="iVDDpEcQDgJAMEDcLz" id="SAVE" type="save"
+			text="{BUTTON.save}" onclick="onButtonClick( 'SAVE' )" />
+		<btn div="iVDDpEcQDgJAMEDcLz" id="CANCEL" type="cancel"
+			text="{BUTTON.cancel}" onclick="onButtonClick( 'CANCEL' )" />
+	</button>
+	<link>
+    <![CDATA[
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/codemirror.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/javascript/javascript.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/edit/matchbrackets.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/comment/continuecomment.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/comment/comment.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/show-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/anyword-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/javascript-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/util/formatting.js"></script>
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/codemirror.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/theme/liquibyte.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/hint.css" />
+        <link href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/screenbuilder/css/screenbuilder.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript">
+            Sepoa.cache.text.load({
+                url:CONTEXT_NAME+'/resource/plugin/sepoasoft/screenbuilder/langs/'+Sepoa.info.LANGUAGE+'.js',
+                def:CONTEXT_NAME+'/resource/plugin/sepoasoft/screenbuilder/langs/KO.js'
+            });
+		</script>
+    ]]>
+	</link>
+	<usercss>
+    <![CDATA[
+    ]]>
+	</usercss>
+	<variable>
+		<var name="aWDDpEcYLRDpEcjOAT"
+			value="$($sObject._vp).find('#aWDDpEcYLRDpEcjOAT')[0]" />
+		<var name="aWDDpEcXLRDpEcMUbF"
+			value="$($sObject._vp).find('#aWDDpEcXLRDpEcMUbF')[0]" />
+		<var name="tabbarDiv"
+			value="$($sObject._vp).find('#aWDDpEcgOGDpEcVmAA')[0]" />
+		<var name="aWDDpEcfOGDpEcVcEV"
+			value="$($sObject._vp).find('#aWDDpEcfOGDpEcVcEV')[0]" />
+	</variable>
+	<onloadscript>
+		<event obj="Sepoa" type="onButtonClick" callback="onButtonClick" />
+		<call name="init" />
+	</onloadscript>
+	<userscript>
+		<var name="formObj_C" />
+		<var name="formObj_L" />
+		<var name="formObj_E" />
+		<var name="listObj" />
+		<var name="tabbarObj" />
+		<var name="codeObj" value="{}" />
+		<var name="mode" value="'def'" />
+		<var name="tempUserScript" value="{}" />
+		<function name="init" args="">
+        <![CDATA[
+        	//ComponentOption Popup 닫기 이벤트 attach안돼서 오버라이딩 함. 
+        	if(typeof(selfObj.close) != "undefined") {
+        		selfObj.close = function(){
+					if(selfObj.guideObj && selfObj.guideObj.vp){selfObj.guideObj.close()}
+	    			SUX.getModuleTop().Sepoa.detachEvent(this.eventNum);
+					var s = this[this.name].getFrame().contentWindow;
+					try{
+						if(s.Sepoa){
+							var sid = s.Sepoa.common.SCREEN_ID;
+							if(s.Sepoa.request.alias){
+								sid = [sid, s.Sepoa.request.alias].join('_'); 
+							}
+						}
+					}catch(e){}
+					this.parentWindow.SUX.getModuleTop().Sepoa.detachEvent(this[this.name].sizeEvent);
+	
+					this.unload();
+				}
+        	}
+			var max_h = selfObj[selfObj.name].wins.vp.offsetHeight - 20;
+			selfObj[selfObj.name].wins.w[selfObj.name].conf.max_h = max_h;
+			selfObj[selfObj.name].button("help").show();
+			selfObj[selfObj.name].button("help").attachEvent("onClick", function(e){
+				var params = {
+					title : Sepoa.params.type,
+					code : "__GUIDE_"+ Sepoa.params.type.toUpperCase()+"__"
+				}
+				
+				if(tabbarObj.getActiveTab() === "LAYOUT"){
+					params.type = "css";
+				} else {
+					params.type = Sepoa.params.type; 
+					params.scroll = tabbarObj.getActiveTab();
+				}
+			
+				selfObj.guideObj = Sepoa.params.callObj.openGuidePopup(params);
+				selfObj.guideObj.parent = selfObj;
+				
+				$(selfObj.guideObj[selfObj.guideObj.name].cell.parentElement).css("box-shadow", "56px 28px 80px -6px rgba(0, 0, 0, 0.4)");
+				
+				selfObj.guideObj.close = function(){
+	    			SUX.getModuleTop().Sepoa.detachEvent(this.eventNum);
+					var s = this[this.name].getFrame().contentWindow;
+					try{
+						if(s.Sepoa){
+							var sid = s.Sepoa.common.SCREEN_ID;
+							if(s.Sepoa.request.alias){
+								sid = [sid, s.Sepoa.request.alias].join('_'); 
+							}
+						}
+					}catch(e){}
+					this.parentWindow.SUX.getModuleTop().Sepoa.detachEvent(this[this.name].sizeEvent);
+	
+					this.parent[this.parent.name].center()
+					this.unload();
+				}
+				
+				setPosition();
+			});
+            tabbarObj = $sObject.tabbarObj = new SepoaDhtmlXTabBar(tabbarDiv);
+            tabbarObj.attachEvent('onTabChanged', function(header){
+            	if(selfObj.guideObj && selfObj.guideObj.vp) {
+            		if(header === "LAYOUT") {
+	            		selfObj.guideObj.attachURL("/Tools/ScreenBuilder/guide/SC_CSS.html")
+	            	} else {
+	            		var type = Sepoa.params.type;
+						var params = {
+							type : Sepoa.params.type,
+							title : type,
+							code : "__GUIDE_"+type.toUpperCase()+"__",
+							scroll : header
+						}
+						selfObj.guideObj.attachURL(window.CONTEXT_NAME+"/Tools/ScreenBuilder/Popup/ComponentGuide.sux", params);
+	            	}
+            	}
+                setSize();
+            })
+            if(Sepoa.params.form.component){
+                tabbarObj.addTab('COMPONENT', 'COMPONENT');
+                tabbarObj.tabs('COMPONENT').setActive();
+                formObj_C = $sObject.formObj_C = tabbarObj.tabs('COMPONENT').attachForm(null, 'formObj_C', [Sepoa.params.form.component])
+            }
+            
+            if(Sepoa.params.form.layout){
+                tabbarObj.addTab('LAYOUT', 'CSS');
+                formObj_L = $sObject.formObj_L = tabbarObj.tabs('LAYOUT').attachForm(null, 'formObj_L', [Sepoa.params.form.layout])
+            }
+            if(Sepoa.params.form.event){
+                tabbarObj.addTab('EVENT', 'EVENT');
+                var layoutObj = tabbarObj.tabs('EVENT').attachLayout({
+                    cells:[
+                        {button:"false",fix_size:["true","false"],header:"false",id:"a", width:"350"},
+                        {button:"false",fix_size:["true","false"],header:"false",id:"b"}
+                    ],
+                    pattern:"2U",
+                    offsets: {
+                    	top: -1
+                    }
+                })
+                
+                var listObjOptions = {
+                    "isDynamic":0,
+                    "drag":false,
+                    type:{
+                        template:"<table width=100% class=sepoa_list_design>"
+                        +"	<tr>"
+                        +"		<td style='width:40px; height:60px;'><div class='OBJECT_DELETE_AREA xi-close-circle-o' style='width:30px; height:30px; font-size: 20pt; padding-bottom: 30px;'/></td>"
+                        +"		<td style='padding-bottom: 30px;'>#NAME#</td>"
+                        +"	</tr>"
+                        +"</table>"
+                    }
+                }
+
+                listObj = $sObject.listObj = layoutObj.cells('a').attachList(listObjOptions)
+                listObj.attachEvent("onItemClick", function(id, ev){
+                    if(ev.srcElement.tagName == "DIV" && ev.srcElement.className == "OBJECT_DELETE_AREA xi-close-circle-o"){
+                        this.remove(id);
+                    }else{
+                        var item = this.get(id);
+                        formObj_E.dataMapper(item, 'json');
+                        
+                        if(item.CALLBACK_TYPE == 'name' && item.CALLBACK){
+                            if(tempUserScript[item.CALLBACK]){
+                                formObj_E.setValue('ARGS' , (tempUserScript[item.CALLBACK].ARGS || '').replaceAll("&#39;", "'"), true);
+                                formObj_E.setValue('VALUE', (tempUserScript[item.CALLBACK].VALUE || '').replaceAll("&#39;", "'"), true);
+                            }else{
+                                var s = Sepoa.params.form.event.baseInfo.SCRIPT;
+                                for(var i in s){
+                                    if(s[i].NAME == item.CALLBACK){
+                                        formObj_E.setValue('ARGS' , (s[i].ARGS || '').replaceAll("&#39;", "'"), true);
+                                        formObj_E.setValue('VALUE', (s[i].VALUE || '').replaceAll("&#39;", "'"), true);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        codeObj.setValue(formObj_E.getValue('VALUE'));
+                        
+                        CodeMirror.commands.selectAll(codeObj);
+                        var range = { from: codeObj.getCursor(true), to: codeObj.getCursor(false) };
+                        codeObj.autoFormatRange(range.from, range.to);
+                        CodeMirror.commands.goDocEnd(codeObj);
+                        
+                        if(item.CALLBACK_TYPE == 'name'){
+                            formObj_E.showItem('CALLBACK');
+                        }else{
+                            formObj_E.hideItem('CALLBACK');
+                        }
+                    }
+                })
+                
+                formObj_E = $sObject.formObj_E = layoutObj.cells('b').attachForm(null, 'formObj_E', [Sepoa.params.form.event.form]);
+                
+                CodeMirror.commands.autocomplete = function(cm) {
+                    cm.showHint({hint: CodeMirror.hint.javascript});
+                }
+                
+                codeObj = CodeMirror(formObj_E.getContainer("EDITOR_VALUE"), {
+                    lineNumbers: true,
+                    theme:"default",
+                    viewportMargin:0,
+                    indentUnit:4,
+                    extraKeys:{"Ctrl-Q":"toggleComment","Ctrl-Space": "autocomplete"}
+                });
+                
+                codeObj.on("blur", function(){
+                    formObj_E.setValue('VALUE', codeObj.getValue())
+                })
+                
+                formObj_C.attachEvent("onChange", function(name, value){
+                	
+                })
+                
+                formObj_E.attachEvent("onChange", function(name, value){
+                    if(name == 'CALLBACK_TYPE'){
+                        if(value == 'name'){
+                            this.showItem('CALLBACK');
+                        }else{
+                            this.hideItem('CALLBACK');
+                            this.setItemValue('CALLBACK', '');
+                        }
+                        this.callEvent('onChange', [''])
+                    }else if(name == 'TEMPLATE'){
+                        if(value){
+                            this.clear();
+                            codeObj.setValue('');
+                            
+                            if(value != "etc" && Sepoa.params.form.event.template[value]){
+                                var t = Sepoa.params.form.event.template[value];
+                                this.setItemValue('CALLBACK_TYPE', 'name', true);
+                                this.setItemValue('CALLBACK', t.NAME, true);
+                                this.setItemValue('NAME', t.NAME, true);
+                                this.showItem('CALLBACK');
+                                
+                                var flag = true;
+                                var s = Sepoa.params.form.event.baseInfo.SCRIPT;
+                                for(var i in s){
+                                    if(s[i].NAME == t.NAME){
+                                        Alert(SepoaUXMockupPopupLang.MESSAGE["0001"]);
+                                        this.setItemValue('ARGS', s[i].ARGS.replaceAll("&#39;", "'"));
+                                        this.setItemValue('VALUE', s[i].VALUE.replaceAll("&#39;", "'"));
+                                        codeObj.setValue(this.getItemValue('VALUE'));
+                                        
+                                        flag = false;
+                                        break;
+                                    }
+                                }
+                                
+                                if(flag){
+                                    codeObj.setValue(t.VALUE.replaceAll("'", "'"));
+                                    this.setItemValue('ARGS', t.ARGS.replaceAll("'", "'"), true);
+                                }
+                                
+                                CodeMirror.commands.selectAll(codeObj);
+                                var range = { from: codeObj.getCursor(true), to: codeObj.getCursor(false) };
+                                codeObj.autoFormatRange(range.from, range.to);
+                                CodeMirror.commands.goDocEnd(codeObj);
+                                
+                                this.setItemValue('VALUE', codeObj.getValue());
+                            }
+                        }
+                    }else{
+                        var e = this.getItemValue('NAME')
+                        
+                        if(e){
+                            var id = formObj_E.getValue("id");
+                            var obj;
+                            if(id){
+                                obj = listObj.get(id);
+                                for(var i in obj){
+                                    if(i != 'id'){
+                                        delete obj[i]
+                                    }
+                                }
+                            }else{
+                                obj = {};
+                                
+                                var listData = listObj.serialize();
+                                var listFlag = true;
+                                
+                                if(listData.find(element => element.NAME == e)) {
+                                	listFlag = false;
+                                }
+                                
+                                if(listFlag) {
+                                	listObj.add(obj);
+                               		this.setItemValue('id', obj.id, true);
+                                }
+                            }
+                            
+                            if(name == 'CALLBACK'){
+                                var s = Sepoa.params.form.event.baseInfo.SCRIPT;
+                                for(var i in s){
+                                    if(s[i].NAME == value){
+                                        Alert(Sepoa.cache.text.get('SCREEN_BUILDER_MOCKUP_POPUP.MESSAGE_0001'));
+                                        this.setItemValue('ARGS', s[i].ARGS.replaceAll("&#39;", "'"), true);
+                                        this.setItemValue('VALUE', s[i].VALUE.replaceAll("&#39;", "'"), true);
+                                        codeObj.setValue(this.getItemValue('VALUE'));
+                                        
+                                        CodeMirror.commands.selectAll(codeObj);
+                                        var range = { from: codeObj.getCursor(true), to: codeObj.getCursor(false) };
+                                        codeObj.autoFormatRange(range.from, range.to);
+                                        CodeMirror.commands.goDocEnd(codeObj);
+                                    }
+                                }
+                            }
+                            
+                            obj.NAME = this.getItemValue('NAME');
+                            obj.ARGS = this.getItemValue('ARGS');
+                            obj.CALLBACK_TYPE = this.getItemValue('CALLBACK_TYPE');
+                            obj.CALLBACK = this.getItemValue('CALLBACK');
+                            
+                            if(obj.CALLBACK_TYPE == "name"){
+                                tempUserScript[this.getItemValue('CALLBACK')] = {
+                                    ARGS:this.getItemValue('ARGS'),
+                                    VALUE:this.getItemValue('VALUE')
+                                }
+                            }else{
+                                obj.VALUE = this.getItemValue('VALUE');
+                            }
+                            listObj.refresh();
+                        }
+                    }
+                })
+            }
+            
+            Sepoa.params.callObj.callEvent("onPopupDraw", [$sObject, formObj_C, formObj_L, formObj_E]);
+            
+            setSize();
+            
+            if(formObj_C){
+                formObj_C.dataMapper(Sepoa.params.options.component, "json")
+                formObj_C.setValue("OBJECT_ID", Sepoa.params.options.id)
+            }
+            if(formObj_L){
+                formObj_L.dataMapper(Sepoa.params.options.layout, "json")
+            }
+            if(listObj){
+                var listData = [];
+                for(var i in Sepoa.params.options.events){
+                    var t = $.extend(true, {}, Sepoa.params.options.events[i]);
+                    t.CALLBACK_TYPE = (typeof(t.CALLBACK) == "string")?"name":"anonymous";
+                    if(t.CALLBACK_TYPE == "anonymous"){
+                        t.ARGS = t.CALLBACK.ARGS;
+                        t.VALUE = t.CALLBACK.VALUE
+                    }
+                    
+                    listData.push(t);
+                }
+                listObj.parse(listData, "json")
+            }
+        ]]>
+		</function>
+		<function name="onButtonClick" args="id">
+        <![CDATA[
+            if(id == 'CANCEL'){
+                selfObj.close();
+            }else if(id == 'SAVE'){
+                var oid = formObj_C.getValue("OBJECT_ID");
+                var r = {};
+                if(formObj_C){
+                    var formData = formObj_C.getFormData();
+                    r.component = {};
+                    for(var i in formData){
+                        var t = formData[i];
+                        if(t != ""){
+                            r.component[i] = t+"";
+                        }else{
+                            r.component[i] = "___DELETE_FLAG___"
+                        }
+                    }
+                }
+                if(formObj_L){
+                    if(!formObj_L.validate()){
+                        Alert(Sepoa.cache.text.get("MESSAGE.0002"));
+                        return;
+                    }
+                    
+                    var formData = formObj_L.getFormData();
+                    r.layout = {};
+                    
+                    for(var i in formData){
+                        var t = formData[i];
+                        if(t != "" || t == 0){
+                            r.layout[i] = t+"";
+                        }else{
+                            r.layout[i] = "___DELETE_FLAG___"
+                        }
+                    }
+                }
+                if(listObj){
+                    r.event= {
+                        list:listObj.serialize(),
+                        user:tempUserScript
+                    }
+                }
+                
+                var so = {message:"", status:true};
+                Sepoa.params.callObj.callEvent('onPopupCallback', [oid, r, so]);
+                
+                if(so.status){
+                	var to = Sepoa.params.callObj;
+                	var type = to.getOptions().type;
+                	var name = "";
+                	switch(type){
+                	case "layoutCell":
+                		name = to.getOptions().name.toUpperCase();
+                		break;
+                	default:
+                		name = to.getOptions().component.VAR;
+                		
+                	}
+                	to.mockupObj.callEvent('onUpdateItem',[type + " / " + name + " / " + to.mockupObj._TextData("HISTORY_CHANGE")]);	
+                    selfObj.close();
+                }else{
+                    Alert(so.message);
+                }
+            }
+        ]]>
+		</function>
+		<function name="setSize" args="">
+        <![CDATA[
+            selfObj[selfObj.name].setDimension(920, 800);
+            SUX.callEvent('onWindowResize', [])	
+            if(tabbarObj.getActiveTab() == "EVENT"){
+                selfObj[selfObj.name].setDimension(1000, 850)
+                //selfObj[selfObj.name].setDimension(900, 800)
+            }else{
+                var s = {width:600, height:400}
+                var tArray = [formObj_C, formObj_L];
+                for(var i in tArray){
+                    var t = tArray[i];
+                    if(t){
+                        var c = t._parent.children[0]
+                        var w = c.offsetWidth + 80;
+                        var h = c.offsetHeight + 180;
+                        if(w > s.width) s.width = w;
+                        if(h > s.height) s.height = h;
+                    }
+                }
+                selfObj[selfObj.name].setDimension(s.width, s.height);
+            }
+            
+            if(selfObj.guideObj && selfObj.guideObj.vp){
+            	setPosition();
+            } else {
+	            selfObj[selfObj.name].center();
+            }
+        ]]>
+		</function>
+		<function name="setPosition" args="">
+		<![CDATA[
+				selfObj.guideObj[selfObj.guideObj.name].setDimension(selfObj[selfObj.name]._getWidth(), selfObj.w[selfObj.name].win.offsetHeight)
+		
+				var screenWidth = SUX.getModuleTop().outerWidth;
+				var popupTotalWidth = selfObj.w[selfObj.name].win.offsetWidth + selfObj.guideObj.w[selfObj.guideObj.name].win.offsetWidth;
+				var selfObjMoveLeft =  ((screenWidth-popupTotalWidth)/2)
+				var selfObjMoveTop = selfObj.w[selfObj.name].win.offsetTop
+				selfObj._winSetPosition(selfObj.name, selfObjMoveLeft, selfObjMoveTop);
+				
+				var guideObjMoveLeft = selfObjMoveLeft + selfObj.w[selfObj.name].win.offsetWidth + 5;
+				var guideObjMoveTop = selfObjMoveTop
+				selfObj.guideObj._winSetPosition(selfObj.guideObj.name, guideObjMoveLeft, guideObjMoveTop);
+				//selfObj.guideObj[selfObj.guideObj.name].setDimension(selfObj.guideObj[selfObj.guideObj.name]._getWidth(), selfObj.w[selfObj.name].win.offsetHeight);
+		]]>
+		</function>
+	</userscript>
+	<template editor="true">
+		eyJkYXRhIjp7Im9iamVjdHMiOnsiaVZERHBFY1FEZ0pBTUVEY0x6Ijp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0In0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJJVEVNXzBfU0xDT0RFIjoiQlVUVE9OLnNhdmUiLCJJVEVNXzFfU0xDT0RFIjoiQlVUVE9OLmNhbmNlbCIsIklURU1fMF9UWVBFIjoic2F2ZSIsIklURU1fMF9QQVJBTSI6IiYjMzk7U0FWRSYjMzk7IiwiSVRFTV8xX09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV8xX1BBUkFNIjoi
+		JiMzOTtDQU5DRUwmIzM5OyIsIklURU1fMF9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fMV9URVhUIjoi7J207KCEIiwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIiwiT0JKRUNUX0lEIjoiaVZERHBFY1FEZ0pBTUVEY0x6IiwiSVRFTV8xX1RZUEUiOiJjYW5jZWwiLCJJVEVNXzBfSUQiOiJTQVZFIiwiSVRFTV8xX0lEIjoiQ0FOQ0VMIiwiSVRFTV8wX1RFWFQiOiLsoIDsnqUifSwiaWQiOiJpVkREcEVjUURnSkFNRURjTHoiLCJ0eXBlIjoiYnV0dG9uIiwiYnV0dG9uIjoiYnV0dG9uIn0sImlWRERwRWNzbVVKQU1FREp3RyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiT1BUSU9OX1BPUFVQIn0sImlkIjoiaVZERHBFY3Nt
+		VUpBTUVESndHIiwidHlwZSI6ImJvZHkifSwiYVdERHBFY2dPR0RwRWNWbUFBIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJWQVIiOiJ0YWJiYXJEaXYiLCJPQkpFQ1RfSUQiOiJhV0REcEVjZ09HRHBFY1ZtQUEifSwiaWQiOiJhV0REcEVjZ09HRHBFY1ZtQUEiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiYVdERHBFY2ZPR0RwRWNWY0VWIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiYVdERHBFY2ZPR0RwRWNWY0VWIiwiT0JKRUNUX0lEIjoiYVdERHBFY2ZPR0RwRWNWY0VWIn0sImlkIjoiYVdERHBFY2ZPR0RwRWNWY0VWIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJhV0REcEVj
+		WUxSRHBFY2pPQVQiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6ImFXRERwRWNZTFJEcEVjak9BVCJ9LCJpZCI6ImFXRERwRWNZTFJEcEVjak9BVCIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJhV0REcEVjWExSRHBFY01VYkYiOnsibGF5b3V0Ijp7Ik1BUkdJTl9MRUZUIjoiMTBweCIsIk1BUkdJTl9SSUdIVCI6IjEwcHgifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJhV0REcEVjWExSRHBFY01VYkYiLCJPQkpFQ1RfSUQiOiJhV0REcEVjWExSRHBFY01VYkYifSwiaWQiOiJhV0REcEVjWExSRHBFY01VYkYiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiaVZERHBFY3NtVUpBTUVESndHIiwidHlwZSI6ImJv
+		ZHkiLCJjZWxscyI6W3siaWQiOiJhV0REcEVjWExSRHBFY01VYkYiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiYVdERHBFY1lMUkRwRWNqT0FUIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6ImlWRERwRWNRRGdKQU1FRGNMeiIsInR5cGUiOiJidXR0b24ifV19XX0seyJpZCI6ImFXRERwRWNmT0dEcEVjVmNFViIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJhV0REcEVjZ09HRHBFY1ZtQUEiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvVG9vbHMvU2NyZWVuQnVpbGRlci9Qb3B1cC9Db21wb25lbnRPcHRpb24ueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJQQVRIXzIiOiIiLCJOT05TVERfUEFU
+		SCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJUb29scy9TY3JlZW5CdWlsZGVyL1BvcHVwIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQ29tcG9uZW50T3B0aW9uIiwiQ09ERSI6IlBPUFVQIiwiUFJFRklYIjoiT1BUSU9OIiwiU0NSRUVOX0lEIjoiT1BUSU9OX1BPUFVQIn19LCJodG1sIjoiPGRpdiBpZD1cImlWRERwRWNzbVVKQU1FREp3R1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRh
+		aW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIm1hcmdpbjptYXJnaW4tdG9wOjA7bWFyZ2luLXJpZ2h0OjEwcHg7bWFyZ2luLWJvdHRvbTowO21hcmdpbi1sZWZ0OjEwcHg7d2lkdGg6O1wiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYVdERHBFY1hMUkRwRWNNVWJGXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAg
+		ICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImFXRERwRWNZTFJEcEVjak9BVFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNs
+		YXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJpVkREcEVjUURnSkFNRURjTHpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAg
+		ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9u
+		ZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYVdERHBFY2ZPR0RwRWNWY0VWXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAg
+		ICAgICAgPGRpdiBpZD1cImFXRERwRWNnT0dEcEVjVm1BQVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lciBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+	</template>
+</body>

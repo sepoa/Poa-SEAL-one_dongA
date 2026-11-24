@@ -1,0 +1,51 @@
+.MAINFRAME .sepoa-header-base{
+	height:56px;
+	line-height:56px;
+	background-color:#1746A3;
+	display: flex;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-box{
+	height:100%;
+	margin-left:24px;
+	display:inline-flex;
+	flex: auto;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item{
+	height:100%;
+	display: flex;
+	justify-content: center;
+    align-items: center;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-box-left .sepoa-header-item{
+	margin-right:4px;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-box-right .sepoa-header-item{
+	margin-left:24px;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-box-center{
+	justify-content: center;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-box-right{
+	margin-right:40px;
+	justify-content: flex-end;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item{
+	color:#fff;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item > img{
+	max-height:34px;
+	object-fit:none;
+	width:fit-content;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item.sepoa-header-item-text{
+	font-size:14px;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item.sepoa-header-item-icon{
+	font-size:20px;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item.sepoa-header-item-logo{
+	margin-right: 20px;
+}
+.MAINFRAME .sepoa-header-base .sepoa-header-item.sepoa-header-item-logo .sepoa-header-logo{
+
+}

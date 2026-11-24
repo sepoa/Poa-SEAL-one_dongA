@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_100" header="false" tpl="editor.tpl">
+    <carousel id="carouselObj" div="mqTDyZdeowDyZdLNtL">
+        <item id="LIST">
+            <attach file="/Contract/Progress/ContractProgressLayout.xml"/>
+        </item>
+        <item id="MODULE" render="lazy">
+            <attach file="/Contract/Module/ContractModuleLayout.xml"/>
+        </item>
+        <item id="FORM"  render="lazy">
+            <attach file="/Contract/setForm/ContractSetFormLayout.xml"/>
+        </item>
+    </carousel>
+    <onloadscript>
+    	<call name="init" />
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}" />
+        <function name="init">
+        <![CDATA[
+            if(Sepoa.request.MODE == 'POPUP') {
+                callFunction('CT_101', 'setConfig', [{TYPE : 'CONTRACT', FILTER:{}}]);
+                
+                const data = {
+                    view : 'VIEW',
+                    data : {
+                        CONT_NO : Sepoa.request.CONT_NO,
+                        CONT_GL_SEQ : Sepoa.request.CONT_GL_SEQ
+                    }
+                };
+                
+                changeView(data);
+            
+                return;
+            }
+            
+            if($sObject.alias == $sObject.aliasCode){
+                Alert('not found type data');
+                return;
+            }
+            
+            var filterOptions = {};
+            for(var i in Sepoa.request){
+                if(i.indexOf("F_") == 0){
+                    filterOptions[i] = Sepoa.request[i]; 
+                }
+            }
+            
+            callFunction('CT_101', 'setConfig', [{TYPE:$sObject.alias.replace($sObject.aliasCode+'_', ''), FILTER:filterOptions}])
+        ]]>
+        </function>
+        
+    	<function name="changeView" args="data">
+    	<![CDATA[
+    		var id = '';
+    		var cellID = '';
+    		
+    		id = data.view.toUpperCase();
+    		
+            if('EDITOR' == id){
+                cellID = 'FORM'
+            }else if(['VIEW', 'SIGN','APPROVAL','SAVE', 'COMPLETE', 'TERMINATION', 'REVIEW'].indexOf(id) + 1 ) {
+    			cellID = 'MODULE';
+    		} else {
+    			cellID = id;
+    		}
+    		
+    		if(id == "EDITOR"){
+                if(['SRM', 'SEAL'].includes(data.data.DATA_SOURCE)){
+                    $share.config={
+                        document: {
+                            CONT_TYPE: (data.data.CONT_TYPE || "B"), //B: Business, E: Employee
+                            CONT_NO:data.data.CONT_NO,
+                            CONT_GL_SEQ:data.data.CONT_GL_SEQ
+                        }
+                    }
+                
+                    if($share.childScreen && $share.childScreen.FORM){
+                        $share.childScreen.FORM.fn.doOpenDocument($share.config);
+                    }
+                }else if(data.data.DATA_SOURCE == 'NEW'){
+                	$share.config={document:{CONT_TYPE:'NEW'}};
+                	if($share.childScreen && $share.childScreen.FORM){
+                        $share.childScreen.FORM.fn.doOpenDocument($share.config);
+                    }
+                }else{
+                    sUtils.popup.modal({
+                        url:window.CONTEXT_NAME+'/Contract/Module/ContractModuleLayout.sux',
+                        params:{
+                            CONT_NO: data.data.CONT_NO,
+                            CONT_GL_SEQ: data.data.CONT_GL_SEQ,
+                            CONT_TYPE:data.data.CONT_TYPE,
+                            CONT_MODULE:'EDITOR'
+                        },
+                        title:sUtils.cache.text.get('POA_CONTRACT.TITLE_EDITOR')
+                    });
+                    return;
+                }
+            }else if(id == "LIST"){
+                delete $share.config;
+                callFunction("CT_102", 'doQuery', []);
+            }else if(sUtils.workflow.check('CT1636946367165')){
+                cellID = 'FORM'
+                $share.config={
+                    document: {
+                        CONT_TYPE: (data.data.CONT_TYPE || "B"), //B: Business, E: Employee
+                        CONT_NO:data.data.CONT_NO,
+                        CONT_GL_SEQ:data.data.CONT_GL_SEQ
+                    }
+                }
+            
+                if($share.childScreen && $share.childScreen.FORM){
+                    $share.childScreen.FORM.fn.doOpenDocument($share.config);
+                }
+            }else{
+    			$share.config={
+                    module: {
+                        WORK_TYPE: 'C',                          // T: template, C:contract
+                        CONT_TYPE: (data.data.CONT_TYPE || "B"), // B: Business, E: Employee
+                        CONT_MODULE: id
+                    }, 
+                    document: {
+                        CONT_TYPE: (data.data.CONT_TYPE || "B"), //B: Business, E: Employee
+                        CONT_NO:data.data.CONT_NO,
+                        CONT_GL_SEQ:data.data.CONT_GL_SEQ
+                    },
+                    editor: {
+                        header:[]
+                    }
+                }
+                if($share.childScreen && $share.childScreen.MODULE){
+                    $share.childScreen.MODULE.fn.doOpenDocument($share.config);
+                }
+    		}
+            
+            var cells = carouselObj.cells(cellID);
+            cells.setActive();
+    	]]>
+    	</function>
+    	
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            if(!$share.childScreen){
+                $share.childScreen = {};
+            }
+            $share.childScreen[config.name] = config;
+            if($share.config){
+                $share.childScreen[config.name].fn.doOpenDocument($share.config);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsibXFURHlaZG1xVER5WmRzdGhRIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQ1RfMTAxIn0sImlkIjoibXFURHlaZG1xVER5WmRzdGhRIiwidHlwZSI6ImJvZHkifSwibXFURHlaZGVvd0R5WmRMTnRMIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfemMwTzZ6QlJvbFNnIjoibnVsbCIsImRoeElkX21mTFZiS1IxclNzZiI6
+        Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF85ZmhYTFYwZW94UWMiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF91UllPOXRYQkJDaFMiOiJudWxsIiwiZGh4SWRfNVIwdEFlTVRWZkJBIjoibnVsbCIsImRoeElkX0Q0SnFRZEVRdmRSciI6Im51bGwiLCJkaHhJZF90SVZlSnFicUwxak4iOiJudWxsIiwiZGh4SWRfM0dNcXNtN1VVbDd0IjoibnVsbCIsImRoeElkX015V2RMZXVhdndUUiI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImNhcm91Y2VsT2JqIiwiT0JKRUNUX0lEIjoibXFURHlaZGVvd0R5WmRMTnRMIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJJVEVNX01RVERZWkRGQkZFWVpERkdHS19JRCI6
+        IkxJU1QiLCJJVEVNX01RVERZWkRGQkZFWVpERkdHS19UWVBFIjoiVSIsIklURU1fTVFURFlaREZCRkVZWkRGR0dLX1RBUkdFVCI6Ii9Db250cmFjdC9Qcm9ncmVzcy9Db250cmFjdFByb2dyZXNzTGlzdC54bWwiLCJJVEVNX01RVERZWkRGQkZFWVpERkdHS19TT1JUIjoiMSIsIklURU1fTVFURFlaRE9SQUVZWkRLQ0xQX0lEIjoiTU9EVUxFIiwiSVRFTV9NUVREWVpET1JBRVlaREtDTFBfVFlQRSI6IlUiLCJJVEVNX01RVERZWkRPUkFFWVpES0NMUF9UQVJHRVQiOiIvQ29udHJhY3QvTW9kdWxlL0NvbnRyYWN0TW9kdWxlVGFiYmFyLnhtbCIsIklURU1fTVFURFlaRE9SQUVZWkRLQ0xQX1NPUlQiOiIyIn0sImlkIjoibXFURHlaZGVvd0R5WmRMTnRMIiwidHlwZSI6
+        ImNhcm91c2VsIiwiZXZlbnRzIjpbXX0sIk1RVERZWkRGQkZFWVpERkdHSyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSUQiOiJMSVNUIiwiaXRlbUlEIjoiTVFURFlaREZCRkVZWkRGR0dLIiwiVFlQRSI6IlUiLCJUQVJHRVQiOiIvQ29udHJhY3QvUHJvZ3Jlc3MvQ29udHJhY3RQcm9ncmVzc0xpc3QueG1sIiwiU09SVCI6IjEifSwiaWQiOiJNUVREWVpERkJGRVlaREZHR0siLCJtYXhDaGlsZENvdW50IjoxLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIiwibmFtZSI6IkxJU1QifSwiTVFURFlaRE9SQUVZWkRLQ0xQIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJJRCI6Ik1PRFVMRSIsIml0ZW1JRCI6Ik1RVERZWkRPUkFFWVpES0NMUCIsIlRZUEUiOiJVIiwi
+        VEFSR0VUIjoiL0NvbnRyYWN0L01vZHVsZS9Db250cmFjdE1vZHVsZVRhYmJhci54bWwifSwiaWQiOiJNUVREWVpET1JBRVlaREtDTFAiLCJtYXhDaGlsZENvdW50IjoxLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIiwibmFtZSI6Ik1PRFVMRSJ9fSwidHJlZSI6eyJpZCI6Im1xVER5WmRtcVREeVpkc3RoUSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoibXFURHlaZGVvd0R5WmRMTnRMIiwidHlwZSI6ImNhcm91c2VsIiwiY2VsbHMiOlt7ImlkIjoiTVFURFlaREZCRkVZWkRGR0dLIiwidHlwZSI6ImNhcm91c2VsQ2VsbCJ9LHsiaWQiOiJNUVREWVpET1JBRVlaREtDTFAiLCJ0eXBlIjoiY2Fyb3VzZWxDZWxsIn1dfV19LCJpbmZvIjp7IlBST0pFQ1QiOiJFQVNZ
+        U0lHTiIsIlBBVEhfMSI6IkNvbnRyYWN0IiwiUEFUSF8zIjoiQ29udHJhY3RQcm9ncmVzcyIsIlBBVEhfMiI6IlByb2dyZXNzIiwiTkFNRSI6IkNhcm91c2VsIiwiUEFUSCI6Ii9Db250cmFjdC9Qcm9ncmVzcy9Db250cmFjdFByb2dyZXNzQ2Fyb3VzZWwueG1sIiwiUFJFRklYIjoiQ1QiLCJDT0RFIjoiMTAxIiwiU0NSRUVOX0lEIjoiQ1RfMTAxIn19LCJodG1sIjoiPGRpdiBpZD1cIm1xVER5WmRtcVREeVpkc3RoUVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1
+        eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwibXFURHlaZGVvd0R5WmRMTnRMXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9jYXJvdXNlbCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAg
+        ICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

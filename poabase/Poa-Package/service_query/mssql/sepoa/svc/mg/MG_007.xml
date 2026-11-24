@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+
+	<method name="doQuery">
+	<![CDATA[
+		SELECT HOUSE_CODE 
+		     , COMPANY_CODE 
+		     , LINE_TYPE 
+		     , APP_TYPE 
+		     , GETCODETEXT1( 'AP001', APP_TYPE, '#session.LANGUAGE#' , '#session.HOUSE_CODE#') AS APP_TYPE_TEXT 
+		     , CODE 
+		     , CASE 
+		           WHEN LINE_TYPE = '03' 
+		           THEN (SELECT ACCOUNT_NAME , ROW_NUMBER() OVER(ORDER BY ACCOUNT_NAME DESC) RNUM FROM SAMST WHERE LANGUAGE = '#session.LANGUAGE#' AND ACCOUNT_CODE = SGWAD.CODE AND RNUM = 1) 
+		           WHEN LINE_TYPE = '02' 
+		           THEN GETDEPTNAME( HOUSE_CODE, COMPANY_CODE, CODE, '#session.LANGUAGE#' ) 
+		       END AS CODE_TEXT 
+		     , LINE_SEQ 
+		     , USER_ID 
+		     , GETUSERNAME( HOUSE_CODE, COMPANY_CODE, USER_ID, '#session.LANGUAGE#' ) AS USER_NAME
+		     , APP_USER_AMT 
+		     , TO_CHAR(TO_DATE(ADD_DATE,'YYYYMMDD'),'YYYY/MM/DD') AS ADD_DATE 
+		     , TO_CHAR(TO_DATE(ADD_TIME,'HH24MISS'),'HH24:MI:SS') AS ADD_TIME
+		     , GETUSERNAME( HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, '#session.LANGUAGE#' ) AS ADD_USER_ID
+		     , USE_FLAG
+		  FROM SGWAD
+		   WHERE 1 = 1
+		   AND HOUSE_CODE   = ${session.HOUSE_CODE} 
+           AND COMPANY_CODE = ${COMPANY_CODE}
+           AND LINE_TYPE    = ${LINE_TYPE}
+           AND APP_TYPE     = ${APP_TYPE}
+           AND CODE         = ${CODE}
+	]]>
+	</method>
+	
+	<method name="doSave_SGWAH">
+	<![CDATA[
+			INSERT INTO SGWAH 
+			( 
+			    HOUSE_CODE 
+			  , COMPANY_CODE 
+			  , LINE_TYPE 
+			  , APP_TYPE 
+			  , CODE 
+			  , LINE_TYPE_NAME 
+			  , ADD_DATE 
+			  , ADD_TIME 
+			  , ADD_USER_ID 
+			  , CHANGE_DATE 
+			  , CHANGE_TIME 
+			  , CHANGE_USER_ID  
+			) 
+			VALUES 
+			( 
+			    ${session.HOUSE_CODE} 
+			  , ${session.COMPANY_CODE} 
+			  , ${LINE_TYPE} 
+			  , ${APP_TYPE} 
+			  , ${CODE} 
+			  , ${LINE_TYPE_NAME} 
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID} 
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID}  
+			)  
+	]]>
+	</method>
+	
+	<method name="doSave_SGWAD">
+	<![CDATA[
+			INSERT INTO SGWAD 
+			( 
+			    HOUSE_CODE
+			  , COMPANY_CODE
+			  , LINE_TYPE
+			  , APP_TYPE
+			  , CODE
+			  , LINE_SEQ
+			  , USER_ID
+			  , APP_USER_AMT
+			  , ADD_DATE
+			  , ADD_TIME
+			  , ADD_USER_ID
+			  , CHANGE_DATE
+			  , CHANGE_TIME
+			  , CHANGE_USER_ID
+			  , USE_FLAG
+			) 
+			VALUES 
+			( 
+			    ${session.HOUSE_CODE} 
+			  , ${session.COMPANY_CODE} 
+			  , ${LINE_TYPE}
+			  , ${APP_TYPE}
+			  , ${CODE}
+			  , ${LINE_SEQ}
+			  , ${USER_ID}
+			  , ${APP_USER_AMT}
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID} 
+			  , ${current.date} 
+			  , ${current.time} 
+			  , ${session.ID} 
+			  , ${USE_FLAG}
+			)  
+	]]>
+	</method>
+	
+	<method name="doDelete_SGWAH">
+	<![CDATA[
+			DELETE 
+			  FROM SGWAH 
+			 WHERE 1 = 1 
+			       AND HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${session.COMPANY_CODE} 
+			       AND LINE_TYPE = ${LINE_TYPE} 
+			       AND APP_TYPE = ${APP_TYPE} 
+			       AND CODE = ${CODE}
+	]]>
+	</method>
+	
+	<method name="doDelete_SGWAD">
+	<![CDATA[
+			DELETE 
+			  FROM SGWAD 
+			 WHERE 1 = 1 
+			       AND HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${session.COMPANY_CODE} 
+			       AND LINE_TYPE = ${LINE_TYPE} 
+			       AND APP_TYPE = ${APP_TYPE} 
+			       AND CODE = ${CODE}
+	]]>
+	</method>
+	
+		
+	<method name="doDeleteLine">
+	<![CDATA[
+			DELETE 
+			  FROM SGWAD 
+			 WHERE 1 = 1 
+			       AND HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND COMPANY_CODE = ${session.COMPANY_CODE} 
+			       AND LINE_TYPE = ${LINE_TYPE} 
+			       AND APP_TYPE = ${APP_TYPE} 
+			       AND CODE = ${CODE}
+			       AND LINE_SEQ = ${LINE_SEQ}
+	]]>
+	
+	</method>
+</service>

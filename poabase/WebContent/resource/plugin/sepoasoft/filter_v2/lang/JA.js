@@ -1,0 +1,32 @@
+{
+	"FILTERBAR":{
+		"STATUS":"状態",
+		"CONFIRM":"適用",
+		"SEARCH":"検索",
+		"CONDITION":"フィルタ条件",
+		"CONDITION_RESET":"条件初期化",
+		"ALL":"全体",
+		"YEAR":"年",
+		"MONTH":"月",
+		"WEEK":"週",
+		"WEEKS_AGO":"週前",
+		"WEEKS_AFTER":"週後",
+		"THIS_WEEK":"今週",
+		"MONTHS":"個月",
+		"MONTHS_AGO":"個月 前",
+		"MONTHS_AFTER":"個月 後",
+		"DAYS_AGO":"日",
+		"DAYS":"日",
+		"TODAY":"今日",
+		"DAY":"日",
+		"QUARTER":"分期",
+		"HALF":"半期",
+		"RESET":"初期化",
+		"FILTER":"フィルター",
+		"ADVANCED_SEARCH":"詳細検索",
+		"SEARCH_2":"照會",
+		"MESSAGE_01":"日付を選択してください",
+		"SELECT_ALL":"全体選択",
+		"CHECKED":"チェック"
+	}
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="LABEL_FILE_TYPE_NONE_FILE"/>
+					<entry key="CONTENTS" val="비 파일 서식 작성하기"/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

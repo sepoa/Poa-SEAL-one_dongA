@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_019_2" header="false">
+    <button id="layoutBtnObj">
+        <btn div="yPhyAUcbDebQzgQoGv" id="add" text="{BUTTON.add}" onclick="onButtonClick( 'add' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="save" text="{BUTTON.save}" onclick="onButtonClick( 'save' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="copy" text="{BUTTON.copy}" onclick="onButtonClick( 'copy' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="update" text="{BUTTON.update}" onclick="onButtonClick( 'update' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="confirm" text="{BUTTON.approval}" onclick="onButtonClick( 'confirm' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="delete" text="{BUTTON.delete}" onclick="onButtonClick( 'delete' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="cancel" text="{BUTTON.cancel}" onclick="onButtonClick( 'cancel' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="FORCE_LOGON" text="{AD_019_2.FORCE_LOGON}" onclick="onButtonClick( 'FORCE_LOGON' )"/>
+        <btn div="yPhyAUcbDebQzgQoGv" id="RESET_PW" text="{FINDPW.BUTTON_PW_FIND}" onclick="onButtonClick( 'RESET_PW' )"/>
+    </button>
+    <form id="formObj" div="oZhyAUchFVKBUcENXq" form-id="AD_019_2">
+        <event type="onXLE" callback="doLoadEnd"/>
+        <event type="onChange" callback="Changefn"/>
+    </form>
+    <usercss>
+    <![CDATA[
+        
+    ]]>
+    </usercss>
+    <variable>
+        <var name="koXlpdcPKHmpdcyASo" value="$($sObject._vp).find('#koXlpdcPKHmpdcyASo')[0]"/>
+        <var name="koXlpdcOKHmpdcIkxo" value="$($sObject._vp).find('#koXlpdcOKHmpdcIkxo')[0]"/>
+    </variable>
+    <onloadscript>
+        <![CDATA[
+            layoutBtnObj.btn('add').setHide();
+            layoutBtnObj.btn('save').setShow();
+            layoutBtnObj.btn('delete').setHide();
+            layoutBtnObj.btn('confirm').setHide();
+            layoutBtnObj.btn('copy').setHide();
+            layoutBtnObj.btn('update').setHide();
+            layoutBtnObj.btn('cancel').setHide();
+            formObj.hideItem("SELLER_CODE");
+            //layoutBtnObj.btn('FORCE_LOGON').setHide();
+            if (Sepoa.info.USER_TYPE == 'S') {
+            
+                formObj.hideItem("COMPANY_CODE");
+                formObj.hideItem("PLANT_CODE");
+                formObj.hideItem("DEPT");
+                formObj.hideItem("USER_TYPE");
+                formObj.hideItem("WORK_TYPE");
+                formObj.hideItem("VENDOR_SEARCH");
+                formObj.hideItem("MENU_PROFILE_CODE");
+            
+            }
+            formObj.setReadOnly("DEPT", true);
+            formObj.setReadOnly("DEPT_NAME", true);
+            
+            window.jusoCallBack = jusoCallBack;
+        ]]>
+        <event obj="formObj" type="onButtonClick">
+            <function args="id">
+            <![CDATA[
+                if (id == 'CHECK_ID') {
+                    var user_id = formObj.getValue("USER_ID");
+                    if (user_id == '') {
+                        Alert(Sepoa.cache.text.get('MESSAGE.5405')); // 아이디를 입력하세요.
+                    } else {
+                        checkID(id);
+                    }
+                } else if (id == 'VENDOR_SEARCH') {
+                    if (formObj.getValue("USER_TYPE") != "S") {
+                        Message(Sepoa.cache.text.get("MESSAGE.USER_TYPE_CHECK"));
+                    } else {
+                        PopupCommonPost('SP0018', setSeller, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+                    }
+                } else if (id == 'COST_IMG') {
+                    PopupCommonPost('SP0001', setCostCenter, [Sepoa.info.HOUSE_CODE, Sepoa.info.LANGUAGE, 'UX038']);
+                } else if (id == 'DEPT_IMG') {
+                    var companyCode = formObj.getValue("COMPANY_CODE");
+                    if (companyCode == '') {
+                        Alert(Sepoa.cache.text.get("AD_102_T.MESSAGE_0001"));
+                        return;
+                    }
+                    //PopupOpenPost('/Admin/OrganizationManagement/AdminOrganizationManagementDepartmentTree.sux', {
+                    //COMPANY_CODE: companyCode
+                    //}, setDept, 600, '', '부서목록');
+                    PopupCommonPost('SP0015', setDept, [Sepoa.info.HOUSE_CODE, companyCode]);
+                } else if (id == "ADDR_SEARCH") {
+                    var pop = window.open(window.CONTEXT_NAME+"/resource/plugin/jusoPopup/jusoPopup.jsp", "jusoCallBack", "width=570,height=420, scrollbars=yes, resizable=yes");
+                }
+            ]]>
+            </function>
+        </event>
+    </onloadscript>
+    <userscript>
+    	<function name="checkID" args="id">
+    	<![CDATA[
+    		let result_flag;
+
+    		doServiceAjax('sepoa.svc.admin.AD_019_2', 'CONNECTION', 'doCheckId', {
+                USER_ID: formObj.getValue("USER_ID"),
+                HOUSE_CODE : Sepoa.info.HOUSE_CODE, 
+                COMPANY_CODE : Sepoa.info.COMPANY_CODE
+            }, function(so) {
+            	if (so.status == 1) {
+            		var result = new SepoaFormater(so.result[0]).getArrayMap()[0];
+            		if(result.CNT > 0){
+                  		dataOutput.setValue('CHECK_ID', 'N'); //안됨
+                  		result_flag = false; 
+                 	}else{
+                 		dataOutput.setValue('CHECK_ID', 'Y'); //됨
+                 		result_flag = true;
+                 	}
+                return;
+             	}
+            },false);
+            
+            if(id=='CHECK_ID'){
+            	if(dataOutput.getValue('CHECK_ID') == 'N'){
+            		Alert( "해당 ["+formObj.getValue("USER_ID")+"] 는 사용할수 없는 ID 입니다.");
+            	}else{
+            		Alert("해당 ["+formObj.getValue("USER_ID")+"] 는 사용하실 수 있는 ID 입니다.");
+            	}
+            }
+            
+            return result_flag;
+    	]]>
+    	</function>
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if (id == 'save') {
+                doFormSave();
+            } else if (id == 'FORCE_LOGON') {
+                changeUserLogon();
+            } else if (id == 'add') {
+                doAdd();
+            } else if (id == 'VENDOR_SEARCH') {
+                if (formObj.getValue("USER_TYPE") == "S") {
+                    Alert(Sepoa.cache.text.get("MESSAGE.USER_TYPE_CHECK"));
+                } else {
+                    PopupCommonPost('SP0018', setSeller, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+                }
+            
+            } else if (id == 'delete') {
+                doDelete();
+            } else if(id == 'RESET_PW') {
+                doResetPassword();
+            }
+        ]]>
+        </function>
+        <function name="doResetPassword">
+        <![CDATA[
+        	var userId = formObj.getValue("USER_ID");
+        	var userName= formObj.getValue("USER_NAME_LOC");
+        	if (!userId) {
+        		Alert(Sepoa.cache.text.get('AD_019_2.SELECT_USER'));
+                return;
+            }
+            PopupOpenPost('/UxDefault/Common/PasswordReset.sux', {
+            	USER_ID: userId, USER_NAME : userName
+            }, null, 400, 400, Sepoa.cache.text.get('AD_019_2.RESET_PASSWORD'));
+        ]]>
+        </function>
+        <function name="Changefn" args="name,value">
+        <![CDATA[
+            if (name == 'COMPANY_CODE') {
+                if (formObj.getValue('COMPANY_CODE') != "") {
+                    //formObj.reloadComboBox('PLANT_CODE', ['SL0014', Sepoa.info.HOUSE_CODE + "#" + formObj.getValue('COMPANY_CODE')]);
+                    formObj.reloadComboBox('DEPT', ['SL0015', Sepoa.info.HOUSE_CODE + "#" + formObj.getValue('COMPANY_CODE')]);
+                }
+            }
+            if (name == 'USER_TYPE') {
+                if(value != ''){
+                    if (value == "S") {
+                        formObj.hideItem("COMPANY_CODE");
+                        //formObj.hideItem("PLANT_CODE");
+                        formObj.hideItem("DEPT");
+                    } else {
+                        formObj.showItem("COMPANY_CODE");
+                        //formObj.showItem("PLANT_CODE");
+                        formObj.showItem("DEPT");
+                    }
+                }
+            }
+        ]]>
+        </function>
+        <function name="changeUserLogon" args="">
+        <![CDATA[
+            var user_id = formObj.getValue("USER_ID");
+            if (!user_id) {
+                return;
+            }
+            var params = {
+                ID: user_id,
+            }
+            doServiceAjax('sepoa.svc.admin.AD_019_2', 'CONNECTION', 'changeUserLogon', params, function(so) {
+                if (so.status == 0) {
+                    Alert(so.message);
+                } else if (so.status == 1) {
+                    SUX.root.location.href = window.CONTEXT_NAME + "/Main.sux";
+                }
+            });
+        ]]>
+        </function>
+        <function name="checkPass" args="str">
+        <![CDATA[
+            var reg = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,20}$/;
+            return reg.test(str);
+        ]]>
+        </function>
+        <function name="companyinfo" args="">
+        <![CDATA[
+            var data = [];
+            data.push(formObj.getValue('COMPANY_CODE'));
+            data.push(formObj.getSelectedOption('COMPANY_CODE'));
+            data.push('ctrl');
+            data.join(',');
+            return data;
+        ]]>
+        </function>
+        <function name="doAdd" args="">
+        <![CDATA[
+            formObj.clear(true);
+            formObj.setReadOnly("USER_ID", false);
+            formObj.setReadOnly("CHECK_ID", false);
+            dataOutput.setValue('load_Id', "false");
+            if (Sepoa.info.USER_TYPE == 'S') {
+                formObj.setValue("USER_TYPE", "S");
+                formObj.setValue("WORK_TYPE", "G");
+                formObj.setValue("SELLER_CODE", Sepoa.info.COMPANY_CODE);
+                //formObj.setValue("SELLER_NAME_LOC", Sepoa.info.NAME_LOC);
+                formObj.setValue("MENU_PROFILE_CODE", Sepoa.config.get("sepoa.supplier.default.profile_code"));
+            }
+            //formObj.setValue("TIME_ZONE", "GMT9");
+            //formObj.setValue("DATE_FORMAT", "%Y/%m/%d");
+            formObj.setValue("COUNTRY", "KR");
+            formObj.setValue("LANGUAGE", "KO");
+            
+            
+            layoutBtnObj.btn('save').setShow();
+            layoutBtnObj.btn('delete').setHide();
+        ]]>
+        </function>
+        <function name="doDelete" args="">
+        <![CDATA[
+            Confirm(Sepoa.cache.text.get('MESSAGE.1015'), function(result) { // 삭제 하시겠습니까?
+                if (result) {
+                    var formResult = doServiceAjax('sepoa.svc.admin.AD_019_2', 'TRANSACTION', 'doDelete', null, function(formResult) {
+                        if (formResult.status == 1) {
+                            Alert(Sepoa.cache.text.get('MESSAGE.5107'));
+                            callFunction(['AD_019_A'], 'doQuery_UserList', ['']);
+                            callFunction(['AD_019_B'], 'doQuery_standbyUserList', ['']);
+                            doAdd();
+                            return;
+                        } else if (formResult.status == 2){
+                        	Alert('시스템 관리자는 삭제할 수 없습니다.');
+                        } else {
+                            Alert(formResult.message);
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doFormLoad" args="user_id">
+        <![CDATA[
+        	dataOutput.setValue('CHECK_ID', 'Y');
+        	dataOutput.setValue('load_Id', "true");
+            var formResult = doServiceAjax('sepoa.svc.admin.AD_019_2', 'CONNECTION', 'doFormLoad', {
+                USER_ID: user_id
+            }, function(formResult) {
+                if (formResult.status != 1) {
+                    Alert(formResult.message);
+                    return;
+                }
+            
+                var sf = new SepoaFormater(formResult.result[0]);
+                if (sf.getRowCount() > 0) {
+                    formObj.dataMapper(sf);
+                }
+                layoutBtnObj.btn('save').setShow();
+                layoutBtnObj.btn('delete').setShow();
+                formObj.setReadOnly("USER_ID", true);
+                formObj.setReadOnly("CHECK_ID", true);
+                formObj.setReadOnly("SELLER_CODE", true);
+                formObj.setReadOnly("SELLER_NAME_LOC", true);
+            });
+        ]]>
+        </function>
+        <function name="doFormSave" args="">
+        <![CDATA[
+        	if (!formObj.validate()) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));
+                return;
+        	}
+
+        	let loadData = dataOutput.getValue('load_Id'); //true 기존데이터 
+
+        	if(loadData == "false"){
+	        	if(!checkID()){
+	        		Alert("아이디 변경 후 ID중복체크 해주시기 바랍니다.");
+	        		return;
+	        	}
+        	}
+
+            if (formObj.getValue('PASSWORD_1').length > 0) {
+                if (LRTrim(formObj.getValue('PASSWORD_1')) != LRTrim(formObj.getValue('PASSWORD_2'))) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1039')); //비밀번호가 일치하지 않습니다.
+                    return;
+                } else if (checkPass(formObj.getValue('PASSWORD_1')) == false) {
+                    Alert(Sepoa.cache.text.get('AD_051.MESSAGE_0002')); // 비밀번호는 영문+숫자로 8자 이상 20자 이하로 조합 해주세요
+                    return;
+                }
+            }
+            if(formObj.getValue('MENU_PROFILE_CODE') == Sepoa.config.get('sepoa.seal.manager.porfile.code').toUpperCase() || 
+            	formObj.getValue('MENU_PROFILE_CODE') == Sepoa.config.get('sepoa.legal.porfile.code').toUpperCase()){
+            	if(formObj.getValue('USER_TYPE') == ''){
+            		Alert("공지 대상을 지정해주세요."); 
+                    return;
+            	}
+            }
+            
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(result) {
+                if (result) {
+                    var formResult = doServiceAjax('sepoa.svc.admin.AD_019_2', 'TRANSACTION', 'doFormSave', null, function(formResult) {
+                        if (formResult.status == 1) {
+                            Alert(Sepoa.cache.text.get('MESSAGE.1022'));
+                            doFormLoad(formObj.getValue('USER_ID'));
+                            callFunction(['AD_019_A'], 'doQuery_UserList', ['']);
+                            callFunction(['AD_019_B'], 'doQuery_standbyUserList', ['']);
+                            return;
+                        } else {
+                            Alert(formResult.message);
+                        }
+                    });
+                }
+            });
+        ]]>
+        </function>
+        <function name="doLoadEnd" args="">
+        <![CDATA[
+            if (formObj.getValue('COMPANY_CODE') != "") {
+                formObj.reloadComboBox('PLANT_CODE', ['SL0014', Sepoa.info.HOUSE_CODE + "#" + formObj.getValue('COMPANY_CODE')]);
+                formObj.reloadComboBox('DEPT', ['SL0015', '{HOUSE_CODE}#' + formObj.getValue('COMPANY_CODE')]);
+            }
+            
+            if (formObj.getValue('USER_TYPE') == "S") {
+                formObj.hideItem("COMPANY_CODE");
+                formObj.hideItem("PLANT_CODE");
+                formObj.hideItem("DEPT");
+                formObj.hideItem("DEPT_IMG");
+                formObj.hideItem("EMPLOYEE_NO");
+                formObj.hideItem("COSTCENTER_CODE");
+            } else {
+                formObj.showItem("COMPANY_CODE");
+                formObj.showItem("PLANT_CODE");
+                formObj.showItem("DEPT");
+                formObj.showItem("DEPT_IMG");
+                formObj.showItem("EMPLOYEE_NO");
+                formObj.showItem("COSTCENTER_CODE");
+            }
+        ]]>
+        </function>
+        <function name="jusoCallBack" args="roadFullAddr,roadAddrPart1,addrDetail,roadAddrPart2,engAddr, jibunAddr, zipNo, admCd, rnMgtSn, bdMgtSn,detBdNmList,bdNm,bdKdcd,siNm,sggNm,emdNm,liNm,rn,udrtYn,buldMnnm,buldSlno,mtYn,lnbrMnnm,lnbrSlno,emdNo">
+        <![CDATA[
+            formObj.setValue("ZIP_CODE", zipNo);
+            formObj.setValue("ADDRESS_LOC", roadAddrPart1 + " " + addrDetail);
+        ]]>
+        </function>
+        <function name="onChange" args="name,value">
+        <![CDATA[
+            if (name == 'USER_TYPE' && value == 'B') {
+                formObj.hideItem("SELLER_NAME_LOC");
+                formObj.hideItem("VENDOR_SEARCH");
+                formObj.hideItem("SELLER_CODE");
+            } else {
+                formObj.showItem("SELLER_NAME_LOC");
+                formObj.showItem("VENDOR_SEARCH");
+                formObj.showItem("SELLER_CODE");
+            }
+        ]]>
+        </function>
+        <function name="setCostCenter" args="code, name">
+        <![CDATA[
+            formObj.setValue('COST_CODE', code);
+        ]]>
+        </function>
+        <function name="setDept" args="dept_code, dept_name">
+        <![CDATA[
+            formObj.setValue('DEPT_NAME', dept_name);
+            formObj.setValue('DEPT', dept_code);
+        ]]>
+        </function>
+        <function name="setSeller" args="code, name">
+        <![CDATA[
+            formObj.setValue('SELLER_CODE', code);
+            formObj.setValue('SELLER_NAME_LOC', name);
+        ]]>
+        </function>
+        <function name="tempPWreset" args="">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.AD_019_2', 'TRANSACTION', 'tempPWreset', null, function(so) {
+                if (so.status == 1) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1022'));
+                } else {
+                    Alert(so.message);
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsicVBoeUFVY0VYVFNRemdRdU9oIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JPTExfViI6IiIsIlNDUkVFTl9TQ1JPTEwiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDT05URU5UX01JTl9XSURUSCI6IiIsImRoeElkX21jY25DWk9JWTJWMSI6Im51bGwiLCJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiZGh4SWRfRDg0bkdMV3JiUEh3IjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiQURfMDE5XzIiLCJPQkpFQ1RfSUQiOiJxUGh5QVVjRVhUU1F6Z1F1T2giLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJxUGh5QVVjRVhU
+        U1F6Z1F1T2giLCJ0eXBlIjoiYm9keSJ9LCJ5UGh5QVVjYkRlYlF6Z1FvR3YiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJsYXlvdXRCdG5PYmoiLCJPQkpFQ1RfSUQiOiJ5UGh5QVVjYkRlYlF6Z1FvR3YiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fMF9JRCI6ImFkZCIsIklURU1fMF9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fMF9TTENP
+        REUiOiJCVVRUT04uYWRkIiwiSVRFTV8wX1BBUkFNIjoiJiMzOTthZGQmIzM5OyIsIklURU1fMF9URVhUIjoiw9+woSIsIklURU1fMV9JRCI6InNhdmUiLCJJVEVNXzFfVFlQRSI6InNhdmUiLCJJVEVNXzFfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzFfU0xDT0RFIjoiQlVUVE9OLnNhdmUiLCJJVEVNXzFfUEFSQU0iOiImIzM5O3NhdmUmIzM5OyIsIklURU1fMV9URVhUIjoiwPrA5SIsIklURU1fMl9JRCI6ImNvcHkiLCJJVEVNXzJfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzJfUEFSQU0iOiImIzM5O2NvcHkmIzM5OyIsIklURU1fMl9URVhUIjoiurm75yIsIklURU1fM19JRCI6InVwZGF0ZSIsIklURU1fM19PTkNMSUNLIjoib25CdXR0
+        b25DbGljayIsIklURU1fM19TTENPREUiOiJCVVRUT04udXBkYXRlIiwiSVRFTV8zX1BBUkFNIjoiJiMzOTt1cGRhdGUmIzM5OyIsIklURU1fM19URVhUIjoivPbBpCIsIklURU1fNF9JRCI6ImNvbmZpcm0iLCJJVEVNXzRfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzRfUEFSQU0iOiImIzM5O2NvbmZpcm0mIzM5OyIsIklURU1fNF9URVhUIjoivcLAziIsIklURU1fNV9JRCI6ImRlbGV0ZSIsIklURU1fNV9UWVBFIjoiZGVsZXRlIiwiSVRFTV81X09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV81X1NMQ09ERSI6IkJVVFRPTi5kZWxldGUiLCJJVEVNXzVfUEFSQU0iOiImIzM5O2RlbGV0ZSYjMzk7IiwiSVRFTV81X1RFWFQiOiK76MGmIiwiSVRF
+        TV82X0lEIjoiY2FuY2VsIiwiSVRFTV82X09OQ0xJQ0siOiJvbkJ1dHRvbkNsaWNrIiwiSVRFTV82X1NMQ09ERSI6IkJVVFRPTi5jYW5jZWwiLCJJVEVNXzZfUEFSQU0iOiImIzM5O2NhbmNlbCYjMzk7IiwiSVRFTV82X1RFWFQiOiLD67zSIiwiSVRFTV83X0lEIjoiRk9SQ0VfTE9HT04iLCJJVEVNXzdfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzdfU0xDT0RFIjoiQURfMDE5XzIuRk9SQ0VfTE9HT04iLCJJVEVNXzdfUEFSQU0iOiImIzM5O0ZPUkNFX0xPR09OJiMzOTsiLCJJVEVNXzdfVEVYVCI6IrCtwaa3zrHXwM4iLCJJVEVNXzhfSUQiOiJSRVNFVF9QVyIsIklURU1fOF9UWVBFIjoicHJpbWFyeSIsIklURU1fOF9TTENPREUiOiJGSU5EUFcuQlVU
+        VE9OX1BXX0ZJTkQiLCJJVEVNXzhfVEVYVCI6IrrxudC5+Mijw8qx4sitIiwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIiwiSVRFTV8yX1NPUlQiOiIzIiwiSVRFTV8zX1NPUlQiOiI0IiwiSVRFTV80X1NPUlQiOiI1IiwiSVRFTV81X1NPUlQiOiI2IiwiSVRFTV82X1NPUlQiOiI3IiwiSVRFTV83X1NPUlQiOiI4IiwiSVRFTV84X1NPUlQiOiI5In0sImlkIjoieVBoeUFVY2JEZWJRemdRb0d2IiwidHlwZSI6ImJ1dHRvbiIsImJ1dHRvbiI6ImJ1dHRvbiJ9LCJvWmh5QVVjaEZWS0JVY0VOWHEiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpF
+        X1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX1U2bWU3WXFJbUFrRSI6Im51bGwiLCJkaHhJZF9IU1NpeEFpQ0xNeEEiOiJudWxsIiwiZGh4SWRfQWdpdFBIVVMxUlNuIjoibnVsbCIsImRoeElkX1VBM1dPc3hDUlBDSCI6Im51bGwiLCJkaHhJZF9VTG5rOFo5N0x1RzMiOiJudWxsIiwiZGh4SWRfbmZub1dtSE51aVlkIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6Im9aaHlBVWNoRlZLQlVjRU5YcSIsIkZPUk1fSUQiOiJBRF8wMTlfMiJ9LCJpZCI6Im9aaHlBVWNoRlZLQlVjRU5YcSIsInR5cGUiOiJmb3JtIiwiZXZlbnRzIjpbeyJDQUxMQkFDSyI6ImRvTG9hZEVu
+        ZCIsInR5cGUiOiJldmVudCIsIkNBTExCQUNLX1RZUEUiOiJuYW1lIiwiTkFNRSI6Im9uWExFIn0seyJDQUxMQkFDSyI6IkNoYW5nZWZuIiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0tfVFlQRSI6Im5hbWUiLCJOQU1FIjoib25DaGFuZ2UifV19LCJrb1hscGRjUEtIbXBkY3lBU28iOnsibGF5b3V0Ijp7IkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsIkFMSUdOX1ZFUlRJQ0FMIjoidG9wIiwiZGh4SWRfZWdIYTlLc01QcU1xIjoibnVsbCIsImRoeElkX0t6MFpSVE92S2dORSI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImtvWGxwZGNQS0htcGRjeUFTbyIsIk9CSkVDVF9JRCI6ImtvWGxwZGNQS0htcGRjeUFTbyJ9
+        LCJpZCI6ImtvWGxwZGNQS0htcGRjeUFTbyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJrb1hscGRjT0tIbXBkY0lreG8iOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX0ZPaE04Z0tCWkJoTyI6Im51bGwiLCJkaHhJZF9lOVd4YkdrWDM3b3UiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsIkFMSUdOX1ZFUlRJQ0FMIjoibWlkZGxlIiwiZGh4SWRfV01BczcwaUpwQWxiIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6ImtvWGxwZGNPS0htcGRjSWt4byIsIk9CSkVDVF9JRCI6ImtvWGxwZGNPS0htcGRjSWt4byIsIkFSRUFfRElWSVNJT04iOiJu
+        dWxsIn0sImlkIjoia29YbHBkY09LSG1wZGNJa3hvIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6InFQaHlBVWNFWFRTUXpnUXVPaCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoieVBoeUFVY2JEZWJRemdRb0d2IiwidHlwZSI6ImJ1dHRvbiJ9LHsiaWQiOiJrb1hscGRjT0tIbXBkY0lreG8iLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoia29YbHBkY1BLSG1wZGN5QVNvIiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6Im9aaHlBVWNoRlZLQlVjRU5YcSIsInR5cGUiOiJmb3JtIn1dfV19XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9Vc2VyTWFuYWdlbWVudC9BZG1pblVzZXJNYW5hZ2VtZW50V3JpdGUueG1s
+        IiwiUFJPSkVDVCI6IlNSTSIsIkNPREUiOiIwMTlfMiIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiVXNlck1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pblVzZXJNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJXcml0ZSIsIlNDUkVFTl9JRCI6IkFEXzAxOV8yIn19LCJodG1sIjoiPGRpdiBpZD1cInFQaHlBVWNFWFRTUXpnUXVPaFwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dy
+        YXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInlQaHlBVWNiRGViUXpnUW9HdlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJc
+        Ii8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJrb1hscGRjT0tIbXBkY0lreG9cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyIGxvd2VyRGl2IHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2VudGVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV92YWxpZ25fbWlkZGxlXCIgc3R5
+        bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwia29YbHBkY1BLSG1wZGN5QVNvXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2Vu
+        dGVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV92YWxpZ25fdG9wXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm9aaHlBVWNoRlZLQlVjRU5YcVwiIGNsYXNzPVwic2Vwb2F1
+        eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

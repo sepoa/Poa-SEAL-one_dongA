@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_020" header="false">
+    <link>
+    <![CDATA[
+        <script type="text/javascript" src="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/contract/sepoa.contract.utils.js"></script>
+        <link href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/contract/sepoa.contract.file.css" rel="stylesheet" type="text/css" />
+    ]]>
+    </link>
+    <variable>
+        <var name="contMethodTypeWrapper" value="$($sObject._vp).find('#sCKSzxcEfLSzxcZpvr')[0]"/>
+        <var name="contMethodTypeContainer" value="$($sObject._vp).find('#sCKSzxcDfLSzxcWGGY')[0]"/>
+        <var name="uploadFileListWrapper" value="$($sObject._vp).find('#oiiCzxcJQHGzxcoYxe')[0]"/>
+        <var name="uploadFileListContainer" value="$($sObject._vp).find('#oiiCzxcJQHGzxcoWMi')[0]"/>
+        <var name="contractFileDropWrapper" value="$($sObject._vp).find('#oiiCzxcbSEGzxcdBIC')[0]"/>
+        <var name="contractFileDropContaier" value="$($sObject._vp).find('#oiiCzxcbSEGzxcdHOM')[0]"/>
+        <var name="etcFileDropWrapper" value="$($sObject._vp).find('#oiiCzxcGOvFzxcYJmx')[0]"/>
+        <var name="etcFileDropContainer" value="$($sObject._vp).find('#oiiCzxcFOvFzxcFGLj')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="onReady"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share">
+        <![CDATA[
+            {
+                container:{},
+                contextMenu:new SepoaContextMenuManager(),
+                template:{
+                    itemWrapper:'<div class="file-item-container file-item-code-$.{FILE_ID}"></div>',
+                    //itemContents:'<div class="file-item-status file-item-status-$.{UPLOAD_STATUS} file-item-file-type-$.{FILE_TYPE}"><div class="file-item-btn xi-sepoa-dummy file-item-btn-delete xi-close-circle"></div><div class="file-item-contents"><div class="file-item-info"><div class="file-item-icon file-item-icon-$.{FILE_TYPE}"></div><div class="file-item-file-info"><div class="file-item-info-filename">$.{FILE_NAME_CLIENT}</div><div class="file-item-info-pagecount">$.{MESSAGE}</div></div></div><div class="file-item-progress-wrapper"><div class="file-item-progress"></div></div><div class="file-item-btn xi-sepoa-dummy file-item-btn-menu xi-ellipsis-v"></div></div></div>'
+                    itemContents:'<div class="file-item-status file-item-status-$.{UPLOAD_STATUS} file-item-file-type-$.{FILE_TYPE}"><div class="file-item-btn xi-sepoa-dummy file-item-btn-delete xi-close-circle"></div><div class="file-item-contents"><div class="file-item-info"><div class="file-item-icon file-item-icon-$.{FILE_TYPE}"></div><div class="file-item-file-info"><div class="file-item-info-filename">$.{FILE_NAME_CLIENT}</div><div class="file-item-info-pagecount">$.{MESSAGE}</div></div></div><div class="file-item-progress-wrapper"><div class="file-item-progress"></div></div></div></div>'
+                }
+            }
+        ]]>
+        </var> 
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name:'UPLOAD',
+                id: $sObject.aliasCode, 
+                fn:{
+                    doOpenDocument:doOpenDocument,
+                    doUpdateShare:doUpdateShare
+                }
+            }]);
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+            clearList();
+            $share.config = config;
+            $share.service = ({C:'contract',T:'contract.template'})[$share.config.module.WORK_TYPE];
+            
+            drawFileUploadContainer();
+            
+            var uploadTypeModules = sUtils.workflow.getChildren('CT1625541278864');
+            for(var i in uploadTypeModules){
+                var moduleCode = uploadTypeModules[i];
+                $share.uploadFileTypes[sUtils.workflow.getAlias(moduleCode)] = sUtils.workflow.getOptions(moduleCode, true);
+            }
+            
+            // Before Module settings
+            $share.uploadFileTypes={
+                C:['pdf','ppt','pptx','doc','docx','xls','xlsx','hwp','hwpx','jpg','png','jpeg','gif'],//Contract
+                E:['pdf','ppt','pptx','doc','docx','xls','xlsx','hwp','hwpx','jpg','png','jpeg','gif'],//Quotation
+                A:['*'],//Attachments
+                B:['pdf','jpg','png','jpeg','gif'] //Business Registration 
+            }
+            
+            if(!$share.config.document.CONT_NO) {
+                $share.config.document.CONT_NO = getDocumentNumber("CT");
+                $share.config.document.CONT_GL_SEQ = '1';
+            }else{
+                doQuery();
+            }
+        ]]>
+        </function>
+         
+        <function name="doUpdateShare" args="nextStepCode">
+        <![CDATA[
+            if(!$share.config.document.DOC_INFO_DATA){
+                $share.config.document.DOC_INFO_DATA = {};
+            }
+            //$share.config.document.DOC_INFO_DATA.CONT_METHOD = $('#cont_method_box option:selected').val();
+            
+            return true;
+        ]]>
+        </function>
+        
+        <function name="onBeforeFileUpload">
+        <![CDATA[
+            if($share.config.document.DOC_INFO_DATA && $share.config.document.DOC_INFO_DATA.STATUS != "T"){
+                callFunction("p", "doSave", ["UPLOAD"]);
+            }
+        ]]>
+        </function>
+        
+        <function name="drawFileUploadContainer">
+        <![CDATA[
+            // cont method select
+            contMethodTypeWrapper.classList.add('cont-method-type-wrapper');
+            
+            //var selectWrapper = contMethodTypeWrapper.appendChild($('<div id="custom_select_wrapper" class="selectContain custom-select-wrapper"><select id="cont_method_box" class="cont_method_box"></select></div>')[0]);
+            //var methodBox = selectWrapper.children[0];
+            //var methodType = $share.config.module.AVAILABLE_CONT_METHOD || [];
+            //for(var i in methodType){
+            //    methodBox.appendChild($(sUtils.string.dataReplacer('<option id="cont_option_$.{TYPE}" class="cont_option_$.{TYPE}" value="$.{TYPE}">$LANG{CT_020.CONT_METHOD_$.{TYPE}}</option>', {TYPE:methodType[i]}))[0]);
+            //}
+            //$(methodBox).val("D");
+            //$(methodBox).trigger("change");
+            //sUtils.contract.element.customSelect(contMethodTypeWrapper);
+        
+            // file list
+            $share.container.contractList = uploadFileListWrapper.appendChild($('<div class="file-list file-list-contract" sortable="true"></div>')[0]);
+            /*
+            $($share.container.contractList).sortable({
+                axis: "y",
+                containment: "parent"
+            });
+            */
+            $share.container.exceptList = uploadFileListWrapper.appendChild($('<div class="file-list file-list-except" sortable="false"></div>')[0]);
+            
+            // file upload container
+            contractFileDropContaier.classList.add('drop-container');
+            etcFileDropContainer.classList.add('drop-container');
+            contractFileDropWrapper.classList.add('drop-wrapper');
+            etcFileDropWrapper.classList.add('drop-wrapper');
+            
+            var containerHTML = '<div id="$.{TYPE}_drop_zone_container" class="$.{TYPE}-drop-zone-container drop-zone-container""><div id="$.{TYPE}_drop_zone_outer" class="$.{TYPE}-drop-zone-outer drop-zone-outer"><div id="$.{TYPE}_drop_zone_inner" class="$.{TYPE}-drop-zone-inner drop-zone-inner"><div id="$.{TYPE}_drop_zone_image" class="$.{TYPE}-drop-zone-image drop-zone-image"></div><div id="$.{TYPE}_drop_zone_text" class="$.{TYPE}-drop-zone-text drop-zone-text">$LANG{POA_CONTRACT.LABEL_FILE_TYPE_$.{TYPE}}</div></div></div></div>';
+            ['C', 'E', 'B', 'A'].forEach(function(type){
+                if($share.config.module.AVAILABLE_FILE_TYPE.indexOf(type) >= 0){
+                    var cont = contractFileDropWrapper.appendChild($(sUtils.string.dataReplacer(containerHTML, {TYPE:type}))[0]);
+                    cont._data = {type:type}
+                    $(cont).on({
+                        click:function(e){
+                            doFileUpload(this._data);
+                        },
+                        drop:function(e){
+                            e.preventDefault();
+                            
+                            this.classList.remove('drop-zone-hover');
+                            var files = (e.dataTransfer || e.originalEvent.dataTransfer).files;
+                            if(files){
+                                doFileUpload(this._data, files);
+                            }
+                        },
+                        dragenter:function(e){
+                            this.classList.add('drop-zone-hover');
+                            e.stopPropagation();
+                            e.preventDefault();
+                        },
+                        dragover:function(e){
+                            this.classList.add('drop-zone-hover');
+                            e.stopPropagation();
+                            e.preventDefault();
+                        },
+                        dragleave:function(e){
+                            this.classList.remove('drop-zone-hover');
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }
+                    }) 
+                }
+            });
+            
+            const noneFileButton = sUtils.element.create(sUtils.string.dataReplacer(containerHTML, {TYPE : 'NONE_FILE'}));
+            noneFileButton.classList.add('none-file-drop');
+            noneFileButton.onclick = function(event) {
+                callFunction("p", "doDocumentCreate", []);
+                callFunction('p', 'onBeforeActive', ['MODULE', {id : 'UPLOAD'}]);
+            }
+            //contractFileDropWrapper.appendChild(noneFileButton);
+            
+            //file list btn event
+            uploadFileListWrapper.addEventListener('click', function(e){
+                var src = e.srcElement;
+                if(src.classList.contains('file-item-btn')){
+                    var data = $(src).parents('.file-item-container')[0]._data;
+                    if(src.classList.contains('file-item-btn-delete')){
+                        doDeleteFile(data);
+                    }
+                    /*
+                    if(src.classList.contains('file-item-btn-menu')){
+                        var contextItems = {
+                            "rename" : {
+                                "name": Sepoa.cache.text.get('CT_020.CONTEXT_MENU_RENAME'),
+                                "callback" : onContextItemClick
+                            }
+                        };
+                        
+                        if(['C','E'].indexOf(data.FILE_TYPE) <= 0){
+                            contextItems.download = {
+                                "name": Sepoa.cache.text.get('CT_020.CONTEXT_MENU_DOWNLOAD'),
+                                "callback" : onContextItemClick
+                            }
+                            contextItems.preview = {
+                                "name": Sepoa.cache.text.get('CT_020.CONTEXT_MENU_VIEW'),
+                                "callback" : onContextItemClick
+                            }
+                        }
+                        $share.contextMenu.showContextMenu(src, {
+                            items: contextItems
+                        });
+                    }else if(src.classList.contains('file-item-btn-delete')){
+                        doDeleteFile(data);
+                    }
+                    */
+                }
+            })
+        ]]>
+        </function>
+        
+        <function name="drawFileRow" args="data">
+        <![CDATA[
+            var fileItem = $share.container[(data.FILE_TYPE=='C')?'contractList':'exceptList'].appendChild($(sUtils.string.dataReplacer($share.template.itemWrapper, data))[0]);
+            fileItem.appendChild($(sUtils.string.dataReplacer($share.template.itemContents, data))[0]);
+            fileItem._data = data;
+        ]]>
+        </function>
+     
+        <function name="updateFileStatus" args="data">
+        <![CDATA[
+            var clazzName = 'file-item-code-'+(data.TEMP_FILE_ID || data.FILE_ID);
+            var fileItem = $(uploadFileListWrapper).find('.'+clazzName)[0];
+            
+            fileItem._data = $.extend(fileItem._data, data);
+            fileItem.innerHTML = "";
+            fileItem.appendChild($(sUtils.string.dataReplacer($share.template.itemContents, fileItem._data))[0]);
+            fileItem.classList.remove(clazzName);
+            fileItem.classList.add('file-item-code-'+fileItem._data.FILE_ID);
+        ]]>
+        </function>
+        
+        <function name="clearList" args="">
+        <![CDATA[
+            if($share.container.contractList){
+                $share.container.contractList.innerHTML = "";
+            }
+            if($share.container.exceptList){
+                $share.container.exceptList.innerHTML = "";
+            }
+        ]]>
+        </function>
+        
+        <function name="doQuery">
+        <![CDATA[
+            var config={
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.status == "1" && res.result){
+                            clearList();
+                            for(var i in res.result){
+                                var data = res.result[i];
+                                for(var i in data){
+                                    data[i].MESSAGE = (data[i].PAGE_COUNT || data[i].CONVERT_COUNT || "1") + "Pages";
+                                    drawFileRow(data[i]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            var params = {
+                module:$share.service,
+                action: "doFileList",
+                CONNECTION: "TRANSACTION",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ
+            }
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="doFileUpload" args="data, files">
+        <![CDATA[
+            var config = {
+                multiple:true,
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                ext:$share.uploadFileTypes[data.type],
+                on:{
+                    callback:function(res, config, params){
+                        var result = $.extend(true, {}, params);
+                        if(res.status == "1"){
+                            $.extend(result, res.result[0]);
+                            result.UPLOAD_STATUS = "";
+                            result.MESSAGE = (result.PAGE_COUNT || result.CONVERT_COUNT) + " Pages";
+                        }else{
+                            result.UPLOAD_STATUS = "ERROR";
+                            result.MESSAGE = sUtils.cache.text.get('CT_020.UPLOAD_FAIL_ETC');
+                        }
+                        updateFileStatus(result);
+                    },
+                    beforeSend:function(config, params, files, idx){
+                        params.FILE_ID = "TEMP_"+sUtils.date.getTimeString();
+                        params.UPLOAD_STATUS = "WAITING"
+                        drawFileRow($.extend(true, params, {FILE_NAME_CLIENT:files.name}), true);
+                    }
+                },
+                foreach:true
+            }
+            if(data.type != "C"){
+                config.multiple = false;
+                
+                //check already file
+                if($('.file-item-file-type-'+data.type).length > 0){
+                    Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0011'));
+                    return;
+                }
+                
+            }
+            
+            var params = {
+                module:$share.service,
+                action: "doFileUpload",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.document.CONT_TYPE,
+                FILE_TYPE:data.type
+            }
+            if(files){
+                params.files = files
+            }
+            
+            if(callFunction("p", "doDocumentCreate", [])){
+                sUtils.multipart.upload(config, params);
+            }else{
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0012'));
+            }
+        ]]>
+        </function>
+        
+        <function name="doFileRename" args="data">
+        <![CDATA[
+            sUtils.popup.modal({
+                url:window.CONTEXT_NAME+'/Contract/Common/ContractCommonInputwindow.sux',
+                width:350,
+                height:150,
+                title:sUtils.cache.text.get('POA_CONTRACT.TITLE_RENAME'),
+                params:{
+                    callback:function(newFileName){
+                        var config = {
+                            url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                            on:{
+                                callback:function(res){
+                                    if(res.status == "1"){
+                                        updateFileStatus({FILE_NAME_CLIENT:newFileName, FILE_ID:data.FILE_ID})
+                                    }else{
+                                        Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0013'));
+                                    }
+                                }
+                            }
+                        }
+                        
+                        var params = {
+                            module:$share.service,
+                            action: "doFileNameUpdate",
+                            FILE_ID : data.FILE_ID,
+                            NEW_FILE_NAME:newFileName
+                        }
+                        
+                        sUtils.multipart.send(config, params);  
+                    }
+                }
+            })
+        ]]>
+        </function>
+        
+        <function name="doFileDownload" args="data">
+        <![CDATA[
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux'
+            }
+        
+            var params = {
+                module:$share.service,
+                action: "doFileDownload",
+                CONNECTION: "CONNECTION",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.document.CONT_TYPE,
+                FILE_ID : data.FILE_ID,
+                ORIGIN:"Y"
+            }
+        
+            sUtils.multipart.download(config, params);
+        ]]>
+        </function>
+        
+        <function name="doFilePreview" args="data">
+        <![CDATA[
+            if(['C', 'E'].indexOf(data.FILE_TYPE) < 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0014'));
+                return;
+            }
+        
+            PopupOpenPost('/Contract/Module/ContractModuleTabbar.sux', {
+                view : 'VIEW',
+                data : {
+                    CONT_NO: $share.config.document.CONT_NO,
+                    CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ,
+                    CONT_TYPE: $share.config.document.CONT_TYPE,
+                    FILE_ID : data.FILE_ID,
+                    WORK_TYPE : $share.config.document.WORK_TYPE,
+                    DOCUMENT_TYPE : data.FILE_TYPE,
+                    SINGLE_PREVIEW : true
+                }
+            } , null, 950, 800, sUtils.cache.text.get('POA_CONTRACT.TITLE_PREVIEW_FILE'))
+        ]]>
+        </function>
+          
+        <function name="doDeleteFile" args="data">
+        <![CDATA[
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res){
+                        if(res.status == "1"){
+                            var fileItem = $(uploadFileListWrapper).find('.file-item-code-'+data.FILE_ID);
+                            fileItem.slideUp(function(){
+                                fileItem.remove();
+                            })
+                        }else{
+                            Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0015'));
+                        }
+                    }
+                }
+            }
+        
+            var params = {
+                module:$share.service,
+                action: "doFileDelete",
+                CONT_NO: $share.config.document.CONT_NO,
+                CONT_GL_SEQ: $share.config.document.CONT_GL_SEQ,
+                FILE_ID:data.FILE_ID
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        
+        <function name="onContextItemClick" args="id">
+        <![CDATA[
+            var data = $(this.context).parents('.file-item-container')[0]._data;
+            if(id == "rename"){
+                doFileRename(data);
+            }else if(id == "download"){
+                doFileDownload(data);
+            }else if(id == "preview"){
+                doFilePreview(data);
+            }
+        ]]>
+        </function>
+        
+        <function name="checkValidation">
+        <![CDATA[
+            if ($('#cont_method_box option:selected').val() == '0') {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0016'));
+                return false;
+            }
+            
+            if ($('.file-item-status-WAITING').length > 0){
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0017'));
+                return false;
+            }
+            
+            if ($('.file-item-status-ERROR').length > 0){
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0018'));
+                return false;
+            }
+            
+            if ($share.container.contractList.children.length <= 0 ){
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0019'));
+                return false;
+            }
+            
+            return true;     
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsidnBEQ3p4Y1FBR2FtWVF2b3R5Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9jTVNUWXdxSGZsSDQiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2d0Z2NhSmhDdllFZSI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF8xRnptRlVvTW9LNnYiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkXzZzNkdsdTVtNkpFYiI6Im51bGwiLCJDTEFTUyI6
+        ImZpbGUtdXBsb2FkLXBhZ2UtYm9keSIsImRoeElkX3R1Nng4b042WjBlSSI6Im51bGwiLCJkaHhJZF9pQWhudmhQaHRKYUciOiJudWxsIiwiZGh4SWRfWnZMNU45Q2tGdGxwIjoibnVsbCIsImRoeElkX3JiMTNlYm9yYzhqayI6Im51bGwiLCJkaHhJZF9MZE1lVmM0RWs1emsiOiJudWxsIiwiZGh4SWRfUGhKd0xpSEVHR0FnIjoibnVsbCIsImRoeElkXzhhWE9tUEkzWXdMMCI6Im51bGwiLCJkaHhJZF8wdlBDSlRTTmNPbXgiOiJudWxsIiwiZGh4SWRfTVpuWlZsTUdWenVlIjoibnVsbCIsImRoeElkX2FtOHZMeGlCU1cwcyI6Im51bGwiLCJkaHhJZF9mSU1MajNZMFg5YzUiOiJudWxsIiwiZGh4SWRfdEFqRzE1d0trbEM4IjoibnVsbCIsImRoeElkX3V6bEhiYWt6
+        a0hNcyI6Im51bGwiLCJkaHhJZF9qZnBHU0hQeVZCZXgiOiJudWxsIiwiZGh4SWRfVmdxeEprTnBaT2tpIjoibnVsbCIsImRoeElkX3dCV3dJMFlnakdVMyI6Im51bGwiLCJkaHhJZF9QZ2JSenlPdk9JcGgiOiJudWxsIiwiZGh4SWRfTWNyakJ4Nkp6WlRHIjoibnVsbCIsImRoeElkXzJ5VVQwSTFOTzRKRCI6Im51bGwiLCJkaHhJZF9iUFVIYWpIYjZJMEgiOiJudWxsIiwiZGh4SWRfWEJKZTBIUnVBcnVVIjoibnVsbCIsImRoeElkX3B4SFlKSHQyVFhYbiI6Im51bGwiLCJkaHhJZF9KejNFclpTU2VxR0MiOiJudWxsIiwiZGh4SWRfMnpOT24xVUtQWWNMIjoibnVsbCIsImRoeElkX05ZQVFhTEpIRkR0SyI6Im51bGwiLCJkaHhJZF9XM3lGU2NBNzRUSVciOiJudWxs
+        IiwiZGh4SWRfYzBFV2RYT0NzRFNBIjoibnVsbCIsImRoeElkX0tqN09mVmZ0V3NycSI6Im51bGwiLCJkaHhJZF9sMVNxdUpnNjh0VE8iOiJudWxsIiwiZGh4SWRfd3BjWmozSXd0blBUIjoibnVsbCIsImRoeElkX0dwYVJNNkxmUm5adCI6Im51bGwiLCJkaHhJZF9kUXZOMmtibUhpNE0iOiJudWxsIiwiZGh4SWRfc295RnE1d0RwWmZWIjoibnVsbCIsImRoeElkX3Q4dDhQenFORG4xVyI6Im51bGwiLCJkaHhJZF81YXRQOGsxeDN0OUgiOiJudWxsIiwiZGh4SWRfNng2ZlhPRm1VeUJ6IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNUXzAyMCIsIk9CSkVDVF9JRCI6InZwREN6eGNRQUdhbVlRdm90eSIsIkFSRUFfRElWSVNJT04iOiJu
+        dWxsIn0sImlkIjoidnBEQ3p4Y1FBR2FtWVF2b3R5IiwidHlwZSI6ImJvZHkifSwib2lpQ3p4Y0dPdkZ6eGNZSm14Ijp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfTFFOOVM1aTZSRFpYIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfYlBuTkxhMkV6VjZ3IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZXRjRmlsZURyb3BXcmFwcGVyIiwiT0JKRUNUX0lEIjoib2lpQ3p4Y0dPdkZ6eGNZSm14In0sImlkIjoib2lpQ3p4Y0dPdkZ6eGNZSm14IiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIm9paUN6eGNGT3ZGenhjRkdM
+        aiI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfMGVnNDVhUlplVEFjIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9ySVNUbXVqQU05cXEiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfQVRiaW4wN0hTV0VRIjoibnVsbCIsIkNMQVNTIjoiZXRjLWZpbGUtZHJvcC1jb250YWluZXIiLCJkaHhJZF9JU3BmYzhpdlFiQVoiOiJudWxsIiwiZGh4SWRfWDkxcXZnN3FBMnlqIjoibnVs
+        bCIsImRoeElkXzV5clJyc2lNNUtzMiI6Im51bGwiLCJkaHhJZF9WMFlvYVZpNUZ5OTMiOiJudWxsIiwiZGh4SWRfWmViY2NlQW41TTBxIjoibnVsbCIsImRoeElkX2Z5M1lPUHFQWEFsSiI6Im51bGwiLCJkaHhJZF9SSFFmbHlLMlc2VVEiOiJudWxsIiwiZGh4SWRfbTBsVUFENEwzZUdOIjoibnVsbCIsImRoeElkX29HQUlSZmdpUVFCSiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJldGNGaWxlRHJvcENvbnRhaW5lciIsIk9CSkVDVF9JRCI6Im9paUN6eGNGT3ZGenhjRkdMaiIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoib2lpQ3p4Y0ZPdkZ6eGNGR0xqIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJvaWlDenhjYlNFR3p4Y2RC
+        SUMiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9NNVExNjRiUUZZQXEiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF9zUDFOZ1VncThabk4iOiJudWxsIiwiZGh4SWRfZE9PU0NycENTQnl0IjoibnVsbCIsImRoeElkX3FneUVqRXR3ckFaNSI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImNvbnRyYWN0RmlsZURyb3BXcmFwcGVyIiwiT0JKRUNUX0lEIjoib2lpQ3p4Y2JTRUd6eGNkQklDIn0sImlkIjoib2lpQ3p4Y2JTRUd6eGNkQklDIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sIm9paUN6eGNiU0VHenhjZEhPTSI6
+        eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfSjZ3V0lzcEN1MjZxIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9Za2JLamdTRDNhY1IiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfZFFDZ0FuZ2dYYUo2IjoibnVsbCIsIkNMQVNTIjoiY29udHJhY3QtZmlsZS1kcm9wLWNvbnRhaW5lciIsImRoeElkX1NFQk1uT3RoSDY4ciI6Im51bGwiLCJkaHhJZF9jcnloMEFEQ1owVWYiOiJu
+        dWxsIiwiZGh4SWRfWmUzejFscDJKaEFMIjoibnVsbCIsImRoeElkXzIzRzZDVnJSZDFHNSI6Im51bGwiLCJkaHhJZF85a1dVaWRYb2MwTW0iOiJudWxsIiwiZGh4SWRfTmUwaGlPUG1Fd3VMIjoibnVsbCIsImRoeElkXzV0MjdsYmkxb3I4ZCI6Im51bGwiLCJkaHhJZF9Cc01od3k2ZGEwWEUiOiJudWxsIiwiZGh4SWRfNGdqTWFSUkpOSFd5IjoibnVsbCIsImRoeElkX2RYa2Z6alV1TlNySCI6Im51bGwiLCJkaHhJZF9NTmZnZnJUU2hIQU8iOiJudWxsIiwiZGh4SWRfUExBNFhocmRMY0dBIjoibnVsbCIsImRoeElkXzBkMGU2cU05Q3F0USI6Im51bGwiLCJkaHhJZF9NSlVSRjM5Rlo2TUkiOiJudWxsIiwiZGh4SWRfbWVpbmJrcWRHZks4IjoibnVsbCJ9LCJjb21w
+        b25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6ImNvbnRyYWN0RmlsZURyb3BDb250YWllciIsIk9CSkVDVF9JRCI6Im9paUN6eGNiU0VHenhjZEhPTSIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoib2lpQ3p4Y2JTRUd6eGNkSE9NIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJvaWlDenhjSlFIR3p4Y29ZeGUiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9HZm8zYkpHV291WXIiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6InVwbG9hZEZpbGVMaXN0V3JhcHBlciIsIk9CSkVDVF9JRCI6Im9paUN6eGNK
+        UUhHenhjb1l4ZSJ9LCJpZCI6Im9paUN6eGNKUUhHenhjb1l4ZSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJvaWlDenhjSlFIR3p4Y29XTWkiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX3c2aG1UNVNlS0lqUCI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfOFRrYm1EdUNzckM3IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX0xkSTQwYnYwOWxVNiI6Im51bGwiLCJD
+        TEFTUyI6InVwbG9hZC1maWxlLWxpc3QtY29udGFpbmVyIiwiZGh4SWRfcDJLNVVCSFU1dGdTIjoibnVsbCIsImRoeElkXzZGdGRTZ1JmakhlUyI6Im51bGwiLCJkaHhJZF90UmxRdXA1MHJDR1giOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoidXBsb2FkRmlsZUxpc3RDb250YWluZXIiLCJPQkpFQ1RfSUQiOiJvaWlDenhjSlFIR3p4Y29XTWkiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6Im9paUN6eGNKUUhHenhjb1dNaSIsInR5cGUiOiJjb250YWluZXIifSwic0NLU3p4Y0VmTFN6eGNacHZyIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIs
+        IkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfaGJNcFozRW9RM0VUIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfcmtDaG90VlRadUhGIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY29udE1ldGhvZFR5cGVXcmFwcGVyIiwiT0JKRUNUX0lEIjoic0NLU3p4Y0VmTFN6eGNacHZyIn0sImlkIjoic0NLU3p4Y0VmTFN6eGNacHZyIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sInNDS1N6eGNEZkxTenhjV0dHWSI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfTXVmTHl4S0dESEh2IjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJN
+        QVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9WV2Nac0xwVXVFYVQiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfRWlOamxqdFNBcWRxIjoibnVsbCIsIkNMQVNTIjoiY29udC1tZXRob2QtdHlwZS1jb250YWluZXIiLCJkaHhJZF8wNWd5Wm5jcG5vc28iOiJudWxsIiwiZGh4SWRfdUVVTU9yUXVkMEZ5IjoibnVsbCIsImRoeElkX2Q4M244UGpId01ObSI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJjb250TWV0aG9kVHlwZUNvbnRhaW5lciIsIk9CSkVDVF9JRCI6InNDS1N6eGNEZkxTenhjV0dHWSIsIkFSRUFfRElWSVNJ
+        T04iOiJudWxsIn0sImlkIjoic0NLU3p4Y0RmTFN6eGNXR0dZIiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6InZwREN6eGNRQUdhbVlRdm90eSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoic0NLU3p4Y0RmTFN6eGNXR0dZIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6InNDS1N6eGNFZkxTenhjWnB2ciIsInR5cGUiOiJjb2x1bW4ifV19LHsiaWQiOiJvaWlDenhjSlFIR3p4Y29XTWkiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoib2lpQ3p4Y0pRSEd6eGNvWXhlIiwidHlwZSI6ImNvbHVtbiJ9XX0seyJpZCI6Im9paUN6eGNiU0VHenhjZEhPTSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3si
+        aWQiOiJvaWlDenhjYlNFR3p4Y2RCSUMiLCJ0eXBlIjoiY29sdW1uIn1dfSx7ImlkIjoib2lpQ3p4Y0ZPdkZ6eGNGR0xqIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6Im9paUN6eGNHT3ZGenhjWUpteCIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFjdC9Db21tb24vQ29udHJhY3RDcmVhdGlvbkZpbGVVcGxvYWQueG1sIiwiUFJPSkVDVCI6IkNPTlRSQUNUIiwiUEFUSF8yIjoiIiwiTk9OU1REX1BBVEgiOiJZIiwiUEFUSF8zIjoiIiwiUEFUSF8xIjoiQ29udHJhY3QvQ29tbW9uIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQ29udHJhY3RDcmVhdGlvbkZpbGVVcGxvYWQiLCJDT0RFIjoiMDIwIiwiUFJFRklY
+        IjoiQ1QiLCJTQ1JFRU5fSUQiOiJDVF8wMjAifX0sImh0bWwiOiI8ZGl2IGlkPVwidnBEQ3p4Y1FBR2FtWVF2b3R5XCIgY2xhc3M9XCJjb250YWluZXIgc2Vwb2F1eF9zY3JlZW5fc2Nyb2xsXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgZmlsZS11cGxvYWQtcGFnZS1ib2R5XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgY29u
+        dC1tZXRob2QtdHlwZS1jb250YWluZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInNDS1N6eGNEZkxTenhjV0dHWVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21w
+        b25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwic0NLU3p4Y0VmTFN6eGNacHZyXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBv
+        bmVudF9vdXRlcl93cmFwcGVyIHVwbG9hZC1maWxlLWxpc3QtY29udGFpbmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJvaWlDenhjSlFIR3p4Y29XTWlcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRp
+        diBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm9paUN6eGNKUUhHenhjb1l4ZVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2
+        IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBjb250cmFjdC1maWxlLWRyb3AtY29udGFpbmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJvaWlDenhjYlNFR3p4Y2RIT01cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm9paUN6eGNiU0VHenhjZEJJQ1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBldGMtZmlsZS1kcm9wLWNvbnRhaW5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwib2lpQ3p4Y0ZPdkZ6eGNGR0xqXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0
+        aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJvaWlDenhjR092Rnp4Y1lKbXhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8
+        L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

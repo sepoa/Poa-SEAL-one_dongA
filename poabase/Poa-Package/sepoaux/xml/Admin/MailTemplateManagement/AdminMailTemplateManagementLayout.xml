@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_450" header="false">
+    <link>
+    <![CDATA[
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/codemirror.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/javascript/javascript.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/css/css.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/mode/xml/xml.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/edit/matchbrackets.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/comment/continuecomment.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/comment/comment.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/show-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/anyword-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/javascript-hint.js"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/codemirror/util/formatting.js"></script>
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/codemirror.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/theme/liquibyte.css" />
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/codemirror/addon/hint/hint.css" />
+        <script type="text/javascript">
+            Sepoa.cache.text.load({
+                url: CONTEXT_NAME + '/resource/ux/admin/langs/' + Sepoa.info.LANGUAGE + '/AD_450.js',
+                def: CONTEXT_NAME + '/resource/ux/admin/langs/KO/AD_450.js'
+            });
+        </script>
+    ]]>
+    </link>
+    <layout id="layoutObj" div="ZrifgResuQhrGbFhuG" pattern="2U">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="list" text="AD_450.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <width>400</width>
+            <attach file="/Admin/MailTemplateManagement/AdminMailTemplateManagementList.xml"/>
+        </cell>
+        <cell>
+            <id>b</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" type="contents"/>
+            <collapse icon="false" collapsed="false"/>
+            <attach file="/Admin/MailTemplateManagement/AdminMailTemplateManagementWrite.xml"/>
+        </cell>
+    </layout>
+    <onloadscript/>
+    <userscript/>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWnJpZmdSZW50TWhyR2JGQlFhIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF80NTAifSwiaWQiOiJacmlmZ1JlbnRNaHJHYkZCUWEiLCJ0eXBlIjoiYm9keSJ9LCJacmlmZ1Jlc3VRaHJHYkZodUciOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMlUiLCJWQVIiOiJsYXlvdXRPYmoiLCJPQkpFQ1RfSUQiOiJacmlmZ1Jlc3VR
+        aHJHYkZodUcifSwiaWQiOiJacmlmZ1Jlc3VRaHJHYkZodUciLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX0sIlpyaWZnUmVNQ1ZockdialdIUyI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiSEVBREVSX1ZJRVciOiJ0cnVlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJ0cnVlIiwiSEVBREVSX1RFWFQiOiJIYXMgbm90IGZvdW5kIHRleHQgOiBBRF80NTAuTEFZT1VUX0FfSEVBREVSIiwiQVRUQUNIX1RBUkdFVCI6Ii9BZG1pbi9NYWlsVGVtcGxhdGVNYW5hZ2VtZW50L0FkbWluTWFpbFRlbXBsYXRlTWFuYWdlbWVudExpc3QueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1
+        ZSIsIkhFQURFUl9UWVBFIjoibGlzdCIsIkFUVEFDSF9UWVBFIjoiVSIsIkNPTExBUFNFX0JVVFRPTiI6ImZhbHNlIiwiQkFTRV9XSURUSCI6IjQwMCJ9LCJpZCI6IlpyaWZnUmVNQ1ZockdialdIUyIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYSJ9LCJacmlmZ1JlT0NWaHJHYk9YZHgiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IkhFQURFUl9WSUVXIjoidHJ1ZSIsIkNPTExBUFNFX0NPTExBUFNFRCI6ImZhbHNlIiwiQ09MTEFQU0VfSUNPTiI6ImZhbHNlIiwiQkFTRV9NRU5VIjoiZmFsc2UiLCJBVFRBQ0hfVEFSR0VUIjoiL0FkbWluL01haWxUZW1wbGF0ZU1hbmFnZW1lbnQvQWRtaW5NYWlsVGVtcGxhdGVNYW5h
+        Z2VtZW50V3JpdGUueG1sIiwiQkFTRV9GSVhfU0laRSI6InRydWUsdHJ1ZSIsIkhFQURFUl9UWVBFIjoiY29udGVudHMiLCJBVFRBQ0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSJ9LCJpZCI6IlpyaWZnUmVPQ1ZockdiT1hkeCIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYiJ9fSwidHJlZSI6eyJpZCI6IlpyaWZnUmVudE1ockdiRkJRYSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiWnJpZmdSZXN1UWhyR2JGaHVHIiwidHlwZSI6ImxheW91dCIsImNlbGxzIjpbeyJpZCI6IlpyaWZnUmVNQ1ZockdialdIUyIsInR5cGUiOiJsYXlvdXRDZWxsIn0seyJpZCI6IlpyaWZnUmVPQ1ZockdiT1hk
+        eCIsInR5cGUiOiJsYXlvdXRDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vTWFpbFRlbXBsYXRlTWFuYWdlbWVudC9BZG1pbk1haWxUZW1wbGF0ZU1hbmFnZW1lbnRMYXlvdXQueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiNDUwIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJNYWlsVGVtcGxhdGVNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5NYWlsVGVtcGxhdGVNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJMYXlvdXQiLCJTQ1JFRU5fSUQiOiJBRF80NTAifX0sImh0bWwiOiI8ZGl2IGlkPVwiWnJpZmdSZW50TWhyR2JGQlFhXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNs
+        YXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfbGF5b3V0X291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAg
+        ICAgIDxkaXYgaWQ9XCJacmlmZ1Jlc3VRaHJHYkZodUdcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2xheW91dCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

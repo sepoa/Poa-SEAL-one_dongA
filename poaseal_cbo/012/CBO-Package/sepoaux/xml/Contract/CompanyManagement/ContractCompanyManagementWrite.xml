@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_303" header="false" pageCloseWarn="false">
+    <form id="formObj" div="GBvvrThsjssOPchQIu" form-id="CT_303">
+        <event type="onChange" callback="onFormChange"/>
+    </form>
+    <button id="btnObj">
+        <btn div="bc510547025244218684fa71421a3b" id="save" type="save" text="{BUTTON.save}" onclick="onButtonClick('SAVE')"/>
+        <btn div="bc510547025244218684fa71421a3b" id="delete" type="delete" text="{BUTTON.delete}" onclick="onButtonClick('DELETE')"/>
+        <btn div="bc510547025244218684fa71421a3b" id="modify" type="new" text="{BUTTON.modify}" onclick="onButtonClick('MODIFY')"/>
+        <btn div="GBvvrThMHmsOPcIjSK" id="rowAdd" type="new" text="{BUTTON.rowadd}" toggle="false" reverse="false" onclick="onButtonClick('ROW_ADD')"/>
+        <btn div="GBvvrThMHmsOPcIjSK" id="rowDelete" type="delete" text="{BUTTON.rowdelete}" toggle="false" reverse="false" onclick="onButtonClick('ROW_DELETE')"/>
+    </button>
+    <grid id="gridObj" div="eb086de9241c45568f7908c1d466ef" grid-id="CT_303" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onEditCell" callback="onEditCell"/>
+        <event type="onXLE" callback="onLoadGridDataEnd"/>
+    </grid>
+    <variable>
+        <var name="$share" value="{}"/>
+        <var name="fa7df0f7b8754a5286e0300ba02309" value="$($sObject._vp).find('#fa7df0f7b8754a5286e0300ba02309')[0]"/>
+        <var name="a36f1b89cc5f481e8fbdc0bc241bb3" value="$($sObject._vp).find('#a36f1b89cc5f481e8fbdc0bc241bb3')[0]"/>
+        <var name="container1" value="$($sObject._vp).find('#b3c99b8c49cf40978eb9963bac2bd5')[0]"/>
+        <var name="ffc72b14736142848a6902dfb82a28" value="$($sObject._vp).find('#ffc72b14736142848a6902dfb82a28')[0]"/>
+        <var name="container2" value="$($sObject._vp).find('#a34ff940d90c4e1d805de2ccc9e23b')[0]"/>
+    </variable>
+        <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <function name="init" args="">
+        <![CDATA[
+            if($share.childScreen === undefined) {
+                $share.childScreen = {};
+            }
+            initComponent();
+            initButton();
+            onReady();
+        ]]>
+        </function>
+        
+        <function name="initComponent" args="">
+        <![CDATA[
+            for(let key of Object.keys(formObj.getFormData())) {
+                formObj.setReadOnly(key, true);
+            }
+            
+            gridObj.setReadOnly(true);
+            gridObj.setColumnHidden(gridObj.getColIndexById('SELECTED'), true);
+        ]]>
+        </function>
+        
+        <function name="initButton" args="">
+        <![CDATA[
+            btnObj.btn('save').setHide();
+            btnObj.btn('delete').setHide();
+            btnObj.btn('modify').setHide();
+            btnObj.btn('rowAdd').setHide();
+            btnObj.btn('rowDelete').setHide();
+        ]]>
+        </function>
+        
+        <function name="onReady" args="">
+        <![CDATA[
+            const parents = $sObject._vp.parents('div.sepoaux.screen_area');
+            if(parents.length > 0) {
+                callFunction('p', 'childScreenReady', [{
+                    name : 'write',
+                    fn : {
+                        loadData : loadData,
+                        doClear : doClear,
+                        addCompany : addCompany
+                    },
+                    share : $share
+                }]);
+            }
+        ]]>
+        </function>
+        
+        <function name="doClear" args="">
+        <![CDATA[
+            $share.data.INFO = {};
+            $share.data.MANAGER = {};
+            
+            formObj.clear();
+            gridObj.clearAll();
+            
+            initComponent();
+            initButton();
+        ]]>
+        </function>
+        
+        <function name="addCompany" args="bizCategory">
+        <![CDATA[
+            doClear();
+            setModifyMode('NEW', bizCategory);
+        ]]>
+        </function>
+        
+        <function name="loadData" args="data">
+        <![CDATA[
+            doClear();
+            
+            $share.data.INFO = parseData(data);
+            loadFormData($share.data.INFO);
+            loadGridData($share.data.INFO);
+            
+            btnObj.btn('modify').setShow();
+        ]]>
+        </function>
+        
+        <function name="loadFormData" args="data">
+        <![CDATA[
+            formObj.dataMapper(data, 'json');
+            if(data.IRS_NO !== undefined && data.IRS_NO !== null) {
+                formObj.setValue('IRS_NO', String(data.IRS_NO).replace(/-/g, ''));
+            }
+        ]]>
+        </function>
+        
+        <function name="onFormChange" args="id, value">
+        <![CDATA[
+            if(formObj.getItemType(id) == 'calendar') {
+                $share.data.INFO[id] = sUtils.date.toString(value);
+            } else {
+                $share.data.INFO[id] = value;
+            }
+        ]]>
+        </function>
+        
+        <function name="loadGridData" args="data">
+        <![CDATA[
+            if(data['$selected'] !== undefined) {
+                delete data['$selected'];
+            }
+            
+            dataOutput.clear();
+            dataOutput.setObject(data);
+            gridObj.postConnection(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doQuery', 'PROCESS_ID=sepoa.svc.ct.CT_301', 'METHOD=doQuerySBUPI']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        
+        <function name="onLoadGridDataEnd" args="">
+        <![CDATA[
+            $share.data.MANAGER.INFO = gridObj.getAllDataObject();
+        ]]>
+        </function>
+        
+        <function name="onRowSelect" args="rId, cId">
+        <![CDATA[
+            if(!gridObj._allCellReadOnly) {
+                gridObj.cells(rId, gridObj.getColIndexById('SELECTED')).setValue(true);
+            }
+        ]]>
+        </function>
+        
+        <function name="onEditCell" args="stage, rId, cInd, newValue, oldValue">
+        <![CDATA[
+            if(stage == 2) {
+                if(gridObj.getColumnId(cInd) == 'USER_ID') {
+                    const config = {
+                        url : window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        async : false
+                    }
+                    
+                    const params = {
+                        module : 'sepoa.svc.ct.CT_303',
+                        action : 'doCheckUserId',
+                        CONNECTION : 'CONNECTION',
+                        USER_ID : newValue
+                    }
+                    
+                    const so = sUtils.multipart.send(config, params);
+                    if(!so.result[0] === true) {
+                        Alert(Sepoa.cache.text.get('CT_303.MESSAGE_WARNING_USER_ID'), () => {   // '올바르지 않은 ID 형태이거나, 이미 존재하는 ID 입니다.'
+                            gridObj.cells(rId, cInd).setValue('');
+                        });
+                        return false;
+                    }
+                }
+                
+                if($share.data.MANAGER?.INFO) {
+                    const data = gridObj.getRowDataObject(rId);
+                    $share.data.MANAGER.INFO = $share.data.MANAGER.INFO.map(e => {
+                        if(e.gr_id == data.gr_id) {
+                            e = data;
+                        }
+                        return e;
+                    });
+                }
+                
+                if($share.data.MANAGER?.NEW) {
+                    const data = gridObj.getRowDataObject(rId);
+                    $share.data.MANAGER.NEW = $share.data.MANAGER.NEW.map(e => {
+                        if(e.gr_id == data.gr_id) {
+                            e = data;
+                        }
+                        return e;
+                    });
+                }
+            }
+            
+            return true;
+        ]]>
+        </function>
+        <function name="onButtonClick" args="type">
+        <![CDATA[
+            switch(type) {
+                case 'SAVE' :
+                    doSave();
+                    break;
+                case 'DELETE' :
+                    doDelete();
+                    break;
+                case 'MODIFY' :
+                    setModifyMode();
+                    btnObj.btn('delete').setShow();
+                    break;
+                case 'ROW_ADD' :
+                    addGridRow();
+                    break;
+                case 'ROW_DELETE' :
+                    deleteGridRow();
+                    break;
+                default :
+                    break;
+            }
+        ]]>
+        </function>
+        
+        <function name="doSave" args="">
+        <![CDATA[
+            if(formObj.validate() === false) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0002'));    // '필수입력값을 입력해주세요.'
+                return false;
+            }
+            
+            if(gridObj.getSelectedRows('SELECTED').length > 0 && gridObj.validate('SELECTED') === false) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0003'));    // '필수 입력컬럼을 입력해주세요.'
+                return false;
+            }
+            
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'), (flag) => {   // '저장 하시겠습니까?'
+                if(flag) {
+                    const config = {
+                        url : window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        contentType : 'json',
+                        on : {
+                            callback : (res, config, params) => {
+                                if(res.status == '1') {
+                                    Alert(sUtils.cache.text.get('MESSAGE.0054'), () => {    // '성공적으로 저장하였습니다.'
+                                        doSaveEnd();
+                                    })
+                                } else {
+                                    Alert(sUtils.cache.text.get('MESSAGE.1002'));    // '처리 중 오류가 발생하였습니다.'
+                                }
+                            }
+                        }
+                    }
+                    const params = {
+                        module : 'sepoa.svc.ct.CT_303',
+                        action : 'doSave',
+                        CONNECTION : 'TRANSACTION',
+                        DATA : $share.data
+                    }
+                    
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doSaveEnd" args="">
+        <![CDATA[
+            initComponent();
+            initButton();
+            $share.event.callEvent('doSaveEnd', []);
+        ]]>
+        </function>
+        
+        <function name="doDelete" args="">
+        <![CDATA[
+            if(sUtils.string.isBlank(formObj.getValue('BIZ_CODE'))) {
+                Alert(Sepoa.cache.text.get('MESSAGE.0099'));    // '저장상태인 데이터만 삭제가 가능합니다.'
+                return false;
+            }
+            
+            Confirm(Sepoa.cache.text.get('MESSAGE.1015'), (flag) => {   // '삭제 하시겠습니까?'
+                if(flag) {
+                    const config = {
+                        url : window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        contentType : 'json',
+                        on : {
+                            callback : (res, config, params) => {
+                                if(res.status == '1') {
+                                    Alert(sUtils.cache.text.get('MESSAGE.5107'), () => {    // '성공적으로 삭제하였습니다.'
+                                        doDeleteEnd();
+                                    })
+                                } else {
+                                    Alert(sUtils.cache.text.get('MESSAGE.1002'));    // '처리 중 오류가 발생하였습니다.'
+                                }
+                            }
+                        }
+                    }
+                    const params = {
+                        module : 'sepoa.svc.ct.CT_303',
+                        action : 'doDelete',
+                        CONNECTION : 'TRANSACTION',
+                        DATA : $share.data
+                    }
+                    
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+        
+        <function name="doDeleteEnd" args="">
+        <![CDATA[
+            $share.event.callEvent('doDeleteEnd', []);
+        ]]>
+        </function>
+        
+        <function name="setModifyMode" args="mode, bizCategory">
+        <![CDATA[
+            for(let key of Object.keys(formObj.getFormData())) {
+                if(mode == 'NEW') {
+                    formObj.setReadOnly(key, false);
+                } else {
+                    if(['BIZ_CATEGORY', 'BIZ_TYPE'].includes(key) === false) {
+                        formObj.setReadOnly(key, false);
+                    } 
+                }
+            }
+            
+            formObj.setReadOnly('BIZ_CODE', true);
+            
+            if(bizCategory !== undefined) {
+                formObj.setValue('BIZ_CATEGORY', bizCategory);
+            }
+            
+            gridObj.setReadOnly(false);
+            gridObj.setColumnHidden(gridObj.getColIndexById('SELECTED'), false);
+            
+            gridObj.forEachRow(rId => {
+                gridObj.cells(rId, gridObj.getColIndexById('USER_ID'))?.setDisabled(true);
+            })
+            
+            initButton();
+            btnObj.btn('save').setShow();
+            btnObj.btn('rowAdd').setShow();
+            btnObj.btn('rowDelete').setShow();
+        ]]>
+        </function>
+        
+        <function name="addGridRow" args="">
+        <![CDATA[
+            const rowId = dhx.newId();
+            gridObj.addRow(rowId, gridObj.getRowsNum());
+            
+            gridObj.cells(rowId, gridObj.getColIndexById('SELECTED')).setValue(true);
+            
+            if($share.data.MANAGER?.NEW === undefined) {
+                $share.data.MANAGER.NEW = [];
+            }
+            var mngId = getDocumentNumber("MNG"); //채번
+            
+            gridObj.cells(rowId, gridObj.getColIndexById('USER_ID')).setValue(mngId);
+            
+            const data = gridObj.getRowDataObject(rowId);
+            
+            $share.data.MANAGER.NEW.push(data);
+        ]]>
+        </function>
+        
+        <function name="deleteGridRow" args="">
+        <![CDATA[
+            for(let rowId of gridObj.getGridChangedRows('SELECTED')) {
+                const data = gridObj.getRowDataObject(rowId);
+                if($share.data.MANAGER?.DELETE === undefined) {
+                    $share.data.MANAGER.DELETE = [];
+                }
+                
+                const isTemp = $share.data.MANAGER?.NEW?.filter(e => e.gr_id == data.gr_id).length > 0;
+                if(isTemp) {
+                    $share.data.MANAGER.NEW = $share.data.MANAGER.NEW.filter(e => e.gr_id != data.gr_id);
+                } else {
+                    $share.data.MANAGER.DELETE.push(data);
+                }
+                
+                gridObj.deleteRow(rowId);
+            }
+        ]]>
+        </function>
+        
+        <function name="parseData" args="data">
+        <![CDATA[
+            const result = Object.entries(data).reduce((prev, cur) => {
+                const [key, value] = cur;
+                if(['$selected', 'randomseed', 'value'].includes(key) === false) {
+                    prev[key.toUpperCase()] = value;
+                }
+                
+                return prev;
+            }, {});
+            
+            return result;
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiR0J2dnJUaGxDanNPUGNPaU9IIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJDVF8zMDMifSwiaWQiOiJHQnZ2clRobENqc09QY09pT0giLCJ0eXBlIjoiYm9keSJ9LCJHQnZ2clRoTUhtc09QY0lqU0siOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJJ
+        VEVNXzNfU09SVCI6IjQiLCJJVEVNXzJfVEVYVCI6Iu2Wiey2lOqwgCIsIklURU1fM19UT0dHTEUiOmZhbHNlLCJJVEVNXzJfVE9HR0xFIjpmYWxzZSwiSVRFTV8zX1RFWFQiOiLtlonsgq3soJwiLCJJVEVNXzJfVFlQRSI6Im5ldyIsIk9CSkVDVF9JRCI6IkdCdnZyVGhNSG1zT1BjSWpTSyIsIklURU1fMl9TT1JUIjoiMyIsIklURU1fMl9JRCI6InJvd0FkZCIsIklURU1fMl9SRVZFUlNFIjpmYWxzZSwiSVRFTV8zX1NMQ09ERSI6IkJVVFRPTi5yb3dkZWxldGUiLCJJVEVNXzJfU0xDT0RFIjoiQlVUVE9OLnJvd2FkZCIsIklURU1fM19SRVZFUlNFIjpmYWxzZSwiSVRFTV8zX0lEIjoicm93RGVsZXRlIn0sImlkIjoiR0J2dnJUaE1IbXNPUGNJalNLIiwidHlwZSI6
+        ImJ1dHRvbiJ9LCJHQnZ2clRoc2pzc09QY2hRSXUiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX1NKWWtIUjNyOHFsWCI6Im51bGwiLCJkaHhJZF9XakprbDdYT0NPNkUiOiJudWxsIiwiZGh4SWRfS0syOEw3cmQwa0Q4IjoibnVsbCIsIlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJkaHhJZF9hQlBDYWhQcmExWm4iOiJudWxsIiwiZGh4SWRfQUZDYXc2ak13SFdpIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiJsZWZ0IiwiQUxJR05fVkVSVElDQUwiOiJt
+        aWRkbGUiLCJkaHhJZF9velV6NkFZSlE3YkciOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF84VkNPTnE0Wm8zcWsiOiJudWxsIiwiZGh4SWRfVVBHZzFnbmFSb3ZRIjoibnVsbCIsImRoeElkX1lyenhhTEtiWktqcyI6Im51bGwiLCJkaHhJZF9uQ29iQTEzMVp1eEkiOiJudWxsIiwiZGh4SWRfUUtJSGF4V3Z4eG4zIjoibnVsbCIsImRoeElkXzRXMXJVVm9xTUZqTCI6Im51bGwiLCJkaHhJZF83RlVUdVJ0Q3FkVzEiOiJudWxsIiwiZGh4SWRfYjhCbjdpOFR1eVpDIjoibnVsbCIsImRoeElkX0NNMUFqNjRmNm5ncyI6Im51bGwiLCJkaHhJZF8wcHBVRUtBelhxb3oiOiJudWxsIiwiZGh4SWRfeDcwc3VJeUs3MGVPIjoibnVsbCIsImRoeElkXzVFdER3alZzR0tPMCI6
+        Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJHQnZ2clRoc2pzc09QY2hRSXUiLCJGT1JNX0lEIjoiQ1RfMzAzIn0sImlkIjoiR0J2dnJUaHNqc3NPUGNoUUl1IiwidHlwZSI6ImZvcm0ifSwiZWIwODZkZTkyNDFjNDU1NjhmNzkwOGMxZDQ2NmVmIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiMTAiLCJNQVJHSU5fTEVGVCI6IjEwIiwiTUFSR0lOX1JJR0hUIjoiMTAiLCJNQVJHSU5fVE9QIjoiMTAiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF83bnN5dUljV1lJaEoiOiJudWxsIiwiZGh4SWRfZ2l6TnVwSjUz
+        R3FOIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiJjZW50ZXIiLCJBTElHTl9WRVJUSUNBTCI6Im1pZGRsZSIsImRoeElkX01CczBwMnV0aDJvaCI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX2xJa1N4anRjVFVZQiI6Im51bGwiLCJkaHhJZF9CVXFmbTdwUUl6Sk8iOiJudWxsIiwiZGh4SWRfYjR3VHZub3d3NjRiIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZE9iaiIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJFWENFTERPV05MT0FEIjoidHJ1ZSIsIk9CSkVDVF9JRCI6ImViMDg2ZGU5MjQxYzQ1NTY4Zjc5MDhjMWQ0NjZlZiIsIkdSSURfSUQiOiJDVF8zMDMifSwiaWQiOiJlYjA4NmRlOTI0MWM0
+        NTU2OGY3OTA4YzFkNDY2ZWYiLCJ0eXBlIjoiZ3JpZCJ9LCJmZmM3MmIxNDczNjE0Mjg0OGE2OTAyZGZiODJhMjgiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6ImZmYzcyYjE0NzM2MTQyODQ4YTY5MDJkZmI4MmEyOCJ9LCJpZCI6ImZmYzcyYjE0NzM2MTQyODQ4YTY5MDJkZmI4MmEyOCIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJhMzRmZjk0MGQ5MGM0ZTFkODA1ZGUyY2NjOWUyM2IiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX0h2bUJ3bWZJeXlaTiI6Im51bGwiLCJNQVJHSU5fVE9QIjoiMTAiLCJNQVJHSU5f
+        Qk9UVE9NIjoiMTAiLCJNQVJHSU5fTEVGVCI6IjEwIiwiTUFSR0lOX1JJR0hUIjoiMTAiLCJkaHhJZF9scHJYY2lnSDZkR3AiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfZTJjUmpFY0hpTXJXIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfMXJNdmMxbUtwZzRnIjoibnVsbCIsImRoeElkX05XUmlGRHh1dzJOUSI6Im51bGwiLCJkaHhJZF9hWGpaQ2RKcWcxU1QiOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoiY29udGFpbmVyMiIsIk9CSkVDVF9JRCI6ImEzNGZmOTQwZDkwYzRlMWQ4MDVkZTJjY2M5ZTIzYiIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiYTM0ZmY5NDBk
+        OTBjNGUxZDgwNWRlMmNjYzllMjNiIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJmYTdkZjBmN2I4NzU0YTUyODZlMDMwMGJhMDIzMDkiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlZBUiI6ImZhN2RmMGY3Yjg3NTRhNTI4NmUwMzAwYmEwMjMwOSJ9LCJpZCI6ImZhN2RmMGY3Yjg3NTRhNTI4NmUwMzAwYmEwMjMwOSIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJiM2M5OWI4YzQ5Y2Y0MDk3OGViOTk2M2JhYzJiZDUiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX25lbW5QcTFkWFhjYSI6Im51bGwiLCJNQVJHSU5fVE9QIjoiMTAi
+        LCJNQVJHSU5fQk9UVE9NIjoiMTAiLCJNQVJHSU5fTEVGVCI6IjEwIiwiTUFSR0lOX1JJR0hUIjoiMTAiLCJkaHhJZF9veG9Ua2xMVmtONTMiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfU29lN0JlVDdkZjBzIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfWHN0TWtqdXdWWlBMIjoibnVsbCIsImRoeElkX2hLMU1TZktaa0YyNSI6Im51bGwiLCJkaHhJZF83eGJPejFVcTk0U1YiOiJudWxsIiwiZGh4SWRfMVJQTE04TEhrTmZyIjoibnVsbCIsImRoeElkX1lWdmpVUjFyNjFTeSI6Im51bGwiLCJkaHhJZF96akdralpXUU9Ea2siOiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIyIiwiVkFSIjoiY29u
+        dGFpbmVyMSIsIk9CSkVDVF9JRCI6ImIzYzk5YjhjNDljZjQwOTc4ZWI5OTYzYmFjMmJkNSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09MVU1OX0lURU1fMCI6IjQiLCJDT0xVTU5fSVRFTV8xIjoiMSJ9LCJpZCI6ImIzYzk5YjhjNDljZjQwOTc4ZWI5OTYzYmFjMmJkNSIsInR5cGUiOiJjb250YWluZXIifSwiYTM2ZjFiODljYzVmNDgxZThmYmRjMGJjMjQxYmIzIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJhMzZmMWI4OWNjNWY0ODFlOGZiZGMwYmMyNDFiYjMifSwiaWQiOiJhMzZmMWI4OWNjNWY0ODFlOGZiZGMwYmMyNDFiYjMiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImIifSwiYmM1MTA1NDcwMjUyNDQyMTg2ODRmYTcxNDIxYTNiIjp7
+        ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnRuT2JqIiwiT0JKRUNUX0lEIjoiYmM1MTA1NDcwMjUyNDQyMTg2ODRmYTcxNDIxYTNiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJJVEVNXzBfSUQiOiJzYXZlIiwiSVRFTV8wX1RZUEUiOiJzYXZlIiwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV8wX1RFWFQiOiLsoIDsnqUiLCJJVEVNXzFfSUQi
+        OiJkZWxldGUiLCJJVEVNXzFfVFlQRSI6ImRlbGV0ZSIsIklURU1fMV9TTENPREUiOiJCVVRUT04uZGVsZXRlIiwiSVRFTV8xX1RFWFQiOiLsgq3soJwiLCJJVEVNX0IzOUQyQUU0ODVFRjQ5REM4NjIyODEyOTI3Mjc5N19JRCI6Im1vZGlmeSIsIklURU1fQjM5RDJBRTQ4NUVGNDlEQzg2MjI4MTI5MjcyNzk3X1RZUEUiOiJuZXciLCJJVEVNX0IzOUQyQUU0ODVFRjQ5REM4NjIyODEyOTI3Mjc5N19TTENPREUiOiJCVVRUT04ubW9kaWZ5IiwiSVRFTV9CMzlEMkFFNDg1RUY0OURDODYyMjgxMjkyNzI3OTdfVEVYVCI6IuyImOyglSIsIklURU1fMF9TT1JUIjoiMSIsIklURU1fMV9TT1JUIjoiMiIsIklURU1fQjM5RDJBRTQ4NUVGNDlEQzg2MjI4MTI5MjcyNzk3X1NP
+        UlQiOiIzIn0sImlkIjoiYmM1MTA1NDcwMjUyNDQyMTg2ODRmYTcxNDIxYTNiIiwidHlwZSI6ImJ1dHRvbiJ9fSwidHJlZSI6eyJpZCI6IkdCdnZyVGhsQ2pzT1BjT2lPSCIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiYjNjOTliOGM0OWNmNDA5NzhlYjk5NjNiYWMyYmQ1IiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImZhN2RmMGY3Yjg3NTRhNTI4NmUwMzAwYmEwMjMwOSIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJHQnZ2clRoc2pzc09QY2hRSXUiLCJ0eXBlIjoiZm9ybSJ9XX0seyJpZCI6ImEzNmYxYjg5Y2M1ZjQ4MWU4ZmJkYzBiYzI0MWJiMyIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJiYzUxMDU0
+        NzAyNTI0NDIxODY4NGZhNzE0MjFhM2IiLCJ0eXBlIjoiYnV0dG9uIn1dfV19LHsiaWQiOiJhMzRmZjk0MGQ5MGM0ZTFkODA1ZGUyY2NjOWUyM2IiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiZmZjNzJiMTQ3MzYxNDI4NDhhNjkwMmRmYjgyYTI4IiwidHlwZSI6ImNvbHVtbiIsImNlbGxzIjpbeyJpZCI6IkdCdnZyVGhNSG1zT1BjSWpTSyIsInR5cGUiOiJidXR0b24ifV19XX0seyJpZCI6ImViMDg2ZGU5MjQxYzQ1NTY4Zjc5MDhjMWQ0NjZlZiIsInR5cGUiOiJncmlkIn1dfSwiaW5mbyI6eyJQQVRIIjoiL0NvbnRyYWN0L0NvbXBhbnlNYW5hZ2VtZW50L0NvbnRyYWN0Q29tcGFueU1hbmFnZW1lbnRXcml0ZS54bWwiLCJQUk9KRUNUIjoiU0VB
+        TCIsIkNPREUiOiIzMDMiLCJQUkVGSVgiOiJDVCIsIlBBVEhfMiI6IkNvbXBhbnlNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQ29udHJhY3RDb21wYW55TWFuYWdlbWVudCIsIlBBVEhfMSI6IkNvbnRyYWN0IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiV3JpdGUiLCJTQ1JFRU5fSUQiOiJDVF8zMDMifX0sImh0bWwiOiI8ZGl2IGlkPVwiR0J2dnJUaGxDanNPUGNPaU9IXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNl
+        cG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXJcIiBzdHlsZT1cIm1hcmdpbi10b3A6MTBweDttYXJnaW4tcmlnaHQ6MTBweDttYXJnaW4tYm90dG9tOjEwcHg7bWFyZ2luLWxlZnQ6MTBweDt3aWR0aDpjYWxjKDEwMCUgLSAxMHB4IC0gMTBweCk7aGVpZ2h0OmNhbGMoMTAwJSAtIDEwcHggLSAxMHB4KTtcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImIzYzk5YjhjNDljZjQwOTc4ZWI5OTYzYmFj
+        MmJkNVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjQ7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiZmE3ZGYwZjdiODc1NGE1Mjg2ZTAzMDBiYTAyMzA5XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVy
+        IHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2xlZnQgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX3ZhbGlnbl9taWRkbGVcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgICA8ZGl2IGlkPVwiR0J2dnJUaHNqc3NPUGNoUUl1XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9mb3JtXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwi
+        ZmxleDoxO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImEzNmYxYjg5Y2M1ZjQ4MWU4ZmJkYzBiYzI0MWJiM1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBc
+        IiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYmM1MTA1NDcwMjUyNDQyMTg2ODRmYTcxNDIxYTNiXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwibWFyZ2luLXRvcDoxMHB4O21h
+        cmdpbi1yaWdodDoxMHB4O21hcmdpbi1ib3R0b206MTBweDttYXJnaW4tbGVmdDoxMHB4O3dpZHRoOmNhbGMoMTAwJSAtIDEwcHggLSAxMHB4KTtoZWlnaHQ6Y2FsYygxMDAlIC0gMTBweCAtIDEwcHgpO1wiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYTM0ZmY5NDBkOTBjNGUxZDgwNWRlMmNjYzllMjNiXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xh
+        c3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImZmYzcyYjE0NzM2MTQyODQ4YTY5MDJkZmI4MmEyOFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fcmlnaHRcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiR0J2dnJUaE1IbXNPUGNJalNLXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV9oYWxpZ25fY2VudGVyIHNlcG9hdXhfd3JhcHBl
+        cl9zdHlsZV92YWxpZ25fbWlkZGxlXCIgc3R5bGU9XCJtYXJnaW4tdG9wOjEwcHg7bWFyZ2luLXJpZ2h0OjEwcHg7bWFyZ2luLWJvdHRvbToxMHB4O21hcmdpbi1sZWZ0OjEwcHg7d2lkdGg6Y2FsYygxMDAlIC0gMTBweCAtIDEwcHgpO2hlaWdodDpjYWxjKDEwMCUgLSAxMHB4IC0gMTBweCk7XCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJlYjA4NmRlOTI0MWM0NTU2OGY3OTA4YzFkNDY2ZWZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2dyaWQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2
+        PiJ9
+    </template>
+</body>

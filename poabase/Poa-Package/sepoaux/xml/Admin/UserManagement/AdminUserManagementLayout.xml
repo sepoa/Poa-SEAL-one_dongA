@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_019" header="false">    <template>    <![CDATA[        <div class="container" id="container" style="overflow:hidden;">        	<div id="layoutBox" class="lowerDiv" style="width:100%;height:100%"></div>        </div>    ]]>    </template>
+	<link>
+	<![CDATA[
+		<script type="text/javascript">
+			Sepoa.cache.text.load({
+				url:CONTEXT_NAME+'/resource/ux/admin/langs/'+Sepoa.info.LANGUAGE+'/AD_019.js',
+				def:CONTEXT_NAME+'/resource/ux/admin/langs/KO/AD_019.js'
+			});
+		</script>
+	]]>
+	</link>    <layout div="layoutBox" id="containerLayout" pattern="3L">        <cell>            <id>a</id>            <icon>menu</icon>            <header type="list" text="AD_019.TITLE"/>            <width>400</width>            <fix_size>true,false</fix_size>            <attach file="/Admin/UserManagement/AdminUserManagementList.sux"/>        </cell>        <cell>            <id>b</id>            <cicon>                <btn id="add"/>                <btn id="delete"/>                <btn id="confirm"/>                <btn id="copy"/>                <btn id="update"/>                <btn id="cancel"/>                <btn id="save"/>            </cicon>            <header type="contents" text="AD_019.INFO"/>            <collapse icon="false"/>            <fix_size>true,false</fix_size>            <attach file="/Admin/UserManagement/AdminUserManagementWrite.sux"/>        </cell>        <cell>            <id>c</id>            <fix_size>true,false</fix_size>            <height>400</height>            <attach file="/Admin/UserManagement/AdminUserManagementCarousel.sux"/>        </cell>    </layout>    <onloadscript>
+    <![CDATA[
+    ]]>    </onloadscript>    <userscript>    </userscript></body>

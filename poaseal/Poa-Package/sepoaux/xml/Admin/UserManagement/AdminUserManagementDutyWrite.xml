@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_019_5" header="false" tpl="editor.tpl">
+    <button id="layoutBtnObj">
+        <btn div="ZRhyAUcwspQczgQNFF" id="add" text="추가"/>
+        <btn div="ZRhyAUcwspQczgQNFF" id="delete" text="삭제"/>
+        <btn div="ZRhyAUcwspQczgQNFF" id="confirm" text="승인"/>
+        <btn div="ZRhyAUcwspQczgQNFF" id="copy" text="복사"/>
+        <btn div="ZRhyAUcwspQczgQNFF" id="update" text="수정"/>
+        <btn div="ZRhyAUcwspQczgQNFF" id="cancel" text="취소"/>
+        <btn div="ZRhyAUcwspQczgQNFF" id="save" text="저장"/>
+    </button>
+    <grid id="gridObj" div="ZRhyAUckKkQczgQLvS" grid-id="AD_019_5" drag="false" merge="false" dynamic="false"/>
+    <onloadscript>
+        <![CDATA[
+        	layoutBtnObj.btn('save').setShow();
+        	layoutBtnObj.btn('add').setShow();
+	        layoutBtnObj.btn('delete').setHide();
+	        layoutBtnObj.btn('confirm').setHide();
+	        layoutBtnObj.btn('copy').setHide();
+	        layoutBtnObj.btn('update').setHide();
+	        layoutBtnObj.btn('cancel').setHide();
+        ]]>
+        <event obj="Sepoa" type="onButtonClick">
+            <function args="id">
+            <![CDATA[//화면 버튼 이벤트의 분기를 정의
+                if(id == 'save'){
+                    doSave();
+                }else if(id == 'add'){
+                    doChangeCarousel();
+                }
+            ]]>
+            </function>
+        </event>
+        <![CDATA[
+            //doSaveEnd callBack function을 정의
+        ]]>
+        <event obj="gridObj" type="onTXE" callback="doSaveEnd_grid"/>
+        <event obj="gridObj" type="onXLE" callback="doQueryEnd"/>
+    </onloadscript>
+    <userscript>
+        <![CDATA[
+            //화면 좌측 서비스 리스트 select시 호출되는 함수(리스트에서 호출됨)
+        ]]>
+        <function name="doChangeCarousel" args="">
+        <![CDATA[
+            callFunction(['parent','parent'],'changeToCarousel2', []);
+        ]]>
+        </function>
+        <function name="doQueryByList" args="arg">
+        <![CDATA[
+            dataOutput.addScreen('AD_019_2');
+            gridObj.postConnection(window.CONTEXT_NAME+'/SepoaGrid.sux',['mode=doQuery','METHOD=doQuery','PROCESS_ID=sepoa.svc.admin.AD_019_5']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCnt">
+        <![CDATA[
+        	layoutBtnObj.btn('save').setShow();
+        	layoutBtnObj.btn('add').setShow();
+	        layoutBtnObj.btn('delete').setHide();
+	        layoutBtnObj.btn('confirm').setHide();
+	        layoutBtnObj.btn('copy').setHide();
+	        layoutBtnObj.btn('update').setHide();
+	        layoutBtnObj.btn('cancel').setHide();
+            callFunction('parent','changeHeaderIcon',['b','show','save,add']);
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            dataOutput.addScreen('AD_019_2');
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'),function(result){
+                if(result){
+                    gridObj.editStop();
+                    gridObj.postTransaction(window.CONTEXT_NAME+'/SepoaGrid.sux',['mode=doSave','METHOD=doSave','PROCESS_ID=sepoa.svc.admin.AD_019_5'],'SELECTED');
+                }
+            });
+        ]]>
+        </function>
+        <function name="doSaveEnd_grid" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            if(status=='true'){
+                Alert(message);
+                callFunction(['parent','AD_019_4'],'doQueryByList', [dataOutput.getValue('CTRL_PERSON_ID')]);
+                doQueryByList();
+            }else{
+                Alert(message);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiWlJoeUFVY2tLa1FjemdRTHZTIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiU0laRV9BVVRPSEVJR0hUIjoiMSJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZE9iaiIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJPQkpFQ1RfSUQiOiJaUmh5QVVja0trUWN6Z1FMdlMiLCJHUklEX0lEIjoiQURfMDE5XzUifSwiaWQiOiJaUmh5QVVja0trUWN6Z1FMdlMiLCJ0eXBlIjoiZ3JpZCIsImdyaWQiOiJncmlkIn0sIlpSaHlBVWNZ
+        Z2NRY3pnUWRudSI6eyJsYXlvdXQiOnsiU0NST0xMX1YiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiQURfMDE5XzUifSwiaWQiOiJaUmh5QVVjWWdjUWN6Z1FkbnUiLCJ0eXBlIjoiYm9keSJ9LCJaUmh5QVVjd3NwUWN6Z1FORkYiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoibGF5b3V0QnRuT2JqIiwiT0JKRUNUX0lEIjoiWlJoeUFVY3dzcFFjemdRTkZGIiwi
+        QVJFQV9ESVZJU0lPTiI6Im51bGwiLCJJVEVNXzBfSUQiOiJhZGQiLCJJVEVNXzBfVEVYVCI6Iuy2lOqwgCIsIklURU1fMV9JRCI6ImRlbGV0ZSIsIklURU1fMV9URVhUIjoi7IKt7KCcIiwiSVRFTV8yX0lEIjoiY29uZmlybSIsIklURU1fMl9URVhUIjoi7Iq57J24IiwiSVRFTV8zX0lEIjoiY29weSIsIklURU1fM19URVhUIjoi67O17IKsIiwiSVRFTV80X0lEIjoidXBkYXRlIiwiSVRFTV80X1RFWFQiOiLsiJjsoJUiLCJJVEVNXzVfSUQiOiJjYW5jZWwiLCJJVEVNXzVfVEVYVCI6Iuy3qOyGjCIsIklURU1fNl9JRCI6InNhdmUiLCJJVEVNXzZfVEVYVCI6IuyggOyepSIsIklURU1fMF9TT1JUIjoiMSIsIklURU1fMV9TT1JUIjoiMiIsIklURU1fMl9TT1JUIjoi
+        MyIsIklURU1fM19TT1JUIjoiNCIsIklURU1fNF9TT1JUIjoiNSIsIklURU1fNV9TT1JUIjoiNiIsIklURU1fNl9TT1JUIjoiNyJ9LCJpZCI6IlpSaHlBVWN3c3BRY3pnUU5GRiIsInR5cGUiOiJidXR0b24iLCJidXR0b24iOiJidXR0b24ifX0sInRyZWUiOnsiaWQiOiJaUmh5QVVjWWdjUWN6Z1FkbnUiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IlpSaHlBVWN3c3BRY3pnUU5GRiIsInR5cGUiOiJidXR0b24ifSx7ImlkIjoiWlJoeUFVY2tLa1FjemdRTHZTIiwidHlwZSI6ImdyaWQifV19LCJpbmZvIjp7IlBBVEgiOiIvQWRtaW4vVXNlck1hbmFnZW1lbnQvQWRtaW5Vc2VyTWFuYWdlbWVudER1dHlXcml0ZS54bWwiLCJQUk9KRUNUIjoiU1JNIiwiQ09E
+        RSI6IjAxOV81IiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJVc2VyTWFuYWdlbWVudCIsIlBBVEhfMyI6IkFkbWluVXNlck1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkR1dHlXcml0ZSIsIlNDUkVFTl9JRCI6IkFEXzAxOV81In19LCJodG1sIjoiPGRpdiBpZD1cIlpSaHlBVWNZZ2NRY3pnUWRudVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRh
+        aW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJaUmh5QVVjd3NwUWN6Z1FORkZcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAg
+        IDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJaUmh5QVVja0trUWN6Z1FMdlNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2dyaWQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2Plxu
+        ICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

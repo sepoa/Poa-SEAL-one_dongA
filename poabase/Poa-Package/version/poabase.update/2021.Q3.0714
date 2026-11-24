@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SFFDT ADD (INPUT_WIDTH VARCHAR2(50))
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			ALTER TABLE SFFDT ADD INPUT_WIDTH VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SFFDT ADD INPUT_WIDTH VARCHAR(50)
+		]]>
+		</query>
+	</item>
+</body>

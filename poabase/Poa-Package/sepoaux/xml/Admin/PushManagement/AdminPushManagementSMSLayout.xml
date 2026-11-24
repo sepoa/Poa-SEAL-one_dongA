@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_450_SMS" header="false">
+    <form id="formObj" div="YAWUPLggNWUfRPGtHv" form-id="file:///resource/ux/admin/form/AD_450_SMS.js"/>
+    <tabbar id="tabbarObj" div="CuaEiVeCsyEiVeYwwE">
+        <item id="TEMPLATE" name="AD_450_SMS.TABBAR_TEMPLATE_NAME" selected="true">
+            <attach file="/Admin/PushManagement/AdminPushManagementSMSWrite.xml"/>
+        </item>
+    </tabbar>
+    <usercss>
+    <![CDATA[
+        .CodeMirror {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ddd;
+        }
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            callFunction('p', 'childScreenLoad', [{
+                id: "SMS",
+                fn: {
+                    onBeforeSave: onBeforeSave,
+                    doClear: doClear,
+                    doRefresh: doRefresh
+                }
+            }])
+        ]]>
+        </function>
+        <function name="onBeforeSave" args="data">
+        <![CDATA[
+            var subject = formObj.getValue("SMS_SUBJECT");
+            if(!sUtils.string.isBlank(subject)){
+                data.SMS_SUBJECT = subject;
+            }
+            $share.children.fn.onBeforeSave(data);
+        ]]>
+        </function>
+        <function name="doClear">
+        <![CDATA[
+            formObj.clear();
+            $share.children.fn.doClear();
+        ]]>
+        </function>
+        <function name="childScreenLoad" args="config">
+        <![CDATA[
+            $share.children = config;
+        ]]>
+        </function>
+        <function name="load" args="data">
+        <![CDATA[
+            doClear();
+            formObj.setData(data, "json");
+            if (data.SMS_CONTENTS) {
+                callFunction('AD_450_SMS_W', 'load', [data.SMS_CONTENTS]);
+            }
+        ]]>
+        </function>
+        <function name="doRefresh">
+        <![CDATA[
+            $share.children.fn.doRefresh();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsieXdGSGFWZXl3RkhhVmVnZkFrIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF90QklBaU5ScGFUbzgiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX21lYzY2V3VESVA4SiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQ1MF9TTVMiLCJPQkpFQ1RfSUQiOiJ5d0ZIYVZleXdGSGFWZWdmQWsiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJ5d0ZIYVZleXdGSGFWZWdmQWsiLCJ0
+        eXBlIjoiYm9keSJ9LCJDdWFFaVZlQ3N5RWlWZVl3d0UiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIxMCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX3dxWU1LTkxQRmRrbyI6Im51bGwiLCJkaHhJZF9hZUwzUmg5bjJ1djYiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfYlVFMkRobW9EYmpCIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfT2U4b0ZOMlRoRFc1IjoibnVsbCIsImRoeElkX1JxS2l4NDRM
+        NGMxbiI6Im51bGwiLCJkaHhJZF9sTnRxV0dRb0RmUGgiOiJudWxsIiwiZGh4SWRfM0tLaVBlNDhuTm85IjoibnVsbCIsImRoeElkXzZKOERzRjVPQUpNMyI6Im51bGwiLCJkaHhJZF9jbm5tN3J4QUthZWQiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJ0YWJiYXJPYmoiLCJJVEVNX1lBV1VQTEdDUVVVRlJQR0tFWV9TRUxFQ1RFRCI6InRydWUiLCJPQkpFQ1RfSUQiOiJDdWFFaVZlQ3N5RWlWZVl3d0UiLCJJVEVNX1lBV1VQTEdDUVVVRlJQR0tFWV9UWVBFIjoiVSIsIklURU1fWUFXVVBMR0NRVVVGUlBHS0VZX1NPUlQiOiIxIiwiSVRFTV9ZQVdVUExHQ1FVVUZSUEdLRVlfTkFNRSI6IkhhcyBub3QgZm91bmQgdGV4dCA6IEFEXzQ1MF9TTVMuVEFCQkFSX1RF
+        TVBMQVRFX05BTUUiLCJJVEVNX1lBV1VQTEdDUVVVRlJQR0tFWV9UQVJHRVQiOiIvQWRtaW4vUHVzaE1hbmFnZW1lbnQvQWRtaW5QdXNoTWFuYWdlbWVudFNNU1dyaXRlLnhtbCIsIklURU1fWUFXVVBMR0NRVVVGUlBHS0VZX0lEIjoiVEVNUExBVEUifSwiaWQiOiJDdWFFaVZlQ3N5RWlWZVl3d0UiLCJ0eXBlIjoidGFiYmFyIn0sIllBV1VQTGdnTldVZlJQR3RIdiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZm9ybU9iaiIsIk9CSkVDVF9JRCI6IllBV1VQTGdnTldV
+        ZlJQR3RIdiIsIkZPUk1fSUQiOiJmaWxlOi8vL3Jlc291cmNlL3V4L2FkbWluL2Zvcm0vQURfNDUwX1NNUy5qcyJ9LCJpZCI6IllBV1VQTGdnTldVZlJQR3RIdiIsInR5cGUiOiJmb3JtIiwiZm9ybSI6ImZvcm0ifSwiWUFXVVBMR0NRVVVGUlBHS0VZIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJTRUxFQ1RFRCI6InRydWUiLCJUWVBFIjoiVSIsIlNPUlQiOiIxIiwiTkFNRSI6IkhhcyBub3QgZm91bmQgdGV4dCA6IEFEXzQ1MF9TTVMuVEFCQkFSX1RFTVBMQVRFX05BTUUiLCJUQVJHRVQiOiIvQWRtaW4vUHVzaE1hbmFnZW1lbnQvQWRtaW5QdXNoTWFuYWdlbWVudFNNU1dyaXRlLnhtbCIsIklEIjoiVEVNUExBVEUiLCJpdGVtSUQiOiJZQVdVUExHQ1FVVUZS
+        UEdLRVkifSwiaWQiOiJZQVdVUExHQ1FVVUZSUEdLRVkiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6IlRFTVBMQVRFIn19LCJ0cmVlIjp7ImlkIjoieXdGSGFWZXl3RkhhVmVnZkFrIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJZQVdVUExnZ05XVWZSUEd0SHYiLCJ0eXBlIjoiZm9ybSJ9LHsiaWQiOiJDdWFFaVZlQ3N5RWlWZVl3d0UiLCJ0eXBlIjoidGFiYmFyIiwiY2VsbHMiOlt7ImlkIjoiWUFXVVBMR0NRVVVGUlBHS0VZIiwidHlwZSI6InRhYmJhckNlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9QdXNoTWFuYWdlbWVudC9BZG1pblB1c2hNYW5hZ2VtZW50U01TTGF5b3V0LnhtbCIsIlBST0pF
+        Q1QiOiJGUldLIiwiQ09ERSI6IjQ1MF9TTVMiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6IlB1c2hNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5QdXNoTWFuYWdlbWVudCIsIlBBVEhfMSI6IkFkbWluIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiU01TTGF5b3V0IiwiU0NSRUVOX0lEIjoiQURfNDUwX1NNUyJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJ5d0ZIYVZleXdGSGFWZWdmQWtcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93
+        cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIllBV1VQTGdnTldVZlJQR3RIdlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZm9ybVwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAg
+        PC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIm1hcmdpbi10b3A6MTBweDttYXJnaW4tcmlnaHQ6MDttYXJnaW4tYm90dG9tOjA7bWFyZ2luLWxlZnQ6MDtoZWlnaHQ6Y2FsYygxMDAlIC0gMTBweCk7XCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJDdWFFaVZlQ3N5RWlWZVl3d0VcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X3RhYmJhciBs
+        b3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

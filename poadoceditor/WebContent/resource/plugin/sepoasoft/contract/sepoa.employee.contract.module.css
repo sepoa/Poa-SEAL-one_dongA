@@ -1,0 +1,897 @@
+/*
+  notice
+   
+  - do not press Ctrl + F in eclipse ( ':not' selector error )
+*/
+
+/* common */
+.container.contract-noselect, .contract-item-title, .contract-editor-area, .contract-item-input{
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+/* helper */
+.contract-helper-view{
+	position:relative;
+}
+.contract-helper-label{
+	background-color: #ffe000;
+	border: none;
+    word-break:keep-all;
+    font-size: 16px;
+    resize:none;
+    overflow:hidden;
+	padding:2px 5px;
+	position:absolute;
+	font-size: 16px;
+	height:26px;
+    opacity: 0.6;
+    cursor:not-allowed !important;
+}
+.contract-helper-hidden .contract-helper-label{
+	display:none;
+}
+.contract-helper-view:not(.contract-helper-hidden) .contract-editor-list-item-contents{
+	cursor:not-allowed !important;
+}
+.contract-helper-view:not(.contract-helper-hidden) .contract-editor-list-item-wrapper{
+	cursor:crosshair;
+}
+.contract-helper-label.contract-helper-seal{
+    height: 40px;
+    width:40px;
+    text-align: center;
+    padding: 0px !important;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;	
+	opacity: 0.5;
+}
+.contract-helper-label.contract-helper-image{
+    max-height: 40px;
+    height: 40px;
+    width:40px !important;
+    text-align: center;
+}
+.contract-helper-label.contract-helper-sign{
+	max-height: 25px;
+	padding:20px 20px 20px 20px;
+	width:60px !important;
+	background-image: url(icon/sign.png);
+    background-repeat: no-repeat;
+    background-position-y: center;
+    background-position-x: calc(100% - 10px);
+}
+/* setting items */
+.contract-items-base {
+	width: 100%;
+	height: 100%;
+	overflow-y:auto;
+}
+.contract-itmes-area {
+	padding: 20px;
+	position: relative;
+}
+
+.contract-items-area-hidden {
+	display: none;
+}
+
+.contract-itmes-area-item {
+	
+	padding-top: 0;
+}
+.contract-itmes-area:after {
+	content: "";
+	position: absolute;
+	left: auto;
+	bottom: 0;
+	height: 1px;
+	width: 80%;
+	border-bottom: 1px dotted #424242;
+}
+.contract-items-area-title {
+	display: inline-flex;
+	width: 100%;
+}
+.contract-items-area-title > div{
+	width:100%;
+}
+.contract-items-area-title > .contract-items-modal-control{
+	width:30%;
+}
+.contract-items-area-title p {
+	color: #454545;
+	font-size: 16px;
+	font-weight: 500;
+	padding: 5px 0;
+	margin:0px;
+	float:left;
+}
+.contract-items-area-title-icon {
+	background-image: url(icon/stamp.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+   	vertical-align: middle;
+	padding-right: 5px;
+	width: 22px;       
+	height: 22px;
+	float: left;
+	margin-top: 7px;	
+}
+.contract-items-area-search {
+	display: flex;
+	height: 30px;
+	padding: 5px 0;
+	font-size: 15px;
+    font-weight: 300;
+}
+.contract-items-area-search .search_input {
+	width: calc(100% - 30px);
+    border: 1px solid #e3e3e3;
+    box-sizing: border-box;
+    margin-left: 7px;
+}
+.contract-items-area-search .search_btn{
+	display: flex;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	border: 1px solid #e3e3e3;
+	box-sizing: border-box;
+	border-left: none;
+	justify-content: center;
+	align-items: center;
+}
+.contract-items-area-search .search_btn:before {
+	content: "\e97a";
+	font-size: 18px;
+}
+.contract-items-list{
+	margin:0px;
+	padding:0px;	
+}
+.contract-items-list-li {
+	padding: 5px 0;
+	font-size: 15px;
+	font-weight: 300;
+	height: auto;
+	list-style: none;
+}
+.contract-items-list-icon {
+	vertical-align: middle;
+	padding-right: 5px;
+	width: 30px;       
+	height: 24px;
+	float: left;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: auto 90%;
+}
+.contract-items-list-text {
+	vertical-align: middle;
+	margin-left: 20px;
+	display:inline-block;
+	max-width:calc(100% - 55px);
+}
+.contract-itmes-area-item .contract-items-list {
+	max-height: 250px;
+	overflow: auto;
+}
+.contract-itmes-area-item .contract-items-list::-webkit-scrollbar {
+	display: none;
+}
+.contract-itmes-area-item .contract-items-list:hover::-webkit-scrollbar {
+    display: block;
+    width: 6px;
+}
+.contract-itmes-area-item .contract-items-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.contract-itmes-area-item .contract-items-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 6px;
+}
+.contract-itmes-area-item .contract-items-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+.contract-items-sign-control {
+    display: flex;
+}
+.contract-items-sign-control.contract-hide{
+	display:none;
+}
+.contract-items-sign-control > div {
+    margin:auto;
+}
+.control-mode-contract{
+	width: 30%;
+}
+.contract-items-sign-control-item {
+	background-position: center center;
+	background-repeat: no-repeat;
+	border: 1px solid #6f6f6f;
+	
+	width: 22px;
+	height: 22px;
+	margin-right: 3px;
+	float:left;
+	
+	display: flex;
+	justify-content: center;
+    align-items: center;
+}
+.contract-items-sign-control-count {
+    font-size: 16px;
+    text-align: center;
+    line-height:22px;
+}
+.contract-items-sign-control-button {
+	cursor: pointer;
+}
+.contract-items-sign-control-plus:after {
+	content: "\e913";
+}
+.contract-items-sign-control-minus:after {
+	content: "\e91a";
+}
+.contract-items-sign-control .contract-items-sign-control-type-popup, .contract-items-sign-control .contract-items-sign-control-type-custom{
+	margin: auto 10px auto auto;
+}
+.contract-items-sign-control .contract-items-sign-control-type-custom > div:not(:last-child) {
+	display:none;
+}
+.contract-items-sign-control .contract-items-sign-control-type-popup > div:not(:last-child) {
+	display:none;
+}
+.contract-items-sign-control-type-popup.contract-items-sign-addflag-false > div:last-child {
+	display:none;
+}
+.contract-items-sign-control .contract-items-sign-control-type-custom > .contract-items-sign-control-item{
+	border-color:transparent;
+}
+.contract-items-sign-control .contract-items-sign-control-type-popup > .contract-items-sign-control-item{
+	border-color:transparent;
+}
+.contract-items-sign-box{
+	margin:20px 0px 0px 0px;
+	padding:0px;	
+}
+.contract-items-sign-box:first-child{
+	margin-top: 0px;
+}
+.contract-items-list-icon-seal {
+	background-image: url('icon/seal.png');
+}
+.contract-items-list-icon-text {
+	background-image: url('icon/text.png');
+}
+.contract-items-list-icon-mtext,
+.contract-items-list-icon-ntext {
+	border: 1px solid #999;
+	background-color: #fff;
+	border-radius: 2px;
+	width: 20px;
+	height: 14px;
+	background-image: none;
+	box-sizing: border-box;
+}
+.contract-items-list-icon-mtext::after {
+	content: '*';
+	color: #c0392b;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 12px;
+}
+.contract-items-list-icon-calendar {
+	background-image: url('icon/date.png');
+}
+.contract-items-list-icon-number {
+	background-image: url('icon/number.png');
+}
+.contract-items-list-icon-sign {
+	background-image: url('icon/sign.png');
+	background-size: auto 90%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.contract-items-list-icon-signer_company_name {
+	background-image: url('icon/building-front.png');
+}
+.contract-items-list-icon-owner {
+	background-image: url('icon/ceo.png');
+}
+.contract-items-list-icon-addr {
+	background-image: url('icon/address.png');
+}
+.contract-items-sign-modal-popup {
+	background-position: center center;
+	background-repeat: no-repeat;
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	margin-right: 3px;
+	float:left;
+	cursor: pointer;
+}
+
+/* preview */
+.sepoa-preview-base{
+	width:100%;
+	height:100%;
+}
+.sepoa-preview-area{
+	width:100%;
+	height:100%;
+	overflow-y:auto;
+}
+.sepoa-preview-area .preview-title {
+    font-size: 20px;
+    padding: 3px;
+    text-align: center;
+    font-weight: 500;
+    margin-top: 10px;
+}
+.sepoa-preview-list{
+	width:100%;
+	margin:20px 0px 0px;
+	padding:0px;
+	
+	list-style-type: none;
+}
+
+.sepoa-preview-list-li{
+	width: calc(100% - 20px);
+    margin: 8px;
+}
+
+.sepoa-preview-list-item-contents{
+	display:flex;
+}
+
+.sepoa-preview-list-item-contents > img
+, .sepoa-preview-list-item-contents > canvas{
+	width: 90%;
+	height: 100%;
+    margin: 10px auto;
+    border: 1px solid #dddddd;
+    cursor:pointer;
+}
+
+.sepoa-preview-list-item-page{
+	display:flex;
+	justify-content:center;
+}
+
+/* editor */
+.contract-editor-base{
+	width:100%;
+	height:100%;
+}
+.contract-editor-area{
+	width:calc(100% - 40px);
+	padding:0px 20px;
+	height:100%;
+	overflow-x:auto;
+	overflow-y:scroll;
+	position: relative;
+}
+.contract-editor-wrapper{
+	overflow:auto;
+	overflow-x:hidden;	
+}
+.contract-editor-list{
+	width:100%;
+	margin:0px;
+	padding:0px;
+	list-style-type: none;
+}
+
+.contract-editor-list-li{
+	width: calc(100% - 20px);
+    padding: 10px;
+}
+
+.contract-editor-list-item-contents{
+	display:flex;
+}
+
+.contract-editor-list-item-wrapper{
+	width: 945px;
+	height: 100%;
+    position:relative;
+
+    display: flex;
+    overflow:hidden; 
+}
+.contract-editor-area .contract-editor-list-item-wrapper{
+    margin: 50px auto 10px auto;    
+    border: 1px solid #dddddd;
+}
+.contract-editor-list-item-wrapper > img,
+.contract-editor-list-item-wrapper > canvas{
+	width:100%;
+	-webkit-user-drag: none;
+}
+.contract-editor-list-item-page{
+	display:flex;
+	justify-content:center;
+}
+
+/* contract-item */
+.contract-item-box{
+	position:absolute;
+	font-size: 16px;
+} 
+.contract-editor-area .contract-item-box{
+	background-color:hsla(260, 100%, 60%, 0.6);
+}
+.contract-item-box:hover{
+    cursor: pointer;
+}
+.contract-item-draggable, .contract-item-draggable *{
+	cursor: move !important;
+}
+.contract-item-resizeable, .contract-item-resizeable *{
+	cursor: se-resize !important;
+}
+.contract-item-layer{
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+	position:absolute;
+}
+.contract-item-box{
+	top:0px;
+	left:0px;
+	cursor:default;
+	padding:2px 5px;
+	display: inline-flex;
+}
+.contract-item-box.contract-item-box-seal-data{
+	top:0px;
+	left:0px;
+	cursor:default;
+	padding:0px;
+	display: inline-flex;
+}
+.contract-item-box .contract-item-cover{
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+}
+.contract-item-input{
+	background-color: transparent;
+	border: none;
+    word-break:keep-all;
+    font-size: 16px;
+    resize:none;
+    height:100%;
+    width:100%;
+    overflow:hidden;
+    color:#000;
+}
+.contract-item-input::-webkit-input-placeholder{
+	color:transparent;
+}
+.contract-item-input:-ms-input-placeholder{
+	color:transparent;
+}
+.contract-item-input::placeholder{
+	color:transparent;
+}
+.contract-editor-area .contract-item-input::-webkit-input-placeholder{
+	color:#fff;
+}
+.contract-editor-area .contract-item-input:-ms-input-placeholder{
+	color:#fff;
+}
+.contract-editor-area .contract-item-input::placeholder{
+	color:#fff;
+}
+.contract-editor-area .contract-item-input{
+	transform: inherit !important;
+	overflow:auto;
+	padding:0px;
+}
+.contract-editor-area .contract-item-se-resize{
+	vertical-align: middle;
+    text-indent: -99999px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    
+    position: absolute;
+    font-size: 0.1px;
+    display: block;
+    -ms-touch-action: none;
+    touch-action: none;
+    cursor: se-resize;
+    right: 1px;
+    bottom: 1px;
+    
+    border-left: 12px solid transparent;
+    border-bottom: 12px solid hsl(35, 100%, 80%);
+}
+.contract-editor-area .contract-item-box:hover .contract-item-resizable{
+	display:inherit;
+}
+.contract-editor-area .contract-item-delete{
+	right: 0px;
+    position: absolute;
+    top: 0px;
+    width: 13px;
+    height: 13px;
+    background-color:#616161;
+}
+.contract-editor-area  .contract-item-delete:after, .contract-editor-area  .contract-item-delete:before{
+	content: "";
+    display: block;
+    height: 10px;
+    left: 6px;
+    position: absolute;
+    top: 1px;
+    width: 2px;
+    background:#ffffff;
+}
+.contract-editor-area  .contract-item-delete:after{
+	-webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.contract-editor-area  .contract-item-delete:before{
+	-webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+/* contract-item-image */
+.contract-editor-area .contract-item-type-image{
+	overflow: hidden !important;
+}
+.contract-editor-area .contract-item-type-image>textarea{
+	text-align: center;
+    overflow: hidden !important;
+}
+
+/* contract-item-sign */
+.contract-editor-area .contract-item-type-sign {
+	max-height: 25px;
+	padding:20px 20px 20px 20px;
+	width:60px !important;
+	background-image: url(icon/sign.png);
+    background-repeat: no-repeat;
+    background-position-y: center;
+    background-position-x: calc(100% - 10px);
+    z-index: 9999;
+}
+.contract-editor-area .contract-item-type-sign .contract-item-input::-webkit-input-placeholder{
+	color:#fff;
+}
+.contract-editor-area .contract-item-type-sign .contract-item-input:-ms-input-placeholder{
+	color:#fff;
+}
+.contract-editor-area .contract-item-type-sign .contract-item-input::placeholder{
+	color:#fff;
+}
+.contract-editor-area .contract-item-type-sign > textarea{
+    overflow: hidden;
+}
+
+/* contract-item-seal */
+.contract-editor-area .contract-item-type-seal{
+	overflow: hidden;
+}
+.contract-editor-area .contract-item-type-seal .contract-item-cover{
+	background-size: 100% 100%;
+    background-repeat: no-repeat;	
+	opacity: 0.5;
+}
+.contract-editor-area .contract-item-type-seal > textarea{
+	text-align: center;
+	overflow: hidden;
+}
+
+/* contract-item-editor */
+.contract-item-editor-base{
+	display:none;
+	left:0px;
+	top:0px;
+	width:0px;
+	height:0px;
+}
+.contract-item-editor-base{
+	position:absolute;
+	width:100px;
+	height:100px;
+	z-index:100;
+}
+.contract-item-editor-base.contract-item-editor-show{
+	display:inherit;
+}
+.contract-item-editor-prop-base{
+	box-shadow: 0 -1px 7px 0 rgba(0, 0, 0, .2);
+	background-color: #fafafa;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    padding:10px 15px;
+    display: inline-block;
+}
+.contract-item-editor-prop-table{
+	border-spacing:0px;
+}
+.contract-item-editor-prop-table > tr.option-hide{
+	display: none;
+}
+.contract-item-editor-prop-table > tr.option-show{
+	display: show;
+}
+.contract-item-editor-prop-line > td{
+	border-bottom:1px solid #e1e1e1;
+	padding:6px 2px;
+	height:25px;
+	position: relative;
+}
+.contract-item-editor-prop-table > tr.contract-item-editor-prop-type-repeat .contract-item-editor-prop-td{
+	min-width: 160px;
+}
+.contract-item-editor-prop-line > td.contract-item-align-right{
+	text-align: right;
+}
+
+.contract-item-editor-prop-input{
+	outline:none;
+	color: #6a6a6a;
+	line-height: 16px;
+    font-size:12px;
+	border:solid 1px #afafaf;
+}
+.contract-item-editor-prop-label{
+	word-break: keep-all;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: bold;
+}
+.contract-item-editor-prop-font_size-manual{
+	width: 40px;
+    padding: 4px 4px 4px 5px;
+}
+.contract-item-editor-base ::-webkit-outer-spin-button,
+.contract-item-editor-base ::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.contract-item-editor-prop-font_size-slider{
+	margin-left:10px;
+	width:100px;
+}
+.contract-item-editor-prop-select{
+	min-width:80px;
+	float:right;
+	
+	-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 4px 16px 4px 5px;
+}
+.contract-item-editor-prop-select-back{
+	height: 100%;
+	top: 0px;
+    right: 5px;
+    
+    position: absolute;
+    display: flex;
+    align-items: center;
+}
+.contract-item-editor-prop-select-back:after{
+	color:#6a6a6a;
+	font-size: 12px;
+	
+	content: "\e935";
+}
+.contract-item-editor-prop-value-input,
+.contract-item-editor-prop-prefix-input, 
+.contract-item-editor-prop-suffix-input{
+	width:calc(100% - 21px);
+	padding: 4px 4px 4px 5px;
+	margin-left: 10px;
+}
+
+.contract-item-editor-prop-check{
+	padding: 4px 4px 4px 5px;
+	margin-left: 10px;
+}
+
+/* cotract item prop */
+.contract-item-prop-font_align-left{
+	text-align: left;
+}
+.contract-item-prop-font_align-right{
+	text-align: right;
+}
+.contract-item-prop-font_type-notosanskr{
+	font-family: 'Noto Sans KR' !important;
+}
+.contract-item-prop-font_type-notoserif{
+	font-family: NotoSerif !important;
+}
+
+/* editor header */
+.contract-editor-float-wrapper,
+.contract-editor-header-wrapper{
+	width: 100%;
+    display: flex;
+}
+.contract-editor-float-wrapper{
+	margin-bottom:16px;
+}
+.contract-editor-header-wrapper{
+	padding-bottom: 50px;
+	flex-direction:column;
+}
+.contract-editor-header-item {
+	width: 100%;
+	display:flex;
+} 
+
+/* editor header - button */
+.contract-editor-header-item.contract-editor-header-item-button{
+	justify-content: flex-end;	
+}
+
+/* editor header - form */
+.contract-editor-header-item.contract-editor-header-item-form{
+	align-items: center;
+    justify-content: center;
+}
+.contract-editor-header-item.contract-editor-header-item-form > .multi_form_box{
+	left:8px;
+}
+
+/* editor view */
+.contract-editor-area.contract-editor-mode-view .contract-item-box,
+.contract-editor-area.contract-editor-mode-sign .contract-item-box,
+.contract-editor-area.contract-editor-mode-complete .contract-item-box,
+.contract-editor-area.contract-editor-mode-termination .contract-item-box{
+	display:none;
+}
+
+/* editor review, approval */
+.contract-editor-area.contract-editor-mode-preview .contract-item-box,
+.contract-editor-area.contract-editor-mode-review_done .contract-item-box,
+.contract-editor-area.contract-editor-mode-review .contract-item-box,
+.contract-editor-area.contract-editor-mode-approval .contract-item-box,
+.contract-editor-area.contract-editor-mode-approval_done .contract-item-box {
+	background-color: transparent;
+}
+
+.contract-editor-area.contract-editor-mode-review .contract-item-box.contract-item-private{
+	background-color: hsla(260, 100%, 60%, 0.6);	
+}
+
+.contract-editor-area.contract-editor-mode-preview .contract-item-se-resize,
+.contract-editor-area.contract-editor-mode-preview .contract-item-delete,
+.contract-editor-area.contract-editor-mode-review_done .contract-item-type-sign,
+.contract-editor-area.contract-editor-mode-review_done .contract-item-se-resize,
+.contract-editor-area.contract-editor-mode-review_done .contract-item-delete,
+.contract-editor-area.contract-editor-mode-review .contract-item-type-sign,
+.contract-editor-area.contract-editor-mode-review .contract-item-se-resize,
+.contract-editor-area.contract-editor-mode-review .contract-item-delete,
+.contract-editor-area.contract-editor-mode-approval .contract-item-type-sign,
+.contract-editor-area.contract-editor-mode-approval .contract-item-se-resize,
+.contract-editor-area.contract-editor-mode-approval .contract-item-delete,
+.contract-editor-area.contract-editor-mode-approval_done .contract-item-type-sign,
+.contract-editor-area.contract-editor-mode-approval_done .contract-item-se-resize,
+.contract-editor-area.contract-editor-mode-approval_done .contract-item-delete {
+	display: none;
+}
+
+
+.contract-editor-area.contract-editor-mode-sign .contract-item-box.contract-item-validation-failed{
+	outline: 2px solid #f5c542 !important;
+	outline-offset: 1px;
+}
+.contract-editor-area.contract-editor-mode-sign .contract-item-box .contract-item-se-resize,
+.contract-editor-area.contract-editor-mode-sign .contract-item-box .contract-item-delete{
+	display: none !important;
+}
+
+/* print options */
+.contract-editor-print-mode .contract-editor-list-item.contract-item-layer{
+	overflow:hidden;
+}
+.contract-editor-print-mode .contract-item-box.contract-item-box-auto-mapping{
+	width:100% !important;
+}
+
+/* watermark */
+.contract-editor-area.contract-editor-watermark-show .contract-item-layer:after{
+	display:none;
+}
+.contract-editor-area.contract-editor-watermark-show .contract-item-layer:after{
+	position: absolute;
+    transform: rotate(-45deg);
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    opacity: 0.3;
+    font-size:120px;
+    display: flex;
+}
+
+/* digital-sign */
+.digital-sign-selector-container {
+	z-index: 9999;
+}
+.digital-sign-selector-container div.ui-resizable-se {
+	cursor: se-resize;
+	width: 10px;
+	height: 10px;
+	left: calc(100% - 10px);
+	top: calc(100% - 10px);
+}
+.digital-sign-selector-container div.ui-resizable-handle {
+	position: absolute;
+	font-size: 0.1px;
+	display: block;
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.digital-sign-selector-header{
+	background-color: #00adbd;
+	text-align: right;
+	height: 20%;
+	min-height: 20px;
+	max-height: 30px;
+	border-color: #a79f9f;
+	border-width: 2px 2px 0px 2px;
+	border-style: solid;
+}
+.digital-sign-selector-header-icon{
+	padding: 5px;
+	width: 18px;
+	cursor: pointer;
+	height: 65%;
+	width: auto;
+}
+.digital-sign-selector-body{
+	/* border-color: #a79f9f;
+	border-width: 0 2px 2px;
+	border-style: solid;
+	box-sizing: border-box; */
+}
+
+.digital-sign-resize{
+	cursor: se-resize;
+	box-sizing: border-box;
+	width: 10px;
+	height: 10px;
+	border-left: 10px solid transparent;
+	border-bottom: 10px solid #00adbd;
+}
+
+.contract-sign-setter-container {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	left: 0%;
+	top: 0%;
+	background-color: rgba(128, 128, 128, 0.5);
+	z-index: 5000;
+}
+
+.contract-sign-setter-content {
+	position: relative;
+	width: 40%;
+	height: 50%;
+	min-height: 500px;
+	left: 30%;
+	top: 25%;
+	background-color: rgb(255, 255, 255);
+	z-index: 9999;
+}

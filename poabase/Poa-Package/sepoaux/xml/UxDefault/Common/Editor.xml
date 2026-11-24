@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="COMMON_EDITOR" header="false">
+    <link>
+    <![CDATA[
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/tinymce/tinymce.min.js" type="text/javascript"></script>
+        <script src="<%=CONTEXT_NAME%>/resource/plugin/tinymce/webeditor.js" type="text/javascript"></script>
+    ]]>
+    </link>
+    <button id="btnObj">
+        <btn div="vSpzpoeztszpoenCLa" id="CLOSE" text="{BASE_BUTTON.CLOSE}" type="back" toggle="false" reverse="false" onclick="doClose()"/>
+        <btn div="vSpzpoeztszpoenCLa" id="SAVE" text="{BASE_BUTTON.SAVE}" type="save" toggle="false" reverse="false" onclick="doSave()"/>
+    </button>
+    <usercss>
+    <![CDATA[
+        .sepoa-popup-editor-wrapper {
+            height: calc(100% - 32px - 70px);
+            margin: 16px 2px 0;
+        }
+        
+        .sepoa-popup-editor-base {
+            width: 100%;
+            height: 100%;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="editorContainer" value="$($sObject._vp).find('#vSpzpoeDyGAqoepBa')[0]"/>
+        <var name="vSpzpoeCyGAqoenyrO" value="$($sObject._vp).find('#vSpzpoeCyGAqoenyrO')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$var" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            $var.config = {
+                mode:Sepoa.params.mode,
+                data:Sepoa.params.data,
+                callback:Sepoa.params.callback,
+                isEncode:Sepoa.params.isEncode
+            }
+            
+            $var.selfObj = selfObj;
+            $var.winObj = selfObj[selfObj.name];
+            $var.elem = {}
+            $var.elem.wrapper = editorContainer.appendChild($('<div class="sepoa-popup-editor-wrapper"><div class="sepoa-popup-editor-base"></div></div>')[0]);
+            $var.elem.base = $var.elem.wrapper.children[0];
+            
+            setTitle(Sepoa.params.title || "");
+            initTinyMCE($var.elem.base, onEditorLoadEnd, Sepoa.info.LANGAUGE);
+        ]]>
+        </function>
+        <function name="onEditorLoadEnd">
+        <![CDATA[
+            $var.editor = tinyMCE.activeEditor;
+            
+            setViewMode($var.config.mode);
+            setData($var.config.data);
+            
+        ]]>
+        </function>
+        
+        <function name="setTitle" args="title">
+        <![CDATA[
+            $var.winObj.setText(title);
+        ]]>
+        </function>
+        <function name="setViewMode" args="mode">
+        <![CDATA[
+            if(mode === 'view'){
+                btnObj.showButton('SAVE', false);
+                //$var.editor.setMode("readonly");
+            }else{
+                $var.editor.setMode("code");
+            }
+        ]]>
+        </function>
+        <function name="setData" args="data">
+        <![CDATA[
+            if(data){
+                var content = $var.config.data;
+                if($var.config.isEncode !== false){
+                    content = sUtils.string.decodeHTML(content);
+                }
+                $var.editor.setContent(content);
+            }
+        ]]>
+        </function>
+        <function name="doClose">
+        <![CDATA[
+            $var.selfObj.close();
+        ]]>
+        </function>
+        <function name="doSave">
+        <![CDATA[
+            if($var.config.callback){
+                $var.config.callback(tinyMCE.activeEditor.getContent());
+            }
+            $var.selfObj.close();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsidlNwenBvZXdTcHpwb2Vjb0RpIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9qcVJBVU0xaWc3SVoiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX2lKZFhvZWdxQU5lVSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkNPTU1PTl9FRElUT1IiLCJPQkpFQ1RfSUQiOiJ2U3B6cG9ld1NwenBvZWNvRGkiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkRFRkFVTFQifSwiaWQiOiJ2U3B6cG9ld1NwenBvZWNvRGki
+        LCJ0eXBlIjoiYm9keSJ9LCJ2U3B6cG9lenRzenBvZW5DTGEiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBTElHTl9IT1JJWk9OVEFMIjoicmlnaHQiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJJVEVNXzBfUkVWRVJTRSI6ZmFsc2UsIklURU1fMF9UWVBFIjoiYmFjayIsIklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX1NPUlQiOiIyIiwiT0JKRUNUX0lEIjoidlNwenBvZXp0c3pwb2VuQ0xhIiwiSVRFTV8xX1RZUEUiOiJz
+        YXZlIiwiSVRFTV8xX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9JRCI6IkNBTkNFTCIsIklURU1fMF9UT0dHTEUiOmZhbHNlLCJJVEVNXzFfSUQiOiJTQVZFIiwiSVRFTV8wX1NPUlQiOiIxIn0sImlkIjoidlNwenBvZXp0c3pwb2VuQ0xhIiwidHlwZSI6ImJ1dHRvbiJ9LCJ2U3B6cG9lRHlHQXFvZXBCYSI6eyJsYXlvdXQiOnsiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJlZGl0b3JDb250YWluZXIiLCJPQkpFQ1RfSUQiOiJ2U3B6cG9lRHlHQXFvZXBCYSJ9LCJpZCI6InZTcHpwb2VEeUdBcW9lcEJhIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJhIn0sInZTcHpwb2VDeUdBcW9lbnly
+        TyI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfdDZHcG1NZ1VOQjBIIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF84WThqaTdZRklHNksiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfNzJweTVxcDZVdkVkIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfVDI3ckYxZ0ZvTVFhIjoibnVsbCIsImRoeElkX0llMnNuNjRrcEFvQiI6Im51bGwiLCJkaHhJZF9uSDNIRmpLbjJsak0i
+        OiJudWxsIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOiIxIiwiVkFSIjoidlNwenBvZUN5R0Fxb2VueXJPIiwiT0JKRUNUX0lEIjoidlNwenBvZUN5R0Fxb2VueXJPIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJ2U3B6cG9lQ3lHQXFvZW55ck8iLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoidlNwenBvZXdTcHpwb2Vjb0RpIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJ2U3B6cG9lenRzenBvZW5DTGEiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6InZTcHpwb2VDeUdBcW9lbnlyTyIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJ2U3B6cG9lRHlHQXFvZXBCYSIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8i
+        OnsiUEFUSCI6Ii9VeERlZmF1bHQvQ29tbW9uL0VkaXRvci54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlV4RGVmYXVsdC9Db21tb24iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJFZGl0b3IiLCJDT0RFIjoiRURJVE9SIiwiUFJFRklYIjoiQ09NTU9OIiwiU0NSRUVOX0lEIjoiQ09NTU9OX0VESVRPUiJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJ2U3B6cG9ld1NwenBvZWNvRGlcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyIFwiIHN0eWxlPVwiXCI+XG4g
+        ICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJ2U3B6cG9lenRzenBvZW5DTGFcIiBjbGFzcz1c
+        InNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cInZTcHpwb2VDeUdBcW9lbnlyT1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAg
+        ICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwidlNwenBvZUR5R0Fxb2VwQmFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAg
+        ICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

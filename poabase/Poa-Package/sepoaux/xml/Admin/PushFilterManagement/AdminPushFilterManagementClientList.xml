@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_460_C_LIST" header="false" pageCloseWarn="false">
+    <filterbar id="filterObj" div="AABtgWenYcugWejFzh">
+        <keyword id="F_KEYWORD"/>
+        <event type="onSearch" callback="onSearch"/>
+    </filterbar>
+    <list id="listObj" div="AABtgWentGugWeiIUH">
+        <type>
+            <template><![CDATA[<table class=sepoa_list_design width=100%><tr><td width=sepoa_list_font_bold>#house_code#</td><td class=sepoa_list_align_right>#company_name#</td></tr></table>]]></template>
+        </type>
+        <event type="onItemClick" callback="onItemClick"/>
+    </list>
+    <onloadscript/>
+    <userscript>
+        <function name="doQuery">
+        <![CDATA[
+            dataOutput.addFilter(filterObj);
+            listObj.clearAll(false);
+            listObj.load(window.CONTEXT_NAME + '/SepoaList.sux?PROCESS_ID=sepoa.svc.admin.AD_460&mode=doList&METHOD=doQueryClient' + dataOutput.getParams());
+        ]]>
+        </function>
+        <function name="onItemClick" args="id, ev, html">
+        <![CDATA[
+            callFunction(['p'], 'onSelectItem', ["CLIENT", listObj.get(id, true)]);
+            return;
+            
+            callFunction('AD_462_1', 'clearCmData', []);
+        ]]>
+        </function>
+        <function name="onSearch" args="flag">
+        <![CDATA[
+            if (flag == "filter" || flag == "search") {
+            	doQuery();
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQUFCdGdXZUFBQnRnV2VaVnpXIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9qMGVadWtLMnhjR1ciOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX09mQkIzbjdvSkp0ViI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzQ2MF9DX0xJU1QiLCJPQkpFQ1RfSUQiOiJBQUJ0Z1dlQUFCdGdXZVpWelciLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkxJU1QifSwiaWQiOiJBQUJ0Z1dlQUFCdGdXZVpWelciLCJ0
+        eXBlIjoiYm9keSJ9LCJBQUJ0Z1dlbnRHdWdXZWlJVUgiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF80N2FNMzJ4RkJoa3oiOiJudWxsIiwiZGh4SWRfemFBS0dMdFc5U0lPIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2Z1MklVMEJab2c4aSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoibGlzdE9iaiIsIk9CSkVDVF9JRCI6IkFB
+        QnRnV2VudEd1Z1dlaUlVSCIsIlRFTVBMQVRFIjoiPHRhYmxlIGNsYXNzPXNlcG9hX2xpc3RfZGVzaWduIHdpZHRoPTEwMCU+PHRyPjx0ZCB3aWR0aD1zZXBvYV9saXN0X2ZvbnRfYm9sZD4jaG91c2VfY29kZSM8L3RkPjx0ZCBjbGFzcz1zZXBvYV9saXN0X2FsaWduX3JpZ2h0PiNjb21wYW55X25hbWUjPC90ZD48L3RyPjwvdGFibGU+IiwiRFlOQU1JQyI6MC4wfSwiaWQiOiJBQUJ0Z1dlbnRHdWdXZWlJVUgiLCJ0eXBlIjoibGlzdCJ9LCJBQUJ0Z1dlblljdWdXZWpGemgiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX2pmTmcwYmliWlE1
+        YyI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfbW5Lc3RLVm04R1lRIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzJaaVZMZFcwZUdJWiI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX2hSZWdVYWk1cmd1VSI6Im51bGwiLCJkaHhJZF8wWFp3d2tOeEdtN0EiOiJudWxsIiwiZGh4SWRfR0dseFJ4OUh3ajlzIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZmlsdGVyT2JqIiwiS0VZV09SRF9BQ1RJVkUiOiJ0cnVlIiwiS0VZV09SRF9JRCI6IkZfS0VZV09SRCIsIlNUQVRVU19BQ1RJVkUiOiJmYWxz
+        ZSIsIlNUQVRVU19JRCI6IkZfU1RBVFVTIiwiQ0FMRU5EQVJfQUNUSVZFIjoiZmFsc2UiLCJDQUxFTkRBUl9JRCI6IkZfQ0FMRU5EQVIiLCJGSUxURVJfQUNUSVZFIjoiZmFsc2UiLCJPQkpFQ1RfSUQiOiJBQUJ0Z1dlblljdWdXZWpGemgiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX0g1NEgzNmNWUkg1QSI6Im51bGwifSwiaWQiOiJBQUJ0Z1dlblljdWdXZWpGemgiLCJ0eXBlIjoiZmlsdGVyYmFyIn19LCJ0cmVlIjp7ImlkIjoiQUFCdGdXZUFBQnRnV2VaVnpXIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJBQUJ0Z1dlblljdWdXZWpGemgiLCJ0eXBlIjoiZmlsdGVyYmFyIn0seyJpZCI6IkFBQnRnV2VudEd1Z1dlaUlVSCIsInR5cGUiOiJs
+        aXN0In1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL1B1c2hGaWx0ZXJNYW5hZ2VtZW50L0FkbWluUHVzaEZpbHRlck1hbmFnZW1lbnRDbGllbnRMaXN0LnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6IjQ2MF9DX0xJU1QiLCJQUkVGSVgiOiJBRCIsIlBBVEhfMiI6IlB1c2hGaWx0ZXJNYW5hZ2VtZW50IiwiUEFUSF8zIjoiQWRtaW5QdXNoRmlsdGVyTWFuYWdlbWVudCIsIlBBVEhfMSI6IkFkbWluIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQ2xpZW50TGlzdCIsIlNDUkVFTl9JRCI6IkFEXzQ2MF9DX0xJU1QifX0sImh0bWwiOiI8ZGl2IGlkPVwiQUFCdGdXZUFBQnRnV2VaVnpXXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwi
+        c2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2ZpbHRlcmJhcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZmlsdGVyYmFyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAg
+        ICAgICAgPGRpdiBpZD1cIkFBQnRnV2VuWWN1Z1dlakZ6aFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgc2Vwb2F1eF9maWx0ZXJiYXIgc3NmaWx0ZXJfY29udFwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2xpc3Rfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2xpc3RfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiQUFC
+        dGdXZW50R3VnV2VpSVVIXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9saXN0IGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

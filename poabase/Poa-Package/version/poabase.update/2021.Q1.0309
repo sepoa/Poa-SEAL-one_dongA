@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCONF ADD (BANNER_ATTACH_NO VARCHAR2(50)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+	<query vendor="ORACLE">
+	<![CDATA[
+		ALTER TABLE SCMGL ADD (SERVICE_URL VARCHAR2(200)) 
+	]]>
+	</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (SERVICE_FROM_DATE VARCHAR2(8)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (SERVICE_TO_DATE VARCHAR2(8)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (CEO_NAME_LOC VARCHAR2(50)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (HOMEPAGE VARCHAR2(50)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (ADDRESS_ENG VARCHAR2(500)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (ADDRESS_LOC VARCHAR2(500)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (PHONE_NO1 VARCHAR2(100)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (ZIP_CODE VARCHAR2(10)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD (GROUP_FLAG VARCHAR2(2)) 
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCONF ADD BANNER_ATTACH_NO VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+	<query vendor="MSSQL">
+	<![CDATA[
+		ALTER TABLE SCMGL ADD SERVICE_URL VARCHAR(200)
+	]]>
+	</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD SERVICE_FROM_DATE VARCHAR(8)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD SERVICE_TO_DATE VARCHAR(8)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD CEO_NAME_LOC VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD HOMEPAGE VARCHAR(50)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD ADDRESS_ENG VARCHAR(500)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD ADDRESS_LOC VARCHAR(500)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD PHONE_NO1 VARCHAR(100)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD ZIP_CODE VARCHAR(10)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			ALTER TABLE SCMGL ADD GROUP_FLAG VARCHAR(2)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SCMAM 
+			(	
+				HOUSE_CODE VARCHAR2(10) NOT NULL, 
+				COMPANY_CODE VARCHAR2(20) NOT NULL, 
+				MODULE VARCHAR2(50) NOT NULL, 
+				OPTION VARCHAR2(100), 
+				ADD_DATE VARCHAR2(8), 
+				ADD_TIME VARCHAR2(6), 
+				ADD_USER_ID VARCHAR2(20), 
+				CHANGE_DATE VARCHAR2(8), 
+				CHANGE_TIME VARCHAR2(6), 
+				CHANGE_USER_ID VARCHAR2(20), 
+				CONSTRAINT SCMAM_PK PRIMARY KEY (HOUSE_CODE, COMPANY_CODE, MODULE)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SCMAM
+			(	HOUSE_CODE VARCHAR(10) NOT NULL, 
+				COMPANY_CODE VARCHAR(20) NOT NULL, 
+				MODULE VARCHAR(50) NOT NULL, 
+				OPTION VARCHAR(100), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				CONSTRAINT "SCMAM_PK" PRIMARY KEY (HOUSE_CODE, COMPANY_CODE, MODULE)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertDataSLANG" />
+		<params>
+			<list>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="DESCRIPTION" />
+					<entry key="CONTENTS" val="비고" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="MODULE" />
+					<entry key="CONTENTS" val="모듈코드" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="PARENT" />
+					<entry key="CONTENTS" val="상위모듈코드" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="SELECTED" />
+					<entry key="CONTENTS" val="선택" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="SORT" />
+					<entry key="CONTENTS" val="정렬" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="TREE_ID" />
+					<entry key="CONTENTS" val="모듈명" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="USE_FLAG" />
+					<entry key="CONTENTS" val="사용" />
+				</map>
+			</list>
+		</params>
+	</item>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_036_3" method="doInsertData" />
+		<params>
+			<list>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="doDeleteCompany" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="회사 삭제" />
+				</map>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="doCheckCompany_code" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="회사코드 중복체크" />
+				</map>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="doInsertCompany" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="회사 등록" />
+				</map>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="doQueryCompany" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="회사기본정보 조회" />
+				</map>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="sepoa.svc.admin.AD_340" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="시스템설정" />
+				</map>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="doQuery" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="시스템설정 - 조회" />
+				</map>
+				<map>
+					<entry key="PROCESS_ID" val="AD_340" />
+					<entry key="METHOD" val="doSave" />
+					<entry key="SERVICE_CLASS" val="sepoa.svc.admin.AD_340" />
+					<entry key="DESCRIPTION" val="시스템설정 - 저장" />
+				</map>
+			</list>
+		</params>
+	</item>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_041_2" method="doInsertDataSLANG" />
+		<params>
+			<list>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="ADDRESS_LOC" />
+					<entry key="CONTENTS" val="주소" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="CEO_NAME_LOC" />
+					<entry key="CONTENTS" val="대표자" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="COMPANY_CODE" />
+					<entry key="CONTENTS" val="회사코드" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="COMPANY_NAME_ENG" />
+					<entry key="CONTENTS" val="회사명(영문)" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="COMPANY_NAME_LOC" />
+					<entry key="CONTENTS" val="회사명" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="COUNTRY" />
+					<entry key="CONTENTS" val="국가" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="DUPLICATE" />
+					<entry key="CONTENTS" val="* 중복확인을 진행 해 주시기 바랍니다" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="DuplicateBtn" />
+					<entry key="CONTENTS" val="중복확인" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="GROUP_FLAG" />
+					<entry key="CONTENTS" val="그룹사" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="IRS_NO" />
+					<entry key="CONTENTS" val="사업자등록번호" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="LANGUAGE" />
+					<entry key="CONTENTS" val="언어" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="SERVICE_CODE" />
+					<entry key="CONTENTS" val="서비스코드" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="SERVICE_FROM_DATE" />
+					<entry key="CONTENTS" val="서비스기간" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="SERVICE_TO_DATE" />
+					<entry key="CONTENTS" val="~" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="SERVICE_URL" />
+					<entry key="CONTENTS" val="서비스URL" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="USER_G" />
+					<entry key="CONTENTS" val="일반사용자" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="USER_M" />
+					<entry key="CONTENTS" val="팀장사용자" />
+				</map>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="CODE" val="USER_Z" />
+					<entry key="CONTENTS" val="회계사용자" />
+				</map>
+			</list>
+		</params>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" />
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="AD_341_T" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="TABBAR_company_NAME" />
+					<entry key="CONTENTS" val="회사" />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_342_T" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="TABBAR_basicInfo_NAME" />
+					<entry key="CONTENTS" val="기본정보" />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_342_T" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="TABBAR_businessSetting_NAME" />
+					<entry key="CONTENTS" val="서비스정보" />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_342_T" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="TABBAR_managementWrite_NAME" />
+					<entry key="CONTENTS" val="시스템정보" />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="C_DUPLICATE" />
+					<entry key="CONTENTS" val="회사코드 중복확인 후 가입 진행 해 주시기 바랍니다." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="COMPANY_CH" />
+					<entry key="CONTENTS" val="회사코드를 기입 해 주세요." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="DUPLICATE" />
+					<entry key="CONTENTS" val="* 중복확인을 진행 해 주시기 바랍니다." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="COMPANY_NO" />
+					<entry key="CONTENTS" val="* 해당 회사코드는 사용중입니다." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="COMPANY_OK" />
+					<entry key="CONTENTS" val="* 해당 회사코드는 사용 가능합니다." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="VALIDATION" />
+					<entry key="CONTENTS" val="* 필수항목을 기입 해 주시기 바랍니다." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="WORK_Z_CH" />
+					<entry key="CONTENTS" val="시스템 관리자만 작성 및 수정 가능합니다." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="PASSWORD_CH" />
+					<entry key="CONTENTS" val="비밀번호가 일치하지 않습니다. 확인 해 주세요." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="PASSWORD_NULL" />
+					<entry key="CONTENTS" val="패스워드를 기입 해 주세요." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="VALID_DATE" />
+					<entry key="CONTENTS" val="서비스 사용기간 종료날짜가 서비스 사용기간 시작날짜보다 이후이어야 합니다" />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_110" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="MSG01" />
+					<entry key="CONTENTS" val="서비스코드를 기입 해 주세요." />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_340" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="LAYOUT_A_HEADER" />
+					<entry key="CONTENTS" val="시스템설정조회" />
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="AD_340" />
+					<entry key="LANGUAGE" val="KO" />
+					<entry key="CODE" val="LAYOUT_B_HEADER" />
+					<entry key="CONTENTS" val="시스템설정" />
+				</map>
+			</list>
+		</params>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertData" />
+		<params>
+			<list>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="SELECTED" />
+					<entry key="COL_TYPE" val="ch" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="center" />
+					<entry key="COL_VISIBLE" val="true" />
+					<entry key="COL_SEQ" val="10.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="0" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="USE_FLAG" />
+					<entry key="COL_TYPE" val="ch" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="center" />
+					<entry key="COL_VISIBLE" val="true" />
+					<entry key="COL_SEQ" val="15.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="0" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="TREE_ID" />
+					<entry key="COL_TYPE" val="tree" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="left" />
+					<entry key="COL_VISIBLE" val="true" />
+					<entry key="COL_SEQ" val="20.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="0" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="MODULE" />
+					<entry key="COL_TYPE" val="edtxt" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="left" />
+					<entry key="COL_VISIBLE" val="true" />
+					<entry key="COL_SEQ" val="30.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="1" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="PARENT" />
+					<entry key="COL_TYPE" val="ro" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="left" />
+					<entry key="COL_VISIBLE" val="false" />
+					<entry key="COL_SEQ" val="35.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="1" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="DESCRIPTION" />
+					<entry key="COL_TYPE" val="txttxt" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="left" />
+					<entry key="COL_VISIBLE" val="true" />
+					<entry key="COL_SEQ" val="60.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="0" />
+				</map>
+				<map>
+					<entry key="GRID_ID" val="AD_340_2" />
+					<entry key="CODE" val="SORT" />
+					<entry key="COL_TYPE" val="ro" />
+					<entry key="COL_MAX_LEN" val="10000" />
+					<entry key="COL_ALIGN" val="center" />
+					<entry key="COL_VISIBLE" val="false" />
+					<entry key="COL_SEQ" val="70.00" />
+					<entry key="COL_COLOR" val="Rcolor" />
+					<entry key="NOT_NULL" val="0" />
+				</map>
+			</list>
+		</params>
+	</item>
+	
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_041_2" method="doInsert" />
+		<params>
+			<list>
+				<map>
+					<entry key="FORM_ID" val="AD_342_1" />
+					<entry key="FORM_JSON" val="[{&#34;type&#34;:&#34;settings&#34;,&#34;position&#34;:&#34;label-left&#34;},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;20&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;SERVICE_CODE&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;COMPANY_CODE&#34;,&#34;required&#34;:true},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;button&#34;,&#34;value&#34;:&#34;중복확인&#34;,&#34;name&#34;:&#34;DuplicateBtn&#34;}]},{&#34;type&#34;:&#34;label&#34;,&#34;value&#34;:&#34;&#34;,&#34;hidden&#34;:true,&#34;name&#34;:&#34;DUPLICATE&#34;,&#34;offsetLeft&#34;:&#34;160&#34;,&#34;labelWidth&#34;:&#34;500&#34;,&#34;className&#34;:&#34;duplicate_check&#34;},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;COMPANY_NAME_LOC&#34;,&#34;inputWidth&#34;:&#34;800&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;COMPANY_NAME_ENG&#34;,&#34;inputWidth&#34;:&#34;800&#34;}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;IRS_NO&#34;,&#34;required&#34;:true},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;select&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;COUNTRY&#34;,&#34;userdata&#34;:{&#34;combo&#34;:&#34;SL0001,{HOUSE_CODE}#{LANGUAGE}#AD002&#34;},&#34;labelAlign&#34;:&#34;center&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;CEO_NAME_LOC&#34;,&#34;required&#34;:true},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;select&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;LANGUAGE&#34;,&#34;userdata&#34;:{&#34;combo&#34;:&#34;SL0001,{HOUSE_CODE}#{LANGUAGE}#AD003&#34;},&#34;labelAlign&#34;:&#34;center&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;ADDRESS_LOC&#34;,&#34;inputWidth&#34;:&#34;800&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;calendar&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;SERVICE_FROM_DATE&#34;,&#34;required&#34;:true},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;calendar&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;SERVICE_TO_DATE&#34;,&#34;offsetLeft&#34;:&#34;5&#34;,&#34;labelWidth&#34;:&#34;10&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;offsetLeft&#34;:&#34;43&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;SERVICE_URL&#34;,&#34;inputWidth&#34;:&#34;800&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;offsetLeft&#34;:&#34;23&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;select&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;USER_G&#34;,&#34;userdata&#34;:{&#34;combo&#34;:&#34;SL0035,{LANGUAGE}&#34;},&#34;inputWidth&#34;:&#34;182&#34;,&#34;required&#34;:true},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;select&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;USER_M&#34;,&#34;userdata&#34;:{&#34;combo&#34;:&#34;SL0035,{LANGUAGE}&#34;},&#34;inputWidth&#34;:&#34;182&#34;},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;select&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;USER_Z&#34;,&#34;userdata&#34;:{&#34;combo&#34;:&#34;SL0035,{LANGUAGE}&#34;},&#34;inputWidth&#34;:&#34;187&#34;,&#34;required&#34;:true}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;blockOffset&#34;:&#34;label-left&#34;,&#34;offsetLeft&#34;:&#34;23&#34;,&#34;offsetTop&#34;:&#34;7&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;select&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;GROUP_FLAG&#34;,&#34;userdata&#34;:{&#34;combo&#34;:&#34;SL0003,{HOUSE_CODE}#{LANGUAGE}#AD017&#34;},&#34;inputWidth&#34;:&#34;182&#34;,&#34;required&#34;:true}]}]" />
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

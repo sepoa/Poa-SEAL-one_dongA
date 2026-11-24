@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectDeptInfo">
+	<![CDATA[
+		SELECT
+			COMPANY_CODE 
+			, DEPT 
+			, DEPT_NAME_LOC
+			, MANAGER_ID 
+			, CASE WHEN PARENT_DEPT = '!' THEN '' ELSE PARENT_DEPT END AS PARENT_DEPT 
+			, DEL_FLAG
+		FROM
+			apps.IS_DEPT_INJANG_V 
+	]]>
+	</method>
+	<method name="checkExistSDEPT">
+	<![CDATA[
+		SELECT
+			DEPT
+		FROM
+			SDEPT
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}	
+			AND DEPT 			= ${DEPT}
+	]]>
+	</method>
+	<method name="doUpdateSDEPT">
+	<![CDATA[
+		UPDATE SDEPT
+			SET
+				  DEPT_NAME_LOC	  = ${DEPT_NAME_LOC}
+				, PARENT_DEPT	  = ${PARENT_DEPT}
+				, DEL_FLAG		  = ${DEL_FLAG}
+				, MANAGER_ID	  = ${MANAGER_ID}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}
+		WHERE
+				HOUSE_CODE        = ${session.HOUSE_CODE}
+				AND COMPANY_CODE  = ${session.COMPANY_CODE}
+				AND DEPT		  = ${DEPT}
+	]]>
+	</method>
+	
+	<method name="doInsertSDEPT">
+	<![CDATA[
+		INSERT INTO SDEPT
+			(
+				  HOUSE_CODE
+				, COMPANY_CODE
+				, DEPT
+				, DEPT_NAME_LOC
+				, MANAGER_ID
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID				
+				, PARENT_DEPT
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${session.HOUSE_CODE}
+				, ${session.COMPANY_CODE}
+				, ${DEPT}
+				, ${DEPT_NAME_LOC}
+				, ${MANAGER_ID}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, ${PARENT_DEPT}
+				, ${DEL_FLAG}
+			)	
+	]]>
+	</method>
+</service>

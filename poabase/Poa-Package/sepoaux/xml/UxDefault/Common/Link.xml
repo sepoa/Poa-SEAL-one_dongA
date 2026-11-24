@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="LINK" header="false">
+    <link>
+    <![CDATA[
+    <%
+        String step = "";
+        String soResult = null;
+        if(!"true".equals(params.get("isHidden"))){
+            SepoaOut so = ServiceConnector.doService(info, "sepoa.svc.system.link.SepoaLinkService", "CONNECTION", "checkLink", new Object[] {params});
+            if(so.status == 1){
+                step = "HIDE_PARAMS";
+                soResult = so.result[0];
+            }else{
+                step = "ALERT";
+                soResult = String.valueOf(so.status);
+            }
+        }else{
+            step = "DRAW_PAGE";
+        }
+    %>
+    ]]>
+    </link>
+    <layout id="layoutObj" div="cPNbESemNRbESeIZpa" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="false"/>
+            <collapse icon="false" collapsed="false"/>
+        </cell>
+    </layout>
+    <usercss>
+    <![CDATA[]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$var" value="{progressCount:0}"/>
+        <function name="init">
+        <![CDATA[
+            window.isBridgeWindow = true;
+            window.progressOn = progressOn;
+            window.progressOff = progressOff;
+            
+        <% if("HIDE_PARAMS".equals(step)){ %>
+            var f = document.createElement('form');
+            f.id = 'pf';
+            f.target = '_self';
+            f.style.display = 'none';
+            
+            var addHidden = function(form, name, value) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.insertBefore(input, null);
+            }
+            document.body.appendChild(f)
+            addHidden(f, "isHidden", "true");
+            var hideTarget = <%= soResult %>;
+            if(Sepoa.request){
+                var extParams = $.extend(true, {}, Sepoa.request);
+                delete extParams.ln;
+                delete extParams.ssoKey;
+                delete extParams.url;
+                hideTarget.params = $.extend(true, extParams, hideTarget.params || {});
+            } 
+            if(hideTarget.params){
+                for (var i in hideTarget.params) {
+                    addHidden(f, i, hideTarget.params[i]);
+                }
+            }
+            if(hideTarget.token){
+                addHidden(f, 's-token', hideTarget.token);
+            }
+            if(window.CONTEXT_NAME && hideTarget.url.indexOf(window.CONTEXT_NAME) != 0){
+            	hideTarget.url = (window.CONTEXT_NAME || '') + hideTarget.url;
+            }
+            addHidden(f, 'url', hideTarget.url);
+            f.action = (window.CONTEXT_NAME || '') + '/link.sux';
+            f.method = 'post';
+            f.submit();
+            return;
+        <% }else if("DRAW_PAGE".equals(step)){ %>
+            var frame = $(layoutObj.cells('a').cell).find('.dhx_cell_cont_layout')[0].appendChild($('<iframe class="sepoa-link-frame" name="sepoa-link-frame" style="width:100%;height:100%;border:0px;padding:0px;margin:0px;"></iframe>')[0])
+            
+            var pid = "LINK_" + new Date().getTime();
+            
+            if(!SUX.root.modalPopupInfo){
+                SUX.root.modalPopupInfo = {};
+            }
+            SUX.root.modalPopupInfo[pid] = {
+                params: Sepoa.request
+            };
+            (function() {
+                var addHidden = function(form, name, value) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    form.insertBefore(input, null);
+                }
+                var form = document.body.appendChild($('<form target="sepoa-link-frame" style="display:none"></form>')[0]);
+                addHidden(form, "parameterId", pid);
+                addHidden(form, "isPopup", true);
+                addHidden(form, "onLink", true);
+                addHidden(form, "isRealPopup", true);
+                for (var idx in Sepoa.request) {
+                    addHidden(form, idx, Sepoa.request[idx]);
+                }
+            
+                form.action = Sepoa.request.url;
+                form.method = "post";
+                form.submit();
+            }())
+        <% }else if("ALERT".equals(step)){ %>
+            Alert(sUtils.cache.text.get("BASE_LINK.STATUS_<%=soResult%>"));
+        <% } %>
+        ]]>
+        </function>
+        
+        <function name="onLoginSuccess" args="so">
+        <![CDATA[
+            if (so.status == "1" && so.result) {
+                draw(JSON.parse(so.result[0]));
+            }
+        ]]>
+        </function>
+        
+        <function name="progressOn" args="">
+        <![CDATA[
+            $var.progressCount++;
+            layoutObj.progressOn();
+        ]]>
+        </function>
+        
+        <function name="progressOff" args="">
+        <![CDATA[
+            $var.progressCount--;
+            if($var.progressCount <= 0){
+                layoutObj.progressOff();
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiakJ4bmVFY0lKQ0lOTXVobXhZIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJMSU5LIn0sImlkIjoiakJ4bmVFY0lKQ0lOTXVobXhZIiwidHlwZSI6ImJvZHkifSwiY1BOYkVTZW5OUmJFU2VFWWdnIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6ImZhbHNlIiwiQ09MTEFQU0VfQ09MTEFQU0VEIjoiZmFsc2UiLCJDT0xMQVBTRV9JQ09OIjoiZmFsc2UiLCJCQVNFX01FTlUiOiJmYWxzZSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiZGh4SWRfS3l3VUFGZ2ZPc29nIjoibnVsbCJ9LCJpZCI6ImNQTmJFU2VuTlJiRVNlRVlnZyIsIm1heENoaWxk
+        Q291bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYSJ9LCJjUE5iRVNlbU5SYkVTZUlacGEiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9SSEI0NzZQQllMU3AiOiJudWxsIiwiZGh4SWRfRmc5Tkc2QUNpNlBwIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2ZWWkxJSDJadURZZCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsi
+        UEFUVEVSTiI6IjFDIiwiVkFSIjoibGF5b3V0T2JqIiwiT0JKRUNUX0lEIjoiY1BOYkVTZW1OUmJFU2VJWnBhIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJQQVRURVJOX1NBTVBMRSI6IjEifSwiaWQiOiJjUE5iRVNlbU5SYkVTZUlacGEiLCJ0eXBlIjoibGF5b3V0IiwiZXZlbnRzIjpbXX19LCJ0cmVlIjp7ImlkIjoiakJ4bmVFY0lKQ0lOTXVobXhZIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJjUE5iRVNlbU5SYkVTZUlacGEiLCJ0eXBlIjoibGF5b3V0IiwiY2VsbHMiOlt7ImlkIjoiY1BOYkVTZW5OUmJFU2VFWWdnIiwidHlwZSI6ImxheW91dENlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9VeERlZmF1bHQvQ29tbW9uL0xpbmsueG1sIiwiUFJP
+        SkVDVCI6IkZSV0siLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJVeERlZmF1bHQvQ29tbW9uIiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiTGluayIsIkNPREUiOiJMSU5LIiwiUFJFRklYIjoiIiwiU0NSRUVOX0lEIjoiTElOSyJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJqQnhuZUVjSUpDSU5NdWhteFlcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250
+        YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2xheW91dF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJjUE5iRVNlbU5SYkVTZUlacGFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2xheW91dCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9k
+        aXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="SLM_122" header="false" pageCloseWarn="false">
+    <layout id="oUwUwmeGixUwmemlfl" div="oUwUwmeGixUwmemlfl" pattern="1C">
+        <cell>
+            <id>a</id>
+            <fix_size>true,true</fix_size>
+            <header view="true" text="SLM_122.LAYOUT_A_HEADER"/>
+            <collapse icon="false" collapsed="false"/>
+            <icon>menu</icon>
+            <attach file="/Seal/Manage/SealManageNewForm.xml"/>
+        </cell>
+    </layout>
+    <onloadscript>
+        <![CDATA[
+            var mode = Sepoa.request.MODE;
+            if (mode) {
+                if (mode == 'NEW') {
+                    callFunction('SLM_123', 'setModeByStatus', ['NEW']);
+                };
+            }
+        ]]></onloadscript>
+    <userscript>
+        <function name="setMode" args="manageNo, docNo, route, status">
+        <![CDATA[
+            callFunction('SLM_123', 'doLoad', [manageNo, docNo, route, status]);
+        ]]>
+        </function>
+        <function name="setModeSeal" args="manageNo">
+        <![CDATA[
+            callFunction('SLM_123', 'doLoadSeal', [manageNo]);
+        ]]>
+        </function>
+        <function name="setUpdate" args="manageNo">
+        <![CDATA[
+            callFunction('SLM_123', 'doLoadUpdate', [manageNo]);
+        ]]>
+        </function>
+        <function name="changeToFirstCell" args="callbackParams">
+        <![CDATA[
+            callFunction('p', 'changeToFirstCell', [callbackParams]);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiR2ZjVHdtZUdmY1R3bWV4amtTIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJTTE1fMTIyIn0sImlkIjoiR2ZjVHdtZUdmY1R3bWV4amtTIiwidHlwZSI6ImJvZHkifSwib1V3VXdtZUdpeFV3bWVZdXFzIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJIRUFERVJfVklFVyI6InRydWUiLCJDT0xMQVBTRV9DT0xMQVBTRUQiOiJmYWxzZSIsIkNPTExBUFNFX0lDT04iOiJmYWxzZSIsIkJBU0VfTUVOVSI6InRydWUiLCJIRUFERVJfVEVYVCI6IuyduOqwkOuTseuhnSDsi6Dssq0iLCJBVFRBQ0hfVEFSR0VUIjoiL1NlYWwvTWFuYWdlL1NlYWxNYW5hZ2VOZXdGb3JtLnht
+        bCIsIkJBU0VfRklYX1NJWkUiOiJ0cnVlLHRydWUiLCJBVFRBQ0hfVFlQRSI6IlUiLCJDT0xMQVBTRV9CVVRUT04iOiJmYWxzZSJ9LCJpZCI6Im9Vd1V3bWVHaXhVd21lWXVxcyIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6ImxheW91dENlbGwiLCJuYW1lIjoiYSJ9LCJvVXdVd21lR2l4VXdtZW1sZmwiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIn0sImNvbXBvbmVudCI6eyJQQVRURVJOIjoiMUMiLCJWQVIiOiJvVXdVd21lR2l4VXdtZW1sZmwiLCJPQkpFQ1Rf
+        SUQiOiJvVXdVd21lR2l4VXdtZW1sZmwifSwiaWQiOiJvVXdVd21lR2l4VXdtZW1sZmwiLCJ0eXBlIjoibGF5b3V0In19LCJ0cmVlIjp7ImlkIjoiR2ZjVHdtZUdmY1R3bWV4amtTIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJvVXdVd21lR2l4VXdtZW1sZmwiLCJ0eXBlIjoibGF5b3V0IiwiY2VsbHMiOlt7ImlkIjoib1V3VXdtZUdpeFV3bWVZdXFzIiwidHlwZSI6ImxheW91dENlbGwifV19XX0sImluZm8iOnsiUEFUSCI6Ii9TZWFsL01hbmFnZS9TZWFsTWFuYWdlTmV3Rm9ybUxheW91dC54bWwiLCJQUk9KRUNUIjoiU0VBTCIsIkNPREUiOiIxMjIiLCJQUkVGSVgiOiJTTE0iLCJQQVRIXzIiOiJNYW5hZ2UiLCJQQVRIXzMiOiJTZWFsTWFuYWdlIiwi
+        UEFUSF8xIjoiU2VhbCIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6Ik5ld0Zvcm1MYXlvdXQiLCJTQ1JFRU5fSUQiOiJTTE1fMTIyIn19LCJodG1sIjoiPGRpdiBpZD1cIkdmY1R3bWVHZmNUd21leGprU1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBl
+        ciBzZXBvYXV4X2xheW91dF9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9sYXlvdXRfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwib1V3VXdtZUdpeFV3bWVtbGZsXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9sYXlvdXQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

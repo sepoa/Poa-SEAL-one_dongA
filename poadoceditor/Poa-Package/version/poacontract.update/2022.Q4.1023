@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData" vendor="common"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101101"/>
+					<entry key="CONTENTS" val="계약 진행상태가 진행중 또는 완료 상태에서만 수기계약서 업로드가 가능합니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101102"/>
+					<entry key="CONTENTS" val="수기계약서 파일 업로드에 실패하였습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101103"/>
+					<entry key="CONTENTS" val="계약서의 상태변경에 실패하였습니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="STATUS_101104"/>
+					<entry key="CONTENTS" val="업로드 대상의 계약서 서명방식이 수기계약이 아닙니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_0032"/>
+					<entry key="CONTENTS" val="지정되지 않은 서명필드가 존재합니다."/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID" val="POA_CONTRACT"/>
+					<entry key="LANGUAGE" val="KO"/>
+					<entry key="CODE" val="MESSAGE_0033"/>
+					<entry key="CONTENTS" val="서명이 존재하지 않습니다. 서명관리 페이지에서 서명을 등록해주세요."/>
+				</map>
+			</list>
+		</params>
+	</item>
+</body>

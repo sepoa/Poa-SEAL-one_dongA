@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="MAINFRAME" header="false" tpl="editor.tpl">
+    <link>
+    <![CDATA[
+        <script type="text/javascript" src="MainFrame/plugin/basic.js" ></script>
+        <link rel="stylesheet" type="text/css" href="MainFrame/plugin/basic.css" ></link>
+        <link rel="stylesheet" type="text/css" href="MainFrame/plugin/lefticonmenu.css" ></link>
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+        body{
+            overflow:hidden;
+        }
+        .headerToolbar > div{
+            width:100%;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="headerToolbar" value="$($sObject._vp).find('#EipXfEccptXfEcIubk')[0]"/>
+        <var name="EipXfEcbptXfEcKuRq" value="$($sObject._vp).find('#EipXfEcbptXfEcKuRq')[0]"/>
+        <var name="menuContainer" value="$($sObject._vp).find('#aCxneEcWYMoeEcXAjc')[0]"/>
+        <var name="mainContainer" value="$($sObject._vp).find('#NeMIXFcvYsZYFcbUTF')[0]"/>
+        <var name="aCxneEcWYMoeEcusdy" value="$($sObject._vp).find('#aCxneEcWYMoeEcusdy')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+        <call name="drawMenu"/>
+        <call name="checkNotice"/>
+    </onloadscript>
+    <userscript>
+        <var name="headerObj"/>
+        <var name="containerObj"/>
+        <var name="menuObj" value="{}"/>
+        <var name="sInfoObj">
+        <![CDATA[
+            new SepoaScreenInfoObject()
+        ]]>
+        </var>
+        <function name="init">
+        <![CDATA[
+        	window.Sepoa = $sObject.Sepoa
+        	
+            headerObj = $sObject.headerObj = new SepoaHeaderToolbarObject({
+                parent:headerToolbar,
+                height:50,
+                logo:{
+                    align:"center",
+                    file:window.CONTEXT_NAME+"/theme/"+Sepoa.common.THEME+"/imgs/logo.png"
+                },
+                items:[
+                    {type: "text", id: "id", text:Sepoa.info.ID+" ("+Sepoa.info.NAME_LOC+")"},
+                    {type: "img", id: "logout", cursor:"pointer", img: window.CONTEXT_NAME+"/theme/"+Sepoa.common.THEME+"/imgs/icon/logout.png"}
+                ]
+            });
+            headerObj.attachEvent("onClick", onHeaderClick)
+            
+            containerObj = $sObject.containerObj = new SepoaMainContainerObject({
+                type:(dhx4.isIPad || dhx4.isIPhone)?'':Sepoa.config.get('sepoa.frame.type'),
+                parent:mainContainer,
+                tabbar:{
+                    mode:"bottom",
+                    align:"left",
+                    close_button:true,
+                    maxTabCount:Sepoa.config.get('sepoa.frame.maxcount'),
+                    tabs:[
+                        {
+                            id:"SUMMARY",
+                            text:Sepoa.cache.text.get("SUMMARY.TITLE"),
+                            active:true,
+                            close:false,
+                            url:window.CONTEXT_NAME+"/Summary/SummaryLayout.sux"
+                        }
+                    ]
+                },
+                layout:{
+                    pattern:"1C",
+                    skin:"material",
+                    contents:true,
+                    cells:[
+                        {
+                            header:false,
+                            text:" ",
+                            id:"a",
+                            url:window.CONTEXT_NAME+"/Summary/SummaryLayout.sux"
+                        }
+                    ]
+                }
+            });
+            
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+        <function name="onHeaderClick" args="id">
+        <![CDATA[
+            if(id == "logout"){
+                Confirm("<span style='font-size: 1.2em;display: inline-block;text-align: left;'>"+Sepoa.cache.text.get('MAIN.ID')+Sepoa.info.ID+"\\n"
+                +Sepoa.cache.text.get('MAIN.USER')+Sepoa.info.NAME_LOC+"</span>", function(flag){
+                    if(flag){
+                        location.href = window.CONTEXT_NAME+"/common/logout_process.jsp";
+                    }else{
+                        linkTo('AD_050','/Admin/UpdateUserInfo/AdminUpdateUserInfoLayout.sux');
+                    }
+                },undefined,Sepoa.cache.text.get('MAIN.LOG_OUT'),Sepoa.cache.text.get('MAIN.CHANGE_USER_INFO'));
+            }else if(id == "logo"){
+                openContainerUrl("SUMMARY", "/Summary/SummaryLayout.sux");
+            }
+        ]]>
+        </function>
+        <function name="checkNotice">
+        <![CDATA[
+            doServiceAjax('sepoa.svc.admin.AD_201','CONNECTION','getPopupNotice', {}, function( so ){
+                if(so.status == 1){
+                    var l = so.message.split(',');
+                    var c = getCookie("sepoa.notice.ignore");
+                    if(c){
+                        c = c.split(',');
+                        for(var i in c){
+                            if(l.indexOf(c[i])+1){
+                                l.splice(l.indexOf(c[i]), 1);
+                            }
+                        }
+                    }
+                    if(l.length > 0){
+                        PopupOpenPost(window.CONTEXT_NAME+'/Admin/NoticeView/AdminNoticeViewCarousel.sux', {NOTICELIST:l.join(',')}, '' , 1300, '', Sepoa.cache.text.get('MAIN.NOTICE'),'common');
+                    }
+                }
+            });
+        ]]>
+        </function>
+        <function name="drawMenu">
+        <![CDATA[
+            menuObj.render=function(){
+                menuObj.tree = getMenuData(Sepoa.info.MENU_PROFILE_CODE);
+                
+                menuContainer.innerHTML = "";
+                menuContainer.classList.add("topMenuArea")
+                
+                var ul = menuContainer.appendChild(document.createElement('ul'));
+                                
+                for(var i in menuObj.tree){
+                    var item = menuObj.tree[i];
+                    
+                    var li = ul.appendChild(document.createElement('li'));
+                    li.id = "sepoa_menu_group_"+item.ID
+                    li.classList.add("sepoa_menu_group_li")
+li.innerHTML = '<div><div class="sepoa_menu_group_icon" style="background-image:url('+window.CONTEXT_NAME+'/theme/<%=theme%>/leftmenu/icon/'+item.ICON_TYPE+');"></div><div class="sepoa_menu_group_name">'+item.MENU_NAME+'</div></div>';
+                    li.data = item;
+                    li.onmouseover = function(e){
+                        $(ul).find(".sepoa_menu_group_li").removeClass("sepoa_menu_group_li_hover");
+                        
+                        this.classList.add("sepoa_menu_group_li_hover")
+                        menuObj.showDetail(e, this.data);
+                    }
+                    li.onmouseout = function(e){
+                        menuObj.closeDetail(e);
+                    }
+                }
+            };
+            
+            menuObj.closeDetail=function(e){
+                if(e && e.toElement != menuContainer){
+                    var tP = $(e.toElement).parents();
+                    for(var i=0;i<tP.length; i++){
+                        if(tP[i] == menuContainer){
+                            return;
+                        }
+                    }
+                }
+                $(menuContainer).find(".sepoa_menu_group_li").removeClass("sepoa_menu_group_li_hover");
+                menuObj.detailMenuBox.classList.remove("sepoa_menu_detail_show")
+            }
+            
+            menuObj.showDetail=function(e, data){
+                var detailMenuBox = menuObj.detailMenuBox;
+                if(!detailMenuBox){
+                    detailMenuBox = menuObj.detailMenuBox = document.createElement('div');
+                    detailMenuBox.id = "sepoa_menu_detail_box";
+                    detailMenuBox.className = "sepoa_menu_detail_box";
+                    menuContainer.appendChild(detailMenuBox);
+                }else if(detailMenuBox.data.MENU_ID == data.MENU_ID){
+                    detailMenuBox.classList.add("sepoa_menu_detail_show");
+                    return;
+                }
+                
+                detailMenuBox.classList.add("sepoa_menu_detail_show");
+                
+                detailMenuBox.innerHTML = "";
+                detailMenuBox.data = data;
+                
+                detailMenuBox.style.top = dhx.absTop(e.srcElement) - 2 + "px";
+                detailMenuBox.style.left = dhx.absLeft(e.srcElement) + e.srcElement.offsetWidth + "px";
+                
+                var ul = document.createElement('ul');
+                detailMenuBox.appendChild(ul);
+                ul.className="sepoa_menu_detail_ul";
+                
+                for(var i in data.childs){
+                    var item = data.childs[i];
+                    var li = document.createElement('li');
+                    ul.appendChild(li);
+                    li.innerHTML = '<span>'+item.MENU_NAME+'</span>'
+                    li.style.display=(item.HIDDEN_FLAG == 'Y')?"none":""
+                    li.data = item;
+                    li.onclick=function(e){
+                        menuObj.closeDetail(e);
+                        var _id = this.data.SCREEN_ID
+                        var _url = this.data.URL
+                        openContainerUrl(_id, _url, null);
+                    }
+                }
+                
+                detailMenuBox.onmouseout=function(e, data){
+                    menuObj.closeDetail(e);
+                }
+            }
+            menuObj.render();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiakJ4bmVFY0lKQ0lOTXVobXhZIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJNQUlORlJBTUUifSwiaWQiOiJqQnhuZUVjSUpDSU5NdWhteFkiLCJ0eXBlIjoiYm9keSJ9LCJhQ3huZUVjV1lNb2VFY1hBamMiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBTElHTl9WRVJUSUNBTCI6InRvcCJ9LCJjb21wb25lbnQiOnsiVkFSIjoibWVudUNvbnRhaW5lciIsIk9CSkVDVF9JRCI6ImFDeG5lRWNXWU1vZUVjWEFqYyJ9LCJpZCI6ImFDeG5lRWNXWU1vZUVjWEFqYyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJhQ3huZUVjV1lNb2VFY3VzZHkiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7
+        IkNPTFVNTiI6IjIiLCJWQVIiOiJhQ3huZUVjV1lNb2VFY3VzZHkiLCJPQkpFQ1RfSUQiOiJhQ3huZUVjV1lNb2VFY3VzZHkiLCJDT0xVTU5fSVRFTV8wIjoiOTJweCIsIkNPTFVNTl9JVEVNXzEiOiIxIn0sImlkIjoiYUN4bmVFY1dZTW9lRWN1c2R5IiwidHlwZSI6ImNvbnRhaW5lciJ9LCJFaXBYZkVjY3B0WGZFY0l1YmsiOnsibGF5b3V0Ijp7IkNMQVNTIjoiaGVhZGVyVG9vbGJhciJ9LCJjb21wb25lbnQiOnsiVkFSIjoiaGVhZGVyVG9vbGJhciIsIk9CSkVDVF9JRCI6IkVpcFhmRWNjcHRYZkVjSXViayJ9LCJpZCI6IkVpcFhmRWNjcHRYZkVjSXViayIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJFaXBYZkVjYnB0WGZFY0t1UnEiOnsibGF5b3V0Ijp7
+        fSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiRWlwWGZFY2JwdFhmRWNLdVJxIn0sImlkIjoiRWlwWGZFY2JwdFhmRWNLdVJxIiwidHlwZSI6ImNvbnRhaW5lciJ9LCJOZU1JWEZjdllzWllGY2JVVEYiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBTElHTl9WRVJUSUNBTCI6InRvcCJ9LCJjb21wb25lbnQiOnsiVkFSIjoibWFpbkNvbnRhaW5lciIsIk9CSkVDVF9JRCI6Ik5lTUlYRmN2WXNaWUZjYlVURiJ9LCJpZCI6Ik5lTUlYRmN2WXNaWUZjYlVURiIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYiJ9fSwidHJlZSI6eyJpZCI6ImpCeG5lRWNJSkNJTk11aG14WSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiRWlwWGZFY2Jw
+        dFhmRWNLdVJxIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6IkVpcFhmRWNjcHRYZkVjSXViayIsInR5cGUiOiJjb2x1bW4ifV19LHsiaWQiOiJhQ3huZUVjV1lNb2VFY3VzZHkiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoiYUN4bmVFY1dZTW9lRWNYQWpjIiwidHlwZSI6ImNvbHVtbiJ9LHsiaWQiOiJOZU1JWEZjdllzWllGY2JVVEYiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvTWFpbkZyYW1lL0xlZnRJY29uTWVudS54bWwiLCJQUk9KRUNUIjoiRlJXSyIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6Ik1haW5GcmFtZSIsIkhFQURFUiI6ImZhbHNlIiwi
+        TkFNRSI6IkxlZnRJY29uTWVudSIsIkNPREUiOiJNQUlORlJBTUUiLCJQUkVGSVgiOiIiLCJTQ1JFRU5fSUQiOiJNQUlORlJBTUUifX0sImh0bWwiOiI8ZGl2IGlkPVwiakJ4bmVFY0lKQ0lOTXVobXhZXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVy
+        XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJFaXBYZkVjYnB0WGZFY0t1UnFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vw
+        b2F1eF9jb2x1bW5fb3V0ZXIgaGVhZGVyVG9vbGJhclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJFaXBYZkVjY3B0WGZFY0l1YmtcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVy
+        X3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImFDeG5lRWNXWU1vZUVjdXNkeVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4Om5vbmU7d2lkdGg6OTJweDtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJf
+        d3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJhQ3huZUVjV1lNb2VFY1hBamNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX3ZhbGlnbl90b3AgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4
+        OjE7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiTmVNSVhGY3ZZc1pZRmNiVVRGXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyIHNlcG9hdXhfd3JhcHBlcl9zdHlsZV92YWxpZ25fdG9wIGxvd2VyRGl2XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAg
+        ICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

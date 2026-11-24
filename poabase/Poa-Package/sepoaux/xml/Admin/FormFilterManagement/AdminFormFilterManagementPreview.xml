@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_042_3" header="false">
+    <usercss>
+    <![CDATA[
+        .highlightItem {
+            background-color: #FFFAE8;
+            /*border: 1px solid #FFDF67;*/
+            box-shadow: 0px 0px 3px 0px #FFDF67;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="previewLayout" value="$($sObject._vp).find('#mkkPtndummPtndFSzO')[0]"/>
+        <var name="mkkPtndummPtndjrfU" value="$($sObject._vp).find('#mkkPtndummPtndjrfU')[0]"/>
+    </variable>
+    <onloadscript/>
+    <userscript>
+        <var name="formObj"/>
+        <var name="formID"/>
+        <function name="doQuery" args="data">
+        <![CDATA[
+                if (formObj) {
+                    formObj.unload();
+                }
+                
+                formID = $sObject.formID = data.form_id;
+                
+                var params = {
+                    FORM_ID: data.form_id,
+                    HOUSE_CODE: data.house_code
+                };
+                
+                doServiceAjax('sepoa.svc.admin.AD_042_3', 'CONNECTION', 'doQueryFilterData', params, function(so) {
+                    if (so.status != 1) {
+                        Alert('Server Error');
+                        return;
+                    }
+                
+                    var masterSF = new SepoaFormater(so.param.MASTER);
+                    var filterSF = new SepoaFormater(so.param.FILTER);
+                    var currentHouseCode = so.param.HOUSE_CODE;
+                
+                    if (masterSF.getRowCount() == 0) {
+                        Alert('Data Not Found');
+                        return;
+                    }
+                    var masterFormJson = JSON.parse(masterSF.getValue("FORM_JSON", 0));
+                    
+                    var masterBlockArray = [];
+                    findBlockNode(masterFormJson, masterBlockArray, currentHouseCode);
+                	
+                    formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(previewLayout, 'formObj', [masterFormJson], true);
+                    
+                    callFunction('AD_042_4', 'setData', [{FORM_ID: formID, HOUSE_CODE: currentHouseCode}, masterFormJson, masterBlockArray, filterSF.getArrayMap()]);
+                });
+        ]]>
+        </function>
+        <function name="findBlockNode" args="data, blockArray, houseCode">
+        <![CDATA[
+            var finder = ['block', 'fieldset'];
+            
+            for (var idx in data) {
+                if (finder.indexOf(data[idx].type) + 1) {
+                    if (data[idx].list) {
+                        findBlockNode(data[idx].list, blockArray, houseCode);
+                    }
+            
+					var orgType = data[idx].type;
+					
+                    if (data[idx].type != "block") {
+                        var textData = Sepoa.cache.text.get(formID + '.' + data[idx].name);
+            
+                        if (textData.length > 0) {
+                            if (textData.startsWith("Has not found text")) {
+                                textData = "";
+                            }
+                        }
+            
+                        data[idx].label = data[idx].label || textData;
+                    } else {
+                        data[idx].type = "fieldset"
+                        data[idx].label = "[block] " + data[idx].name || "";
+                    }
+            
+                    if (data[idx].name) {
+                        var obj = {};
+                        obj.form_id = formID;
+                        obj.name = data[idx].name;
+                        obj.type = data[idx].type;
+                        obj.org_type = orgType;
+                        obj.visible = '0';
+                        obj.label = data[idx].label;
+                        obj.house_code = houseCode;
+                        obj.tree_id = data[idx].name;
+                        obj.tree_parent_id = '*';
+                        obj.tree_value = data[idx].name;
+                        obj.width = data[idx].width;
+                        blockArray.push(obj);
+                    }
+                } else {
+                    var text = Sepoa.cache.text.get(formID + '.' + data[idx].name);
+            		
+                    data[idx].label = text;
+                    if (data[idx].type == 'button') {
+                        data[idx].value = text;
+                    }
+                }
+            }
+        ]]>
+        </function>
+        <function name="updateForm" args="data">
+        <![CDATA[
+            // data == block, fieldset
+            
+            for (var idx in data) {
+                var key = data[idx].key;
+                var value = data[idx].value;
+            	
+            	if(value.ITEM_TYPE == 'radio') {
+            		var radioName = value.BLOCK_NAME.replace(/(.*)\{([0-9a-zA-Z_]{0,})\}/g, '$1');
+            		var radioValue = value.BLOCK_NAME.replace(/(.*)\{([0-9a-zA-Z_]{0,})\}/g, '$2');
+            		var radioItem = formObj._apiConnector('_getRGroup', [radioName, radioValue]);
+            		if(value.VISIBLE == '1') { // 보이기
+            			formObj.showItem(radioItem);
+            		} else {
+            			formObj.hideItem(radioItem);
+            		}
+            		
+            		if(value.REQUIRED == '1') { // 필수
+            			formObj.setRequired(radioItem, true);
+            		} else {
+            			formObj.setRequired(radioItem, false);
+            		}
+            	} else {
+            		if(value.VISIBLE == '1') { // 보이기
+	                    formObj.showItem(key);
+	                } else {
+	                    formObj.hideItem(key);
+	                }
+	                
+	                if(value.ITEM_TYPE != 'label') {
+	                	if(value.REQUIRED == '1') { // 필수
+		                	formObj.setRequired(key, true);
+		                } else {
+		                	formObj.setRequired(key, false);
+		                }
+	                }
+            	}
+                
+                var excludeTypeArray = ['button', 'label', 'checkbox']
+                if(excludeTypeArray.indexOf(value.ITEM_TYPE) + 1) {
+                	continue;
+                }
+                
+                formObj.setItemWidth(key, value.INPUT_WIDTH);
+            }
+        ]]>
+        </function>
+        <function name="formItemHighlight" args="item, rowDatas">
+        <![CDATA[
+            formObj.forEachObject(function(formID) {
+            
+                var form = formObj.getForm(formID);
+                var selectNode = '';
+                
+                if(item.ITEM_TYPE == 'radio') {
+                	var radioName = item.BLOCK_NAME.replace(/(.*)\{([0-9a-zA-Z_]{0,})\}/g, '$1');
+                	var radioValue = item.BLOCK_NAME.replace(/(.*)\{([0-9a-zA-Z_]{0,})\}/g, '$2');
+                	var rGroup = form._getRGroup(radioName, radioValue);
+                	selectNode = form._getItemByName(rGroup);
+                } else {
+                	selectNode = form._getItemByName(item.BLOCK_NAME).children[0];
+                }
+            
+                if (selectNode.classList.contains('dhxform_label')) {
+                    selectNode = selectNode.parentNode;
+                }
+            
+                var recentNodes = document.getElementsByClassName('highlightItem');
+            
+                if (recentNodes.length > 0) {
+                    for (var idx in recentNodes) {
+                        if (recentNodes[idx].classList) {
+                            recentNodes[idx].classList.remove('highlightItem');
+                        }
+                    }
+                }
+            
+                selectNode.classList.add('highlightItem');
+            })
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiVnZKbnNuZFZ2Sm5zbmRtQWRXIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9vbUZTblFSWWFnMjkiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkXzZJaHJxS1cyMmZIRCI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9mZ3hXalkybGlUMjUiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkXzVVczJ6VkZ3NXVmRyI6Im51bGwiLCJDTEFTUyI6
+        IiIsImRoeElkXzFtQUlxRDJDY3dnMSI6Im51bGwiLCJkaHhJZF9iYVRYcDRFdHZnZFAiOiJudWxsIiwiZGh4SWRfaWxSckR2djRkSUUwIjoibnVsbCIsImRoeElkX2prQU1JQTlyUXpxNSI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF8wNDJfMyIsIk9CSkVDVF9JRCI6IlZ2Sm5zbmRWdkpuc25kbUFkVyIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiRlVMTCJ9LCJpZCI6IlZ2Sm5zbmRWdkpuc25kbUFkVyIsInR5cGUiOiJib2R5In0sIm1ra1B0bmR1bW1QdG5kRlN6TyI6eyJsYXlvdXQiOnsiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJB
+        TElHTl9WRVJUSUNBTCI6IiIsImRoeElkX1B1Wld4aFJUY0hkUiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoicHJldmlld0xheW91dCIsIk9CSkVDVF9JRCI6Im1ra1B0bmR1bW1QdG5kRlN6TyJ9LCJpZCI6Im1ra1B0bmR1bW1QdG5kRlN6TyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJta2tQdG5kdW1tUHRuZGpyZlUiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkXzNPYk00eE80T1hwMiI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFS
+        R0lOX1JJR0hUIjoiIiwiZGh4SWRfNXk5TERRQ2xmUkxjIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX0xQSjNIQ2ZjRTlYYiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6Im1ra1B0bmR1bW1QdG5kanJmVSIsIk9CSkVDVF9JRCI6Im1ra1B0bmR1bW1QdG5kanJmVSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09MVU1OX0lURU1fMCI6IjEifSwiaWQiOiJta2tQdG5kdW1tUHRuZGpyZlUiLCJ0eXBlIjoiY29udGFpbmVyIn19LCJ0cmVlIjp7ImlkIjoiVnZKbnNuZFZ2Sm5zbmRtQWRXIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJta2tQdG5kdW1t
+        UHRuZGpyZlUiLCJ0eXBlIjoiY29udGFpbmVyIiwiY2VsbHMiOlt7ImlkIjoibWtrUHRuZHVtbVB0bmRGU3pPIiwidHlwZSI6ImNvbHVtbiJ9XX1dfSwiaW5mbyI6eyJQQVRIIjoiL0FkbWluL0Zvcm1GaWx0ZXJNYW5hZ2VtZW50L0FkbWluRm9ybUZpbHRlck1hbmFnZW1lbnRQcmV2aWV3LnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6IjA0Ml8zIiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJGb3JtRmlsdGVyTWFuYWdlbWVudCIsIlBBVEhfMyI6IkFkbWluRm9ybUZpbHRlck1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IlByZXZpZXciLCJTQ1JFRU5fSUQiOiJBRF8wNDJfMyJ9fSwiaHRtbCI6IjxkaXYgaWQ9
+        XCJWdkpuc25kVnZKbnNuZG1BZFdcIiBjbGFzcz1cImNvbnRhaW5lciBzZXBvYXV4X3NjcmVlbl9zY3JvbGxcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93
+        cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIm1ra1B0bmR1bW1QdG5kanJmVVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2
+        IGlkPVwibWtrUHRuZHVtbVB0bmRGU3pPXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

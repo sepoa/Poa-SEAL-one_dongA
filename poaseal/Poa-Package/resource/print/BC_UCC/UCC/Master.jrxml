@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.17.0.final using JasperReports Library version 6.17.0-6d93193241dd8cc42629e188b94f9e0bc5722efd  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Master" pageWidth="283" pageHeight="425" whenNoDataType="AllSectionsNoDetail" columnWidth="283" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isTitleNewPage="true" whenResourceMissingType="Key" uuid="8e2fabd9-ace9-4ac9-80e0-552f13d97ba0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#C7CDD1"/>
+			<topPen lineWidth="0.5" lineColor="#C7CDD1"/>
+			<leftPen lineWidth="0.5" lineColor="#C7CDD1"/>
+			<bottomPen lineWidth="0.5" lineColor="#C7CDD1"/>
+			<rightPen lineWidth="0.5" lineColor="#C7CDD1"/>
+		</box>
+	</style>
+	<subDataset name="ITEM_LIST" uuid="5e7d86c7-858d-45f7-9310-56fd6920eca3">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+		<parameter name="Data" class="java.util.Map">
+			<defaultValueExpression><![CDATA[$P{Data}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="ITEM_LIST" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
+			<defaultValueExpression><![CDATA[$P{ITEM_LIST}]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="SELLER_CODE" class="java.lang.String"/>
+		<field name="INV_NUMBER" class="java.lang.String"/>
+		<field name="SELLER_NAME_LOC" class="java.lang.String"/>
+		<field name="SELLER_LN_DATE" class="java.lang.String"/>
+		<field name="SELLER_GL_DATE" class="java.lang.String"/>
+		<field name="COUNTRY" class="java.lang.String"/>
+		<field name="ADDRESS_LOC" class="java.lang.String"/>
+		<field name="ADDRESS_TEXT" class="java.lang.String"/>
+		<field name="CARTON_NO" class="java.lang.String"/>
+		<field name="INV_QTY" class="java.lang.String"/>
+		<field name="CARTON_MAX" class="java.lang.String"/>
+		<field name="INV_SUM" class="java.lang.String"/>
+		<field name="TEXT1" class="java.lang.String"/>
+		<field name="TEXT2" class="java.lang.String"/>
+		<field name="TEXT3" class="java.lang.String"/>
+		<field name="TEXT4" class="java.lang.String"/>
+		<field name="TEXT6" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="Data" class="java.util.Map">
+		<defaultValueExpression><![CDATA[$P{Data}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ITEM_LIST" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource">
+		<defaultValueExpression><![CDATA[$P{ITEM_LIST}]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<summary>
+		<band height="425">
+			<componentElement>
+				<reportElement x="0" y="0" width="283" height="425" uuid="61ad1f47-103c-4907-8ed7-e765f27a5d74"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="ITEM_LIST" uuid="c0a0649f-7657-4d61-abd0-bc2f78f3fd22">
+						<datasetParameter name="Data">
+							<datasetParameterExpression><![CDATA[$P{Data}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ITEM_LIST">
+							<datasetParameterExpression><![CDATA[$P{ITEM_LIST}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{ITEM_LIST}.getData())]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="405" width="263">
+						<textField isBlankWhenNull="true">
+							<reportElement x="20" y="99" width="122" height="26" uuid="7664646e-8b39-4f3f-9446-f9fb4f5bde5e"/>
+							<box topPadding="5" leftPadding="10" bottomPadding="10" rightPadding="10">
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{ADDRESS_TEXT}.toString() == null || $F{ADDRESS_TEXT}.toString().isEmpty())
+	? "" : $F{ADDRESS_TEXT}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="80" width="122" height="19" uuid="c14b3854-4fe4-4674-8c3b-62da6bfadc94">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#000000"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{ADDRESS_LOC}.toString() == null || $F{ADDRESS_LOC}.toString().isEmpty())
+	? "n/a" : $F{ADDRESS_LOC}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="142" y="55" width="121" height="25" uuid="5f815d81-0e12-4057-be37-b6d5a274377a">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#000000"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{TEXT1} == null || $F{TEXT1}.toString().isEmpty()) ? "IICOMBINED CO., LTD." : $F{TEXT1}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="20" width="122" height="35" uuid="c2e8d2c6-0269-41dd-ad49-ef4249755ef0">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10">
+								<pen lineColor="#DDDDDD"/>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement verticalAlignment="Bottom">
+								<font fontName="NatoSansCJKkr" size="9" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["SHIP FROM"]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="55" width="122" height="25" uuid="1d3e73db-e9e1-4794-8ff2-c91f8a3c2356">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#000000"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{SELLER_NAME_LOC}.toString() == null || $F{SELLER_NAME_LOC}.toString().isEmpty())
+	? "n/a" : $F{SELLER_NAME_LOC}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="142" y="20" width="121" height="35" uuid="a05cd356-d9cd-4316-bd3d-234628048d72">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10">
+								<pen lineColor="#DDDDDD"/>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement verticalAlignment="Bottom">
+								<font fontName="NatoSansCJKkr" size="9" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["SHIP TO"]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="142" y="80" width="121" height="45" uuid="bdc3e2fa-e8ba-4830-bed5-4d3470874a19">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#A0A0A0"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{TEXT2} == null || $F{TEXT2}.toString().isEmpty()) ? "B1F 41, Eoulmadang-ro 5-gil,\nMapo-gu, Seoul, 04047,\nRepublic of Korea" : $F{TEXT2}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="160" width="122" height="45" uuid="235e45f2-e767-40bb-aecc-ac0cd23cfac4">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#A0A0A0"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{COUNTRY}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="125" width="122" height="35" uuid="ca673d1a-2a21-4dc1-8d2e-dcfe47df5284">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10">
+								<pen lineColor="#DDDDDD"/>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement verticalAlignment="Bottom">
+								<font fontName="NatoSansCJKkr" size="9" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["MADE_IN"]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="205" width="122" height="35" uuid="4697ac26-50fc-4c11-90f2-d2df2c7633db">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10">
+								<pen lineColor="#DDDDDD"/>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement verticalAlignment="Bottom">
+								<font fontName="NatoSansCJKkr" size="9" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["CARTON_NO"]]></textFieldExpression>
+						</textField>
+						<frame>
+							<reportElement x="20" y="285" width="243" height="120" uuid="8cd47108-8746-4471-b532-96df09ef057f"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<componentElement>
+								<reportElement x="31" y="22" width="201" height="79" uuid="0c905810-0a3f-41d8-9310-b32847ab5729"/>
+								<jr:Code128 moduleWidth="1.0">
+									<jr:codeExpression><![CDATA[$F{SELLER_CODE}
++""+ $F{SELLER_GL_DATE}
++""+ (($F{CARTON_NO}.toString().isEmpty() || $F{CARTON_NO} == null) ? "000" : String.format("%03d", Integer.parseInt($F{CARTON_NO}.toString())))]]></jr:codeExpression>
+								</jr:Code128>
+							</componentElement>
+						</frame>
+						<textField textAdjust="ScaleFont" pattern="#,##0.0##" isBlankWhenNull="true">
+							<reportElement x="142" y="240" width="121" height="45" uuid="795a313a-e670-443a-a068-9c631d7134fe">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#A0A0A0"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[Double.parseDouble($F{INV_SUM}.toString())]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="142" y="160" width="121" height="45" uuid="a0a55ace-5982-4255-96a4-001de2ff1344">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#A0A0A0"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{SELLER_LN_DATE}.toString() == null || $F{SELLER_LN_DATE}.toString().isEmpty()) 
+	? ($F{SELLER_GL_DATE}.toString() == null || $F{SELLER_GL_DATE}.toString().isEmpty())
+		? "n/a" :  new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyyMMdd").parse($F{SELLER_GL_DATE}.toString()))
+	: ($F{SELLER_GL_DATE}.toString() == null || $F{SELLER_GL_DATE}.toString().isEmpty())
+		? "n/a" : new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyyMMdd").parse($F{SELLER_LN_DATE}.toString()))]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="142" y="205" width="121" height="35" uuid="bd20a5fc-8759-4b41-8b02-2ce3bd3cf054">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10">
+								<pen lineColor="#DDDDDD"/>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement verticalAlignment="Bottom">
+								<font fontName="NatoSansCJKkr" size="9" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["TOTAL_QTY"]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="20" y="240" width="122" height="45" uuid="3d4f209f-5877-4e57-a84a-f5ca695ed24e">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="10" leftPadding="10" rightPadding="10">
+								<pen lineColor="#A0A0A0"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="NatoSansCJKkr" size="7"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{CARTON_NO} + " / "+$F{CARTON_MAX}]]></textFieldExpression>
+						</textField>
+						<textField textAdjust="ScaleFont" isBlankWhenNull="true">
+							<reportElement x="142" y="125" width="121" height="35" uuid="cf8506f2-2eb4-44e6-ab00-fb33e9bc8ea0">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box topPadding="5" leftPadding="5" bottomPadding="5" rightPadding="10">
+								<pen lineColor="#DDDDDD"/>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement verticalAlignment="Bottom">
+								<font fontName="NatoSansCJKkr" size="9" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["EX FACTORY DATE"]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+	</summary>
+</jasperReport>

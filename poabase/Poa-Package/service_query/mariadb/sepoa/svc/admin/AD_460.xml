@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+    <method name="doQueryClient">
+    <![CDATA[
+        SELECT
+              HOUSE_CODE
+            , COMPANY_CODE
+            , COMPANY_NAME
+        FROM
+            USERVICE
+        WHERE
+        	HOUSE_CODE <> '000'
+        AND HOUSE_CODE = $S{HOUSE_CODE}
+        AND COMPANY_CODE = '1000'
+        AND #DB_OWNER#NVL(DEL_FLAG, 'N') = 'N'
+        AND ( UPPER( HOUSE_CODE )  LIKE CONCAT('%', UPPER( $S{F_KEYWORD} ), '%')
+              OR UPPER( COMPANY_NAME ) LIKE CONCAT('%', UPPER( $S{F_KEYWORD} ), '%')) 
+    ]]>
+    </method>
+    
+    <method name="doSelectUPUSH">
+	<![CDATA[
+		SELECT CODE
+             , DESCRIPTION
+          FROM UPUSH
+         WHERE DEL_FLAG = 'N'
+           AND (   1=1
+               AND CODE        LIKE CONCAT('%', $S{F_KEYWORD}, '%')
+                OR DESCRIPTION LIKE CONCAT('%', $S{F_KEYWORD}, '%')
+             ) 
+	]]>
+	</method>
+	
+	<method name="doSelectUPUSOMaster">
+	<![CDATA[
+		SELECT
+			  CODE
+			, `TYPE`
+			, OPTION_NAME
+			, OPTION_VALUE
+		FROM
+			UPUSO
+		WHERE
+			HOUSE_CODE = '000'
+		AND CODE = ${CODE}
+		AND `TYPE` IN ($IN{TYPE})
+	]]>
+	</method>
+	
+	<method name="doSelectUPUSO">
+	<![CDATA[
+		SELECT
+			  CODE
+			, `TYPE`
+			, OPTION_NAME
+			, OPTION_VALUE
+		FROM
+			UPUSO
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND CODE = ${CODE}
+		AND `TYPE` IN ($IN{TYPE})
+	]]>
+	</method>
+	
+	<method name="doDeleteUPUSO">
+    <![CDATA[
+		DELETE FROM
+			UPUSO
+		WHERE
+			HOUSE_CODE 	= ${HOUSE_CODE}
+		AND CODE       	= ${CODE}
+		AND `TYPE`		= ${TYPE}
+		AND OPTION_NAME = ${OPTION_NAME}
+    ]]>
+    </method>
+    
+    <method name="doInsertUPUSO">
+    <![CDATA[
+		INSERT INTO UPUSO
+		(
+			  HOUSE_CODE
+			, CODE
+			, `TYPE`
+			, OPTION_NAME
+			, ADD_DATE
+			, ADD_TIME
+			, ADD_USER_ID
+			, CHANGE_DATE
+			, CHANGE_TIME
+			, CHANGE_USER_ID
+			, OPTION_VALUE
+		)
+		VALUES
+		(
+			  ${HOUSE_CODE}
+			, ${CODE}
+			, ${TYPE}
+			, ${OPTION_NAME}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+			, ${session.ID}
+			, ${OPTION_VALUE}
+		)
+    ]]>
+    </method>
+    
+    <method name="doInsertUPUSOHistory">
+    <![CDATA[
+    	INSERT INTO UPUSO_HISTORY
+		(
+			  HISTORY_KEY
+			, ACTION_MODE
+			, HOUSE_CODE
+			, CODE
+			, `TYPE`
+			, OPTION_NAME
+			, OPTION_VALUE
+			, ADD_USER_ID
+			, ADD_DATE
+			, ADD_TIME
+		)
+		VALUES
+		(
+			  ${HISTORY_KEY}
+			, ${ACTION_MODE}
+			, ${HOUSE_CODE}
+			, ${CODE}
+			, ${TYPE}
+			, ${OPTION_NAME}
+			, ${OPTION_VALUE}
+			, ${session.ID}
+			, ${current.DATE}
+			, ${current.TIME}
+		)
+    ]]>
+    </method>
+</service>

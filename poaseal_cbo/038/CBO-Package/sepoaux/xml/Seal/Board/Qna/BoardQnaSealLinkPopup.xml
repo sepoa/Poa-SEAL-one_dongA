@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="QA_002_SL" header="false" pageCloseWarn="false">
+    <button id="btnObj">
+        <btn div="QaSlkBtn8nH3qRxYm" id="QA_SEAL_DO_LINK" text="연동" toggle="false" reverse="false" onclick="onButtonClick( 'QA_SEAL_DO_LINK' )"/>
+        <btn div="QaSlkBtn8nH3qRxYm" id="QA_SEAL_CANCEL" text="{BUTTON.cancel}" toggle="false" reverse="false" onclick="onButtonClick( 'QA_SEAL_CANCEL' )"/>
+    </button>
+    <usercss>
+    <![CDATA[
+        .container {
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #QaSlkFrm9kP4wNtXc {
+            min-height: 280px;
+            padding-left: 10px;
+            box-sizing: border-box;
+        }
+        #QaSlkBdR7mK2pLwNq > .sepoaux_component_outer_wrapper > .sepoaux_component_inner_wrapper > .sepoaux_button_outer {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+        #QaSlkBdR7mK2pLwNq .sepoaux_button_inner.sepoaux_wrapper_style_halign_right {
+            margin-left: auto !important;
+            margin-right: 12px !important;
+            margin-top: 8px !important;
+        }
+        #QaSlkBtn8nH3qRxYm {
+            float: right !important;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="QaSlkBtn8nH3qRxYm" value="$($sObject._vp).find('#QaSlkBtn8nH3qRxYm')[0]"/>
+        <var name="formBox" value="$($sObject._vp).find('#QaSlkFrm9kP4wNtXc')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="formObj"/>
+        <var name="$selectedSealList"/>
+        <function name="init" args="">
+        <![CDATA[
+            $selectedSealList = [];
+            $sObject._selectedSealList = $selectedSealList;
+            
+            var formOptions = [{
+                type: "settings",
+                position: "label-left",
+                labelWidth: 90,
+                inputWidth: 340,
+                labelAlign: "left"
+            }, {
+                type: "input",
+                name: "REQ_SEAL_USE_TYPE",
+                label: "날인용도",
+                value: "법무검토 완료 계약서",
+                readonly: true
+            }, {
+                type: "select",
+                name: "RE_FLAG",
+                label: "구분",
+                required: true,
+                options: [{
+                    text: "전자",
+                    value: "E",
+                    selected: true
+                }, {
+                    text: "실물",
+                    value: "R"
+                }]
+            }, {
+                type: "block",
+                width: "auto",
+                blockOffset: 0,
+                list: [{
+                    type: "input",
+                    name: "SEAL_NAME",
+                    label: "인장",
+                    value: "",
+                    readonly: true,
+                    required: true,
+                    inputWidth: 259
+                }, {
+                    type: "newcolumn"
+                }, {
+                    type: "button",
+                    name: "SEAL_SELECT",
+                    value: "선택",
+                    inputWidth: 60
+                }]
+            }, {
+                type: "input",
+                name: "SUBJECT",
+                label: "신청명",
+                value: "",
+                required: true,
+                maxLength: 200
+            }, {
+                type: "input",
+                name: "EXPLANATION",
+                label: "설명",
+                value: "",
+                rows: 4,
+                required: true,
+                maxLength: 2000
+            }, {
+                type: "input",
+                name: "SUBMISSION_PLACE",
+                label: "제출처",
+                value: "",
+                required: true,
+                maxLength: 200
+            }];
+            
+            var $btnOuter = $($sObject._vp).find('.sepoaux_button_outer').first();
+            $btnOuter.css({ width: '100%', display: 'flex', justifyContent: 'flex-end' });
+            $btnOuter.find('.sepoaux_button_inner').css({ marginLeft: 'auto', marginRight: '12px', marginTop: '8px' });
+            
+            formObj = $sObject.formObj = new SepoaMultiDhtmlXFormObject(formBox, 'formObj', [formOptions], true);
+            formObj.attachEvent('onButtonClick', onFormButtonClick);
+            formObj.attachEvent('onChange', onFormChange);
+            $sObject._selectedReFlag = 'E';
+            
+            var defaultSubject = Sepoa.request.QNA_SUBJECT || '';
+            if (defaultSubject && defaultSubject !== 'undefined') {
+                formObj.setValue('SUBJECT', defaultSubject);
+            }
+        ]]>
+        </function>
+        <function name="getSelectedReFlag" args="">
+        <![CDATA[
+            var reFlag = '';
+            try {
+                reFlag = formObj.getValue('RE_FLAG') || formObj.getItemValue('RE_FLAG') || '';
+            } catch (e) {
+                reFlag = '';
+            }
+            if (reFlag !== 'E' && reFlag !== 'R') {
+                reFlag = $sObject._selectedReFlag || 'E';
+            }
+            return reFlag;
+        ]]>
+        </function>
+        <function name="clearSelectedSeal" args="">
+        <![CDATA[
+            $sObject._selectedSealList = [];
+            try {
+                if (Object.prototype.toString.call($selectedSealList) === '[object Array]') {
+                    $selectedSealList.splice(0, $selectedSealList.length);
+                } else {
+                    $selectedSealList = [];
+                }
+            } catch (e) {
+                $selectedSealList = [];
+            }
+            if (formObj) {
+                formObj.setValue('SEAL_NAME', '');
+            }
+        ]]>
+        </function>
+        <function name="onFormChange" args="name, value">
+        <![CDATA[
+            if (name != 'RE_FLAG') {
+                return;
+            }
+            var nextFlag = (value === 'R') ? 'R' : 'E';
+            var prevFlag = $sObject._selectedReFlag || 'E';
+            if (nextFlag === prevFlag) {
+                return;
+            }
+            var selectedSeals = getSelectedSealList();
+            if (selectedSeals && selectedSeals.length > 0) {
+                Confirm('구분을 변경하면 선택한 인장이 초기화됩니다. 계속하시겠습니까?', function(result) {
+                    if (!result) {
+                        // 이전 값으로 복원
+                        try {
+                            formObj.setValue('RE_FLAG', prevFlag);
+                        } catch (e) {
+                            try { formObj.setItemValue('RE_FLAG', prevFlag); } catch (e2) {}
+                        }
+                        return;
+                    }
+                    $sObject._selectedReFlag = nextFlag;
+                    clearSelectedSeal();
+                });
+            } else {
+                $sObject._selectedReFlag = nextFlag;
+            }
+        ]]>
+        </function>
+        <function name="onFormButtonClick" args="name">
+        <![CDATA[
+            if (name == 'SEAL_SELECT') {
+                openSealSelectPopup();
+            }
+        ]]>
+        </function>
+        <function name="openSealSelectPopup" args="">
+        <![CDATA[
+            var reFlag = getSelectedReFlag();
+            // ST: 실제 법인인감(C)은 제외. 사용인감(U)·서명인(E)만 (위장 법인인감=U)
+            var params = {
+                SEAL_TYPE: 'U,E',
+                SEAL_USE_TYPE: '101',
+                APPLY_TYPE: 'U,C',
+                FLAGARR: reFlag,
+                SELECT_OPTION: 'MULTI'
+            };
+            var topWin = SUX.getModuleTop() || window;
+            var width = Math.min(800, Math.floor((topWin.innerWidth || 1024) * 0.9));
+            var height = Math.min(540, Math.floor((topWin.innerHeight || 768) * 0.85));
+            PopupOpenPost(
+                '/Seal/Document/Common/Popup/SealDocumentWriteSealPopupLayout.sux',
+                params,
+                sealSelectCallback,
+                width,
+                height,
+                Sepoa.cache.text.get('SLM_221.SELECT_SEAL') || '인장선택'
+            );
+        ]]>
+        </function>
+        <function name="sealSelectCallback" args="data">
+        <![CDATA[
+            if (!data) {
+                return;
+            }
+            
+            // _getSelectedData 결과: { rowId: rowData } 객체 (UseWrite와 동일)
+            var sealData = [];
+            var nameArr = [];
+            for (var i in data) {
+                if (!data.hasOwnProperty(i) || !data[i]) {
+                    continue;
+                }
+                var sealObj = Object.assign({}, data[i]);
+                if (!sealObj.ITEM_NAME) {
+                    sealObj.ITEM_NAME = sealObj.SUBJECT || '';
+                }
+                sealData.push(sealObj);
+                nameArr.push(sealObj.SUBJECT || sealObj.ITEM_NAME || sealObj.MANAGE_NUMBER);
+            }
+            
+            if (sealData.length < 1) {
+                return;
+            }
+            
+            // ScreenBuilder <var> 재할당 유실 방지: $sObject에 보관이 기준
+            $sObject._selectedSealList = sealData;
+            try {
+                if (Object.prototype.toString.call($selectedSealList) === '[object Array]') {
+                    $selectedSealList.splice(0, $selectedSealList.length);
+                    for (var s = 0; s < sealData.length; s++) {
+                        $selectedSealList.push(sealData[s]);
+                    }
+                } else {
+                    $selectedSealList = sealData;
+                }
+            } catch (e) {
+                $selectedSealList = sealData;
+            }
+            
+            formObj.setValue('SEAL_NAME', nameArr.join(', '));
+        ]]>
+        </function>
+        <function name="getSelectedSealList" args="">
+        <![CDATA[
+            var list = $sObject._selectedSealList;
+            if (!list || typeof list.length !== 'number' || list.length < 1) {
+                list = $selectedSealList;
+            }
+            if (!list || typeof list.length !== 'number') {
+                return [];
+            }
+            return list;
+        ]]>
+        </function>
+        <function name="onButtonClick" args="name">
+        <![CDATA[
+            if (name == 'QA_SEAL_CANCEL') {
+                selfObj.close();
+                return;
+            }
+            if (name != 'QA_SEAL_DO_LINK') {
+                return;
+            }
+            
+            if (!formObj.validate()) {
+                Alert('신청명, 설명, 제출처, 인장을 모두 입력해주세요.');
+                return;
+            }
+            
+            var subject = $.trim(formObj.getValue('SUBJECT') || '');
+            var explanation = $.trim(formObj.getValue('EXPLANATION') || '');
+            var submissionPlace = $.trim(formObj.getValue('SUBMISSION_PLACE') || '');
+            var selectedSeals = getSelectedSealList();
+            
+            if (!subject) {
+                Alert('신청명을 입력해주세요.');
+                return;
+            }
+            if (!explanation) {
+                Alert('설명을 입력해주세요.');
+                return;
+            }
+            if (!submissionPlace) {
+                Alert('제출처를 입력해주세요.');
+                return;
+            }
+            if (!selectedSeals || selectedSeals.length < 1) {
+                Alert('인장을 선택해주세요.');
+                return;
+            }
+            
+            var qnaNumber = Sepoa.request.QNA_NUMBER;
+            if (!qnaNumber || qnaNumber === 'undefined') {
+                Alert('문서번호가 없습니다.');
+                return;
+            }
+            
+            Confirm('입력한 내용으로 날인신청(임시저장)을 생성하시겠습니까?', function(result) {
+                if (!result) return;
+                
+                // 전체 그리드 row JSON은 파라미터 구분자/필터에 깨질 수 있음 → MANAGE_NUMBER만 전송
+                var manageNumbers = [];
+                var sealPayload = [];
+                for (var i = 0; i < selectedSeals.length; i++) {
+                    var mn = selectedSeals[i].MANAGE_NUMBER || '';
+                    if (!mn) continue;
+                    manageNumbers.push(mn);
+                    sealPayload.push({ MANAGE_NUMBER: mn });
+                }
+                if (manageNumbers.length < 1) {
+                    Alert('인장을 선택해주세요.');
+                    return;
+                }
+                
+                var reFlag = getSelectedReFlag();
+                doServiceAjax('sepoa.svc.board.SepoaQAService', 'TRANSACTION', 'doSealLink', {
+                    QNA_NUMBER: qnaNumber,
+                    SUBJECT: subject,
+                    EXPLANATION: explanation,
+                    SUBMISSION_PLACE: submissionPlace,
+                    RE_FLAG: reFlag,
+                    RE_DETAIL: reFlag,
+                    MANAGE_NUMBERS: manageNumbers.join(','),
+                    SELECT_SEAL_JSON: JSON.stringify(sealPayload)
+                }, function(so) {
+                    if (so.status == 1) {
+                        var smrNumber = (so.result && so.result[0]) ? so.result[0] : '';
+                        Alert('날인신청현황에 임시저장 되었습니다.' + (smrNumber ? ('<br/>신청번호: ' + smrNumber) : ''));
+                        try {
+                            if (typeof callerObj !== 'undefined' && callerObj && typeof callerObj.sealLinkCallback === 'function') {
+                                callerObj.sealLinkCallback(smrNumber);
+                            }
+                        } catch (e) {}
+                        try {
+                            selfObj.close(smrNumber);
+                        } catch (e2) {
+                            selfObj.close();
+                        }
+                    } else {
+                        Alert(so.message || '날인연동에 실패하였습니다.');
+                    }
+                });
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiUWFTbGtCZFI3bUsycEx3TnEiOnsibGF5b3V0Ijp7IlNDUk9MTCI6IiIsIlNDUk9MTF9WIjoiIiwiVkVSVElDQUxfU0NS
+        T0xMIjoiMSIsIlNDUkVFTl9TQ1JPTEwiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MSwiVkFSIjoiUUFfMDAy
+        X1NMIiwiT0JKRUNUX0lEIjoiUWFTbGtCZFI3bUsycEx3TnEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6IlFhU2xrQmRSN21LMnBMd05xIiwidHlw
+        ZSI6ImJvZHkifSwiUWFTbGtCdG44bkgzcVJ4WW0iOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6ImF1dG8iLCJNQVJHSU5f
+        UklHSFQiOiIxMiIsIk1BUkdJTl9UT1AiOiI4IiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0Iiwi
+        QVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiYnRuT2JqIiwiT0JKRUNUX0lEIjoiUWFTbGtCdG44bkgzcVJ4
+        WW0iLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1RFWFQiOiLsl7Drj5kiLCJJVEVNXzBfSUQiOiJRQV9T
+        RUFMX0RPX0xJTksiLCJJVEVNXzBfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzBfUEFSQU0iOiImIzM5O1FBX1NFQUxfRE9fTElOSyYjMzk7Iiwi
+        SVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9TT1JUIjoiMSIsIklURU1fMV9SRVZFUlNFIjpmYWxzZSwiSVRFTV8xX1RFWFQiOiLst6jshowiLCJJVEVN
+        XzFfSUQiOiJRQV9TRUFMX0NBTkNFTCIsIklURU1fMV9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fMV9QQVJBTSI6IiYjMzk7UUFfU0VBTF9DQU5D
+        RUwmIzM5OyIsIklURU1fMV9UT0dHTEUiOmZhbHNlLCJJVEVNXzFfU09SVCI6IjIifSwiaWQiOiJRYVNsa0J0bjhuSDNxUnhZbSIsInR5cGUiOiJidXR0b24i
+        LCJidXR0b24iOiJidXR0b24ifSwiUWFTbGtGcm05a1A0d050WGMiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1B
+        UkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNM
+        QVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmb3JtQm94IiwiT0JKRUNUX0lEIjoiUWFTbGtGcm05a1A0d050WGMifSwiaWQiOiJRYVNsa0ZybTlrUDR3
+        TnRYYyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9fSwidHJlZSI6eyJpZCI6IlFhU2xrQmRSN21LMnBMd05xIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6
+        W3siaWQiOiJRYVNsa0J0bjhuSDNxUnhZbSIsInR5cGUiOiJidXR0b24ifSx7ImlkIjoiUWFTbGtGcm05a1A0d050WGMiLCJ0eXBlIjoiY29sdW1uIn1dfSwi
+        aW5mbyI6eyJQQVRIIjoiL1NlYWwvQm9hcmQvUW5hL0JvYXJkUW5hU2VhbExpbmtQb3B1cC54bWwiLCJQUk9KRUNUIjoiU0VBTCIsIkNPREUiOiIwMDJfU0wi
+        LCJQUkVGSVgiOiJRQSIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IlNlYWwvQm9hcmQvUW5hIiwiSEVBREVS
+        IjoiZmFsc2UiLCJOQU1FIjoiQm9hcmRRbmFTZWFsTGlua1BvcHVwIiwiU0NSRUVOX0lEIjoiUUFfMDAyX1NMIn19LCJodG1sIjoiPGRpdiBpZD1cIlFhU2xr
+        QmRSN21LMnBMd05xXCIgY2xhc3M9XCJjb250YWluZXIgc2Vwb2F1eF9zY3JlZW5fc2Nyb2xsXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9u
+        ZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21w
+        b25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1
+        eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBcIiBzdHlsZT1cIndpZHRoOjEwMCU7ZGlzcGxheTpmbGV4O2p1c3RpZnkt
+        Y29udGVudDpmbGV4LWVuZDtcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4
+        X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJtYXJnaW46OHB4IDEycHggMCBhdXRvO1wiPlxuICAg
+        ICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiUWFTbGtCdG44bkgzcVJ4WW1cIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2J1dHRvblwi
+        IHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1
+        eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJR
+        YVNsa0ZybTlrUDR3TnRYY1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwi
+        XCIvPlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

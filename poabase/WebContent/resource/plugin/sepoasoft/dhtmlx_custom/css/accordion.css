@@ -1,0 +1,12 @@
+.dhxacc_base_material div.dhx_cell_acc div.dhx_cell_hdr.dhx_cell_hdr_hidden {
+	border-width: 0px;
+}
+
+.dhxacc_base_material div.dhx_cell_acc div.dhx_cell_cont_acc {
+	border-width: 0px;
+}
+
+.dhxacc_base_material div.dhxacc_cont {
+	position: inherit;
+	transition: height 0.18s cubic-bezier(0.25, 0.1, 0.25, 1) 0s;
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="searchNextAppLine">
+		<![CDATA[
+		SELECT
+			APP_USER_ID AS ID
+			, #DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, APP_USER_ID, 'KO') AS NAME
+			, #DB_OWNER#GETUSEREMAIL(HOUSE_CODE, COMPANY_CODE, APP_USER_ID, 'KO') AS MAIL
+		FROM SGWLN
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND APP_NO = ${APP_NO}
+		  AND APP_NO_SEQ = ${APP_NO_SEQ}
+		  AND APP_LINE_STATUS = 'L04'	
+		]]>
+	</method>
+	<method name="searchApprovalWriter">
+		<![CDATA[
+			SELECT
+				#DB_OWNER#GETUSERNAME(HOUSE_CODE, COMPANY_CODE, ADD_USER_ID, 'KO') AS APP_USER_NAME
+				,ACCEPT_REASON 
+				,ADD_USER_ID
+			FROM
+				SGWLN
+			WHERE
+				HOUSE_CODE = ${session.HOUSE_CODE} 
+				AND COMPANY_CODE = ${session.COMPANY_CODE} 
+				AND APP_LINE_SEQ = '0'
+				AND APP_NO = ${APP_NO}
+		]]>
+	</method>
+	<method name="saveExternalReqSealData">
+	<![CDATA[
+		UPDATE SSIPD
+		   SET KEY_VALUE = ${KEY_VALUE}
+		     , OBJ_CODE = ${OBJ_CODE}
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER = ${DOC_NO}
+	]]>
+	</method>
+	<method name="doSelectExternalReqSealData">
+	<![CDATA[
+	    SELECT
+	          KEY_VALUE
+	         ,OBJ_CODE
+	      FROM SSIPD
+		 WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+</service>

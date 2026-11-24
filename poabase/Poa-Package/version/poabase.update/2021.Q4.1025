@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			RENAME TABLE SPUHI TO SPUHI_TEMP, SPUHC TO SPUHC_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			SP_RENAME SPUHI, SPUHI_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			SP_RENAME SPUHC, SPUHC_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SPUHI (
+				  `HOUSE_CODE` varchar(5) NOT NULL COMMENT '하우스 코드',
+				  `PUSH_NO` varchar(50) NOT NULL COMMENT '알림 번호',
+				  `PUSH_SEQ` varchar(5) NOT NULL COMMENT '알림 번호 순번',
+				  `TYPE` varchar(20) NOT NULL COMMENT '알림 타입',
+				  `SENDER` varchar(50) NOT NULL COMMENT '송신자',
+				  `RECEIVER` varchar(50) NOT NULL COMMENT '수신자',
+				  `ADD_DATE` varchar(8) DEFAULT NULL COMMENT '작성일',
+				  `ADD_TIME` varchar(6) DEFAULT NULL COMMENT '작성시간',
+				  `ADD_USER_ID` varchar(20) DEFAULT NULL COMMENT '작성자',
+				  `STATUS` varchar(5) DEFAULT NULL COMMENT '상태 (S: Success, F: Fail)',
+				  `MESSAGE` text DEFAULT NULL,
+				  PRIMARY KEY (`HOUSE_CODE`,`PUSH_NO`,`PUSH_SEQ`,`TYPE`,`SENDER`,`RECEIVER`)
+				)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE 
+			 TABLE SPUHC (
+					HOUSE_CODE varchar(5) NOT NULL,
+					PUSH_NO varchar(50) NOT NULL,
+					PUSH_SEQ varchar(5) NOT NULL,
+					[TYPE] varchar(20) NOT NULL,
+					SENDER varchar(50) NOT NULL,
+					RECEIVER varchar(50) NOT NULL,
+					SEQ varchar(3) NOT NULL,
+					CONTENTS varchar(MAX) DEFAULT NULL NULL,
+					CONSTRAINT SPUHC_PK PRIMARY KEY (HOUSE_CODE,PUSH_NO,PUSH_SEQ,[TYPE],SENDER,RECEIVER,SEQ)
+				)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			CREATE TABLE SPUHC (
+				  `HOUSE_CODE` varchar(5) NOT NULL COMMENT '하우스코드',
+				  `PUSH_NO` varchar(50) NOT NULL COMMENT '알림 번호',
+				  `PUSH_SEQ` varchar(50) NOT NULL COMMENT '알림 번호 순번',
+				  `TYPE` varchar(20) NOT NULL COMMENT '타입',
+				  `SENDER` varchar(50) NOT NULL COMMENT '송신자',
+				  `RECEIVER` varchar(50) NOT NULL COMMENT '수신자',
+				  `SEQ` varchar(3) NOT NULL COMMENT '내용 순번',
+				  `CONTENTS` text DEFAULT NULL COMMENT '내용',
+				  PRIMARY KEY (`HOUSE_CODE`,`PUSH_NO`,`PUSH_SEQ`,`TYPE`,`SENDER`,`RECEIVER`,`SEQ`)
+				)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SPUHI (
+				HOUSE_CODE varchar(5) NOT NULL,
+				PUSH_NO varchar(50) NOT NULL,
+				PUSH_SEQ varchar(5) NOT NULL,
+				[TYPE] varchar(20) NOT NULL,
+				SENDER varchar(50) NOT NULL,
+				RECEIVER varchar(50) NOT NULL,
+				ADD_DATE varchar(8) DEFAULT NULL NULL,
+				ADD_TIME varchar(6) DEFAULT NULL NULL,
+				ADD_USER_ID varchar(20) DEFAULT NULL NULL,
+				STATUS varchar(5) DEFAULT NULL NULL,
+				MESSAGE varchar(MAX) DEFAULT NULL NULL,
+				CONSTRAINT SPUHI_PK PRIMARY KEY (HOUSE_CODE,PUSH_NO, PUSH_SEQ,[TYPE],SENDER,RECEIVER)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			INSERT INTO SPUHI (HOUSE_CODE,PUSH_NO,PUSH_SEQ,`TYPE`,SENDER,RECEIVER,ADD_DATE,ADD_TIME,ADD_USER_ID,STATUS,MESSAGE)
+			SELECT HOUSE_CODE,PUSH_NO,RANK() OVER(PARTITION BY HOUSE_CODE, PUSH_NO ORDER BY RECEIVER) AS PUSH_SEQ,`TYPE`,SENDER,RECEIVER,ADD_DATE,ADD_TIME,ADD_USER_ID,STATUS,MESSAGE FROM SPUHI_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			INSERT INTO SPUHI (HOUSE_CODE,PUSH_NO,PUSH_SEQ,[TYPE],SENDER,RECEIVER,ADD_DATE,ADD_TIME,ADD_USER_ID,STATUS,MESSAGE)
+			SELECT HOUSE_CODE,PUSH_NO,RANK() OVER(PARTITION BY HOUSE_CODE,PUSH_NO ORDER BY SENDER,RECEIVER) AS PUSH_SEQ,[TYPE] ,SENDER,RECEIVER,ADD_DATE,ADD_TIME,ADD_USER_ID,STATUS,MESSAGE FROM SPUHI_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			INSERT INTO SPUHC(HOUSE_CODE,PUSH_NO, PUSH_SEQ,`TYPE`,SENDER,RECEIVER,SEQ,CONTENTS)
+			SELECT HOUSE_CODE,PUSH_NO,DENSE_RANK() OVER(PARTITION BY HOUSE_CODE, PUSH_NO ORDER BY RECEIVER) AS PUSH_SEQ,`TYPE`,SENDER,RECEIVER,SEQ,CONTENTS FROM SPUHC_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			INSERT INTO SPUHC(HOUSE_CODE,PUSH_NO, PUSH_SEQ,[TYPE],SENDER,RECEIVER,SEQ,CONTENTS)
+			SELECT HOUSE_CODE,PUSH_NO,DENSE_RANK() OVER(PARTITION BY HOUSE_CODE,PUSH_NO ORDER BY SENDER, RECEIVER) AS PUSH_SEQ,[TYPE],SENDER,RECEIVER,SEQ,CONTENTS FROM SPUHC_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			DROP TABLE SPUHI_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			DROP TABLE SPUHI_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+			DROP TABLE SPUHC_TEMP
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			DROP TABLE SPUHC_TEMP
+		]]>
+		</query>
+	</item>
+</body>

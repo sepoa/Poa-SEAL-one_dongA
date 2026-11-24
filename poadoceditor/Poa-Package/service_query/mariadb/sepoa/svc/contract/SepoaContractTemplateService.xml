@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+    <method name="doDocumentList">
+	<![CDATA[
+		SELECT CFGL.HOUSE_CODE
+			 , CFGL.COMPANY_CODE
+			 , CFGL.CONT_FORM_NO
+			 , CFGL.ADD_DATE
+			 , CFGL.ADD_USER_ID
+             , USMT.USER_NAME_LOC  AS ADD_USER
+			 , CFGL.DEL_FLAG
+			 , CFGL.CONT_FORM_NAME
+			 , CFGL.CONT_FORM_DESC
+			 , CFGL.STATUS
+			 , CFGL.USE_FLAG
+			 , CFGL.CATEGORY
+			 , CFGL.CONT_METHOD
+			 , CFGL.USE_FROM
+			 , CFGL.USE_TO
+             , CFGL.SIGNER_CODE
+          FROM SCFGL CFGL
+         INNER 
+          JOIN SUSMT USMT
+            ON CFGL.HOUSE_CODE   = USMT.HOUSE_CODE
+           AND CFGL.COMPANY_CODE = USMT.COMPANY_CODE
+           AND CFGL.ADD_USER_ID  = USMT.USER_ID
+		 WHERE CFGL.HOUSE_CODE                   = ${session.HOUSE_CODE}
+		   AND CFGL.COMPANY_CODE                 = ${session.COMPANY_CODE}
+		   AND CFGL.CONT_TYPE                    = ${CONT_TYPE}
+           AND CFGL.CONT_FORM_NO                 = $S{CONT_NO}
+		   AND #DB_OWNER#NVL(CFGL.DEL_FLAG, 'N') = 'N'
+		   AND CFGL.STATUS                      != $S{STATUS}
+           AND (
+				    1=1
+				AND CFGL.CONT_FORM_NAME like CONCAT('%', $S{F_KEYWORD}, '%')
+				AND CFGL.CATEGORY         IN ($INS{F_CATEGORY})
+				AND CFGL.CONT_METHOD      IN ($INS{F_CONT_METHOD})
+				AND CFGL.USE_FROM         <= $S{F_DATE_TO}
+				AND CFGL.USE_TO           >= $S{F_DATE_FROM}
+				AND CFGL.CONT_METHOD       = $S{F_STATUS}
+			 )
+         ORDER 
+            BY CFGL.USE_FROM
+              ,CFGL.USE_TO
+	]]>
+	</method>
+</service>

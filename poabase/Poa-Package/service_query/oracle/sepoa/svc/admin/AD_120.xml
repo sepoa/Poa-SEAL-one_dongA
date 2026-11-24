@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doQueryADMIN">
+	<![CDATA[
+		SELECT
+			  MODULE AS TREE_ID
+			, MODULE
+			, PARENT AS TREE_PARENT_ID
+			, PARENT
+			, DESCRIPTION AS TREE_VALUE
+			, DESCRIPTION
+			, OPTIONS
+			, SORT
+			, TYPE
+			, NODE
+			, REMARK
+			, ALIAS
+			, DEFAULT_OPTION_VALUE
+		FROM
+			SBMMA
+		ORDER BY
+			PARENT, SORT
+	]]>
+	</method>
+	
+	<method name="doQuery">
+	<![CDATA[
+		SELECT PATH                                    AS TREE_ID
+			  ,SUBSTR(PATH, 1, INSTR(PATH, '_', -1)-1) AS TREE_PARENT_ID
+			  ,CONTENTS 							   AS TREE_VALUE
+			  ,MODULE
+			  ,PARENT
+			  ,COMBO
+			  ,CONTENTS
+			  ,DESCRIPTION
+			  ,SORT
+			  ,USE_FLAG
+		  FROM (
+		  		SELECT '*' || SYS_CONNECT_BY_PATH(L.SORT, '_') AS PATH
+					  ,L.MODULE 
+					  ,L.PARENT
+					  ,L.COMBO
+					  ,LANG.CONTENTS
+					  ,LANG2.CONTENTS AS DESCRIPTION
+					  ,L.SORT
+					  ,CASE WHEN NVL(CMAM.MODULE, '_NOT_SELECTED_') = '_NOT_SELECTED_' 
+		             	    THEN 0 
+		             	    ELSE 1 
+		                END              AS USE_FLAG 
+		              ,CMAM."OPTION"
+				  FROM (
+				  		SELECT HOUSE_CODE
+							  ,MODULE
+							  ,PARENT
+							  ,COMBO
+							  ,SORT
+						  FROM SBMMA
+						 WHERE HOUSE_CODE = '000' 
+						) L
+				  JOIN SLANG LANG 
+				    ON L.HOUSE_CODE   = '000'
+				   AND LANG.SCREEN_ID = 'BUSINESS_MODULE'
+				   AND LANG.LANGUAGE  = 'KO'
+				   AND LANG.CODE      = L.MODULE
+				  LEFT OUTER 
+				  JOIN SLANG LANG2 
+				    ON L.HOUSE_CODE    = '000'
+				   AND LANG2.SCREEN_ID = 'BUSINESS_MODULE_DES'
+				   AND LANG2.LANGUAGE  = 'KO'
+				   AND LANG2.CODE      = L.MODULE
+				  LEFT OUTER
+		 		  JOIN SCMAM CMAM
+		   			ON CMAM.MODULE       = L.MODULE
+		  		   AND CMAM.HOUSE_CODE   = ${HOUSE_CODE} 
+		  		   AND CMAM.COMPANY_CODE = ${COMPANY_CODE}
+				 START 
+				  WITH L.PARENT = '*'
+			   CONNECT 
+					BY PRIOR L.MODULE = L.PARENT 
+					   ORDER SIBLINGS 
+					      BY SORT 
+			  )
+	]]>
+	</method>
+	
+	<method name="doDelete">
+	<![CDATA[
+		DELETE FROM
+			SBMMA
+		WHERE
+			MODULE = ${MODULE}
+	]]>
+	</method>
+	
+	<method name="doInsert">
+	<![CDATA[
+		INSERT INTO SBMMA
+		(
+			  MODULE
+			, DESCRIPTION
+			, PARENT
+			, SORT
+			, NODE
+			, "TYPE"
+			, "OPTIONS"
+			, REMARK
+			, ALIAS
+			, DEFAULT_OPTION_VALUE
+		)
+		VALUES
+		(
+			  ${MODULE}
+			, ${DESCRIPTION}
+			, ${PARENT}
+			, ${SORT}
+			, ${NODE}
+			, ${TYPE}
+			, ${OPTIONS}
+			, ${REMARK}
+			, ${ALIAS}
+			, ${DEFAULT_OPTION_VALUE}
+		)
+	]]>
+	</method>
+	
+	<method name="getActiveModule">
+	<![CDATA[
+		SELECT MODULE 
+		      ,OPTIONS
+		  FROM SCMAM
+		 WHERE HOUSE_CODE   = ${session.HOUSE_CODE}
+	]]>
+	</method>
+</service>

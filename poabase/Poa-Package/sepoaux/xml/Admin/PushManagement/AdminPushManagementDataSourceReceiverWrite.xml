@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_450_10" header="false">
+    <usercss>
+    <![CDATA[
+        .CodeMirror {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ddd;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="codeMirrorReceiverArea" value="$($sObject._vp).find('#bapZIbenYqZIbejaUJ')[0]"/>
+        <var name="bapZIbemYqZIbeHruw" value="$($sObject._vp).find('#bapZIbemYqZIbeHruw')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            callFunction('p', 'childScreenLoad', [{
+                id: "RECEIVER",
+                fn: {
+                    onBeforeSave: onBeforeSave,
+                    doClear: doClear,
+                    doRefresh: doRefresh
+                }
+            }]);
+            
+            CodeMirror.commands.autocomplete = function(cm) {
+                cm.showHint({
+                    hint: CodeMirror.hint.html
+                });
+            }
+            
+            $share.codeObj = CodeMirror(codeMirrorReceiverArea, {
+                lineNumbers: true,
+                theme: "default",
+                viewportMargin: 0,
+                indentUnit: 4,
+                extraKeys: {
+                    "Ctrl-Q": "toggleComment",
+                    "Ctrl-Space": "autocomplete"
+                },
+                mode: "text/html"
+            });
+            
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+        <function name="onBeforeSave" args="data">
+        <![CDATA[
+            var contents = $share.codeObj.getValue();
+            if (!sUtils.string.isBlank(contents)) {
+                data.DATASOURCE_RECEIVER = contents;
+            }
+        ]]>
+        </function>
+        <function name="doClear">
+        <![CDATA[
+            $share.codeObj.setValue('');
+        ]]>
+        </function>
+        <function name="load" args="html">
+        <![CDATA[
+            $share.codeObj.setValue(html.replaceAll("'", "'"));
+        ]]>
+        </function>
+        <function name="doRefresh">
+        <![CDATA[
+            $share.codeObj.refresh();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQVhFU0liZUFYRVNJYmVOaW1lIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF80NTBfMTAifSwiaWQiOiJBWEVTSWJlQVhFU0liZU5pbWUiLCJ0eXBlIjoiYm9keSJ9LCJiYXBaSWJlbllxWkliZWphVUoiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoiY29kZU1pcnJvclJlY2VpdmVyQXJlYSIsIk9CSkVDVF9JRCI6ImJhcFpJYmVuWXFaSWJlamFVSiJ9LCJpZCI6ImJhcFpJYmVuWXFaSWJlamFVSiIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJiYXBaSWJl
+        bVlxWkliZUhydXciOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX0x0UVRVOE40cTUzbSI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfOE1ud05xU3RieDluIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX2JsVW1IWlRGWXFTSSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6ImJhcFpJYmVtWXFaSWJlSHJ1dyIsIk9CSkVDVF9JRCI6
+        ImJhcFpJYmVtWXFaSWJlSHJ1dyIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiYmFwWkliZW1ZcVpJYmVIcnV3IiwidHlwZSI6ImNvbnRhaW5lciJ9fSwidHJlZSI6eyJpZCI6IkFYRVNJYmVBWEVTSWJlTmltZSIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiYmFwWkliZW1ZcVpJYmVIcnV3IiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImJhcFpJYmVuWXFaSWJlamFVSiIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9QdXNoTWFuYWdlbWVudC9BZG1pblB1c2hNYW5hZ2VtZW50RGF0YVNvdXJjZVJlY2VpdmVyV3JpdGUueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJDT0RFIjoiNDUwXzEwIiwiUFJF
+        RklYIjoiQUQiLCJQQVRIXzIiOiJQdXNoTWFuYWdlbWVudCIsIlBBVEhfMyI6IkFkbWluUHVzaE1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkRhdGFTb3VyY2VSZWNlaXZlcldyaXRlIiwiU0NSRUVOX0lEIjoiQURfNDUwXzEwIn19LCJodG1sIjoiPGRpdiBpZD1cIkFYRVNJYmVBWEVTSWJlTmltZVwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRh
+        aW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImJhcFpJYmVtWXFaSWJlSHJ1d1wiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7
+        d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYmFwWkliZW5ZcVpJYmVqYVVKXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVyXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAg
+        ICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

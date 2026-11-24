@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+CREATE TABLE "UTOKN" (
+	"TOKEN_ID"       varchar2(50) not null,
+	"ADD_DATE"	     varchar2(8)  ,
+	"ADD_TIME"	     varchar2(6)  ,
+	"CHANGE_DATE"	 varchar2(8)  ,
+	"CHANGE_TIME"	 varchar2(6)  ,
+	"CREATE_DATE"	 varchar2(20) ,
+	"EXPIRE_DATE"    varchar2(20) ,
+	"UNIT_TIME"	     varchar2(10) ,
+	"DISPOSABLE"	 varchar2(2)  ,
+	"AUTORENEWAL"	 varchar2(2)  ,
+	"EXT_DATA"		 CLOB,
+CONSTRAINT PK_UTOKN PRIMARY KEY ("TOKEN_ID")
+)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON TABLE UTOKN IS '[F/W] 토큰관리'  ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.TOKEN_ID    IS '토큰 ID' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.ADD_DATE    IS '생성일' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.ADD_TIME    IS '생성시간' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.CHANGE_DATE IS '변경일' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.CHANGE_TIME IS '변경시간' ]]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.CREATE_DATE IS '토큰 생성 시간 long']]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.EXPIRE_DATE IS '토큰 만료 시간 long']]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.UNIT_TIME   IS '토큰 갱신 단위 시간']]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.DISPOSABLE  IS '일회용 여부']]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.AUTORENEWAL IS '자동 갱신 여부']]></query></item>
+	<item ignore-error="true"><query vendor="ORACLE"><![CDATA[ COMMENT ON COLUMN UTOKN.EXT_DATA	   IS '추가 데이터']]></query></item>
+	<item ignore-error="true">
+		<query vendor="MARIADB">
+		<![CDATA[
+CREATE TABLE `UTOKN` (
+	`TOKEN_ID`       varchar(50) not null COMMENT '토큰 ID',
+	`ADD_DATE`	     varchar(8)  default null COMMENT '생성일',
+	`ADD_TIME`	     varchar(6)  default null COMMENT '생성시간',
+	`CHANGE_DATE`	 varchar(8)  default null COMMENT '변경일',
+	`CHANGE_TIME`	 varchar(6)  default null COMMENT '변경시간',
+	`CREATE_DATE`	 varchar(20) default null COMMENT '토큰 생성 시간 long',
+	`EXPIRE_DATE`    varchar(20) default null COMMENT '토큰 만료 시간 long',
+	`UNIT_TIME`	     varchar(10) default null COMMENT '토큰 갱신 단위 시간',
+	`DISPOSABLE`	 varchar(2)  default null COMMENT '일회용 여부',
+	`AUTORENEWAL`	 varchar(2)  default null COMMENT '자동 갱신 여부',
+	`EXT_DATA`		 mediumtext  default null COMMENT '추가 데이터',
+	PRIMARY KEY (`TOKEN_ID`)
+) COMMENT = '[F/W] 토큰관리'
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+CREATE TABLE [UTOKN] (
+	[TOKEN_ID]       nvarchar(50) not null,
+	[ADD_DATE]	     nvarchar(8)  ,
+	[ADD_TIME]	     nvarchar(6)  ,
+	[CHANGE_DATE]	 nvarchar(8)  ,
+	[CHANGE_TIME]	 nvarchar(6)  ,
+	[CREATE_DATE]	 nvarchar(20) ,
+	[EXPIRE_DATE]    nvarchar(20) ,
+	[UNIT_TIME]	     nvarchar(10) ,
+	[DISPOSABLE]	 nvarchar(2)  ,
+	[AUTORENEWAL]	 nvarchar(2)  ,
+	[EXT_DATA]		 text  ,
+	CONSTRAINT PK_UTOKN PRIMARY KEY ([TOKEN_ID])
+)		]]>
+		</query>
+	</item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '[F/W] 토큰관리'     , 'USER', dbo, 'TABLE', UTOKN  ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '토큰 ID'            , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', TOKEN_ID]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '생성일'             , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', ADD_DATE	  ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '생성시간'           , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', ADD_TIME	  ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '변경일'             , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', CHANGE_DATE ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '변경시간'           , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', CHANGE_TIME ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '토큰 생성 시간 long', 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', CREATE_DATE ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '토큰 만료 시간 long', 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', EXPIRE_DATE ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '토큰 갱신 단위 시간', 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', UNIT_TIME ]]>  </query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '일회용 여부'        , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', DISPOSABLE ]]> </query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '자동 갱신 여부'     , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', AUTORENEWAL ]]></query></item>
+	<item ignore-error="true"><query vendor="MSSQL"><![CDATA[ EXEC sp_addextendedproperty 'MS_Description', '추가 데이터'        , 'USER', dbo, 'TABLE', UTOKN, 'COLUMN', EXT_DATA	  ]]></query></item>
+</body>

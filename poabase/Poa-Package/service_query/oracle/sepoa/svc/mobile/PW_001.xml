@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuery">
+		<![CDATA[
+			SELECT USER_ID
+			     , EMAIL
+			  FROM SUSMT
+			 WHERE HOUSE_CODE = ${houseCode}
+			   AND COMPANY_CODE = ${companyCode}
+			   AND NVL(DEL_FLAG, 'N') = 'N'
+			   AND (UPPER(USER_ID) = UPPER(${userIdOrEmail})
+			        OR UPPER(EMAIL) = UPPER(${userIdOrEmail}))
+		]]>
+	</method>
+	
+	<method name="getPrItemInfo">
+		<![CDATA[
+			SELECT PRGL.PR_USER_ID 
+			     , PRGL.SIGN_PERSON_ID 
+			     , PRGL.PURCHASER_ID 
+			     , PRGL.SUBJECT 
+			     , PRGL.PR_NUMBER 
+			     , PRLN.PR_SEQ 
+			     , PRLN.MATERIAL_NUMBER 
+			     , PRLN.DESCRIPTION_LOC 
+			  FROM SPRGL PRGL WITH (NOLOCK)
+			   INNER JOIN SPRLN PRLN WITH (NOLOCK)
+			       ON PRGL.HOUSE_CODE = PRLN.HOUSE_CODE 
+			       AND PRGL.COMPANY_CODE = PRLN.COMPANY_CODE 
+			       AND PRGL.PR_NUMBER    = PRLN.PR_NUMBER 
+			 WHERE PRGL.HOUSE_CODE            = ${session.HOUSE_CODE} 
+			       AND PRGL.COMPANY_CODE      = ${session.COMPANY_CODE} 
+			       AND PRGL.PR_NUMBER         = ${PR_NUMBER} 
+			       AND PRLN.PR_SEQ            = ${PR_SEQ}  
+		]]>
+	</method>
+	
+	<method name="getMroPrInfo">
+		<![CDATA[
+			SELECT RQLN.HOUSE_CODE 
+			     , RQLN.COMPANY_CODE 
+			     , RQLN.RFQ_NUMBER 
+			     , RQLN.RFQ_COUNT 
+			     , RQLN.RFQ_SEQ 
+			     , PRGL.PR_USER_ID 
+			     , PRGL.SIGN_PERSON_ID 
+			     , PRGL.PURCHASER_ID 
+			     , PRGL.SUBJECT 
+			     , PRGL.PR_NUMBER 
+			     , RQSE.SELLER_CODE 
+			  FROM SRQLN RQLN WITH (NOLOCK)
+			   JOIN SPRLN PRLN WITH (NOLOCK)
+			       ON RQLN.HOUSE_CODE = PRLN.HOUSE_CODE 
+			       AND RQLN.COMPANY_CODE = PRLN.COMPANY_CODE 
+			       AND RQLN.PR_NUMBER    = PRLN.PR_NUMBER 
+			       AND RQLN.PR_SEQ       = PRLN.PR_SEQ 
+			       AND RQLN.RFQ_NUMBER   = ${RFQ_NUMBER} 
+			   JOIN SPRGL PRGL WITH (NOLOCK)
+			       ON PRGL.HOUSE_CODE = PRLN.HOUSE_CODE 
+			       AND PRGL.PR_NUMBER = PRLN.PR_NUMBER 
+			   JOIN SRQSE RQSE WITH (NOLOCK)
+			       ON RQSE.HOUSE_CODE =RQLN.HOUSE_CODE 
+			       AND RQSE.COMPANY_CODE = RQLN.COMPANY_CODE 
+			       AND RQSE.RFQ_NUMBER   = RQLN.RFQ_NUMBER 
+			       AND RQSE.RFQ_COUNT    = RQLN.RFQ_COUNT 
+			       AND RQSE.RFQ_SEQ      = RQLN.RFQ_SEQ  
+		]]>
+	</method>
+	
+	<method name="getMroPoInfo">
+		<![CDATA[
+			SELECT POLN.HOUSE_CODE 
+			     , POLN.COMPANY_CODE 
+			     , POLN.PO_NUMBER 
+			     , POLN.PO_COUNT 
+			     , POLN.PR_USER_ID 
+			     , POGL.ADD_USER_ID 
+			     , POGL.SUBJECT 
+			     , '627741' AS SELLER_CODE 
+			  FROM SPOLN POLN WITH (NOLOCK)
+			   INNER JOIN SPOGL POGL WITH (NOLOCK)
+			       ON POLN.HOUSE_CODE = POGL.HOUSE_CODE 
+			       AND POLN.COMPANY_CODE = POGL.COMPANY_CODE 
+			       AND POLN.PO_NUMBER    = POGL.PO_NUMBER 
+			       AND POLN.PO_COUNT     = POGL.PO_COUNT 
+			       AND POLN.PO_NUMBER    = ${PO_NUMBER}
+			 GROUP BY POLN.HOUSE_CODE 
+			     , POLN.COMPANY_CODE 
+			     , POLN.PO_NUMBER 
+			     , POLN.PO_COUNT 
+			     , POLN.PR_USER_ID 
+			     , POGL.ADD_USER_ID 
+			     , POGL.SUBJECT
+		]]>
+	</method>
+	
+	<method name="getMroPoItemInfo">
+		<![CDATA[
+			SELECT POLN.HOUSE_CODE 
+			     , POLN.COMPANY_CODE 
+			     , POLN.PO_NUMBER 
+			     , POLN.PO_COUNT 
+				 , POLN.PO_SEQ
+			     , POLN.PR_USER_ID 
+				 , POLN.MATERIAL_NUMBER
+				 , POLN.DESCRIPTION_LOC
+			     , POGL.ADD_USER_ID 
+			     , POGL.SUBJECT 
+			     , '627741' AS SELLER_CODE 
+			  FROM SPOLN POLN  WITH (NOLOCK)
+			   INNER JOIN SPOGL POGL  WITH (NOLOCK)
+			       ON POLN.HOUSE_CODE = POGL.HOUSE_CODE 
+			       AND POLN.COMPANY_CODE = POGL.COMPANY_CODE 
+			       AND POLN.PO_NUMBER    = POGL.PO_NUMBER 
+			       AND POLN.PO_COUNT     = POGL.PO_COUNT 
+			       AND POLN.PO_NUMBER    = ${PO_NUMBER} 
+			       AND POLN.PO_SEQ       = ${PO_SEQ} 
+		]]>
+	</method>
+	
+	<method name="getMroGrItemInfo">
+		<![CDATA[
+			SELECT GRLN.HOUSE_CODE 
+			     , GRLN.COMPANY_CODE 
+			     , GRLN.GR_NUMBER 
+			     , GRLN.MATERIAL_NUMBER 
+			     , GRLN.DESCRIPTION_LOC 
+			     , GRLN.SELLER_CODE
+			     , GRLN.ADD_USER_ID
+			  FROM SGRLN GRLN WITH (NOLOCK)
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND GR_NUMBER = ${GR_NUMBER} 
+			       AND PO_NUMBER = ${PO_NUMBER} 
+			       AND PO_SEQ    = ${PO_SEQ}
+		]]>
+	</method>
+	
+	<method name="sendRfxRequest">
+		<![CDATA[
+			SELECT MOBILE_NO 
+			     , EMAIL 
+			     , USER_NAME 
+			  FROM SSUPI SUPI WITH (NOLOCK)
+			   INNER JOIN SRQPI RQPI WITH (NOLOCK)
+			       ON SUPI.HOUSE_CODE = RQPI.HOUSE_CODE 
+			       AND SUPI.COMPANY_CODE = RQPI.COMPANY_CODE 
+			       AND SUPI.SELLER_CODE  = RQPI.SELLER_CODE 
+			       AND SUPI.SEQ          = RQPI.SEQ 
+			 WHERE RQPI.HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND RQPI.COMPANY_CODE = ${session.COMPANY_CODE} 
+			       AND RQPI.RFQ_NUMBER   = ${RFQ_NUMBER} 
+			       AND RQPI.RFQ_COUNT    = ${RFQ_COUNT}
+			 GROUP BY MOBILE_NO 
+			     , EMAIL 
+			     , USER_NAME
+		]]>
+	</method>
+	
+	<method name="getRfqInfo">
+		<![CDATA[
+			SELECT RQGL.HOUSE_CODE 
+			     , RQGL.COMPANY_CODE 
+			     , RQGL.RFQ_NUMBER 
+			     , RQGL.RFQ_COUNT 
+			     , RQGL.SUBJECT 
+			     , RQGL.REMARK 
+			     , RQGL.RFQ_CLOSE_DATE
+			     , RQGL.RFQ_CLOSE_TIME
+				 , RQGL.PURCHASE_USER_ID
+				 , RQGL.PURCHASE_USER_NAME
+				 , RQGL.ATTACH_NO
+				 , ( SELECT TOP 1 SELLER_NAME_LOC FROM SSUGL
+				     WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+				 	 AND SELLER_CODE = ${session.COMPANY_CODE}
+				 ) AS SELLER_NAME_LOC
+			  FROM SRQGL RQGL WITH (NOLOCK)
+			 WHERE RQGL.HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND RQGL.RFQ_NUMBER   = ${RFQ_NUMBER} 
+			       AND RQGL.RFQ_COUNT    = ${RFQ_COUNT}
+		]]>
+	</method>
+	
+	<method name="getExInfoSellerList">
+		<![CDATA[
+			SELECT SELLER_CODE 
+			  FROM SQTLN QTLN  WITH (NOLOCK)
+			 WHERE RFQ_NUMBER || RFQ_COUNT || RFQ_SEQ IN 
+			       (SELECT RFQ_NUMBER || RFQ_COUNT || RFQ_SEQ 
+			         FROM SDRLN  WITH (NOLOCK)
+			        WHERE EXEC_NUMBER = ${EXEC_NUMBER}  
+			              AND EXEC_COUNT = ${EXEC_COUNT} 
+			       ) 
+			       AND NVL(SETTLE_FLAG, 'N') = ${SETTLE_FLAG} 
+			 GROUP BY SELLER_CODE 
+		]]>
+	</method>
+	
+	<method name="getExInfo">
+		<![CDATA[
+			SELECT HOUSE_CODE 
+			     , COMPANY_CODE 
+			     , RFQ_NUMBER 
+			     , RFQ_COUNT 
+			     , RFQ_SEQ 
+			     , SELLER_CODE 
+			     , MATERIAL_NUMBER
+			     , DESCRIPTION_LOC 
+			     , SETTLE_FLAG 
+			     , 
+			       (SELECT PURCHASE_USER_ID 
+			         FROM SRQGL  WITH (NOLOCK)
+			        WHERE HOUSE_CODE = QTLN.HOUSE_CODE 
+			              AND COMPANY_CODE = QTLN.COMPANY_CODE 
+			              AND RFQ_NUMBER  = QTLN.RFQ_NUMBER 
+			              AND RFQ_COUNT   = QTLN.RFQ_COUNT 
+						  AND NVL(DEL_FLAG,'N') = 'N'
+			       ) AS PURCHASE_USER_ID
+			     , 
+			       (SELECT SUBJECT 
+			         FROM SRQGL  WITH (NOLOCK)
+			        WHERE HOUSE_CODE = QTLN.HOUSE_CODE 
+			              AND COMPANY_CODE = QTLN.COMPANY_CODE 
+			              AND RFQ_NUMBER  = QTLN.RFQ_NUMBER 
+			              AND RFQ_COUNT   = QTLN.RFQ_COUNT 
+						  AND NVL(DEL_FLAG,'N') = 'N'
+			       ) AS SUBJECT
+			     , 
+			       (SELECT COUNT(*) 
+			         FROM SRQLN  WITH (NOLOCK)
+			        WHERE HOUSE_CODE = QTLN.HOUSE_CODE 
+			              AND COMPANY_CODE = QTLN.COMPANY_CODE 
+			              AND RFQ_NUMBER  = QTLN.RFQ_NUMBER 
+			              AND RFQ_COUNT   = QTLN.RFQ_COUNT 
+						  AND NVL(DEL_FLAG,'N') = 'N'
+			       ) AS TOT_CNT
+			     , 
+			       (SELECT COUNT(*) 
+			         FROM SQTLN  WITH (NOLOCK)
+			        WHERE HOUSE_CODE = QTLN.HOUSE_CODE 
+			              AND COMPANY_CODE = QTLN.COMPANY_CODE 
+			              AND SELLER_CODE  = QTLN.SELLER_CODE 
+			              AND QTA_NUMBER   = QTLN.QTA_NUMBER 
+			              AND NVL(SETTLE_FLAG, 'N') = ${SETTLE_FLAG} 
+						  AND NVL(DEL_FLAG,'N') = 'N'
+			       ) AS CNT
+			  FROM SQTLN QTLN  WITH (NOLOCK)
+			 WHERE RFQ_NUMBER || RFQ_COUNT || RFQ_SEQ IN 
+			       (SELECT RFQ_NUMBER || RFQ_COUNT || RFQ_SEQ 
+			         FROM SDRLN  WITH (NOLOCK)
+			        WHERE EXEC_NUMBER = ${EXEC_NUMBER}  
+			              AND EXEC_COUNT = ${EXEC_COUNT} 
+			       ) 
+			       AND SELLER_CODE = ${SELLER_CODE} 
+			       AND NVL(SETTLE_FLAG, 'N') = ${SETTLE_FLAG} 
+			ORDER BY SETTLE_FLAG DESC 
+			     , SELLER_CODE  
+			     , RFQ_SEQ
+		]]>
+	</method>
+	
+	
+	<method name="getPoInfo">
+		<![CDATA[
+			SELECT POGL.HOUSE_CODE 
+			     , POGL.COMPANY_CODE 
+			     , POGL.PO_NUMBER 
+			     , POGL.PO_COUNT 
+			     , POGL.SELLER_CODE
+			     , POGL.SUBJECT 
+			     , POGL.REMARK 
+			  FROM SPOGL POGL  WITH (NOLOCK)
+			   INNER JOIN SPOLN POLN  WITH (NOLOCK)
+			       ON POGL.HOUSE_CODE = POLN.HOUSE_CODE 
+			       AND POGL.COMPANY_CODE = POLN.COMPANY_CODE 
+			       AND POGL.PO_NUMBER    = POLN.PO_NUMBER 
+			       AND POGL.PO_COUNT     = POLN.PO_COUNT 
+			 WHERE POGL.HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND POGL.COMPANY_CODE = ${session.COMPANY_CODE} 
+			       AND POGL.PO_NUMBER    = ${PO_NUMBER} 
+			       AND POGL.PO_COUNT     = ${PO_COUNT} 
+			 GROUP BY POGL.HOUSE_CODE 
+			     , POGL.COMPANY_CODE 
+			     , POGL.PO_NUMBER 
+			     , POGL.PO_COUNT 
+			     , POGL.SELLER_CODE
+			     , POGL.SUBJECT 
+			     , POGL.REMARK
+		]]>
+	</method>
+	
+	<method name="getContInfo">
+		<![CDATA[
+			SELECT CTGL.CONT_NUMBER 
+			     , CTGL.CONT_GL_SEQ 
+			     , CTGL.SUBJECT 
+			     , CTCU.CONT_COMPANY_CODE 
+			     , CTCU.CONT_COMPANY_NAME 
+				 , CTGL.CONT_USER_ID
+			  FROM SCTGL CTGL WITH (NOLOCK)
+			   INNER JOIN SCTCU CTCU WITH (NOLOCK)
+			       ON CTGL.HOUSE_CODE = CTCU.HOUSE_CODE 
+			       AND CTGL.COMPANY_CODE = CTCU.COMPANY_CODE 
+			       AND CTGL.CONT_NUMBER  = CTCU.CONT_NUMBER 
+			       AND CTGL.CONT_GL_SEQ  = CTCU.CONT_GL_SEQ 
+			       AND CTGL.CONT_SEQ     = CTCU.CONT_SEQ 
+			       AND CONT_SELLER_GUBUN = ${CONT_SELLER_GUBUN} 
+			 WHERE CTGL.HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND CTGL.CONT_NUMBER  = ${CONT_NUMBER} 
+			       AND CTGL.CONT_GL_SEQ  = ${CONT_GL_SEQ} 
+			       AND CTGL.CONT_SEQ     = ${CONT_SEQ}
+		]]>
+	</method>
+	
+	<method name="getInvInfo">
+		<![CDATA[
+			SELECT IVGL.HOUSE_CODE 
+			     , IVGL.COMPANY_CODE 
+			     , IVGL.INV_NUMBER 
+			     , IVGL.INV_COUNT 
+			     , IVGL.SELLER_CODE 
+			     , IVGL.SUBJECT 
+			     , IVGL.INV_AMT 
+			     , IVGL.PI_DIV 
+			     , IVGL.PI_NUMBER 
+			     , IVGL.PI_SEQ 
+			     , PAYI.PI_TYPE 
+			     , GETCODETEXT( IVGL.HOUSE_CODE, 'UX046', PAYI.PI_TYPE, '#session.LANGUAGE#') AS PI_TYPE_TEXT 
+			     , IVLN.PO_NUMBER 
+			     , IVLN.PO_COUNT 
+				 , (SELECT INSPECTOR_ID FROM SPOGL WHERE HOUSE_CODE = IVGL.HOUSE_CODE AND COMPANY_CODE = IVGL.COMPANY_CODE AND PO_NUMBER = IVLN.PO_NUMBER AND PO_COUNT = IVLN.PO_COUNT) AS INSPECTOR_ID
+			  FROM SIVGL IVGL WITH (NOLOCK)
+			   INNER JOIN SIVLN IVLN WITH (NOLOCK)
+			       ON IVLN.HOUSE_CODE = IVGL.HOUSE_CODE 
+			       AND IVLN.COMPANY_CODE = IVGL.COMPANY_CODE 
+			       AND IVLN.SELLER_CODE  = IVGL.SELLER_CODE 
+			       AND IVLN.INV_NUMBER   = IVGL.INV_NUMBER 
+			       AND IVLN.INV_COUNT    = IVGL.INV_COUNT 
+			       AND IVLN.DEL_KEY      = IVGL.DEL_KEY 
+			   INNER JOIN SPAYI PAYI WITH (NOLOCK)
+			       ON PAYI.HOUSE_CODE = IVGL.HOUSE_CODE 
+			       AND PAYI.COMPANY_CODE = IVGL.COMPANY_CODE 
+			       AND PAYI.PI_NUMBER    = IVGL.PI_NUMBER 
+			       AND PAYI.PI_DIV       = IVGL.PI_DIV 
+			       AND PAYI.PI_SEQ       = IVGL.PI_SEQ 
+			   INNER JOIN SPOGL POGL WITH (NOLOCK)
+			       ON POGL.HOUSE_CODE = IVLN.HOUSE_CODE 
+			       AND POGL.COMPANY_CODE = IVLN.COMPANY_CODE 
+			       AND POGL.PO_NUMBER    = IVLN.PO_NUMBER 
+			       AND POGL.PO_COUNT     = IVLN.PO_COUNT 
+			 WHERE IVGL.HOUSE_CODE       = ${session.HOUSE_CODE} 
+			       AND IVGL.SELLER_CODE  = ${session.COMPANY_CODE} 
+			       AND IVGL.INV_NUMBER   = ${INV_NUMBER} 
+			       AND IVGL.INV_COUNT    = ${INV_COUNT} 
+			 GROUP BY IVGL.HOUSE_CODE 
+			     , IVGL.COMPANY_CODE 
+			     , IVGL.INV_NUMBER 
+			     , IVGL.INV_COUNT 
+			     , IVGL.SELLER_CODE 
+			     , IVGL.SUBJECT 
+			     , IVGL.INV_AMT 
+			     , IVGL.PI_DIV 
+			     , IVGL.PI_NUMBER 
+			     , IVGL.PI_SEQ 
+			     , PAYI.PI_TYPE 
+			     , IVLN.PO_NUMBER 
+			     , IVLN.PO_COUNT 
+		]]>
+	</method>
+	
+	<method name="getReverseTaxInfo">
+		<![CDATA[
+			SELECT A.BILLSEQ
+			     , B.SELLER_CODE
+			     , A.SCOMPANY
+			     , B.TAX_USER_ID
+			     , BIGO 
+			  FROM BILL_TRANS A WITH (NOLOCK)
+			     , 
+			       (SELECT BILLSEQ 
+			            , HOUSE_CODE 
+			            , COMPANY_CODE 
+			            , SELLER_CODE 
+			            , TAX_USER_ID 
+			         FROM STXLN WITH (NOLOCK)
+			        WHERE BILLSEQ = ${BILLSEQ} 
+			        GROUP BY BILLSEQ 
+			            , HOUSE_CODE 
+			            , COMPANY_CODE 
+			            , SELLER_CODE 
+			            , TAX_USER_ID 
+			       ) B 
+			 WHERE A.BILLSEQ = B.BILLSEQ
+		]]>
+	</method>
+	
+	<method name="getNormalityTaxInfo">
+		<![CDATA[
+			SELECT A.BILLSEQ
+			     , B.SELLER_CODE
+			     , B.TAX_USER_ID
+			     , BIGO 
+			  FROM BILL_TRANS_NORMAL A WITH (NOLOCK)
+			     , 
+			       (SELECT BILLSEQ 
+			            , HOUSE_CODE 
+			            , COMPANY_CODE 
+			            , SELLER_CODE 
+			            , TAX_USER_ID 
+			         FROM STXLN WITH (NOLOCK)
+			        WHERE BILLSEQ = ${BILLSEQ} 
+			        GROUP BY BILLSEQ 
+			            , HOUSE_CODE 
+			            , COMPANY_CODE 
+			            , SELLER_CODE 
+			            , TAX_USER_ID 
+			       ) B 
+			 WHERE A.BILLSEQ = B.BILLSEQ
+		]]>
+	</method>
+	
+	<method name="getFileList">
+		<![CDATA[
+			SELECT TYPE 
+			     , DES_FILE_NAME 
+			     , SRC_FILE_NAME 
+			  FROM SFILE WITH (NOLOCK)
+			 WHERE HOUSE_CODE = ${session.HOUSE_CODE} 
+			       AND DOC_NO = ${ATTACH_NO} 
+		]]>
+	</method>
+	
+	<method name="setMailBuyerSender">
+		<![CDATA[
+			SELECT ADDR.EMAIL 
+			     , ADDR.PHONE_NO2 AS MOBILE_NO 
+			     , USMT.USER_NAME_LOC 
+			  FROM SUSMT USMT WITH (NOLOCK)
+			   LEFT OUTER JOIN SADDR ADDR WITH (NOLOCK)
+			       ON USMT.HOUSE_CODE = ADDR.HOUSE_CODE 
+			       AND USMT.USER_ID   = ADDR.CODE_NO 
+			       AND ADDR.CODE_TYPE = 'USER' 
+			 WHERE USMT.HOUSE_CODE    = ${session.HOUSE_CODE} 
+			       AND USER_ID        = ${USER_ID} 
+		]]>
+	</method>
+	
+	<method name="setMailSellerSender">
+		<![CDATA[
+			SELECT NVL((SELECT EMAIL FROM SSUPI WITH (NOLOCK) WHERE HOUSE_CODE = SUGL.HOUSE_CODE AND SELLER_CODE = SUGL.SELLER_CODE AND SEQ = '1'), ADDR.EMAIL) AS EMAIL
+			     , NVL((SELECT MOBILE_NO FROM SSUPI WITH (NOLOCK) WHERE HOUSE_CODE = SUGL.HOUSE_CODE AND SELLER_CODE = SUGL.SELLER_CODE AND SEQ = '1'), ADDR.PHONE_NO2) AS MOBILE_NO 
+			     , SUGL.SELLER_NAME_LOC
+			  FROM SSUGL SUGL WITH (NOLOCK)
+			   INNER JOIN SADDR ADDR WITH (NOLOCK)
+			       ON SUGL.HOUSE_CODE = ADDR.HOUSE_CODE 
+			       AND SUGL.SELLER_CODE = ADDR.CODE_NO 
+			       AND ADDR.CODE_TYPE   = 'SELLER' 
+			       AND SUGL.HOUSE_CODE  = ${session.HOUSE_CODE} 
+			       AND SUGL.SELLER_CODE = ${SELLER_CODE}  
+		]]>
+	</method>
+	
+	<method name="setMailBuyerReceiver">
+		<![CDATA[
+			SELECT ADDR.EMAIL 
+			     , ADDR.PHONE_NO2 AS MOBILE_NO 
+			     , USMT.USER_NAME_LOC 
+			  FROM SUSMT USMT WITH (NOLOCK)
+			   LEFT OUTER JOIN SADDR ADDR WITH (NOLOCK)
+			       ON USMT.HOUSE_CODE = ADDR.HOUSE_CODE 
+			       AND USMT.USER_ID   = ADDR.CODE_NO 
+			       AND ADDR.CODE_TYPE = 'USER' 
+			 WHERE USMT.HOUSE_CODE    = ${session.HOUSE_CODE} 
+			       AND USER_ID        = ${USER_ID} 
+		]]>
+	</method>
+	
+	<method name="setMailSellerReceiver">
+		<![CDATA[
+			SELECT NVL((SELECT EMAIL FROM SSUPI WITH (NOLOCK) WHERE HOUSE_CODE = SUGL.HOUSE_CODE AND SELLER_CODE = SUGL.SELLER_CODE AND SEQ = '1'), ADDR.EMAIL) AS EMAIL 
+			     , NVL((SELECT MOBILE_NO FROM SSUPI WITH (NOLOCK) WHERE HOUSE_CODE = SUGL.HOUSE_CODE AND SELLER_CODE = SUGL.SELLER_CODE AND SEQ = '1'), ADDR.PHONE_NO2) AS MOBILE_NO 
+			     , SUGL.SELLER_NAME_LOC
+			  FROM SSUGL SUGL WITH (NOLOCK)
+			   INNER JOIN SADDR ADDR WITH (NOLOCK)
+			       ON SUGL.HOUSE_CODE = ADDR.HOUSE_CODE 
+			       AND SUGL.SELLER_CODE = ADDR.CODE_NO 
+			       AND ADDR.CODE_TYPE   = 'SELLER' 
+			       AND SUGL.HOUSE_CODE  = ${session.HOUSE_CODE} 
+			       AND SUGL.SELLER_CODE = ${SELLER_CODE}  
+		]]>
+	</method>
+	
+		<method name="setMailRequestor">
+		<![CDATA[
+			SELECT
+			       USMT.HOUSE_CODE,
+				   USMT.USER_ID,
+				   USMT.PASSWORD,
+				   USMT.USER_NAME_LOC AS USER_NAME,
+				   NVL(
+						   CASE WHEN UPPER(ADDR.EMAIL) = UPPER(${EMAIL})
+							    THEN ADDR.EMAIL
+							    WHEN UPPER(USMT.EMAIL) = UPPER(${EMAIL})
+							    THEN USMT.EMAIL
+							    ELSE ( SELECT  DISTINCT t.EMAIL 
+							            FROM SSUPI t
+							            LEFT OUTER
+							            JOIN SSUGL SUGL
+							              ON t.SELLER_CODE = SUGL.SELLER_CODE
+							            LEFT OUTER
+							            JOIN SUSMT USMT
+							              ON USMT.COMPANY_CODE = SUGL.SELLER_CODE
+							           WHERE USMT.USER_TYPE = 'S'
+							             AND NVL( t.DEL_FLAG, 'N' ) = 'N'
+							             AND UPPER(t.EMAIL) = UPPER(${EMAIL})
+							             AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+							          )
+							     END 
+							, 'A' ) AS EMAIL
+			 FROM SADDR ADDR 
+			 FULL OUTER
+			 JOIN SUSMT USMT 
+			   ON USMT.USER_ID = ADDR.CODE_NO    
+			  AND NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+			WHERE 1=1
+			  AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+		]]>
+	</method>
+	
+	<method name="setMailFindPw">
+		<![CDATA[
+			SELECT ADDR.EMAIL 
+			     , USMT.USER_NAME_LOC   AS USER_NAME
+			  FROM SUSMT USMT
+			   LEFT OUTER JOIN SADDR ADDR
+			       ON USMT.HOUSE_CODE = ADDR.HOUSE_CODE 
+			       AND USMT.USER_ID   = ADDR.CODE_NO 
+			 WHERE UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+		]]>
+	</method>
+	
+	<method name="setMailRequestorInfo">
+		<![CDATA[
+			SELECT
+			       USMT.HOUSE_CODE,
+				   USMT.USER_ID,
+				   USMT.PASSWORD,
+				   USMT.USER_NAME_LOC AS USER_NAME,
+				   NVL(
+						   CASE WHEN UPPER(ADDR.EMAIL) = UPPER(${EMAIL})
+							    THEN ADDR.EMAIL
+							    WHEN UPPER(USMT.EMAIL) = UPPER(${EMAIL})
+							    THEN USMT.EMAIL
+							    ELSE ( SELECT  DISTINCT t.EMAIL 
+							            FROM SSUPI t
+							            LEFT OUTER
+							            JOIN SSUGL SUGL
+							              ON t.SELLER_CODE = SUGL.SELLER_CODE
+							            LEFT OUTER
+							            JOIN SUSMT USMT
+							              ON USMT.COMPANY_CODE = SUGL.SELLER_CODE
+							           WHERE USMT.USER_TYPE = 'S'
+							             AND NVL( t.DEL_FLAG, 'N' ) = 'N'
+							             AND UPPER(t.EMAIL) = UPPER(${EMAIL})
+							             AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+							          )
+							     END 
+							, 'A' ) AS EMAIL
+			 FROM SADDR ADDR
+			 FULL OUTER
+			 JOIN SUSMT USMT 
+			   ON USMT.USER_ID = ADDR.CODE_NO    
+			  AND NVL( USMT.DEL_FLAG, 'N' ) = 'N'
+			WHERE 1=1
+			  AND UPPER(USMT.USER_ID) = UPPER(${USER_ID})
+		]]>
+	</method>
+	
+	<method name="resetPassword">
+		<![CDATA[
+			UPDATE SUSMT 
+			   SET  PASSWORD  = ${PASSWORD}
+			       ,PW_RESET_FLAG = 'Y'
+		           ,PW_RESET_DATE = ${current.DATE} 
+			 WHERE NVL(DEL_FLAG, 'N' ) = 'N'
+			   AND UPPER(USER_ID)  = UPPER(${USER_ID})
+		]]>
+	</method>
+	
+</service>

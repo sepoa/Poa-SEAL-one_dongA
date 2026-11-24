@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+<project name="Poa-BASE-one" default="deploy">
+-->
+<project name="Poa-BASE-one" default="zip">
+
+    <!-- Set properties -->
+    <property file="build.properties" />
+    <property name="workspace">${jenkins.home}/workspace/${jenkins.job.name}</property>
+
+    <property name="poa.package.src.dir">${workspace}/poaseal/Poa-Package</property>
+    <property name="webcontent.src.dir">${workspace}/poaseal/WebContent</property>
+    <property name="servlet.src.dir">${workspace}/poaseal/servlet_src</property>
+    <property name="service.src.dir">${workspace}/poaseal/serviceclasses_src</property>
+
+    <property name="build.dir">${workspace}/build</property>
+    <property name="poa.package.build.dir">${build.dir}/poaseal/Poa-Package</property>
+    <property name="webcontent.build.dir">${build.dir}/WebContent</property>
+    <property name="servlet.build.dir">${build.dir}/WebContent/WEB-INF/classes</property>
+    <property name="service.build.dir">${poa.package.build.dir}/sepoaserviceclasses</property>
+
+    <!-- Set Class Path -->
+    <path id="classpath">
+        <pathelement location="${servlet.build.dir}" />
+        <fileset dir="${workspace}/poabase/WebContent/WEB-INF/lib" includes="*.jar"/>
+        <fileset dir="${workspace}/poaseal/WebContent/WEB-INF/lib" includes="*.jar"/>
+    	<fileset dir="${workspace}/poadoceditor/WebContent/WEB-INF/lib" includes="*.jar"/>
+        <fileset dir="${workspace}/ext/lib" includes="*.jar"/>
+    </path>
+    
+    <macrodef name = "git">
+        <attribute name = "command" />
+        <attribute name = "dir" default = "" />
+        <element name = "args" optional = "true" />
+        <sequential>
+            <echo message = "git @{command}" />
+            <exec executable = "git" dir = "@{dir}">
+                <arg value = "@{command}" />
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name = "git-clone">
+        <attribute name = "repository" />
+        <attribute name = "dest" />
+        <attribute name = "branch" />
+        <sequential>
+            <git command = "clone">
+                <args>
+                    <arg value = "-b @{branch}" />
+                    <arg value = "@{repository}" />
+                    <arg value = "@{dest}" />
+                </args>
+            </git>
+        </sequential>
+    </macrodef>
+
+    <macrodef name = "git-pull">
+        <attribute name = "dest" />
+        <sequential>
+            <git command = "pull" dir = "@{dest}" />
+        </sequential>
+    </macrodef>
+
+    <target name="clone">
+        <git-clone repository="http://svn.sepoa.co.kr/git/Poa-FW-SUX.git" dest="${workspace}/sux-fw" branch="one"/>
+        <git-clone repository="http://svn.sepoa.co.kr/git/Poa-BASE.git" dest="${workspace}/poabase" branch="one"/>
+        <git-clone repository="http://svn.sepoa.co.kr/git/Poa-DocEditor.git" dest="${workspace}/poadoceditor" branch="master"/>
+        <!-- <git-clone repository="http://git.sepoa.co.kr/git/Poa-DocEditor.git" dest="${workspace}/poadoceditor" branch="master"/>-->
+    </target>
+
+    <!-- Delete Dir -->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
+
+    <target name="makedir" depends="clean">
+        <mkdir dir="${poa.package.build.dir}/sepoaserviceclasses"/>
+        <mkdir dir="${poa.package.build.dir}/sepoaux"/>
+        <mkdir dir="${poa.package.build.dir}/service_query"/>
+        <mkdir dir="${poa.package.build.dir}/template"/>
+    </target>
+
+    <target name="build-sux-fw" depends="makedir">
+        <git-pull dest="${workspace}/sux-fw" />
+        <ant antfile="${workspace}/sux-fw/build.xml" target="jar-core" inheritAll="false" dir="${workspace}/sux-fw">
+            <property name="jenkins.job.name" value="${jenkins.job.name}"/>
+            <property name="copy.to.dir" value="${workspace}/poabase/WebContent/WEB-INF/lib"/>
+            <property file="${workspace}/sux-fw/build.properties"/>
+        </ant>
+    </target>
+
+    <target name="build-poabase" depends="makedir">
+        <ant antfile="${workspace}/poabase/build/build.xml" target="compile" inheritAll="false">
+            <property name="jenkins.job.name" value="${jenkins.job.name}"/>
+            <property name="source.dir" value="${workspace}/poabase"/>
+            <property name="build.dir" value="${build.dir}"/>
+            <property file="${workspace}/poaseal/build/build.properties"/>
+        </ant>
+    </target>
+
+    <target name="build-poadoceditor" depends="build-poabase">
+        <git-pull dest="${workspace}/poadoceditor" />
+        <ant antfile="${workspace}/poadoceditor/build/build.xml" target="compile" inheritAll="false">
+            <property name="jenkins.job.name" value="${jenkins.job.name}"/>
+            <property name="source.dir" value="${workspace}/poadoceditor"/>
+            <property name="build.dir" value="${build.dir}"/>
+            <property file="${workspace}/poaseal/build/build.properties"/>
+        </ant>
+    </target>
+    
+    <!-- Make Dir -->
+    <!-- Copy & Compile -->
+    <target name="compile" depends="build-poadoceditor">
+        <copy todir="${poa.package.build.dir}/resource" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/resource"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/sepoaux" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/sepoaux"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/service_query" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/service_query"/>
+    	</copy>
+        <copy todir="${poa.package.build.dir}/template" overwrite="true">
+        	<fileset dir="${poa.package.src.dir}/template"/>
+    	</copy>
+        <copy todir="${webcontent.build.dir}" overwrite="true">
+        	<fileset dir="${webcontent.src.dir}"/>
+    	</copy>
+        <javac srcdir="${servlet.src.dir}" destdir="${servlet.build.dir}" encoding="UTF-8">
+            <classpath refid="classpath" />
+        </javac>
+		<copy todir="${servlet.build.dir}">
+			<fileset dir="${servlet.src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+        <javac srcdir="${service.src.dir}" destdir="${service.build.dir}" encoding="UTF-8">
+            <classpath refid="classpath" />
+        </javac>
+		<copy todir="${service.build.dir}">
+			<fileset dir="${service.src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+    </target>
+
+    <target name="build-poaseal_cbo" depends="compile">
+        <ant antfile="${workspace}/poaseal_cbo/build/build.xml" target="compile" inheritAll="false">
+            <property name="jenkins.job.name" value="${jenkins.job.name}"/>
+            <property name="source.dir" value="${workspace}/poaseal_cbo"/>
+            <property name="build.dir" value="${build.dir}"/>
+            <property name="house.code" value="${house.code}"/>
+            <property file="${workspace}/poaseal/build/build.properties"/>
+        </ant>
+    </target>
+	
+    <target name="zip" depends="build-poaseal_cbo">
+		<zip destfile="${build.dir}/poabaseone.zip">
+			<fileset dir="${build.dir}">
+				<include name="**/*"/>
+<!--
+				<exclude name="sepoabatch/config/crontab.xml"/>
+				<exclude name="sepoabatch/config/sepoa_batch.properties"/>
+-->
+			</fileset>
+		</zip>
+	</target>
+
+    <!-- Deploy -->
+    <target name="deploy" depends="compile">
+        <copy todir="${service.was.dir}" overwrite="true">
+        	<fileset dir="${service.build.dir}"/>
+    	</copy>
+        <copy todir="${poa-package.dir}/sepoaux" overwrite="true">
+        	<fileset dir="${workspace}/poaseal/Poa-Package/sepoaux"/>
+    	</copy>
+        <copy todir="${poa-package.dir}/service_query" overwrite="true">
+        	<fileset dir="${workspace}/poaseal/Poa-Package/service_query"/>
+    	</copy>
+    </target>
+
+    <target name="init" depends="deploy" />
+     
+</project>
+

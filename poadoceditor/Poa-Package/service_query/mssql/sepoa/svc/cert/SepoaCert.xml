@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+
+	<method name="doQueryPlant">
+		<![CDATA[
+			SELECT
+			    IRS_NO
+			  , CERT_SIGN_NAME AS CERT_SIGN
+			  , CERT_KM_NAME   AS CERT_KM
+			  , KEY_SIGN_NAME  AS KEY_SIGN
+			  , KEY_KM_NAME    AS KEY_KM
+			  , PRIVATE_PASSWORD
+			FROM
+			    SPLNT
+			WHERE
+			    1                     = 1
+			    AND HOUSE_CODE   = ${session.HOUSE_CODE}
+			    AND COMPANY_CODE = ${session.COMPANY_CODE}
+			    AND PLANT_CODE   = ${session.PLANT_CODE}
+		]]>
+	</method>
+	<method name="doQueryCompany">
+		<![CDATA[
+			SELECT
+			    IRS_NO
+			  , CERT_SIGN_NAME AS CERT_SIGN
+			  , CERT_KM_NAME   AS CERT_KM
+			  , KEY_SIGN_NAME  AS KEY_SIGN
+			  , KEY_KM_NAME    AS KEY_KM
+			  , PRIVATE_PASSWORD
+			FROM
+			    SCMGL
+			WHERE
+			    1                     = 1
+			    AND HOUSE_CODE   = ${session.HOUSE_CODE}
+			    AND COMPANY_CODE = ${session.COMPANY_CODE}
+		]]>
+	</method>
+    
+</service>

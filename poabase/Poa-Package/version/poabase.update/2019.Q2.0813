@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertData"/>
+		<params>
+			<list>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="SELECTED" />
+				    <entry key="COL_TYPE"		val="ch" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="true" />
+				    <entry key="SELECTED_YN"	val="Y" />
+				    <entry key="COL_SEQ"		val="10" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="USE_YN" />
+				    <entry key="COL_TYPE"		val="ch" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="true" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="20" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="ORDER" />
+				    <entry key="COL_TYPE"		val="ro" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="true" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="30" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="SEQ" />
+				    <entry key="COL_TYPE"		val="ro" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="true" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="40" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="TREE_ID" />
+				    <entry key="COL_TYPE"		val="tree" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="left" />
+				    <entry key="COL_VISIBLE"	val="true" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="50" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="TREE_PARENT_ID" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="false" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="60" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="MODULE_NAME" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="false" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="70" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="MODULE_NAME_TMP" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="true" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="80" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="FROM" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="left" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="90" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="INCLUDE" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="left" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="100" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="TO" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="left" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="110" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="EXCLUDE" />
+				    <entry key="COL_TYPE"		val="edtxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="left" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="120" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+				<map>
+					<entry key="GRID_ID"		val="AD_350" />
+				    <entry key="CODE"			val="SCRIPT" />
+				    <entry key="COL_TYPE"		val="txttxt" />
+				    <entry key="COL_FORMAT"		val="" />
+				    <entry key="COL_MAX_LEN"	val="10000" />
+				    <entry key="COL_ALIGN"		val="center" />
+				    <entry key="COL_VISIBLE"	val="left" />
+				    <entry key="SELECTED_YN"	val="" />
+				    <entry key="COL_SEQ"		val="130" />
+				    <entry key="TEXT_STYLE"		val="" />
+				    <entry key="COL_COLOR"		val="Rcolor" />
+				    <entry key="COL_COMBO"		val="" />
+				    <entry key="COL_SORT"		val="na" />
+				    <entry key="NOT_NULL"		val="" />
+				    <entry key="TEMPLATE"		val="" />
+				</map>
+			</list>
+		</params>
+	</item>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_041_2" method="doInsert"/>
+		<params>
+			<map>
+				<entry key="FORM_ID" val="AD_350_1"/>
+				<entry key="FORM_JSON" val="[{&#34;type&#34;:&#34;settings&#34;,&#34;labelAlign&#34;:&#34;left&#34;,&#34;labelWidth&#34;:&#34;100&#34;,&#34;inputWidth&#34;:&#34;200&#34;},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;blockOffset&#34;:&#34;0&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;name&#34;:&#34;DEPLOY_ID&#34;,&#34;labelWidth&#34;:&#34;120&#34;,&#34;note&#34;:{&#34;width&#34;:&#34;200&#34;,&#34;text&#34;:&#34;&#34;},&#34;position&#34;:&#34;label-left&#34;,&#34;labelAlign&#34;:&#34;left&#34;,&#34;disabled&#34;:true,&#34;readonly&#34;:true,&#34;inputWidth&#34;:&#34;300&#34;,&#34;offsetTop&#34;:&#34;5&#34;},{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;SOURCE_TEMP_DIR&#34;,&#34;labelAlign&#34;:&#34;left&#34;,&#34;inputWidth&#34;:&#34;300&#34;,&#34;labelWidth&#34;:&#34;120&#34;,&#34;offsetTop&#34;:&#34;5&#34;},{&#34;type&#34;:&#34;newcolumn&#34;},{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;name&#34;:&#34;SERVER_URL&#34;,&#34;position&#34;:&#34;label-left&#34;,&#34;labelAlign&#34;:&#34;left&#34;,&#34;labelWidth&#34;:&#34;120&#34;,&#34;note&#34;:{&#34;width&#34;:&#34;200&#34;,&#34;text&#34;:&#34;&#34;},&#34;inputWidth&#34;:&#34;300&#34;,&#34;offsetTop&#34;:&#34;5&#34;},{&#34;type&#34;:&#34;input&#34;,&#34;value&#34;:&#34;&#34;,&#34;inputWidth&#34;:&#34;300&#34;,&#34;name&#34;:&#34;TARGET_TEMP_DIR&#34;,&#34;labelWidth&#34;:&#34;120&#34;,&#34;labelAlign&#34;:&#34;left&#34;,&#34;offsetTop&#34;:&#34;5&#34;}]},{&#34;type&#34;:&#34;block&#34;,&#34;width&#34;:&#34;auto&#34;,&#34;blockOffset&#34;:&#34;0&#34;,&#34;list&#34;:[{&#34;type&#34;:&#34;input&#34;,&#34;name&#34;:&#34;DESCRIPTION&#34;,&#34;labelWidth&#34;:&#34;120&#34;,&#34;note&#34;:{&#34;width&#34;:&#34;300&#34;,&#34;text&#34;:&#34;&#34;},&#34;labelAlign&#34;:&#34;left&#34;,&#34;required&#34;:true,&#34;inputWidth&#34;:&#34;605&#34;,&#34;placeholder&#34;:&#34;Description...&#34;,&#34;label&#34;:&#34;&#34;,&#34;offsetTop&#34;:&#34;6&#34;}]}]"/>
+			</map>
+		</params>
+	</item>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_022_3" method="doInsertDataSLANG"/>
+		<params>
+			<list>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="EXCLUDE"/>
+					<entry key="CONTENTS"  val="Exclude"/>
+					<entry key="COL_WIDTH" val="120"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="FROM"/>
+					<entry key="CONTENTS"  val="FROM"/>
+					<entry key="COL_WIDTH" val="250"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="INCLUDE"/>
+					<entry key="CONTENTS"  val="Include"/>
+					<entry key="COL_WIDTH" val="120"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="MODULE_NAME"/>
+					<entry key="CONTENTS"  val="Module Name"/>
+					<entry key="COL_WIDTH" val="80"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="ORDER"/>
+					<entry key="CONTENTS"  val="ORDER"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="SCRIPT"/>
+					<entry key="CONTENTS"  val="Script"/>
+					<entry key="COL_WIDTH" val="300"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="SELECTED"/>
+					<entry key="CONTENTS"  val="Choice"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="SOURCE_TEMP_DIR"/>
+					<entry key="CONTENTS"  val="SOURCE_TEMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="SOURCE_TMP_DIR"/>
+					<entry key="CONTENTS"  val="SOURCE_TMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="TAREGET_TEMP_DIR"/>
+					<entry key="CONTENTS"  val="TAREGET_TEMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="TAREGET_TMP_DIR"/>
+					<entry key="CONTENTS"  val="TAREGET_TMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="TO"/>
+					<entry key="CONTENTS"  val="TO"/>
+					<entry key="COL_WIDTH" val="250"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="TREE_ID"/>
+					<entry key="CONTENTS"  val="TREE_ID"/>
+					<entry key="COL_WIDTH" val="120"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="TREE_PARENT_ID"/>
+					<entry key="CONTENTS"  val="TREE_PARENT_ID"/>
+					<entry key="COL_WIDTH" val="80"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="EN"/>
+					<entry key="CODE"      val="USE_YN"/>
+					<entry key="CONTENTS"  val="USE"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="EXCLUDE"/>
+					<entry key="CONTENTS"  val="Exclude"/>
+					<entry key="COL_WIDTH" val="120"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="FROM"/>
+					<entry key="CONTENTS"  val="FROM"/>
+					<entry key="COL_WIDTH" val="250"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="INCLUDE"/>
+					<entry key="CONTENTS"  val="Include"/>
+					<entry key="COL_WIDTH" val="120"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="MODULE_NAME"/>
+					<entry key="CONTENTS"  val="Module 명"/>
+					<entry key="COL_WIDTH" val="80"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="MODULE_NAME_TMP"/>
+					<entry key="CONTENTS"  val="Module 명"/>
+					<entry key="COL_WIDTH" val="80"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="ORDER"/>
+					<entry key="CONTENTS"  val="ORDER"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="SCRIPT"/>
+					<entry key="CONTENTS"  val="Script"/>
+					<entry key="COL_WIDTH" val="300"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="SELECTED"/>
+					<entry key="CONTENTS"  val="선택"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="SEQ"/>
+					<entry key="CONTENTS"  val="SEQ"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="SOURCE_TEMP_DIR"/>
+					<entry key="CONTENTS"  val="SOURCE_TEMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="SOURCE_TMP_DIR"/>
+					<entry key="CONTENTS"  val="SOURCE_TMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="TAREGET_TEMP_DIR"/>
+					<entry key="CONTENTS"  val="TAREGET_TEMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="TAREGET_TMP_DIR"/>
+					<entry key="CONTENTS"  val="TAREGET_TMP_DIR"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="TO"/>
+					<entry key="CONTENTS"  val="TO"/>
+					<entry key="COL_WIDTH" val="250"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="TREE_ID"/>
+					<entry key="CONTENTS"  val="Tree"/>
+					<entry key="COL_WIDTH" val="60"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="TREE_PARENT_ID"/>
+					<entry key="CONTENTS"  val="TREE_PARENT_ID"/>
+					<entry key="COL_WIDTH" val="80"/>
+				</map>
+				<map>
+					<entry key="GRID_ID"   val="AD_350"/>
+					<entry key="LANGUAGE"  val="KO"/>
+					<entry key="CODE"      val="USE_YN"/>
+					<entry key="CONTENTS"  val="사용"/>
+					<entry key="COL_WIDTH" val="40"/>
+				</map>
+			</list>
+		</params>
+	</item>
+	<item ignore-error="true">
+		<query name="sepoa.svc.admin.AD_018_3" method="doInsertData"/>
+		<params>
+			<list>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="TITLE"/>
+					<entry key="CONTENTS"   val="Deploy Management"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="TITLE"/>
+					<entry key="CONTENTS"   val="Deploy 관리"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="moduleadd"/>
+					<entry key="CONTENTS"   val="모듈추가"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="DEPLOY_ID"/>
+					<entry key="CONTENTS"   val="Deploy ID"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="DESCRIPTION"/>
+					<entry key="CONTENTS"   val="Description"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="FORMTITLE"/>
+					<entry key="CONTENTS"   val="Deployment"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="INIT_DEPLOY_USE_FLAG"/>
+					<entry key="CONTENTS"   val="현재상태"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="INIT_DEPLOY_USE_FLAG_SUBMIT"/>
+					<entry key="CONTENTS"   val="Submit"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="REALTIME_DEPLOY_USE_FLAG"/>
+					<entry key="CONTENTS"   val="현재상태"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="REALTIME_DEPLOY_USE_FLAG_SUBMIT"/>
+					<entry key="CONTENTS"   val="Submit"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="SERVER_URL"/>
+					<entry key="CONTENTS"   val="Server URL"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="SOURCE_TEMP_DIR"/>
+					<entry key="CONTENTS"   val="Source Temporary Directory"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="EN"/>
+					<entry key="CODE" 		val="TARGET_TEMP_DIR"/>
+					<entry key="CONTENTS"   val="Target Temporary Directory"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="DEPLOY_ID"/>
+					<entry key="CONTENTS"   val="Deploy ID"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="DESCRIPTION"/>
+					<entry key="CONTENTS"   val="#NO_LABEL#"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="DOC_TYPE"/>
+					<entry key="CONTENTS"   val="문서형태"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="FORMTITLE"/>
+					<entry key="CONTENTS"   val="디플로이"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="INIT_DEPLOY_USE_FLAG"/>
+					<entry key="CONTENTS"   val="현재상태"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="INIT_DEPLOY_USE_FLAG_SUBMIT"/>
+					<entry key="CONTENTS"   val="Submit"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="REALTIME_DEPLOY_USE_FLAG"/>
+					<entry key="CONTENTS"   val="현재상태"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="REALTIME_DEPLOY_USE_FLAG_SUBMIT"/>
+					<entry key="CONTENTS"   val="Submit"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="SERVER_URL"/>
+					<entry key="CONTENTS"   val="Server URL"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="SOURCE_TEMP_DIR"/>
+					<entry key="CONTENTS"   val="로컬작업디렉토리"/>
+				</map>
+				<map>
+					<entry key="SCREEN_ID"  val="AD_350_1"/>
+					<entry key="LANGUAGE"   val="KO"/>
+					<entry key="CODE" 		val="TARGET_TEMP_DIR"/>
+					<entry key="CONTENTS"   val="서버작업디렉토리"/>
+				</map>
+			</list>
+		</params>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SDPGL
+		   	(	DEPLOY_ID VARCHAR2(20), 
+				SERVER_URL VARCHAR2(50), 
+				DESCRIPTION VARCHAR2(200), 
+				ADD_DATE VARCHAR2(8), 
+				ADD_TIME VARCHAR2(6), 
+				ADD_USER_ID VARCHAR2(20), 
+				CHANGE_DATE VARCHAR2(8), 
+				CHANGE_TIME VARCHAR2(6), 
+				CHANGE_USER_ID VARCHAR2(20), 
+				SOURCE_TEMP_DIR VARCHAR2(200), 
+				TARGET_TEMP_DIR VARCHAR2(200), 
+				CONSTRAINT PK_SDPGL PRIMARY KEY (DEPLOY_ID)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SDPLN 
+   			(	DEPLOY_ID VARCHAR2(20), 
+				MODULE_NAME VARCHAR2(20), 
+				SOURCE_BASE_DIR VARCHAR2(500), 
+				TARGET_BASE_DIR VARCHAR2(500), 
+				"ORDER" VARCHAR2(3), 
+				USE_YN VARCHAR2(1), 
+				ADD_DATE VARCHAR2(8), 
+				ADD_TIME VARCHAR2(6), 
+				ADD_USER_ID VARCHAR2(20), 
+				CHANGE_DATE VARCHAR2(8), 
+				CHANGE_TIME VARCHAR2(6), 
+				CHANGE_USER_ID VARCHAR2(20), 
+				CONSTRAINT PK_SDPLN PRIMARY KEY (DEPLOY_ID, MODULE_NAME)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="ORACLE">
+		<![CDATA[
+			CREATE TABLE SDPSE 
+			(	DEPLOY_ID VARCHAR2(20), 
+				MODULE_NAME VARCHAR2(20), 
+				SEQ VARCHAR2(3), 
+				"FROM" VARCHAR2(500), 
+				"TO" VARCHAR2(500), 
+				INCLUDE VARCHAR2(500), 
+				"EXCLUDE" VARCHAR2(500), 
+				SCRIPT VARCHAR2(4000), 
+				"ORDER" VARCHAR2(3), 
+				USE_YN VARCHAR2(1), 
+				ADD_DATE VARCHAR2(8), 
+				ADD_TIME VARCHAR2(6), 
+				ADD_USER_ID VARCHAR2(20), 
+				CHANGE_DATE VARCHAR2(8), 
+				CHANGE_TIME VARCHAR2(6), 
+				CHANGE_USER_ID VARCHAR2(20), 
+				 CONSTRAINT PK_SDPSE PRIMARY KEY (DEPLOY_ID, MODULE_NAME, SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SDPGL
+		   	(	DEPLOY_ID VARCHAR(20), 
+				SERVER_URL VARCHAR(50), 
+				DESCRIPTION VARCHAR(200), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				SOURCE_TEMP_DIR VARCHAR(200), 
+				TARGET_TEMP_DIR VARCHAR(200), 
+				CONSTRAINT PK_SDPGL PRIMARY KEY (DEPLOY_ID)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SDPLN 
+   			(	DEPLOY_ID VARCHAR(20), 
+				MODULE_NAME VARCHAR(20), 
+				SOURCE_BASE_DIR VARCHAR(500), 
+				TARGET_BASE_DIR VARCHAR(500), 
+				"ORDER" VARCHAR(3), 
+				USE_YN VARCHAR(1), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				CONSTRAINT PK_SDPLN PRIMARY KEY (DEPLOY_ID, MODULE_NAME)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="MSSQL">
+		<![CDATA[
+			CREATE TABLE SDPSE 
+			(	DEPLOY_ID VARCHAR(20), 
+				MODULE_NAME VARCHAR(20), 
+				SEQ VARCHAR(3), 
+				"FROM" VARCHAR(500), 
+				"TO" VARCHAR(500), 
+				INCLUDE VARCHAR(500), 
+				"EXCLUDE" VARCHAR(500), 
+				SCRIPT VARCHAR(4000), 
+				"ORDER" VARCHAR(3), 
+				USE_YN VARCHAR(1), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				 CONSTRAINT PK_SDPSE PRIMARY KEY (DEPLOY_ID, MODULE_NAME, SEQ)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			CREATE TABLE SDPGL
+		   	(	DEPLOY_ID VARCHAR(20), 
+				SERVER_URL VARCHAR(50), 
+				DESCRIPTION VARCHAR(200), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				SOURCE_TEMP_DIR VARCHAR(200), 
+				TARGET_TEMP_DIR VARCHAR(200), 
+				CONSTRAINT PK_SDPGL PRIMARY KEY (DEPLOY_ID)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			CREATE TABLE SDPLN 
+   			(	DEPLOY_ID VARCHAR(20), 
+				MODULE_NAME VARCHAR(20), 
+				SOURCE_BASE_DIR VARCHAR(500), 
+				TARGET_BASE_DIR VARCHAR(500), 
+				"ORDER" VARCHAR(3), 
+				USE_YN VARCHAR(1), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				CONSTRAINT PK_SDPLN PRIMARY KEY (DEPLOY_ID, MODULE_NAME)
+			)
+		]]>
+		</query>
+	</item>
+	<item ignore-error="true">
+		<query vendor="POSTGRE">
+		<![CDATA[
+			CREATE TABLE SDPSE 
+			(	DEPLOY_ID VARCHAR(20), 
+				MODULE_NAME VARCHAR(20), 
+				SEQ VARCHAR(3), 
+				"FROM" VARCHAR(500), 
+				"TO" VARCHAR(500), 
+				INCLUDE VARCHAR(500), 
+				"EXCLUDE" VARCHAR(500), 
+				SCRIPT VARCHAR(4000), 
+				"ORDER" VARCHAR(3), 
+				USE_YN VARCHAR(1), 
+				ADD_DATE VARCHAR(8), 
+				ADD_TIME VARCHAR(6), 
+				ADD_USER_ID VARCHAR(20), 
+				CHANGE_DATE VARCHAR(8), 
+				CHANGE_TIME VARCHAR(6), 
+				CHANGE_USER_ID VARCHAR(20), 
+				 CONSTRAINT PK_SDPSE PRIMARY KEY (DEPLOY_ID, MODULE_NAME, SEQ)
+			)
+		]]>
+		</query>
+	</item>
+</body>

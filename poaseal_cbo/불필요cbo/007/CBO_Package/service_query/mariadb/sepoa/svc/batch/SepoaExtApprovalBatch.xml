@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSelectSSETL">
+	<![CDATA[
+		SELECT
+			*
+		FROM 
+			SSETL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND NVL(DEL_FLAG,'N') = 'N'
+			AND SMR_STATUS = 'I'
+	]]>
+	</method>
+
+	<method name="doUpdateSSETL">
+	<![CDATA[
+		UPDATE SSETL
+		SET SMR_STATUS = ${SMR_STATUS}
+		, CHANGE_DATE = ${current.DATE}
+		, CHANGE_TIME = ${current.TIME}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND NVL(DEL_FLAG,'N') = 'N'
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doUpdateSSEDC_SEAL">
+	<![CDATA[
+		UPDATE SSEDC_SEAL
+		SET COMPLETE_FLAG = ${COMPLETE_FLAG}
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND NVL(DEL_FLAG,'N') = 'N'
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doSelectApprovalInfo">
+	<![CDATA[
+		SELECT 
+			APP_NO
+		FROM 
+			SGWGL 
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SUX_WKEY1 = ${SMR_NUMBER}
+		ORDER BY
+			APP_NO DESC
+	]]>
+	</method>
+</service>

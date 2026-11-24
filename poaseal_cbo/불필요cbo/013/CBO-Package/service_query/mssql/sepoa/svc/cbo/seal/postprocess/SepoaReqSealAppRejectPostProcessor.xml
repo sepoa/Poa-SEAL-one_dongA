@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doQuerySSIAD">
+	<![CDATA[
+		SELECT
+			HOUSE_CODE
+			,COMPANY_CODE
+			,SMR_NUMBER
+			,SOURCE_NO
+			,CHANGE_DATE
+			,CHANGE_TIME
+		FROM
+			SSIAD
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+</service>

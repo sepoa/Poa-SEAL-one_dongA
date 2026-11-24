@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="Insert">
+		<![CDATA[
+			INSERT INTO SFILE (
+				   HOUSE_CODE
+				  ,DOC_NO      
+	              ,TYPE
+	              ,DES_FILE_NAME
+	              ,SRC_FILE_NAME
+	              ,FILE_SIZE
+	              ,DOC_SEQ
+	              ,ADD_DATE
+	              ,ADD_TIME
+	              ,CHANGE_DATE
+	              ,CHANGE_TIME
+	              ,ADD_USER_ID
+			)VALUES(
+				   ${HOUSE_CODE}
+				  ,${ATTACH_KEY}
+				  ,${TYPE}
+				  ,${UNIQ_FILE_NAME}
+				  ,${FILE_NAME}
+				  ,${FILE_SIZE}
+				  ,${ATTACH_SEQ}
+				  ,${current.date}
+				  ,${current.time}
+				  ,${current.date}
+				  ,${current.time}
+				  ,${USER_ID}
+			) 
+		]]>
+	</method>
+	
+	<method name="getSFileInfo">
+		<![CDATA[
+			SELECT DOC_SEQ
+				  ,TYPE
+				  ,DES_FILE_NAME
+				  ,SRC_FILE_NAME
+				  ,FILE_SIZE
+			  FROM SFILE
+			 WHERE 1=1 
+			   AND DOC_NO  = ${attach_key}
+			   AND DOC_SEQ = $S{attach_seq}
+			   AND #DB_OWNER#NVL(DEL_FLAG,'N') <> 'Y'
+			 ORDER BY CONVERT(NUMERIC,DOC_SEQ)
+		]]>
+	</method>
+	
+	<method name="getMaxSeq">
+		<![CDATA[
+			SELECT #DB_OWNER#NVL(MAX(convert(numeric, DOC_SEQ)),0) MAX_SEQ
+			  FROM SFILE
+			 WHERE 1=1 
+			   AND DOC_NO  = ${attach_key}
+		]]>
+	</method>
+	
+	<method name="Delete">
+		<![CDATA[
+			UPDATE SFILE
+			   SET DEL_FLAG = 'Y'
+				  ,CHANGE_DATE = ${current.date}
+				  ,CHANGE_TIME = ${current.time}
+			 WHERE 1=1 
+			   AND DOC_NO  = ${attach_key}
+			   AND DOC_SEQ = ${attach_seq}
+		]]>
+	</method>
+	
+	<method name="getImagePath">
+		<![CDATA[
+			SELECT DES_FILE_NAME
+			      ,SRC_FILE_NAME
+			      ,TYPE
+			  FROM SFILE
+			 WHERE DOC_NO  = ${attach_key}
+			   AND DOC_SEQ = ${attach_seq}
+		]]>
+	</method>
+</service>

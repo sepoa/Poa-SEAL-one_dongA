@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="MAINFRAME" header="false" tpl="one.tpl">
+    <link>
+    <![CDATA[
+        <script type="text/javascript">
+            Sepoa.cache.text.load({
+                url:CONTEXT_NAME+'/resource/ux/admin/langs/'+Sepoa.info.LANGUAGE+'/MAINFRAME.js',
+                def:CONTEXT_NAME+'/resource/ux/admin/langs/KO/MAINFRAME.js'
+            });
+        </script>
+        <script type="text/javascript" src="resource/plugin/sepoasoft/mainframe/basic/module.js" ></script>
+    ]]>
+    </link>
+    <usercss/>
+    <variable>
+        <var name="headerToolbar" value="$($sObject._vp).find('#EipXfEccptXfEcIubk')[0]"/>
+        <var name="EipXfEcbptXfEcKuRq" value="$($sObject._vp).find('#EipXfEcbptXfEcKuRq')[0]"/>
+        <var name="mainContainer" value="$($sObject._vp).find('#aCxneEcWYMoeEcXAjc')[0]"/>
+        <var name="aCxneEcWYMoeEcusdy" value="$($sObject._vp).find('#aCxneEcWYMoeEcusdy')[0]"/>
+    </variable>
+    <onloadscript>
+    	<call name="init"/>
+    	<call name="drawMenu" />
+    	<call name="checkNotice" />
+    </onloadscript>
+    <userscript>
+        <var name="headerObj"/>
+        <var name="containerObj"/>
+        <var name="menuObj" value="{}"/>
+        <var name="sInfoObj">
+        <![CDATA[
+            new SepoaScreenInfoObject()
+        ]]>
+        </var>
+        <function name="init">
+        <![CDATA[
+        	window.Sepoa = $sObject.Sepoa
+        	
+            var userInfoString = sUtils.string.dataReplacer(sUtils.cache.client.get('DESIGN.BASIC_USER_INFO'));
+            if(sUtils.string.isBlank(userInfoString)){
+                userInfoString = sUtils.string.dataReplacer('$INFO{NAME_LOC} ( $INFO{ID} )');
+            }
+            
+            var systemTitle = sUtils.string.dataReplacer(sUtils.cache.client.get('DESIGN.BASIC_SYSTEM_TITLE'));
+            if(!sUtils.string.isBlank(systemTitle)){
+                $('title')[0].innerText = systemTitle;
+            }
+            
+            var headerOption = {
+                parent:headerToolbar,
+                left:[
+                	{type: "logo", id: "LOGO", cursor: "pointer", img:"", tooltip: Sepoa.cache.text.get('MAINFRAME.GO_TO_MAIN')},
+                	{type: "icon", id: "HOME", cursor: "pointer", img:"xi-home", tooltip: Sepoa.cache.text.get('MAINFRAME.GO_TO_MAIN')},
+                    {type: "icon", id: "MENU", cursor: "pointer", img:"xi-bars", tooltip: Sepoa.cache.text.get('MAINFRAME.OPEN_SIDE_MENU')}
+                ],
+                right:[                 
+                    {type: "text", id: "USER_ID", cursor: "pointer", text:userInfoString, tooltip: Sepoa.cache.text.get('MAINFRAME.CHANGE_USER_INFO')},
+                    {type: "icon", id: "LOGOUT", cursor:"pointer", img:"xi-log-out", tooltip: Sepoa.cache.text.get('MAINFRAME.LOGOUT')}
+                ]
+            };
+        	
+            var al = Sepoa.cache.combo.get('SL0001,'+Sepoa.info.HOUSE_CODE+'#KO#AD001');
+            if(al.length > 1){
+                var cnt = 0;
+                for(var i in al){
+                    if(Sepoa.info.LANGUAGE != al[i].value){
+                        headerOption.right.splice(cnt, 0, {type: "text", id: "CHANGE_LANG_"+al[i].value, cursor:"pointer", text:al[i].text});
+                        cnt++;
+                    }
+                }
+            }
+            headerObj = $sObject.headerObj = new SepoaHeaderToolbarObject(headerOption);
+            headerObj.attachEvent("onClick", onHeaderClick)
+            
+            containerObj = $sObject.containerObj = new SepoaMainContainerObject({
+            	type:(dhx4.isIPad || dhx4.isIPhone)?'':Sepoa.config.get('sepoa.frame.type'),
+                parent:mainContainer,
+                tabbar:{
+                    mode:sUtils.cache.client.get('DESIGN.BASIC_MAIN_TABBAR_POSITION') || "bottom",
+                    align:"left",
+                    close_button:true,
+                    maxTabCount:Sepoa.config.get('sepoa.frame.maxcount'),
+                    tabs:[
+                        {
+                            id:"SUMMARY",
+                            text:'SUMMARY',
+                            active:true,
+                            close:false,
+                            url:window.CONTEXT_NAME+"/Summary/SummaryLayout.sux"
+                        }
+                    ]
+                },
+                layout:{
+                    pattern:"1C",
+                    skin:"material",
+                    contents:true,
+                    cells:[
+                        {
+                            header:false,
+                            text:" ",
+                            id:"a",
+                            url:window.CONTEXT_NAME+"/Summary/SummaryLayout.sux"
+                        }
+                    ]
+                }
+            });
+            
+            var logoURL = void 0;
+        	$.ajax({
+				url: window.CONTEXT_NAME+"/SepoaDynamicResource.sux?module=sepoa.fw.ux.design.DynamicCSS&mode=map",
+				type:"post",
+				data:"mode=map",
+				dataType: "json",
+				success: function(data){
+					if(data.BASIC_LOGO) {
+						var keys = data.BASIC_LOGO.split(':');
+						logoURL = window.CONTEXT_NAME+"/SepoaImage.sux?attach_key="+keys[0]+"&attach_seq="+keys[1];
+						
+                        var img = headerObj.getLogoTag();
+                        img.style.display="inherit";
+						img.src = logoURL;
+					}
+				}
+			});
+            
+            SUX.callEvent('onWindowResize', []);
+        ]]>
+        </function>
+        <function name="onHeaderClick" args="id">
+        <![CDATA[
+            if(id == "LOGOUT"){
+                const userInfoUpdateUseFlag = Sepoa.cache.client.get('DESIGN.BASIC_USER_INFO_UPDATE_FLAG') != 'false';
+                let confirmDataArray = [Sepoa.cache.text.get('MAINFRAME.LOGOUT_CONFIRM'), function(flag) {
+                    if (flag === true) {
+                        location.href = window.CONTEXT_NAME + "/UxDefault/Process/Logout.sux";
+                    } else{
+                        if (flag === (userInfoUpdateUseFlag?false:0)) {
+                            linkTo('AD_050', '/Admin/UpdateUserInfo/AdminUpdateUserInfoLayout.sux');
+                        }
+                    }
+                }, undefined, Sepoa.cache.text.get('MAINFRAME.LOGOUT')];
+                
+                if(userInfoUpdateUseFlag){
+                    confirmDataArray.push(Sepoa.cache.text.get('MAINFRAME.CHANGE_USER_INFO'));
+                }
+                confirmDataArray = confirmDataArray.concat([undefined, [Sepoa.cache.text.get('MAINFRAME.CANCEL')]]);
+                Confirm.apply(this, confirmDataArray);
+            }else if(id == "USER_ID"){
+                if(Sepoa.cache.client.get('DESIGN.BASIC_USER_INFO_UPDATE_FLAG') != 'false'){
+                	linkTo('AD_050','/Admin/UpdateUserInfo/AdminUpdateUserInfoLayout.sux');
+                }
+            }else if(id == "LOGO"){
+            	openContainerUrl("SUMMARY", "/Summary/SummaryLayout.sux");
+            }else if(id == "MENU"){
+            	menuObj.setShow(true);
+            }else if(id == "HOME"){
+            	openContainerUrl("SUMMARY", "/Summary/SummaryLayout.sux");
+            }else if(id.indexOf("CHANGE_LANG") == 0){
+                var l = id.replace(/^CHANGE_LANG_/, '');
+                location.href=window.CONTEXT_NAME+"/UxDefault/Process/ChangeLanguage.sux?LANGUAGE="+l;
+            }
+        ]]>
+        </function>
+        <function name="drawMenu">
+        <![CDATA[
+        	//modal
+			menuObj.modal = mainContainer.appendChild(document.createElement("div"));
+			menuObj.modal.id="menuModal";
+			menuObj.modal.className="menuModal";
+			menuObj.modal.style.display = 'none';
+			menuObj.modal.style.position = 'absolute';
+			menuObj.modal.style.zIndex = '10';
+			menuObj.modal.onclick=function(){
+				menuObj.setShow(false);
+			}
+			
+			//menu
+			menuObj.cont = mainContainer.appendChild(document.createElement("div"));
+			menuObj.cont.id = "menuArea";
+			menuObj.cont.className = "menuArea";
+			menuObj.cont.style.zIndex = '14';
+			menuObj.cont.style.position = 'absolute';
+			menuObj.cont.style.overflow = 'hidden';
+			menuObj.cont.innerHTML = '<div id="menuBox" class="menuBox">'
+								   + '    <iframe id="menuFrame" style="width:100%;height:100%;border:none;" class="menuFrame" src="'+window.CONTEXT_NAME+'/UxDefault/LeftMenu/LeftMenu.sux"></iframe>'
+								   + '</div>'
+			
+			if(Sepoa.config.get("sepoa.frame.basic.menu.position") == "top"){
+				menuObj.cont.style.height = "0px";
+				menuObj.cont.style.animationDuration = "2s";
+				menuObj.setShow = function(flag){
+					if(flag){
+						$(menuObj.modal).show();
+					}
+					toggleViewSize(menuObj.cont,0,window.outerHeight,'height',function(m){
+						if(m == 'decrease'){
+							$(menuObj.modal).hide();
+							$('dhxtoolbar_float_left').css('z-index','');
+						}else{
+							$('dhxtoolbar_float_left').css('z-index','15');
+							menuObj.setSize();
+						}
+					}, (flag)?"increase":"decrease");
+				}
+				
+				menuObj.setSize=function(){
+					menuObj.cont.style.top='0px';
+					menuObj.cont.style.width=mainContainer.offsetWidth+'px';
+					menuObj.cont.style.left=mainContainer.offsetLeft+'px';
+					menuObj.cont.children[0].style.height=(mainContainer.offsetHeight-2)+'px';
+					
+					menuObj.modal.style.height = document.body.offsetHeight+'px';
+					menuObj.modal.style.width = document.body.offsetWidth+'px';
+					menuObj.modal.style.top = '0px';
+					menuObj.modal.style.left = '0px';
+					menuObj.modal.style.background = "#f3f3f3";
+					menuObj.modal.style.opacity = ".55";
+				}
+			}else{
+				menuObj.cont.style.width = "0px";
+				menuObj.setShow = function(flag){
+					if(flag){
+						$(menuObj.modal).show();
+					}
+					toggleViewSize(menuObj.cont,0,window.outerWidth,'width',function(m){
+						if(m == 'decrease'){
+							$(menuObj.modal).hide();
+							$('dhxtoolbar_float_left').css('z-index','');
+						}else{
+							$('dhxtoolbar_float_left').css('z-index','15');
+							menuObj.setSize();
+						}
+					}, (flag)?"increase":"decrease");
+				}
+				
+				menuObj.setSize=function(){
+					menuObj.cont.style.top='0px';
+					menuObj.cont.style.height=mainContainer.offsetHeight+'px';
+					menuObj.cont.style.left=mainContainer.offsetLeft+'px';
+					menuObj.cont.children[0].style.height=(mainContainer.offsetHeight-2)+'px';
+					
+					menuObj.modal.style.height = document.body.offsetHeight+'px';
+					menuObj.modal.style.width = document.body.offsetWidth+'px';
+					menuObj.modal.style.top = '0px';
+					menuObj.modal.style.left = '0px';
+					menuObj.modal.style.background = "#f3f3f3";
+					menuObj.modal.style.opacity = ".55";
+				}
+			}
+			
+			menuObj.reload=function(){
+				menuContext.findElementsByTagName('iframe')[0].contentDocument.location.reload(true);
+			}
+			
+			SUX.attachEvent("onWindowResize", menuObj.setSize);
+			menuObj.setSize();
+			
+			containerObj.attachEvent("onBeforeChangeContainer", function(){
+            	menuObj.setShow(false);
+            })
+            
+            window.Sepoa.attachEvent('onButtonClick', function(id){
+            	if(id == 'menu'){
+            		menuObj.setShow(true);
+            	}
+            })
+            
+            window.Sepoa.attachEvent('onMenuBlankClick', function(){
+            	menuObj.setShow(false);
+            })
+        ]]>
+        </function>
+        
+        <function name="toggleViewSize" args="obj, minSize, reSize, _lw, callback, mode">
+        <![CDATA[
+            if(typeof(obj) == "string"){
+                obj = $("#"+obj);
+            }else if(obj instanceof Element){
+                obj = $(obj) 
+            }
+            
+            var direction = (_lw=="width")?"width":"height";
+            var size = (direction == "height")?obj.height():obj.width();
+            mode = (mode || ((size > minSize)?"decrease":"increase"));
+            
+            if(mode == "increase"){
+                obj.css("display","");
+            }
+            
+            var param = {};
+            param[direction] = ((mode=="decrease")?'-':'')+reSize+'px';
+            obj.animate(param, function(){
+                if(mode=="decrease"){
+                    obj.css("display","none");
+                }
+                if(!callback || callback == null || callback == ''){
+                    return;
+                }
+                callback.apply(this, [mode]);
+            });
+        ]]>   
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiakJ4bmVFY0lKQ0lOTXVobXhZIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJNQUlORlJBTUUifSwiaWQiOiJqQnhuZUVjSUpDSU5NdWhteFkiLCJ0eXBlIjoiYm9keSJ9LCJhQ3huZUVjV1lNb2VFY1hBamMiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjEifSwiY29tcG9uZW50Ijp7IlZBUiI6Im1haW5Db250YWluZXIiLCJPQkpFQ1RfSUQiOiJhQ3huZUVjV1lNb2VFY1hBamMifSwiaWQiOiJhQ3huZUVjV1lNb2VFY1hBamMiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiYUN4bmVFY1dZTW9lRWN1c2R5Ijp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEsIlZBUiI6ImFDeG5l
+        RWNXWU1vZUVjdXNkeSJ9LCJpZCI6ImFDeG5lRWNXWU1vZUVjdXNkeSIsInR5cGUiOiJjb250YWluZXIifSwiRWlwWGZFY2NwdFhmRWNJdWJrIjp7ImxheW91dCI6eyJDTEFTUyI6ImhlYWRlclRvb2xiYXIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImhlYWRlclRvb2xiYXIiLCJPQkpFQ1RfSUQiOiJFaXBYZkVjY3B0WGZFY0l1YmsifSwiaWQiOiJFaXBYZkVjY3B0WGZFY0l1YmsiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiRWlwWGZFY2JwdFhmRWNLdVJxIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEsIlZBUiI6IkVpcFhmRWNicHRYZkVjS3VScSJ9LCJpZCI6IkVpcFhmRWNicHRYZkVjS3VScSIsInR5cGUiOiJjb250YWluZXIifX0s
+        InRyZWUiOnsiaWQiOiJqQnhuZUVjSUpDSU5NdWhteFkiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IkVpcFhmRWNicHRYZkVjS3VScSIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJFaXBYZkVjY3B0WGZFY0l1YmsiLCJ0eXBlIjoiY29sdW1uIn1dfSx7ImlkIjoiYUN4bmVFY1dZTW9lRWN1c2R5IiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImFDeG5lRWNXWU1vZUVjWEFqYyIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6Ii9NYWluRnJhbWUvQmFzaWMueG1sIiwiUFJPSkVDVCI6IkZSV0siLCJQQVRIXzIiOiIiLCJOT05TVERfUEFUSCI6IlkiLCJQQVRIXzMiOiIiLCJQQVRIXzEiOiJNYWluRnJh
+        bWUiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJCYXNpYyIsIkNPREUiOiJNQUlORlJBTUUiLCJQUkVGSVgiOiIiLCJTQ1JFRU5fSUQiOiJNQUlORlJBTUUifX0sImh0bWwiOiI8ZGl2IGlkPVwiakJ4bmVFY0lKQ0lOTXVobXhZXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVu
+        dF9vdXRlcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJFaXBYZkVjYnB0WGZFY0t1UnFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9jb2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO3dpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291
+        dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5fb3V0ZXIgaGVhZGVyVG9vbGJhclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJFaXBYZkVjY3B0WGZFY0l1YmtcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X291dGVyX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImFDeG5lRWNXWU1vZUVjdXNkeVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21w
+        b25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJhQ3huZUVjV1lNb2VFY1hBamNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXIgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwv
+        ZGl2PiJ9
+    </template>
+</body>

@@ -1,0 +1,32 @@
+{
+	"FILTERBAR":{
+		"STATUS":"상태",
+		"CONFIRM":"적용",
+		"SEARCH":"검색",
+		"CONDITION":"필터 조건",
+		"CONDITION_RESET":"조건 초기화",
+		"ALL":"전체",
+		"YEAR":"년",
+		"MONTH":"월",
+		"WEEK":"주",
+		"WEEKS_AGO":"주 전",
+		"WEEKS_AFTER":"주 후",
+		"THIS_WEEK":"이번주",
+		"MONTHS":"개월",
+		"MONTHS_AGO":"개월 전",
+		"MONTHS_AFTER":"개월 후",
+		"DAYS_AGO":"일",
+		"DAYS":"일",
+		"TODAY":"오늘",
+		"DAY":"일",
+		"QUARTER":"분기",
+		"HALF":"반기",
+		"RESET":"초기화",
+		"FILTER":"필터",
+		"ADVANCED_SEARCH":"상세 검색",
+		"SEARCH_2":"조회",
+		"MESSAGE_01":"날짜를 선택해 주세요.",
+		"SELECT_ALL":"전체 선택",
+		"CHECKED":"체크"
+	}
+}

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_102_CT_M_G" header="false">
+    <filterbar id="filterObj" div="KZRHtYfbwWHtYflAuU">
+        <keyword id="F_KEYWORD"/>
+        <filter>
+            <option id="CTRL_CODE" type="select" combo="AD1025,{HOUSE_CODE}#{COMPANY_CODE}"/>
+        </filter>
+        <event type="onSearch" callback="doQuery"/>
+    </filterbar>
+    <button id="btnObj">
+        <btn div="KZRHtYfCKwHtYfkqZt" id="ROWADD" text="{BUTTON.rowadd}" onclick="doAddRow()"/>
+        <btn div="KZRHtYfCKwHtYfkqZt" id="SAVE" text="{BUTTON.save}" onclick="doSave()"/>
+        <btn div="KZRHtYfCKwHtYfkqZt" id="ROWDELETE" text="{BUTTON.rowdelete}" onclick="doDeleteRow()"/>
+    </button>
+    <grid id="gridObj" div="KZRHtYfeZnItYfpdFa" grid-id="AD_102_CT_M" drag="false" merge="false" dynamic="false">
+    	<event type="onXLE" callback="doQueryEnd"/>
+    	<event type="onTXE" callback="doSaveEnd"/>
+    	<event type="onEditCell" callback="onEditCell"/>
+    	<event type="onRowSelect" callback="onRowSelect"/>
+    </grid>
+    <variable>
+        <var name="KZRHtYfoJTHtYfJEKj" value="$($sObject._vp).find('#KZRHtYfoJTHtYfJEKj')[0]"/>
+        <var name="KZRHtYfLgVHtYfunRj" value="$($sObject._vp).find('#KZRHtYfLgVHtYfunRj')[0]"/>
+        <var name="KZRHtYfoJTHtYfxwPs" value="$($sObject._vp).find('#KZRHtYfoJTHtYfxwPs')[0]"/>
+    </variable>
+    <onloadscript>
+    	<call name="initView"/>
+    	<call name="doQuery"/>
+    </onloadscript>
+    <userscript>
+    	<var name="selectedRowId"/>
+    	<var name="appConfirm_val"/>
+    	<function name="doQuery">
+        <![CDATA[
+            dataOutput.addFilter(filterObj);
+            gridObj.postConnection(window.CONTEXT_NAME+'/SepoaGrid.sux',['mode=doQuery', 'PROCESS_ID=sepoa.svc.admin.SepoaOrgManagementService', 'METHOD=doQueryCtrlManagerGrid']);
+            gridObj.clearAll(false);
+        ]]>
+        </function>
+        <function name="initView">
+        <![CDATA[
+        	// 결재자 강제세팅(사용인감모듈) || (법인인감모듈) 이 True일때
+        	if(sUtils.workflow.check('USW1673407285901') || sUtils.workflow.check('CSW1673407570340')){
+        		appConfirm_val =true ;
+        	}else{
+        		appConfirm_val =false ;
+        	}
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCnt">
+        <![CDATA[
+            var msg = obj.getUserData("", "message");
+            if (rowCnt == 0) {
+            	Alert(Sepoa.cache.text.get('MESSAGE.1001'));
+                return;
+            } else if (msg) {
+            	Alert(msg);
+            }
+            
+            // init에서 모듈확인후 True일경우 결제순서 hidden으로 변경하는 소스
+			if(appConfirm_val){
+				gridObj.setColumnHidden(gridObj.getColIndexById('APP_ORDER'), false);
+			}else{
+				gridObj.setColumnHidden(gridObj.getColIndexById('APP_ORDER'), true);
+			}
+        ]]>
+        </function>
+        <function name="doSaveEnd" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            if (status == 'true') {
+                Alert(message);
+                doQuery();
+            } else {
+                Alert(message);
+            }
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rId, cInd, nValue, oValue">
+        <![CDATA[
+        	var header = gridObj.getColumnId(cInd);
+        	
+        	if(stage == 0){ 
+        		if(header == 'APP_ORDER'&& gridObj.cells(rId, gridObj.getColIndexById('CTRL_CODE')).getValue() != 'APP_CONFIRM'){
+        			return false;
+        		}
+        	}else if (stage == 2) {
+	            // 결제순서 중복 검사
+	            if (header == 'APP_ORDER') {
+	            	var serId = rId;
+	            	gridObj.forEachRow(function(rId) {
+	            		var appOrderVal = gridObj.cells(rId, gridObj.getColIndexById('APP_ORDER')).getValue();
+	            		var ctrlCode = gridObj.cells(rId, gridObj.getColIndexById('CTRL_CODE')).getValue();
+	            		if(serId != rId && appOrderVal == nValue && ctrlCode == 'APP_CONFIRM'){
+	            			Alert("결재 순서는 중복될 수 없습니다.");
+	            			gridObj.cells(serId, gridObj.getColIndexById('APP_ORDER')).setValue('');
+	            			gridObj.cells(serId, gridObj.getColIndexById('SELECTED')).setValue(false);
+	            			return false;
+	            		}
+	            	})
+            	}	           
+            	
+            	// 동일직무를 가진 담당자 검사
+            	if(header == 'CTRL_CODE'){
+	            	gridObj.forEachRow(function(id) {
+	            		var ctrlCode = gridObj.cells(id, gridObj.getColIndexById('CTRL_CODE')).getValue();
+	            		var person_Id = gridObj.cells(rId, gridObj.getColIndexById('CTRL_PERSON_ID')).getValue();
+	            		var person_Id_order = gridObj.cells(id, gridObj.getColIndexById('CTRL_PERSON_ID')).getValue();
+	            		if(id != rId && ctrlCode == nValue && person_Id == person_Id_order){
+	            			Alert("동일한 직무를 가진 담당자가 있습니다.");
+	            			gridObj.cells(rId, gridObj.getColIndexById('CTRL_CODE')).setValue('');
+	            			gridObj.cells(rId, gridObj.getColIndexById('SELECTED')).setValue(false);
+	            			return false;
+	            		}
+	            	})
+            	} 
+            }
+            return true;
+        ]]>
+        </function>
+        <function name="onRowSelect" args="rId, cInd">
+        <![CDATA[
+        	var header = gridObj.getColumnId(cInd);
+        	selectedRowId = rId;
+        	
+        	if (header == 'CTRL_PERSON_ID' || header == 'CTRL_PERSON_NAME') {
+        		if(gridObj.cells(rId, gridObj.getColIndexById('COMPANY_CODE')).getValue () == ''){
+        			Alert("회사명을 선택해주세요.");
+        		}else if(gridObj.cells(rId, gridObj.getColIndexById('CTRL_CODE')).getValue () == ''){
+        			Alert("직무를 선택해주세요.");
+        		}else {
+	        		PopupCommonPost('SL0055', setCtrlPerson, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+        		}
+        	}else if(header == 'CTRL_CODE'){ 
+        		PopupCommonPost('AD1024', setCtrlCode, [Sepoa.info.HOUSE_CODE, Sepoa.info.COMPANY_CODE]);
+        	}
+        	
+        	gridObj.cells(rId, gridObj.getColIndexById('SELECTED')).setValue(true);
+        ]]>
+        </function>
+        <function name="setCtrlCode" args="ctrlType, ctrlCode, ctrlName">
+        <![CDATA[
+        	// 오류확인되서 수정해야함 (유효성검사내용 추가필요)
+        	gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_TYPE')).setValue(ctrlType);
+        	gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_CODE')).setValue(ctrlCode);
+        	
+        	var header = gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_TYPE')).getValue();
+        	if(header != 'APP_CONFIRM'){
+        		gridObj.cells(selectedRowId, gridObj.getColIndexById('APP_ORDER')).setValue('');	
+        	}
+        ]]>
+        </function>
+        <function name="setCtrlPerson" args="nameLoc, id, nameEng">
+        <![CDATA[
+        	let falseYN ;
+        	doServiceAjax('sepoa.svc.admin.SepoaOrgManagementService','CONNECTION','doCheckUser', {PERSON_ID:id}, function( so ){
+                if(so.status == 1){
+	                var sf = new SepoaFormater(so.result[0]);
+                	if(sf.getValue('CNT',0) > 0){
+                	}else{
+                		Alert("사용자 정보가 존재하지 않습니다. 다시 선택해주세요");
+                		gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_NAME')).setValue('');
+						gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_ID')).setValue('');
+                		falseYN = 'Y';
+                		return false;
+                	}
+                }else{
+                   	Alert(Sepoa.cache.text.get("MESSAGE.1002")); //오류발생
+                   	return false;
+               	}
+           	},false);
+           	
+        	if(falseYN != 'Y'){
+	        	gridObj.forEachRowA(function(ids) { 	
+					if(id != ids && gridObj.cells(selectedRowId, gridObj.getColIndexById('COMPANY_CODE')).getValue() == gridObj.cells(ids, gridObj.getColIndexById('COMPANY_CODE')).getValue()
+						&& gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_CODE')).getValue() == gridObj.cells(ids, gridObj.getColIndexById('CTRL_CODE')).getValue()
+						&& id == gridObj.cells(ids, gridObj.getColIndexById('CTRL_PERSON_ID')).getValue()
+					){
+						gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_NAME')).setValue('');
+						gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_ID')).setValue('');
+						Alert("직무가 동일한 담당자가 있습니다.");
+						falseYN = 'Y';
+						return ; 	
+					}
+				});
+        	
+	        	gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_ID')).setValue(id);
+	        	if (Sepoa.info.LANGUAGE == 'KO') {
+	        		gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_NAME')).setValue(nameLoc);
+	        	} else {
+	        		gridObj.cells(selectedRowId, gridObj.getColIndexById('CTRL_PERSON_ID')).setValue(id);
+	        	}
+        	}
+        ]]>
+		</function>
+    	<function name="doAddRow" args="item">
+        <![CDATA[
+        	var getCompanyCode = SUX.pools.AD_102_C_C.formObj.getValue('COMPANY_CODE');
+        	var rowCount = gridObj.getRowsNum();
+            var maxRowId = rowCount+1;
+            
+            gridObj.addRow(maxRowId,'',gridObj.getRowsNum());
+            gridObj.cells(maxRowId, gridObj.getColIndexById('SELECTED')).setValue("1");
+            gridObj.cells(maxRowId, gridObj.getColIndexById('REPRESENT_CTRL')).setValue("N");
+            gridObj.cells(maxRowId, gridObj.getColIndexById('COMPANY_CODE')).setValue(getCompanyCode);
+            
+            gridObj.showRow(maxRowId);
+        ]]>
+        </function>
+        <function name="doDeleteRow">
+        <![CDATA[
+            if(gridObj.getGridChangedRows("SELECTED").length > 0 && Confirm(Sepoa.cache.text.get('MESSAGE.1015'),function(result){
+                if(result){
+                    gridObj.postTransaction(window.CONTEXT_NAME+'/SepoaGrid.sux',['mode=doSave', 'PROCESS_ID=sepoa.svc.admin.SepoaOrgManagementService', 'METHOD=doDeleteCtrlManagerGrid'],'SELECTED');
+                }
+            }));
+        ]]>
+        </function>
+        <function name="doSave">
+        <![CDATA[
+        	if(gridObj.getGridChangedRows("SELECTED").length == 0) {
+                Alert(Sepoa.cache.text.get('MESSAGE.1004'));
+                return;
+            }
+            
+            if(!gridObj.validate()) {
+            	Alert(Sepoa.cache.text.get('MESSAGE.0003'));
+            	return;
+            }
+            
+           	var result =[];
+           	gridObj.forEachRow(function(rId) {
+           		var ctrlCode = gridObj.cells(rId, gridObj.getColIndexById('CTRL_CODE')).getValue();
+           		var appOrderVal = gridObj.cells(rId, gridObj.getColIndexById('APP_ORDER')).getValue();
+           		
+           		if(appOrderVal == '' && ctrlCode == 'APP_CONFIRM'){
+           			result.push('false');
+           		}else {
+           			result.push('true');
+           		}	
+           	})     
+            if(result.indexOf('false') > -1){
+            	Alert("직무가 결재자의 경우 결재 순서를 지정해주세요.");
+            	return;
+            }
+            Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(result) {
+                if (result) {
+                    gridObj.editStop();
+                    gridObj.postTransaction(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doSave', 'PROCESS_ID=sepoa.svc.admin.SepoaOrgManagementService', 'METHOD=doSaveCtrlManagerGrid'], 'SELECTED');
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiS1pSSHRZZktaUkh0WWZQdUdFIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF8xMDJfQ1RfTV9HIn0sImlkIjoiS1pSSHRZZktaUkh0WWZQdUdFIiwidHlwZSI6ImJvZHkifSwiS1pSSHRZZm9KVEh0WWZKRUtqIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJWQVIiOiJLWlJIdFlmb0pUSHRZZkpFS2oifSwiaWQiOiJLWlJIdFlmb0pUSHRZZkpFS2oiLCJ0eXBlIjoiY29sdW1uIiwibmFtZSI6ImEifSwiS1pSSHRZZm9KVEh0WWZ4d1BzIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoi
+        IiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9PT0RicWdYM2Y5U0wiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX1FwNE85UWJGMWM0byI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF82UXhFS1p3dnpvZmIiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjIiLCJWQVIiOiJLWlJIdFlmb0pUSHRZZnh3UHMiLCJPQkpFQ1RfSUQiOiJLWlJIdFlmb0pUSHRZZnh3UHMiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTFVNTl9JVEVNXzAiOiIxIiwiQ09MVU1OX0lURU1fMSI6IjEi
+        fSwiaWQiOiJLWlJIdFlmb0pUSHRZZnh3UHMiLCJ0eXBlIjoiY29udGFpbmVyIn0sIktaUkh0WWZMZ1ZIdFlmdW5SaiI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVkFSIjoiS1pSSHRZZkxnVkh0WWZ1blJqIn0sImlkIjoiS1pSSHRZZkxnVkh0WWZ1blJqIiwidHlwZSI6ImNvbHVtbiIsIm5hbWUiOiJiIn0sIktaUkh0WWZid1dIdFlmbEF1VSI6eyJsYXlvdXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfenNlS014blJBYm9kIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5f
+        UklHSFQiOiIiLCJkaHhJZF9QZTduQXloaU14VE8iOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfZXBzSEZEdVIwUDFaIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfa1pHUW1OTnBUQXhkIjoibnVsbCIsImRoeElkX1Qzd0ZMRXJFSFplOCI6Im51bGwiLCJkaHhJZF9TZkhmZWtaTU1LdlQiOiJudWxsIiwiZGh4SWRfSmdYOEVjSkxyVkNOIjoibnVsbCIsImRoeElkX3BnUEszS0RvUXlUTCI6Im51bGwiLCJkaHhJZF9mMVdQbDVMemdFQ2QiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmaWx0ZXJPYmoiLCJLRVlXT1JEX0FDVElWRSI6InRydWUiLCJLRVlXT1JEX0lEIjoiRl9LRVlXT1JEIiwiU1RBVFVT
+        X0FDVElWRSI6ImZhbHNlIiwiU1RBVFVTX0lEIjoiRl9TVEFUVVMiLCJDQUxFTkRBUl9BQ1RJVkUiOiJmYWxzZSIsIkNBTEVOREFSX0lEIjoiRl9DQUxFTkRBUiIsIkZJTFRFUl9BQ1RJVkUiOiJ0cnVlIiwiT0JKRUNUX0lEIjoiS1pSSHRZZmJ3V0h0WWZsQXVVIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9XdnJMcTRJMTFqSm4iOiJudWxsIiwiZGh4SWRfR25ORG1SQUpmS1g0IjoibnVsbCIsImRoeElkX0FNRXpJaE9YOE9ZRiI6Im51bGwiLCJGSUxURVJfSVRFTV9LWlJIVFlGWElBSFRZRk9GU1ZfVFlQRSI6InNlbGVjdCIsIkZJTFRFUl9JVEVNX0taUkhUWUZYSUFIVFlGT0ZTVl9JRCI6IkNPTVBBTllfQ09ERSIsIkZJTFRFUl9JVEVNX0taUkhUWUZY
+        SUFIVFlGT0ZTVl9DT01CTyI6IkFEMTAyMCx7SE9VU0VfQ09ERX0ifSwiaWQiOiJLWlJIdFlmYndXSHRZZmxBdVUiLCJ0eXBlIjoiZmlsdGVyYmFyIn0sIktaUkh0WWZDS3dIdFlma3FadCI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIkFMSUdOX0hPUklaT05UQUwiOiJyaWdodCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIk9CSkVDVF9JRCI6IktaUkh0WWZDS3dIdFlma3FadCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiSVRFTV9L
+        WlJIVFlGT0dZSVRZRllKTUVfSUQiOiJST1dBREQiLCJJVEVNX0taUkhUWUZPR1lJVFlGWUpNRV9TTENPREUiOiJCVVRUT04ucm93YWRkIiwiSVRFTV9LWlJIVFlGT0dZSVRZRllKTUVfVEVYVCI6Iu2Wiey2lOqwgCIsIklURU1fS1pSSFRZRkdBQ0lUWUZJR1hQX0lEIjoiU0FWRSIsIklURU1fS1pSSFRZRkdBQ0lUWUZJR1hQX1NMQ09ERSI6IkJVVFRPTi5zYXZlIiwiSVRFTV9LWlJIVFlGR0FDSVRZRklHWFBfVEVYVCI6IuyggOyepSIsIklURU1fS1pSSFRZRllLRElUWUZQWFJaX0lEIjoiUk9XREVMRVRFIiwiSVRFTV9LWlJIVFlGWUtESVRZRlBYUlpfU0xDT0RFIjoiQlVUVE9OLnJvd2RlbGV0ZSIsIklURU1fS1pSSFRZRllLRElUWUZQWFJaX1RFWFQiOiLtlons
+        gq3soJwiLCJJVEVNX0taUkhUWUZPR1lJVFlGWUpNRV9TT1JUIjoiMSIsIklURU1fS1pSSFRZRkdBQ0lUWUZJR1hQX1NPUlQiOiIyIiwiSVRFTV9LWlJIVFlGWUtESVRZRlBYUlpfU09SVCI6IjMifSwiaWQiOiJLWlJIdFlmQ0t3SHRZZmtxWnQiLCJ0eXBlIjoiYnV0dG9uIn0sIktaUkh0WWZlWm5JdFlmcGRGYSI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX1lTYUxZQnRQdEQwNiI6Im51bGwiLCJkaHhJZF9vZnVF
+        Ym5iS090SFgiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfdTF2WFl0Ukl1WThzIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIk9CSkVDVF9JRCI6IktaUkh0WWZlWm5JdFlmcGRGYSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiR1JJRF9JRCI6IkFEXzEwMl9DVF9NIn0sImlkIjoiS1pSSHRZZmVabkl0WWZwZEZhIiwidHlwZSI6ImdyaWQifX0sInRyZWUiOnsiaWQiOiJLWlJIdFlmS1pSSHRZZlB1R0UiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6IktaUkh0WWZvSlRI
+        dFlmeHdQcyIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3siaWQiOiJLWlJIdFlmb0pUSHRZZkpFS2oiLCJ0eXBlIjoiY29sdW1uIiwiY2VsbHMiOlt7ImlkIjoiS1pSSHRZZmJ3V0h0WWZsQXVVIiwidHlwZSI6ImZpbHRlcmJhciJ9XX0seyJpZCI6IktaUkh0WWZMZ1ZIdFlmdW5SaiIsInR5cGUiOiJjb2x1bW4iLCJjZWxscyI6W3siaWQiOiJLWlJIdFlmQ0t3SHRZZmtxWnQiLCJ0eXBlIjoiYnV0dG9uIn1dfV19LHsiaWQiOiJLWlJIdFlmZVpuSXRZZnBkRmEiLCJ0eXBlIjoiZ3JpZCJ9XX0sImluZm8iOnsiUFJPSkVDVCI6IlNFQUwiLCJQQVRIXzEiOiJBZG1pbiIsIlBBVEhfMyI6IkFkbWluT3JnYW5pemF0aW9uTWFuYWdlbWVudCIsIlBBVEhfMiI6Ik9y
+        Z2FuaXphdGlvbk1hbmFnZW1lbnQiLCJOQU1FIjoiQ3RybE1hbmFnZXJHcmlkIiwiUEFUSCI6Ii9BZG1pbi9Pcmdhbml6YXRpb25NYW5hZ2VtZW50L0FkbWluT3JnYW5pemF0aW9uTWFuYWdlbWVudEN0cmxNYW5hZ2VyR3JpZC54bWwiLCJQUkVGSVgiOiJBRCIsIkNPREUiOiIxMDJfQ1RfTV9HIiwiU0NSRUVOX0lEIjoiQURfMTAyX0NUX01fRyJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJLWlJIdFlmS1pSSHRZZlB1R0VcIiBjbGFzcz1cImNvbnRhaW5lclwiPlxuICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29udGFpbmVyX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhf
+        Y29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJLWlJIdFlmb0pUSHRZZnh3UHNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9j
+        b2x1bW5fY2VsbFwiIHN0eWxlPVwiZmxleDoxO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIktaUkh0WWZvSlRIdFlmSkVLalwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2ZpbHRl
+        cmJhcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZmlsdGVyYmFyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIktaUkh0WWZid1dIdFlmbEF1VVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgc2Vwb2F1eF9maWx0ZXJiYXIgc3NmaWx0ZXJfY29udFwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAg
+        ICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJLWlJIdFlmTGdW
+        SHRZZnVuUmpcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25fb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX3JpZ2h0XCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAg
+        ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIktaUkh0WWZDS3dIdFlma3FadFwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfYnV0dG9uXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAg
+        ICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZ3JpZF9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJLWlJIdFlmZVpuSXRZZnBkRmFcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBvYXV4X2dyaWQgbG93ZXJEaXZcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rp
+        dj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_114_2" header="false">
+    <filterbar id="filterObj" div="NNUoInepzboInenpkR">
+        <keyword id="F_KEYWORD"/>
+        <event type="onSearch" callback="onSearch"/>
+    </filterbar>
+    <list id="listObj" div="NNUoIneIDeoInelopj">
+        <type>
+            <template><![CDATA[<table width=100% class=sepoa_list_design><col width=55% /><col width=45%><tr><td class=sepoa_list_secondary>#code#</td><td class=\"sepoa_list_font_bold sepoa_list_align_right\">#text1#</td></tr><tr><td colspan=2 class=\"sepoa_list_primary sepoa_list_align_right\"></td></tr></table>]]></template>
+        </type>
+        <event type="onItemClick" callback="doRowSelect"/>
+        <event type="onXLE" callback="doQueryEnd"/>
+    </list>
+    <onloadscript>
+        <call name="doQuery"/>
+    </onloadscript>
+    <userscript>
+    	<var name="queryDataFlag"/>
+        <function name="doQuery" args="flag">
+        <![CDATA[
+            dataOutput.addFilter(filterObj);
+            listObj.load(window.CONTEXT_NAME + '/SepoaList.sux?PROCESS_ID=sepoa.svc.admin.AD_114&mode=doList&METHOD=doListCode' + dataOutput.getParams());
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="">
+        <![CDATA[
+            callFunction('AD_114', 'afterLoad', []);
+            if (listObj.dataCount() > 0) {
+                var id = listObj.idByIndex(0);
+                listObj.select(id);
+                doRowSelect(id);
+            }
+        ]]>
+        </function>
+        <function name="doRowSelect" args="id">
+        <![CDATA[
+            callFunction('AD_014_4', 'doQuery', [listObj.get(id)]);
+        ]]>
+        </function>
+        <function name="onSearch" args="id">
+        <![CDATA[
+            doQuery();
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiTk5Vb0luZU5OVW9JbmVGVkF2Ijp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF94cTJFeHpFN1pRMUIiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX3dvM1NqRjA0WEs2bCI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkFEXzExNF8yIiwiT0JKRUNUX0lEIjoiTk5Vb0luZU5OVW9JbmVGVkF2IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJMSVNUIn0sImlkIjoiTk5Vb0luZU5OVW9JbmVGVkF2IiwidHlwZSI6
+        ImJvZHkifSwiTk5Vb0luZXB6Ym9JbmVucGtSIjp7ImxheW91dCI6eyJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9DelIyN1VBcmh5TEQiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX1g2bTJMQkt3c3d6MCI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9nSjhOT1FpMGwzcFAiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZpbHRlck9iaiIsIktFWVdPUkRfQUNUSVZFIjoi
+        dHJ1ZSIsIktFWVdPUkRfSUQiOiJGX0tFWVdPUkQiLCJTVEFUVVNfQUNUSVZFIjoiZmFsc2UiLCJTVEFUVVNfSUQiOiJGX1NUQVRVUyIsIkNBTEVOREFSX0FDVElWRSI6ImZhbHNlIiwiQ0FMRU5EQVJfSUQiOiJGX0NBTEVOREFSIiwiRklMVEVSX0FDVElWRSI6ImZhbHNlIiwiT0JKRUNUX0lEIjoiTk5Vb0luZXB6Ym9JbmVucGtSIn0sImlkIjoiTk5Vb0luZXB6Ym9JbmVucGtSIiwidHlwZSI6ImZpbHRlcmJhciJ9LCJOTlVvSW5lSURlb0luZWxvcGoiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpF
+        X0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9jeHg5MUpPMzVibVYiOiJudWxsIiwiZGh4SWRfNmxqbzVpZld0VXVLIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzZmb0RvUHJySmxMTSI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoibGlzdE9iaiIsIk9CSkVDVF9JRCI6Ik5OVW9JbmVJRGVvSW5lbG9waiIsIlRFTVBMQVRFIjoiPHRhYmxlIHdpZHRoPTEwMCUgY2xhc3M9c2Vwb2FfbGlzdF9kZXNpZ24+PGNvbCB3aWR0aD01NSUgLz48Y29sIHdpZHRoPTQ1JT48dHI+PHRkIGNsYXNzPXNlcG9hX2xpc3Rfc2Vjb25kYXJ5PiNjb2RlIzwvdGQ+PHRk
+        IGNsYXNzPVxcXCJzZXBvYV9saXN0X2ZvbnRfYm9sZCBzZXBvYV9saXN0X2FsaWduX3JpZ2h0XFxcIj4jdGV4dDEjPC90ZD48L3RyPjx0cj48dGQgY29sc3Bhbj0yIGNsYXNzPVxcXCJzZXBvYV9saXN0X3ByaW1hcnkgc2Vwb2FfbGlzdF9hbGlnbl9yaWdodFxcXCI+PC90ZD48L3RyPjwvdGFibGU+IiwiRFlOQU1JQyI6MC4wfSwiaWQiOiJOTlVvSW5lSURlb0luZWxvcGoiLCJ0eXBlIjoibGlzdCJ9fSwidHJlZSI6eyJpZCI6Ik5OVW9JbmVOTlVvSW5lRlZBdiIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiTk5Vb0luZXB6Ym9JbmVucGtSIiwidHlwZSI6ImZpbHRlcmJhciJ9LHsiaWQiOiJOTlVvSW5lSURlb0luZWxvcGoiLCJ0eXBlIjoibGlzdCJ9XX0s
+        ImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9Db21tb25Db2RlTWFuYWdlbWVudC9BZG1pbkNvbW1vbkNvZGVNYW5hZ2VtZW50Q29kZUxpc3QueG1sIiwiUFJPSkVDVCI6IlNSTSIsIkNPREUiOiIxMTRfMiIsIlBSRUZJWCI6IkFEIiwiUEFUSF8yIjoiQ29tbW9uQ29kZU1hbmFnZW1lbnQiLCJQQVRIXzMiOiJBZG1pbkNvbW1vbkNvZGVNYW5hZ2VtZW50IiwiUEFUSF8xIjoiQWRtaW4iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJDb2RlTGlzdCIsIlNDUkVFTl9JRCI6IkFEXzExNF8yIn19LCJodG1sIjoiPGRpdiBpZD1cIk5OVW9JbmVOTlVvSW5lRlZBdlwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVy
+        X3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9maWx0ZXJiYXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2ZpbHRlcmJhcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJOTlVvSW5l
+        cHpib0luZW5wa1JcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50IHNlcG9hdXhfZmlsdGVyYmFyIHNzZmlsdGVyX2NvbnRcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9saXN0X291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9saXN0X2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cIk5OVW9JbmVJRGVvSW5lbG9walwiIGNsYXNz
+        PVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfbGlzdCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>

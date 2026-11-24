@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doSearchSMAND">
+	<![CDATA[
+		SELECT
+			USMT.MENU_PROFILE_CODE 
+			,MAND.HOUSE_CODE
+			,MAND.COMPANY_CODE
+			,MAND.MAND_TYPE
+			,MAND.GIVE_COMPANY_CODE
+			,MAND.GIVE_USER_ID
+			,MAND.RECE_COMPANY_CODE
+			,MAND.RECE_USER_ID
+			,MAND.START_DATE
+			,MAND.END_DATE
+			,MAND.DESCRIPTION
+			,MAND.ADD_DATE
+			,MAND.ADD_TIME
+			,MAND.ADD_USER_ID
+			,MAND.CHANGE_DATE
+			,MAND.CHANGE_TIME
+			,MAND.CHANGE_USER_ID
+		FROM SMAND MAND
+			LEFT OUTER JOIN SUSMT USMT 
+			ON MAND.HOUSE_CODE = USMT.HOUSE_CODE 
+			AND MAND.GIVE_USER_ID = USMT.USER_ID 
+		WHERE 1=1
+			AND MAND.HOUSE_CODE = ${HOUSE_CODE}
+			AND MAND.COMPANY_CODE = ${COMPANY_CODE}
+			AND MAND.RECE_USER_ID = ${ID}
+			AND ${current.date} BETWEEN MAND.START_DATE AND MAND.END_DATE
+	]]>
+	</method>
+	
+	<method name="doSearchCTRL">
+	<![CDATA[
+		SELECT
+			CTRL_CODE,
+			CTRL_TYPE,
+			MAX(REPRESENT_CTRL) AS REPRESENT_CTRL
+		FROM
+			SBALN
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+			AND COMPANY_CODE IN (${COMPANY_CODE})
+			AND CTRL_PERSON_ID IN ($IN{IDS})
+			AND DEL_FLAG = 'N'
+		GROUP BY CTRL_CODE, CTRL_TYPE
+	]]>
+	</method>
+	
+	<method name="getOwnSealList">
+	<![CDATA[
+		SELECT MANAGE_NUMBER 
+		  FROM SSEAL
+		 WHERE HOUSE_CODE = ${HOUSE_CODE}
+		   AND COMPANY_CODE = ${COMPANY_CODE}
+		   AND SEAL_MG_USER_ID IN ($IN{IDS})
+		   AND DEL_FLAG = 'N'
+	]]>
+	</method>
+	<method name="doInsertLIHI">
+	<![CDATA[
+		INSERT INTO SLIHI (
+			HOUSE_CODE
+			,COMPANY_CODE
+			,no
+			,user_id
+			,ip
+			,add_date
+			,add_time
+			,login_result
+		)VALUES(
+			${HOUSE_CODE}
+			,${COMPANY_CODE}
+			,${no}
+			,${ID}
+			,${USER_IP}
+			,${current.DATE}
+			,${current.TIME}
+			,${login_result}
+		)
+	]]>
+	</method>
+	<method name="doQueryPassCheckCnt">
+	<![CDATA[
+		SELECT
+			  HOUSE_CODE
+			, USER_ID
+			, PASS_CHECK_CNT
+			, PW_RESET_FLAG
+		FROM
+			SUSMT
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND USER_ID = UPPER(${USER_ID})
+	]]>
+	</method>
+	<method name="updatePassCheckCnt">
+	<![CDATA[
+		UPDATE
+			SUSMT 
+		SET
+			PASS_CHECK_CNT = #{PASS_CHECK_CNT}
+			, PW_RESET_FLAG =${PW_RESET_FLAG}
+		WHERE
+			HOUSE_CODE = ${HOUSE_CODE}
+		AND USER_ID    = UPPER(${USER_ID})
+	]]>
+	</method>
+</service>

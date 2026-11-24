@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="AD_042_4" header="false">
+    <grid id="gridObj" div="pKtNKEejKuNKEemPzf" grid-id="file:///resource/ux/admin/grid/AD_042_4.js" drag="false" merge="false" dynamic="false">
+    	<event type="onXLE" callback="doQueryEnd"/>
+    	<event type="onTXE" callback="doSaveEnd"/>
+    	<event type="onEditCell" callback="onEditCell"/>
+    	<event type="onRowSelect" callback="onRowSelect"/>
+    </grid>
+    <usercss>
+    <![CDATA[
+        
+    ]]>
+    </usercss>
+    <onloadscript>
+    </onloadscript>
+    <userscript>
+        <var name="formID"/>
+        <var name="houseCode" />
+        <var name="languagePack"/>
+        <var name="blockNameFlag" value="true"/>
+        <var name="formMasterBlockArray" />
+        <var name="formArray" value="[]"/>
+        <function name="setData" args="info, masterFormJson, masterBlockArray, filterArrayMap">
+        <![CDATA[
+            formArray = [];
+            formMasterBlockArray = [];
+            blockNameFlag = true;
+            gridObj.clearAll(false);
+            
+            if(masterFormJson.length == 0) {
+            	Alert(Sepoa.cache.text.get('AD_042_4.MSG_FORM_DATA_EMPTY'));
+            	return;
+            }
+            
+            formID = $sObject.formID = info.FORM_ID;
+            houseCode = $sObject.houseCode = info.HOUSE_CODE;
+            
+            doServiceAjax('sepoa.svc.admin.AD_042_4', 'CONNECTION', 'doQuerySLANGData', info, function(so) {
+                if (so.status != 1) {
+                    Alert(Sepoa.cache.text.get('MESSAGE.1002'));
+                    console.log(so.message);
+                    return;
+                }
+            
+                var sf = new SepoaFormater(so.result[0]);
+                var sfList = sf.getArrayMap();
+                languagePack = $sObject.languagePack = {};
+                for (var idx in sfList) {
+                    var lang = sfList[idx].LANGUAGE;
+                    var key = sfList[idx].CODE;
+                    var value = sfList[idx].CONTENTS;
+            
+                    if (value.length > 0) {
+                        if (value.startsWith("Has not found text")) {
+                            value = "";
+                        }
+                    }
+            
+                    if (!languagePack[lang]) {
+                        languagePack[lang] = {};
+                    }
+            
+                    languagePack[lang][key] = value;
+                }
+            }, false);
+            
+            var filterKey = [];
+            // Extract Filter Element
+            for (var idx in filterArrayMap) {
+                var obj = {};
+                obj.key = filterArrayMap[idx].BLOCK_NAME;
+                obj.value = filterArrayMap[idx];
+                filterKey.push(obj);
+            }
+            
+            // Extract Master Element
+            var masterChildItemArray = [];
+            
+            formMasterBlockArray = masterBlockArray;
+            
+            for(var idx in masterFormJson){
+                var obj = {};
+                var parent = {};
+                var type = masterFormJson[idx].type;
+                
+                if(type == 'newcolumn' || type == 'settings'){
+                    continue;
+                } else if(type == 'fieldset' || type == 'block'){
+                    if(typeof(masterFormJson[idx].name) == 'undefined'){
+                        blockNameFlag = false;
+                    }
+                    obj.key = masterFormJson[idx].name;
+                    obj.value = findBlockOption(masterFormJson[idx].name, '*');
+                    
+                    formArray.push(obj);
+                }
+                var parentsNodeId = masterFormJson[idx].name;
+                formFindChildItem(masterFormJson[idx], parentsNodeId);
+            }
+            
+            // filterData Copy to masterBlockArray
+            for (var i in filterKey) {
+                var key = filterKey[i].key;
+            
+                formArray.forEach(function(part, idx) {
+                    if (formArray[idx].key == key) {
+                        filterKey[i].value.VISIBLE = '1';
+                        formArray[idx].value = $.extend({}, formArray[idx].value, filterKey[i].value);
+                        return;
+                    }
+                });
+            }
+            
+            renderGridData(formArray);
+            callFunction('AD_042_3', 'updateForm', [formArray]);
+        ]]>
+        </function>
+        <function name="formFindChildItem" args="data, parentsNode">
+        <![CDATA[
+            var listData = data.list;
+            if(listData) {
+                for(var i = 0; i < listData.length; i++){
+                    var obj = {};
+                    var returnData = {};
+                    var type = listData[i].type;
+                    
+                    if(type == 'fieldset' || type == 'block'){
+                        returnData = findBlockOption(listData[i].name, parentsNode);
+                        obj.key = listData[i].name;
+                        obj.value = returnData;
+                        formArray.push(obj);
+                        formFindChildItem(listData[i], listData[i].name);
+                    } else if(type == 'newcolumn' || type == 'settings'){
+                        continue;
+                    } else {
+                        if(listData[i].type == 'radio'){
+                        	obj.key = listData[i].name + '{' + listData[i].value + '}';
+                            returnData.BLOCK_NAME = listData[i].name + '{' + listData[i].value + '}';
+                        } else {
+                        	obj.key = listData[i].name;
+                            returnData.BLOCK_NAME = listData[i].name;
+                        }
+
+                        returnData.FORM_ID = formID;
+                        returnData.HOUSE_CODE = houseCode;
+                        returnData.TREE_ID = parentsNode + '_' + listData[i].name;
+                        returnData.TREE_ID = treeID;
+                        returnData.TREE_PARENT_ID = parentsNode;
+                        returnData.REQUIRED = (listData[i].required == true) ? '1' : '0';
+                        returnData.ORG_REQUIRED = (listData[i].required == true) ? '1' : '0';
+                        returnData.INPUT_WIDTH = listData[i].inputWidth;
+                        returnData.ORG_INPUT_WIDTH = listData[i].inputWidth;
+                        returnData.VISIBLE = '0';
+                        returnData.ITEM_TYPE = listData[i].type;
+                        
+                        obj.value = returnData;
+                        formArray.push(obj);
+                    }
+                }
+            } else {
+                var obj = {};
+                var returnData = {};
+                
+                var treeID = '';
+                var treeParentID = '';
+                if(parentsNode == data.name) {
+                	treeID = parentsNode;
+                	treeParentID = '*';
+                } else {
+                	treeID = parentsNode + '_' + data.name;
+                	treeParentID = parentsNode;
+                }
+                
+                returnData.BLOCK_NAME = data.name;
+                returnData.FORM_ID = formID;
+                returnData.HOUSE_CODE = houseCode;
+                returnData.TREE_ID = treeID;
+                returnData.TREE_PARENT_ID = treeParentID;
+                returnData.REQUIRED = (data.required == true) ? '1' : '0';
+                returnData.ORG_REQUIRED = (data.required == true) ? '1' : '0';
+                returnData.INPUT_WIDTH = data.inputWidth;
+                returnData.ORG_INPUT_WIDTH = data.inputWidth;
+                returnData.VISIBLE = '0';
+                returnData.ITEM_TYPE = data.type;
+                
+                if(!data.inputWidth){
+                    returnData.LABEL_WIDTH = data.inputWidth;
+                }
+                
+                obj.key = data.name;
+                obj.value = returnData;
+                
+                formArray.push(obj);
+            }
+        ]]>
+        </function>
+        <function name="findBlockOption" args="blockId, parentsNode">
+        <![CDATA[
+            var returnData = {};
+            for(var idx = 0; idx < formMasterBlockArray.length; idx++){
+                var id = formMasterBlockArray[idx].name;
+                if(blockId == id){
+                    returnData.BLOCK_NAME = formMasterBlockArray[idx].name;
+                    returnData.FORM_ID = formMasterBlockArray[idx].form_id;
+                    returnData.HOUSE_CODE = formMasterBlockArray[idx].house_code;
+                    returnData.VISIBLE = formMasterBlockArray[idx].visible;
+                    returnData.TREE_ID = formMasterBlockArray[idx].tree_id;
+                    returnData.TREE_PARENT_ID = parentsNode;
+                    returnData.REQUIRED = '0';
+                    returnData.ORG_REQUIRED = '0';
+                    returnData.INPUT_WIDTH = formMasterBlockArray[idx].width;
+                    returnData.ORG_INPUT_WIDTH = formMasterBlockArray[idx].width;
+                    returnData.ITEM_TYPE = formMasterBlockArray[idx].org_type;
+                    break;
+                }
+            }
+            
+            return returnData;
+        ]]>
+        </function>
+        <function name="renderGridData" args="data">
+        <![CDATA[
+            gridObj.clearAll(false);
+            
+            dataOutput.setValue('GRID_DATA', JSON.stringify(data));
+            dataOutput.setValue('LANGUAGE_DATA', JSON.stringify(languagePack[Sepoa.info.LANGUAGE]));
+            
+            var params = [];
+            params.push('mode=doTreeGridQuery');
+            params.push('PROCESS_ID=sepoa.svc.admin.AD_042_4');
+            params.push('METHOD=doTreeGridQuery');
+            gridObj.postConnection('/SepoaGrid.sux', params);
+            
+            dataOutput.remove('GRID_DATA');
+            dataOutput.remove('LANGUAGE_DATA');
+        ]]>
+        </function>
+        <function name="doSave" args="">
+        <![CDATA[
+            if (gridObj.getRowsNum() == 0) {
+                Alert(Sepoa.cache.text.get('MESSAGE.1001'));
+                return;
+            }
+            
+            if (Confirm(Sepoa.cache.text.get('MESSAGE.1018'), function(result) {
+                if (result) {
+                    dataOutput.setValue('FORM_ID', formID);
+                    dataOutput.setValue('HOUSE_CODE', houseCode);
+                    gridObj.editStop();
+                    gridObj.postTransaction(window.CONTEXT_NAME + '/SepoaGrid.sux', ['mode=doSave', 'PROCESS_ID=sepoa.svc.admin.AD_042_4', 'METHOD=doSave']);
+                }
+            }));
+        ]]>
+        </function>
+        <function name="doQueryEnd" args="obj, rowCount">
+        <![CDATA[
+            if (gridObj.getRowsNum() > 0) {
+                if(blockNameFlag == false){
+                    Alert(Sepoa.cache.text.get('AD_042_4.MSG_FORM_NEEDS_SORTED'));
+                    gridObj.clearAll(false);
+                    return;
+                }
+                obj.forEachRow(function(rID) {
+                    var count = this.hasChildren(rID);
+                    var cIn = this.getColIndexById('VISIBLE');
+                    var itemType = this.getRowDataObject(rID).ITEM_TYPE;
+                    var blockName = this.getRowDataObject(rID).BLOCK_NAME;
+                    
+                    if(!blockName) {
+                    	blockNameFlag = false;
+                    	return;
+                    }
+                    
+                    if (count > 0) {
+                        var checkFlag = this.cells(rID, cIn).isChecked();
+            
+                        if (checkFlag === true) {
+                            this.openItem(rID);
+                        }
+                    }
+                    
+                    var excludeItemArray = ['fieldset', 'block', 'button', 'label', 'image'];
+                    if(excludeItemArray.indexOf(itemType) + 1) {
+                    	var requiredCind = this.getColIndexById('REQUIRED');
+                    	this.cells(rID, requiredCind).setDisabled(true);
+                    }
+                });
+                
+                if(blockNameFlag == false) {
+                	Alert(Sepoa.cache.text.get('AD_042_4.MSG_FORM_NEEDS_SORTED'));
+                    gridObj.clearAll(false);
+                }
+            } else {
+                Alert(Sepoa.cache.text.get('AD_042_4.MSG_FORM_NEEDS_SORTED'));
+            }
+        ]]>
+        </function>
+        <function name="doSaveEnd" args="obj">
+        <![CDATA[
+            var mode = obj.mode;
+            var status = obj.status;
+            var message = obj.message;
+            
+            if (status != 'true') {
+                Alert(message);
+                return;
+            }
+            
+            Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+            
+            Sepoa.cache.clear();
+        ]]>
+        </function>
+        <function name="onEditCell" args="stage, rID, cIn">
+        <![CDATA[
+        	var header = gridObj.getColumnId(cIn);
+        	
+            if (stage == 0) {
+            	var filteredHeader = ['ORG_REQUIRED', 'ORG_INPUT_WIDTH'];
+            	if(filteredHeader.indexOf(header) + 1) {
+            		return false;
+            	}
+            	
+            	var excludeTypeArray = ['checkbox', 'button', 'label', 'radio'];
+            	var itemType = gridObj.cells(rID, gridObj.getColIndexById('ITEM_TYPE')).getValue();
+            	if(excludeTypeArray.indexOf(itemType) + 1) {
+            		if(header == 'INPUT_WIDTH') {
+            			return false;
+            		}
+            	}
+            	
+                return true;
+            } else if (stage == 1) {
+                if (header == 'VISIBLE' || header == 'REQUIRED') {
+                    onRowSelect(rID, cIn);
+                }
+                return true;
+            } else if (stage == 2) {
+            	if(header == 'INPUT_WIDTH') {
+            		var item = gridObj.getRowDataObject(rID);
+            		var width = item.INPUT_WIDTH;
+            		var itemType = item.ITEM_TYPE;
+            		
+            		if(['block', 'fieldset'].indexOf(itemType) + 1) { // Block, FieldSet
+            			if(width != 'auto') {
+	            			var r = width.replace(/[0-9]{0,}/, '');
+	            			if(r) {
+	            				return false;
+	            			}
+	            		}
+            		} else { // Item
+            			var r = width.replace(/[0-9]{0,}/, '');
+            			if(r) {
+            				return false;
+            			}
+            		}
+            		
+	        		var params = [];
+	                var obj = {};
+	                obj.key = gridObj.getRowDataObject(rID).BLOCK_NAME;
+	                obj.value = gridObj.getRowDataObject(rID);
+	                params.push(obj);
+	        		
+	        		callFunction('AD_042_3', 'updateForm', [params]);
+            	} 
+                return true;
+            }
+        ]]>
+        </function>
+        <function name="onRowSelect" args="rID, cIn">
+        <![CDATA[
+            var header = gridObj.getColumnId(cIn);
+            
+            if (['LABEL', 'BLOCK_NAME'].indexOf(header) + 1) {
+                var rowDatas = [];
+                var rowCount = gridObj.getRowsNum();
+                var selectRowData = gridObj.getRowDataObject(rID);
+            
+                for (var i = 0; i < rowCount; i++) {
+                    var r = gridObj.getRowId(i);
+                    rowDatas.push(gridObj.getRowDataObject(r).BLOCK_NAME);
+                }
+                
+                
+                callFunction('AD_042_3', 'formItemHighlight', [selectRowData, rowDatas]);
+            } else if (header == 'VISIBLE') {
+                var checkFlag = gridObj.cells(rID, cIn).isChecked();
+                gridObj.cells(rID, cIn).setChecked(checkFlag);
+            
+                var params = [];
+                var obj = {};
+                obj.key = gridObj.getRowDataObject(rID).BLOCK_NAME;
+                obj.value = gridObj.getRowDataObject(rID);
+                params.push(obj);
+            
+                var subItemIDs = gridObj.getSubItems(rID);
+            
+                if (subItemIDs) {
+                    var keys = subItemIDs.split(gridObj.delim);
+            
+                    for (var idx in keys) {
+                        var subRowID = keys[idx];
+            
+                        gridObj.cells(subRowID, cIn).setChecked(checkFlag);
+            
+                        var subObj = {};
+                        subObj.key = gridObj.getRowDataObject(subRowID).BLOCK_NAME;
+                        subObj.value = gridObj.getRowDataObject(subRowID);
+            
+                        params.push(subObj);
+                    }
+                }
+            
+                callFunction('AD_042_3', 'updateForm', [params]);
+            } else if(header == 'REQUIRED') {
+            	var cell = gridObj.cells(rID, cIn);
+            	
+            	if(cell.isDisabled()) {
+            		cell.setChecked(false);
+            		cell.setDisabled(true);
+            		return;
+            	}
+            	
+        		cell.setChecked(cell.isChecked());
+        		
+        		var params = [];
+                var obj = {};
+                obj.key = gridObj.getRowDataObject(rID).BLOCK_NAME;
+                obj.value = gridObj.getRowDataObject(rID);
+                params.push(obj);
+        		
+        		callFunction('AD_042_3', 'updateForm', [params]);
+            }
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsieXhPbnNuZHl4T25zbmRuWGRzIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9jYno0OTN1bXA2RXkiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1Vid0YyRXJmV2J0RSI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzZhTm55ZWh1QjdSbyI6Im51bGwiLCJkaHhJZF9BMjFZb245UXBVNW8iOiJudWxsIiwiZGh4SWRfVFhpWEVkenBKWVVWIjoibnVsbCIsImRoeElkX3gydnVnM1hoQTBVMSI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJBRF8wNDJfNCIs
+        Ik9CSkVDVF9JRCI6Inl4T25zbmR5eE9uc25kblhkcyIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiRlJBTUVfUFJFU0VUIjoiREVGQVVMVCJ9LCJpZCI6Inl4T25zbmR5eE9uc25kblhkcyIsInR5cGUiOiJib2R5In0sInBLdE5LRWVqS3VOS0VlbVB6ZiI6eyJsYXlvdXQiOnsiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiTUFSR0lOX1RPUCI6IiIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsIlNJWkVfQVVUT0hFSUdIVCI6IjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkXzVvMVRJdldMb2lPYyI6Im51bGwiLCJkaHhJZF9xaUFZTFNRUFQ2dTUiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRB
+        TCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfMUVlZXByZTV2YlNYIjoibnVsbCIsIkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJWQVIiOiJncmlkT2JqIiwiTUVSR0UiOiJmYWxzZSIsIkRSQUciOiJmYWxzZSIsIkRZTkFNSUMiOiJmYWxzZSIsIk9CSkVDVF9JRCI6InBLdE5LRWVqS3VOS0VlbVB6ZiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiR1JJRF9JRCI6ImZpbGU6Ly8vcmVzb3VyY2UvdXgvYWRtaW4vZ3JpZC9BRF8wNDJfNC5qcyJ9LCJpZCI6InBLdE5LRWVqS3VOS0VlbVB6ZiIsInR5cGUiOiJncmlkIn19LCJ0cmVlIjp7ImlkIjoieXhPbnNuZHl4T25zbmRuWGRzIiwidHlwZSI6ImJvZHkiLCJjZWxscyI6W3siaWQiOiJwS3ROS0Vlakt1TktF
+        ZW1QemYiLCJ0eXBlIjoiZ3JpZCJ9XX0sImluZm8iOnsiUEFUSCI6Ii9BZG1pbi9Gb3JtRmlsdGVyTWFuYWdlbWVudC9BZG1pbkZvcm1GaWx0ZXJNYW5hZ2VtZW50Q29uZmlnLnhtbCIsIlBST0pFQ1QiOiJGUldLIiwiQ09ERSI6IjA0Ml80IiwiUFJFRklYIjoiQUQiLCJQQVRIXzIiOiJGb3JtRmlsdGVyTWFuYWdlbWVudCIsIlBBVEhfMyI6IkFkbWluRm9ybUZpbHRlck1hbmFnZW1lbnQiLCJQQVRIXzEiOiJBZG1pbiIsIkhFQURFUiI6ImZhbHNlIiwiTkFNRSI6IkNvbmZpZyIsIlNDUkVFTl9JRCI6IkFEXzA0Ml80In19LCJodG1sIjoiPGRpdiBpZD1cInl4T25zbmR5eE9uc25kblhkc1wiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNl
+        cG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9ncmlkX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBp
+        ZD1cInBLdE5LRWVqS3VOS0VlbVB6ZlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgIHNlcG9hdXhfZ3JpZCBsb3dlckRpdlwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgIDwvZGl2PlxuICAgIDwvZGl2PlxuPC9kaXY+In0=
+    </template>
+</body>
