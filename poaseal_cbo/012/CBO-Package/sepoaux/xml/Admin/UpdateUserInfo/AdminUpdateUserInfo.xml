@@ -13,7 +13,7 @@
     </tabbar>
     <usercss>
     <![CDATA[
-        div#formbox {
+        div#formbox { 
             height: 200px;
             display: flex;
             justify-content: center;
@@ -22,7 +22,7 @@
         
         div.dhx_cell_cont_tabbar div.form_area {
             display: flex;
-            justify-content: center;
+            justify-content: center;      
         }
         
         div.dhxtabbar_base_material div.dhxtabbar_tabs div.dhxtabbar_tabs_base div.dhxtabbar_tabs_cont_left {
