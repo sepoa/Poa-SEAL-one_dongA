@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="doSelectPositionInfo">
+	<![CDATA[
+		SELECT
+			POS_CD AS CODE,
+			POS_NAME AS TEXT1,
+			POS_ORDR AS SORT_SEQ
+		FROM
+		 	V_MP_POSITION
+	]]>
+	</method>
+	<method name="checkExistPositionCode">
+	<![CDATA[
+		SELECT
+			CODE
+		FROM
+			SCODE
+		WHERE
+				HOUSE_CODE 		= ${session.HOUSE_CODE}
+			AND TYPE 			= 'UX049'
+			AND CODE            = ${CODE}
+			AND LANGUAGE        = 'KO'		 
+	]]>
+	</method>
+	<method name="doUpdatePositionCode">
+	<![CDATA[
+		UPDATE SCODE
+			SET
+				  TEXT1		      = ${TEXT1}
+				, CHANGE_DATE     = ${current.DATE}
+				, CHANGE_TIME     = ${current.TIME}
+				, CHANGE_USER_ID  = ${session.ID}	
+		WHERE
+				HOUSE_CODE        = ${HOUSE_CODE}
+			AND TYPE 		      = 'UX049'
+			AND CODE              = ${CODE}
+			AND LANGUAGE 		  = ${LANGUAGE}
+	]]>
+	</method>
+	<method name="doInsertPositionCode">
+	<![CDATA[
+		INSERT INTO SCODE
+			(
+				  HOUSE_CODE
+				, TYPE 
+				, CODE
+				, LANGUAGE
+				, ADD_DATE
+				, ADD_TIME
+				, ADD_USER_ID
+				, USE_FLAG
+				, TEXT1
+				, DEL_FLAG
+			)
+			VALUES
+			(
+				  ${HOUSE_CODE}
+				, 'UX049'
+				, ${CODE}
+				, ${LANGUAGE}
+				, ${current.DATE}
+				, ${current.TIME}
+				, ${session.ID}				
+				, 'Y'
+				, ${TEXT1}
+				, 'N'
+			)	
+	]]>
+	</method>
+</service>

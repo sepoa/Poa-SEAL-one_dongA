@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="Monitoring_000" header="false" pageCloseWarn="false">
+    <filterbar id="filterObj" div="b78da582e4e6449689f61baa2bbd52">
+        <calendar id="F_CALENDAR" button="year:0,month:0,week:-4,day:0" default="ADD_DATE#week:-12"/>
+        <event type="onSearch" callback="doQuery"/>
+    </filterbar>
+    <usercss>
+    <![CDATA[
+        .chart_area1,
+        .chart_area2 {
+            display: flex;
+        }
+        
+        .chart_item_top {
+            flex: 1;
+            height: 427px;
+        }
+        
+        .chart_item_top_1 {
+            flex: 1;
+            background: white;
+            margin: 5px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .chart_item_top_2 {
+            flex: 1;
+            background: white;
+            margin: 5px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .chart_item_bottom {
+            flex: 1;
+            overflow: auto;
+        }
+        
+        .chart_item_bottom_1 {
+            flex: 1;
+            background: white;
+            margin: 5px;
+            height: 345px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .chart_item_bottom_2 {
+            flex: 1;
+            background: white;
+            margin: 5px;
+            height: 344px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .chart_item_bottom_2 canvas {
+            display: none;
+        }
+        
+        .chart_title {
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-size: 20px;
+            font-weight: 500;
+            text-align: center;
+            margin: 29px 0 23px 0;
+            color: #6a6a6a;
+        }
+        
+        .sealChart {
+            margin: 9px 0 0 0;
+            height: 210px;
+        }
+        
+        .table_container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+        
+        .caption_container {
+            display: flex;
+            justify-content: end;
+            margin: 16px 11px 5px 0;
+        }
+        
+        .caption_container div {
+            padding: 0 10px 0 10px;
+        }
+        
+        .elec_caption {
+            background-color: #4c84b6;
+            margin-right: 10px;
+            color: #ffffff;
+        }
+        
+        .real_caption {
+            background-color: #a4c0e3;
+            color: #ffffff;
+        }
+        
+        #initChart_canvas {
+            height: 301px !important;
+            width: 100% !important;
+        }
+        
+        #sealChart_canvas {
+            height: 301px !important;
+            width: 100% !important;
+        }
+        
+        #sealUsageChart_canvas {
+            height: 236px !important;
+            width: 100% !important;
+        }
+        
+        .chart_item_top_1 .chart_title,
+        .chart_item_top_2 .chart_title,
+        .chart_item_bottom_1 .chart_title {
+            margin-bottom: 0px;
+        }
+        
+        .unit_caption {
+            color: #333;
+            font-weight: 300;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="chartArea" value="$($sObject._vp).find('#f039f595f73244058c07d162eb8813')[0]"/>
+        <var name="f6702754efce46f88ccea4ef819881" value="$($sObject._vp).find('#f6702754efce46f88ccea4ef819881')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <var name="topChartCounter" value="1"/>
+        <var name="bottomChartCounter" value="1"/>
+        <function name="init" args="data">
+        <![CDATA[
+            $share.apps = {};
+            
+            const elem = sUtils.element.create('<div class="chart_area1"></div>');
+            chartArea.appendChild(elem);
+            
+            $share.apps.chartArea = elem;
+            
+            const elem2 = sUtils.element.create('<div class="chart_area2"></div>');
+            chartArea.appendChild(elem2);
+            
+            $share.apps.chartArea2 = elem2;
+            
+            doQuery();
+        ]]>
+        </function>
+        <function name="doQuery">
+        <![CDATA[
+            initChart();
+            sealChart();
+            sealUsageChart();
+            maxUsageDept();
+        ]]>
+        </function>
+        <function name="canvasClear">
+        <![CDATA[
+            if ($share.chart) {
+                $share.chart.clear();
+            }
+        ]]>
+        </function>
+        <function name="initChart">
+        <![CDATA[
+            // 차트 데이터 세팅
+            const canvas = createTopCanvas('initChart', '월별 날인 현황 추이');
+            
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status === 1) {
+                            const result = res.result[0];
+                            const data = JSON.parse(result);
+            
+                            // 날짜 데이터 포멧 변환
+                            data.forEach(map => {
+                                const prevDate = map.CONFIRM_DATE;
+            
+                                // 연도와 월을 추출
+                                const year = prevDate.substring(2, 4);
+                                const month = parseInt(prevDate.substring(4, 6), 10);
+            
+                                // 새로운 포멧으로 변경
+                                map.CONFIRM_DATE = `${year}년 ${month}월`
+                            });
+            
+                            const filterData = filterObj.getFilterData(); // 날짜 필터 담겨있음
+            
+                            const labels = generateMonthLabels(filterData.F_CALENDAR_FROM, filterData.F_CALENDAR_TO);
+            
+                            // count 합치는 로직임
+                            const reFlagResult = {
+                                R: [],
+                                E: []
+                            }
+            
+                            // 데이터 분류 및 합산
+                            data.forEach(item => {
+                                const flag = item.RE_FLAG;
+                                const confirmDate = item.CONFIRM_DATE;
+                                const count = parseInt(item.COUNT);
+            
+                                // 만약 result[flag]가 정의되어 있지 않다면, 배열로 초기화
+                                if (!reFlagResult[flag]) {
+                                    reFlagResult[flag] = [];
+                                }
+            
+                                const index = reFlagResult[flag].findIndex(obj => obj.CONFIRM_DATE === confirmDate);
+            
+                                if (index !== -1) { // 이미 존재하는 날짜면 count 합산
+                                    reFlagResult[flag][index].COUNT += count;
+                                } else { // 존재하지 않으면 새로운 항목 추가
+                                    reFlagResult[flag].push({
+                                        CONFIRM_DATE: confirmDate,
+                                        COUNT: count
+                                    });
+                                }
+                            });
+            
+                            const eSealCounts = labels.map(label => {
+                                const entry = reFlagResult.E.find(item => item.CONFIRM_DATE === label);
+                                return entry ? entry.COUNT : 0; // 해당 월 없으면 0으로 처리
+                            })
+            
+                            const rSealCounts = labels.map(label => {
+                                const entry = reFlagResult.R.find(item => item.CONFIRM_DATE === label);
+                                return entry ? entry.COUNT : 0; // 해당 월 없으면 0으로 처리
+                            });
+            
+                            const chartData = {
+                                labels: labels,
+                                datasets: [{
+                                        label: '전자날인',
+                                        data: eSealCounts,
+                                        backgroundColor: 'rgba(0, 0, 0, 0)',
+                                        borderColor: '#4c84b6',
+                                        borderWidth: 1,
+                                        lineTension: 0,
+                                        pointRadius: 8,
+                                        pointBackgroundColor: '#1e81b0',
+                                        borderWidth: 2
+            
+                                    },
+                                    {
+                                        label: '실물날인',
+                                        data: rSealCounts,
+                                        backgroundColor: 'rgba(0, 0, 0, 0)',
+                                        borderColor: '#a4c0e3',
+                                        borderWidth: 1,
+                                        lineTension: 0,
+                                        pointRadius: 8,
+                                        pointBackgroundColor: '#abdbe3',
+                                        borderWidth: 2
+                                    }
+                                ]
+                            }
+            				
+							let maxDataValue = Math.max(...eSealCounts, ...rSealCounts);
+							
+							let roundedMaxValue = Math.ceil(maxDataValue / 10) * 10;
+							
+							let stepSize = roundedMaxValue / 5;
+            				
+                            $share.chart1 = new Chart(
+                                canvas.getContext('2d'), {
+                                    type: 'line',
+                                    data: chartData,
+                                    options: {
+                                        maintainAspectRatio: false,
+                                        responsive: true,
+                                        layout: {
+                                            padding: {
+                                                top: 40,
+                                                bottom: 10,
+                                                left: 10,
+                                                right: 10
+                                            }
+                                        },
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltips: {},
+                                        scales: {
+                                            xAxes: [{
+                                                gridLines: {
+                                                    display: true,
+                                                    drawTicks: true,
+                                                    drawOnChartArea: false,
+                                                    color: '#bbb',
+                                                    lineWidth: 2,
+                                                },
+                                                display: true,
+                                                ticks: {
+                                                    display: true,
+                                                    fontFamily: "'Roboto', 'Noto Sans KR'"
+                                                }
+                                            }],
+                                            yAxes: [{
+                                                gridLines: {
+                                                    display: true,
+                                                    drawTicks: true,
+                                                    drawOnChartArea: false,
+                                                    color: '#bbb',
+                                                    lineWidth: 2
+                                                },
+                                                ticks: {
+                                                    stepSize: 1,
+                                                    beginAtZero: true,
+                                                    min: 0,
+                                                    max: roundedMaxValue,
+                       								stepSize: stepSize
+                                                },
+                                                scaleLabel: {
+                                                    display: false
+                                                }
+                                            }]
+                                        },
+                                        plugins: {
+                                        	datalabels: {
+                                        		display: false
+                                        	}
+                                        }
+                                    },
+                                    plugins: [ChartDataLabels]
+                                }
+                            );
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            };
+            
+            const params = {
+                module: 'sepoa.svc.cbo.seal.chart.SepoaChartService',
+                action: 'doSelectSIADDATA',
+                CONNECTION: "CONNECTION",
+                filterData: JSON.stringify(filterObj.getFilterData())
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="createTopCanvas" args="chartType, title">
+        <![CDATA[
+            const existingCanvas = document.getElementById(`${chartType}_canvas`);
+            
+            if (existingCanvas) {
+                existingCanvas.parentElement.remove();
+                topChartCounter = 1;
+            }
+            
+            const canvas = $(sUtils.string.dataReplacer('<canvas id="$.{TYPE}_canvas" class="$.{TYPE}"></canvas>', {
+                TYPE: chartType
+            }))[0];
+            
+            const elem = sUtils.element.create(`<div class="chart_item_top chart_item_top_${topChartCounter}"></div>`);
+            const captionContainer = sUtils.element.create(`<div class="caption_container"></div>`);
+            title = sUtils.element.create(`<div class="chart_title">${title}</div>`);
+            
+            const elecCaption = sUtils.element.create(`<div class="elec_caption">전자</div>`);
+            const realCaption = sUtils.element.create(`<div class="real_caption">실물</div>`);
+            const unitCaption = sUtils.element.create(`<div class="unit_caption">단위 : 신청 건</div>`);
+            
+            captionContainer.appendChild(elecCaption);
+            captionContainer.appendChild(realCaption);
+            captionContainer.appendChild(unitCaption);
+            
+            elem.appendChild(title);
+            elem.appendChild(canvas);
+            elem.appendChild(captionContainer);
+            
+            $share.apps.chartArea.appendChild(elem);
+            
+            topChartCounter++;
+            return canvas;
+        ]]>
+        </function>
+        <function name="createBottomCanvas" args="chartType, title">
+        <![CDATA[
+            const existingCanvas = document.getElementById(`${chartType}_canvas`);
+            
+            if (existingCanvas) {
+                existingCanvas.parentElement.remove();
+            }
+            
+            const canvas = $(sUtils.string.dataReplacer('<canvas id="$.{TYPE}_canvas" class="$.{TYPE}"></canvas>', {
+                TYPE: chartType
+            }))[0];
+            
+            const elem = sUtils.element.create(`<div class="chart_item_bottom chart_item_bottom_${bottomChartCounter}"></div>`);
+            
+            if (bottomChartCounter === 1) {
+                const captionContainer = sUtils.element.create(`<div class="caption_container"></div>`);
+            
+                title = sUtils.element.create(`<div class="chart_title">${title}</div>`);
+                const elecCaption = sUtils.element.create(`<div class="elec_caption">전자</div>`);
+                const realCaption = sUtils.element.create(`<div class="real_caption">실물</div>`);
+                const unitCaption = sUtils.element.create(`<div class="unit_caption">단위 : 신청 건</div>`);
+            
+                captionContainer.appendChild(elecCaption);
+                captionContainer.appendChild(realCaption);
+                captionContainer.appendChild(unitCaption);
+            
+                elem.appendChild(title);
+                elem.appendChild(canvas);
+                elem.appendChild(captionContainer);
+            } else if (bottomChartCounter === 2) {
+                title = sUtils.element.create(`<div class="chart_title">최다 사용 부서 TOP10</div>`);
+            
+                elem.appendChild(title);
+                elem.appendChild(canvas);
+            
+                $share.apps.chartArea2.tableContainer = sUtils.element.create(`<div class="table_container"></div>`);
+                elem.appendChild($share.apps.chartArea2.tableContainer);
+            
+                createTable();
+            }
+            
+            $share.apps.chartArea2.appendChild(elem);
+            
+            bottomChartCounter = (bottomChartCounter === 1) ? 2 : 1;
+            
+            return canvas;
+        ]]>
+        </function>
+        <function name="createSingleTable" args="dataArray, title">
+        <![CDATA[
+            const tableContainer = $share.apps.chartArea2.tableContainer;
+            
+            const singleTableContainer = sUtils.element.create(`<div class="single_table_container"></div>`);
+            
+            const table = document.createElement('table');
+            table.border = '1';
+            table.style.width = '200px';
+            table.style.height = 'auto';
+            table.style.tableLayout = 'fixed';
+            table.style.borderCollapse = 'collapse'
+            
+            // 테이블 제목 생성
+            const tableTitle = document.createElement('div');
+            tableTitle.textContent = title;
+            tableTitle.className = 'table_title';
+            singleTableContainer.appendChild(tableTitle);
+            
+            // 테이블 헤더 생성
+            const headerRow = document.createElement('tr');
+            const th1 = document.createElement('th');
+            th1.textContent = '소속';
+            th1.style.backgroundColor = '#bdd7ee';
+            th1.style.fontWeight = '350';
+            const th2 = document.createElement('th');
+            th2.textContent = '건수';
+            th2.style.backgroundColor = '#bdd7ee';
+            th2.style.fontWeight = '350';
+            headerRow.appendChild(th1);
+            headerRow.appendChild(th2);
+            table.appendChild(headerRow);
+            
+            if (dataArray.length > 0) {
+                // 데이터 행 생성
+                dataArray.slice(0, 10).forEach(item => {
+                    const tr = document.createElement('tr');
+                    const td1 = document.createElement('td');
+                    td1.textContent = item.DEPT_NAME !== '' ? item.DEPT_NAME : 'N/A';
+                    td1.style.textAlign = 'center';
+                    td1.style.verticalAlign = 'middle';
+                    tr.appendChild(td1);
+            
+                    const td2 = document.createElement('td');
+                    td2.textContent = item.USE_COUNT;
+                    td2.style.textAlign = 'center';
+                    td2.style.verticalAlign = 'middle';
+                    tr.appendChild(td2);
+            
+                    table.appendChild(tr);
+                });
+            } else {
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.colSpan = 2; // colspan을 통해 두 열을 모두 차지하도록 설정
+                noDataCell.textContent = '데이터가 없습니다.';
+                noDataCell.style.textAlign = 'center';
+                noDataRow.appendChild(noDataCell);
+                table.appendChild(noDataRow);
+            }
+            
+            
+            singleTableContainer.appendChild(table);
+            
+            tableContainer.appendChild(singleTableContainer);
+        ]]>
+        </function>
+        <function name="createTable">
+        <![CDATA[
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status === 1) {
+                            const result = res.result[0];
+                            data = JSON.parse(result);
+            
+                            // 전자날인 배열
+                            let eReqArray = [];
+            
+                            // 실물날인 배열
+                            let rReqArray = [];
+            
+                            // 인감반출 배열
+                            let etlArray = [];
+            
+                            data.forEach(item => {
+                                if (item.RE_FLAG === 'E') {
+                                    eReqArray.push(item);
+                                } else if (item.RE_FLAG === 'R') {
+                                    rReqArray.push(item);
+                                } else if (item.SING_STATUS) {
+                                    etlArray.push(item);
+                                }
+                            });
+            
+                            // 개별 테이블 생성
+                            if (eReqArray.length > 0 || eReqArray.length === 0) {
+                                createSingleTable(eReqArray, '▣ 전자날인');
+                            }
+                            if (rReqArray.length > 0 || rReqArray.length === 0) {
+                                createSingleTable(rReqArray, '▣ 실물날인');
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            };
+            
+            const params = {
+                module: 'sepoa.svc.cbo.seal.chart.SepoaChartService',
+                action: 'doSelectRankSSIAD',
+                CONNECTION: "CONNECTION",
+                filterData: JSON.stringify(filterObj.getFilterData())
+            };
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="sealChart">
+        <![CDATA[
+            const canvas = createTopCanvas('sealChart', '인감별 날인 현황');
+            
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status === 1) {
+                            const result = res.result[0]
+                            let data = [];
+                            let labels = [];
+                            let eSealCounts = [];
+                            let rSealCounts = [];
+                            let roundedMaxValue;
+                            let stepSize;
+                            
+                            if(result != "" && result != "undefiend") {
+                            	data = JSON.parse(result);
+	                            data.forEach(item => {
+	                            	if (!labels.includes(item.subject)) {
+	                            		labels.push(item.subject);
+	                            	}
+	                            })
+	                            
+	                            eSealCounts = new Array(labels.length + 1).fill(0);
+	                            rSealCounts = new Array(labels.length + 1).fill(0);
+	            				
+	            				data.forEach(item => {
+	            					const labelIndex = labels.indexOf(item.subject);
+	            					
+	            					if(labelIndex !== -1) {
+	            						if(item.reFlag === 'E') {
+	            							eSealCounts[labelIndex] += parseInt(item.totalSmrCount, 10);
+	            						} else if (item.reFlag === 'R') {
+	            							rSealCounts[labelIndex] += parseInt(item.totalSmrCount, 10);
+	            						}
+	            					}
+	            				})
+								                            
+	                            // 먼저 데이터의 최대값을 계산합니다.
+								const maxESealCount = Math.max(...eSealCounts);
+								const maxRSealCount = Math.max(...rSealCounts);
+								const maxDataValue = Math.max(maxESealCount, maxRSealCount);
+								
+								// 최대값을 가장 가까운 10의 배수로 올림합니다.
+								roundedMaxValue = Math.ceil(maxDataValue / 10) * 10;
+								
+								if (roundedMaxValue < 10) {
+								    roundedMaxValue = 10;
+								}
+								
+								// Y축을 항상 5개의 틱으로 설정하기 위해 stepSize 계산
+								stepSize = roundedMaxValue / 5;
+                            }
+                            
+            
+                            // 차트 데이터
+                            const chartData = {
+                                labels: labels,
+                                datasets: [
+                                   {
+                                        label: '전자날인',
+                                        data: eSealCounts,
+                                        backgroundColor: '#4c84b6',
+                                        borderColor: '#1e81b0',
+                                        borderWidth: 1,
+                                        barPercentage: 0.5
+                                    },
+                                    {
+                                        label: '실물날인',
+                                        data: rSealCounts,
+                                        backgroundColor: '#a4c0e3',
+                                        borderColor: '#abdbe3',
+                                        borderWidth: 1,
+                                        barPercentage: 0.5
+                                    }
+                                ]
+                            }
+            
+                            $share.chart2 = new Chart(
+                                canvas.getContext('2d'), {
+                                    type: 'bar',
+                                    data: chartData,
+                                    options: {
+	                                    maxBarThickness: 20,
+   	                                    grouped: true,
+                                        maintainAspectRatio: false,
+                                        responsive: true,
+                                        layout: {
+                                            padding: {
+                                                top: 40,
+                                                bottom: 10,
+                                                left: 10,
+                                                right: 10
+                                            }
+                                        },
+                                        legend: {
+                                            display: false,
+                                        },
+                                        tooltips: {},
+                                        scales: {
+                                            xAxes: [{
+                                                gridLines: {
+                                                    display: true,
+                                                    drawTicks: true,
+                                                    drawOnChartArea: false,
+                                                    color: '#bbb',
+                                                    lineWidth: 2,
+                                                },
+                                                ticks: {
+                                                    display: true,
+                                                    fontFamily: "'Roboto', 'Noto Sans KR'",
+                                                    maxRotation: 0, // 레이블 기울임 제거 (최대 회전 각도)
+                        							minRotation: 0 
+                                                }
+                                            }],
+                                            yAxes: [{
+                                                gridLines: {
+                                                    display: true,
+                                                    drawTicks: true,
+                                                    drawOnChartArea: false,
+                                                    color: '#bbb',
+                                                    lineWidth: 2
+                                                },
+                                                ticks: {
+                                                    beginAtZero: true,
+                                                    min: 0,
+							                        max: roundedMaxValue,
+							                        stepSize: stepSize,
+							                        callback: function(value) {
+							                            return Math.round(value);
+							                        }
+                                                },
+                                                scaleLabel: {
+                                                    display: false
+                                                }
+                                            }]
+                                        },
+                                        plugins: {
+                                           	datalabels: {
+                                        		display: true,      
+									            color: 'black',     
+									            anchor: 'end',      
+									            align: 'end',       
+									            offset: 4   
+                                        	}
+                                        }
+                                    },
+                                    plugins: [ChartDataLabels]
+                                }
+                            );
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            };
+            
+            const params = {
+                module: 'sepoa.svc.cbo.seal.chart.SepoaChartService',
+                action: 'doSelectSTMHI',
+                CONNECTION: "CONNECTION",
+                filterData: JSON.stringify(filterObj.getFilterData())
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="sealUsageChart">
+        <![CDATA[
+            const canvas = createBottomCanvas('sealUsageChart', '용도별 날인 현황');
+            
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback: function(res) {
+                        if (res.status === 1) {
+                            const result = res.result[0]
+                            let labels = [];
+							let data = [];
+                            let eSealCounts = [];
+                           	let rSealCounts = [];
+                            let roundedMaxValue;
+                            let stepSize;
+							                            
+                            if(result != "" && result != "undefiend") {
+                            	data = JSON.parse(result);
+	                            data.forEach(item => {
+	                            	if(!labels.includes(item.subject)) {
+	                            		labels.push(item.subject);
+	                            	}
+	                            })
+	            
+	                            eSealCounts = [];
+	                            rSealCounts = [];
+	            
+	                            // 'E'인 경우의 COUNT 값을 수집
+	                            eSealCounts = labels.map(label => {
+                                    const cnt = data.find(item => item.subject === label && item.reFlag === 'E')?.count ?? 0;
+                                    return parseInt(cnt);
+                                });
+	            
+	                            // 'R'인 경우의 COUNT 값을 수집
+	                            rSealCounts = labels.map(label => {
+                                    const cnt = data.find(item => item.subject === label && item.reFlag === 'R')?.count ?? 0;
+                                    return parseInt(cnt);
+                                });
+	                                
+	                            // 데이터 최댓값 계산
+								const maxESealCount = Math.max(...eSealCounts);
+								const maxRSealCount = Math.max(...rSealCounts);
+								maxDataValue = Math.max(maxESealCount, maxRSealCount);
+								
+								// 최댓값을 가장 가까운 10의 배수로 올림
+								let roundedMaxValue = Math.ceil(maxDataValue / 10) * 10;
+								
+								if (roundedMaxValue < 10) {
+								    roundedMaxValue = 10;
+								}
+								
+								// Y축을 항상 5개의 틱으로 설정하기 위해 stepSize 계산
+								stepSize = roundedMaxValue / 5;
+                            }
+            				
+                            // 차트 데이터
+                            const chartData = {
+                                labels: labels,
+                                datasets: [{
+                                        label: '전자날인',
+                                        data: eSealCounts,
+                                        backgroundColor: '#4c84b6',
+                                        borderColor: '#4c84b6',
+                                        borderWidth: 1,
+										barPercentage: 0.5                                        
+                                    },
+                                    {
+                                        label: '실물날인',
+                                        data: rSealCounts,
+                                        backgroundColor: '#a4c0e3',
+                                        borderColor: '#a4c0e3',
+                                        borderWidth: 1,
+                                        barPercentage: 0.5
+                                    }
+                                ]
+                            }
+            
+                            $share.chart3 = new Chart(
+                                canvas.getContext('2d'), {
+                                    type: 'bar',
+                                    data: chartData,
+                                    options: {
+                                        maintainAspectRatio: false,
+                                        responsive: true,
+                                        layout: {
+                                            padding: {
+                                                top: 40,
+                                                bottom: 10,
+                                                left: 10,
+                                                right: 10
+                                            }
+                                        },
+                                        legend: {
+                                            display: false,
+                                        },
+                                        tooltips: {},
+                                        scales: {
+                                            xAxes: [{
+                                                gridLines: {
+                                                    display: true,
+                                                    drawTicks: true,
+                                                    drawOnChartArea: false,
+                                                    color: '#bbb',
+                                                    lineWidth: 2
+                                                },
+                                                display: true,
+                                                ticks: {
+                                                    display: true,
+                                                    fontFamily: "'Roboto', 'Noto Sans KR'"
+                                                }
+                                            }],
+                                            yAxes: [{
+                                                gridLines: {
+                                                    display: true,
+                                                    drawTicks: true,
+                                                    drawOnChartArea: false,
+                                                    color: '#bbb',
+                                                    lineWidth: 2
+                                                },
+                                                ticks: {
+                                                    beginAtZero: true,
+                                                    min: 0,
+                                                    max: roundedMaxValue,
+                                                    stepSize: stepSize,
+                                                    callback: function(value) {
+                                                    	return Math.round(value);
+                                                    }
+                                                },
+                                                scaleLabel: {
+                                                    display: true,      
+										            color: 'black',     
+										            anchor: 'end',      
+										            align: 'end',       
+										            offset: 4          
+                                                }
+                                            }]
+                                        },
+                                        plugins: {
+                                        	datalabels: {
+                                        		display: false
+                                        	}                                        
+                                        }
+                                    },
+                                    plugins: [ChartDataLabels]
+                                }
+                            );
+            
+            
+            
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                }
+            };
+            
+            const params = {
+                module: 'sepoa.svc.cbo.seal.chart.SepoaChartService',
+                action: 'doSelectSUDGLData',
+                CONNECTION: "CONNECTION",
+                filterData: JSON.stringify(filterObj.getFilterData())
+            }
+            
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="maxUsageDept">
+        <![CDATA[
+            const canvas = createBottomCanvas('maxUsageDept');
+        ]]>
+        </function>
+        <function name="generateMonthLabels" args="startDate, endDate">
+        <![CDATA[
+            const labels = [];
+            const start = new Date(startDate.substring(0, 4), startDate.substring(4, 6) - 1);
+            const end = new Date(endDate.substring(0, 4), endDate.substring(4, 6) - 1);
+            
+            while (start <= end) {
+                const year = start.getFullYear().toString().slice(2); // 두자리 연도임
+                const month = (start.getMonth() + 1).toString(); // 0기반이라서 1 더해줌
+            
+                labels.push(`${year}년 ${month}월`);
+            
+                // 다음 달로 이동
+                start.setMonth(start.getMonth() + 1);
+            }
+            
+            return labels;
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZjllMWI2MzZlNDJhNDlmMDg0OWIyYzM1ZTFkYjBlIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF8yNUlOVUVHU0M1eloiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX05BdDlsbENXMnZURSI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX0F4dU9qa0tpWU1MUSI6Im51bGwiLCJkaHhJZF81aFYxdmVZSnlFcmoiOiJudWxsIiwiZGh4SWRfaThJcE15Qk02UHhlIjoibnVsbCIsImRoeElkX25yNmZtSEJJUFRiaCI6Im51bGwiLCJkaHhJZF9hRUI1Z2gzMFNQRE0iOiJudWxsIiwiZGh4
+        SWRfVWpWR01SVmF0WE13IjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6Ik1vbml0b3JpbmdfMDAwIiwiT0JKRUNUX0lEIjoiZjllMWI2MzZlNDJhNDlmMDg0OWIyYzM1ZTFkYjBlIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJGUkFNRV9QUkVTRVQiOiJERUZBVUxUIn0sImlkIjoiZjllMWI2MzZlNDJhNDlmMDg0OWIyYzM1ZTFkYjBlIiwidHlwZSI6ImJvZHkifSwiZjAzOWY1OTVmNzMyNDQwNThjMDdkMTYyZWI4ODEzIjp7ImxheW91dCI6eyJTSVpFX0hFSUdIVCI6IiIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImNoYXJ0QXJlYSIsIk9CSkVDVF9JRCI6ImYwMzlmNTk1ZjczMjQ0
+        MDU4YzA3ZDE2MmViODgxMyJ9LCJpZCI6ImYwMzlmNTk1ZjczMjQ0MDU4YzA3ZDE2MmViODgxMyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJmNjcwMjc1NGVmY2U0NmY4OGNjZWE0ZWY4MTk4ODEiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIlNJWkVfV0lEVEgiOiIiLCJTSVpFX0hFSUdIVCI6IiIsImRoeElkX1JyN1d0TjdGaFIxSSI6Im51bGwiLCJNQVJHSU5fVE9QIjoiIiwiTUFSR0lOX0JPVFRPTSI6IiIsIk1BUkdJTl9MRUZUIjoiIiwiTUFSR0lOX1JJR0hUIjoiIiwiZGh4SWRfTGd5clROT3JsQkhqIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIs
+        ImRoeElkX1g0R0lTZDBXVlBEciI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkX0JSSkEwbTJ6bWtrRSI6Im51bGwiLCJkaHhJZF9mcExqNjR0WXFMUWQiOiJudWxsIiwiZGh4SWRfcE44RzY2YURTVGtsIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoiMSIsIlZBUiI6ImY2NzAyNzU0ZWZjZTQ2Zjg4Y2NlYTRlZjgxOTg4MSIsIk9CSkVDVF9JRCI6ImY2NzAyNzU0ZWZjZTQ2Zjg4Y2NlYTRlZjgxOTg4MSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09MVU1OX0lURU1fMCI6IjEifSwiaWQiOiJmNjcwMjc1NGVmY2U0NmY4OGNjZWE0ZWY4MTk4ODEiLCJ0eXBlIjoiY29udGFpbmVyIn0sImI3OGRhNTgyZTRlNjQ0OTY4OWY2MWJhYTJiYmQ1MiI6eyJsYXlv
+        dXQiOnsiU0laRV9BVVRPSEVJR0hUIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiZGh4SWRfU2JNbVluRGJuTnVZIjoibnVsbCIsIk1BUkdJTl9UT1AiOiIiLCJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJkaHhJZF9lS3FDTjMzYWN2Z1YiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6IiIsIkFMSUdOX1ZFUlRJQ0FMIjoiIiwiZGh4SWRfanlQT0lyNW1oRnBqIjoibnVsbCIsIkNMQVNTIjoiIiwiZGh4SWRfdWpMbkt2Nk1RazczIjoibnVsbCIsImRoeElkX3VLdU9rbFNQeWhvbiI6Im51bGwiLCJkaHhJZF95QTdudUFqamlkYXIiOiJudWxsIiwi
+        ZGh4SWRfUVZrRHRVTDJaMlhLIjoibnVsbCIsImRoeElkX3ZWV096czRha3FCYiI6Im51bGwiLCJkaHhJZF9pZWxvTm9UY2E5dVEiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJmaWx0ZXJPYmoiLCJLRVlXT1JEX0FDVElWRSI6InRydWUiLCJLRVlXT1JEX0lEIjoiRl9LRVlXT1JEIiwiU1RBVFVTX0FDVElWRSI6ImZhbHNlIiwiU1RBVFVTX0lEIjoiRl9TVEFUVVMiLCJDQUxFTkRBUl9BQ1RJVkUiOiJ0cnVlIiwiQ0FMRU5EQVJfSUQiOiJGX0NBTEVOREFSIiwiRklMVEVSX0FDVElWRSI6ImZhbHNlIiwiT0JKRUNUX0lEIjoiYjc4ZGE1ODJlNGU2NDQ5Njg5ZjYxYmFhMmJiZDUyIiwiQ0FMRU5EQVJfQlVUVE9OIjoieWVhcjowLG1vbnRoOjAsd2VlazotNCxk
+        YXk6MCIsIkNBTEVOREFSX0RFRkFVTFQiOiJBRERfREFURSN3ZWVrOi0xMiJ9LCJpZCI6ImI3OGRhNTgyZTRlNjQ0OTY4OWY2MWJhYTJiYmQ1MiIsInR5cGUiOiJmaWx0ZXJiYXIifX0sInRyZWUiOnsiaWQiOiJmOWUxYjYzNmU0MmE0OWYwODQ5YjJjMzVlMWRiMGUiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImI3OGRhNTgyZTRlNjQ0OTY4OWY2MWJhYTJiYmQ1MiIsInR5cGUiOiJmaWx0ZXJiYXIifSx7ImlkIjoiZjY3MDI3NTRlZmNlNDZmODhjY2VhNGVmODE5ODgxIiwidHlwZSI6ImNvbnRhaW5lciIsImNlbGxzIjpbeyJpZCI6ImYwMzlmNTk1ZjczMjQ0MDU4YzA3ZDE2MmViODgxMyIsInR5cGUiOiJjb2x1bW4ifV19XX0sImluZm8iOnsiUEFUSCI6
+        Ii9TdW1tYXJ5L01vbml0b3JpbmcvU3VtbWFyeU1vbml0b3JpbmdCb2FyZC54bWwiLCJQUk9KRUNUIjoiQ0JPIiwiQ09ERSI6IjAwMCIsIlBSRUZJWCI6Ik1vbml0b3JpbmciLCJQQVRIXzIiOiJNb25pdG9yaW5nIiwiUEFUSF8zIjoiU3VtbWFyeU1vbml0b3JpbmciLCJQQVRIXzEiOiJTdW1tYXJ5IiwiSEVBREVSIjoiZmFsc2UiLCJOQU1FIjoiQm9hcmQiLCJTQ1JFRU5fSUQiOiJNb25pdG9yaW5nXzAwMCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJmOWUxYjYzNmU0MmE0OWYwODQ5YjJjMzVlMWRiMGVcIiBjbGFzcz1cImNvbnRhaW5lciBzZXBvYXV4X3NjcmVlbl9zY3JvbGxcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBl
+        ciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2ZpbHRlcmJhcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZmlsdGVyYmFyX2lubmVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImI3OGRhNTgyZTRlNjQ0
+        OTY4OWY2MWJhYTJiYmQ1MlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnQgc2Vwb2F1eF9maWx0ZXJiYXIgc3NmaWx0ZXJfY29udFwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImY2NzAyNzU0ZWZjZTQ2Zjg4Y2NlYTRlZjgxOTg4MVwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRf
+        Y29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2NvbHVtbl9jZWxsXCIgc3R5bGU9XCJmbGV4OjE7d2lkdGg6MTAwJTtcIj5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbHVtbl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiZjAzOWY1OTVmNzMyNDQwNThjMDdkMTYyZWI4ODEzXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX2lubmVy
+        XCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgPC9kaXY+XG4gICAgPC9kaXY+XG48L2Rpdj4ifQ==
+    </template>
+</body>

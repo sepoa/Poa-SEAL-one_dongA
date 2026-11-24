@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_102_POPUP" header="false" pageCloseWarn="false">
+    <grid id="gridObj" div="ASYDyZdgLzEyZdMSyF" grid-id="CT_205_B" drag="false" merge="false" dynamic="false" exceldownload="true">
+        <event type="onRowSelect" callback="onRowSelect"/>
+        <event type="onEditCell" callback="onEditCell"/>
+    </grid>
+    <button id="btnObj">
+        <btn div="a9957d46c6e44b8a80650d2ec999d2" id="send" type="accept" text="{BUTTON.send}" toggle="false" reverse="false" onclick="doPushResend()"/>
+    </button>
+    <usercss>
+    <![CDATA[
+    ]]>
+    </usercss>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <function name="init">
+        <![CDATA[
+            const visibleColumn = ['SELECTED', 'SIGNER_COMPANY_NAME', 'SIGNER_NAME', 'SIGNER_EMAIL'];
+            for(let id of gridObj.columnIds) {
+                if(visibleColumn.includes(id) === false) {
+                    gridObj.setColumnHidden(gridObj.getColIndexById(id), true);
+                }
+            }
+            
+            gridObj.setColWidth(gridObj.getColIndexById('SIGNER_COMPANY_NAME'), 150);
+            gridObj.setColWidth(gridObj.getColIndexById('SIGNER_NAME'), 150);
+            gridObj.setColWidth(gridObj.getColIndexById('SIGNER_EMAIL'), '*');
+            
+            if(Sepoa.params.DATA) {
+                const config = {
+                    url : window.CONTEXT_NAME + '/SepoaActionController.sux',
+                    async : false,
+                }
+                
+                const params = {
+                    module : 'contract',
+                    action : 'doDocumentExtra',
+                    CONT_NO : Sepoa.params.DATA.CONT_NO,
+                    CONT_GL_SEQ : Sepoa.params.DATA.CONT_GL_SEQ
+                };
+                
+                const so = sUtils.multipart.send(config, params);
+                const extraData = so.result[0];
+                const signerList = $share.SIGNER_LIST = so.result[1];
+                for(let i in signerList) {
+                    const signer = signerList[i];
+                    signer.CONT_SUBJECT = Sepoa.params.DATA.CONT_SUBJECT;
+                    
+                    gridObj.addRow(i, gridObj.getRowsNum());
+                    for(let entry of Object.entries(signer)) {
+                        const [key, value] = entry;
+                        if(gridObj.getColIndexById(key)) {
+                            gridObj.cells(i, gridObj.getColIndexById(key)).setValue(value);
+                        }
+                    }
+                }
+            } else {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.STATUS_1'), () => {   // '조회된 데이터가 없습니다.'
+                    selfObj.close();
+                })
+                
+            }
+        ]]>
+        </function>
+        
+        <function name="onRowSelect" args="rId, cId">
+        <![CDATA[
+        	var selected = gridObj.cells(rId, gridObj.getColIndexById("SELECTED")).getValue();
+            if (selected == 0) {
+                gridObj.cells(rId, gridObj.getColIndexById("SELECTED")).setValue(1);
+            } else {
+                gridObj.cells(rId, gridObj.getColIndexById("SELECTED")).setValue(0);
+            }
+        ]]>
+        </function>
+        
+        <function name="onEditCell" args="stage,rowId,cellInd,nValue,oValue">
+        <![CDATA[
+            if(stage == 2) {
+                const colId = gridObj.getColumnId(cellInd);
+                const target = gridObj.getRowDataObject(rowId)?.SIGNER_ID
+                
+                for(let signer of $share.SIGNER_LIST) {
+                    if(signer.SIGNER_ID == target) {
+                        signer[colId] = nValue
+                    }
+                }
+                
+                return true;
+            }
+        ]]>
+        </function>
+        
+        <function name="doPushResend" args="">
+        <![CDATA[
+            const target = gridObj.getAllDataObject().filter(e => e.SELECTED == '1').map(e => e.SIGNER_ID);
+            const data = $share.SIGNER_LIST.filter(e => target.includes(e.SIGNER_ID));
+            console.log(data);
+            if(data.length == 0) {
+                Alert(sUtils.cache.text.get('POA_CONTRACT.MESSAGE_0005'));
+                return;
+            }
+            
+            Confirm(sUtils.cache.text.get('MESSAGE.5013'), function(flag) {     // '메일전송 하시겠습니까?'
+                if (flag) {
+                    const config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on: {
+                            callback: function(res, config, params) {
+                                if (!res.flag) {
+                                    Alert(res.message);
+                                } else {
+                                    Alert(Sepoa.cache.text.get('MESSAGE.0001'));
+                                    callback();
+                                }
+                            }
+                        },
+                        contentType:'json'
+                    }
+                    
+                    const params = {
+                        module : 'sepoa.svc.ct.CT_102_POPUP',
+                        action : 'doPushResend',
+                        list : data
+                    };
+                    
+                    sUtils.multipart.send(config, params);
+                }
+            });
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiQVNZRHlaZEFTWUR5WmRHeWhqIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF9IcGZWaEdHNXY2czIiOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1ZSamVhZWFaODJZYiI6Im51bGwiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9iNGN6ekowQ2FnY20iOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IjIwcHgiLCJNQVJHSU5fUklHSFQiOiIyMHB4IiwiZGh4SWRfVm5KTmZsTEM0UlVwIjoibnVsbCIs
+        IkNMQVNTIjoiIn0sImNvbXBvbmVudCI6eyJDT0xVTU4iOjEuMCwiVkFSIjoiQ1RfMTAyX1BPUFVQIiwiT0JKRUNUX0lEIjoiQVNZRHlaZEFTWUR5WmRHeWhqIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwifSwiaWQiOiJBU1lEeVpkQVNZRHlaZEd5aGoiLCJ0eXBlIjoiYm9keSJ9LCJBU1lEeVpkZ0x6RXlaZE1TeUYiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIwIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF84R05UVFRxN3dhQ1IiOiJudWxsIiwiZGh4SWRfVVBP
+        YWh5OVBZZjRUIjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkXzAzQU9mVnduVFV3dCI6Im51bGwiLCJDTEFTUyI6IiIsImRoeElkXzk2WEFYc05lMU10dSI6Im51bGwiLCJkaHhJZF9DRWFHb0ZwNXdKMWciOiJudWxsIiwiZGh4SWRfckE4Q1BCYnJ0Tk9EIjoibnVsbCJ9LCJjb21wb25lbnQiOnsiVkFSIjoiZ3JpZE9iaiIsIk1FUkdFIjoiZmFsc2UiLCJEUkFHIjoiZmFsc2UiLCJEWU5BTUlDIjoiZmFsc2UiLCJFWENFTERPV05MT0FEIjoidHJ1ZSIsIk9CSkVDVF9JRCI6IkFTWUR5WmRnTHpFeVpkTVN5RiIsIkdSSURfSUQiOiJDVF8yMDVfQiIsIkFSRUFfRElWSVNJT04iOiJudWxsIn0sImlkIjoiQVNZRHla
+        ZGdMekV5WmRNU3lGIiwidHlwZSI6ImdyaWQifSwiYTk5NTdkNDZjNmU0NGI4YTgwNjUwZDJlYzk5OWQyIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IlZBUiI6ImJ0bk9iaiIsIklURU1fMF9SRVZFUlNFIjpmYWxzZSwiSVRFTV8wX1NMQ09ERSI6IkJVVFRPTi5zZW5kIiwiSVRFTV8wX1RZUEUiOiJhY2NlcHQiLCJJVEVNXzBfUEFSQU0iOiIiLCJPQkpFQ1RfSUQiOiJh
+        OTk1N2Q0NmM2ZTQ0YjhhODA2NTBkMmVjOTk5ZDIiLCJJVEVNXzBfT05DTElDSyI6ImluaXQiLCJJVEVNXzBfSUQiOiJzZW5kIiwiSVRFTV8wX1RPR0dMRSI6ZmFsc2UsIklURU1fMF9URVhUIjoi7KCE7IahIiwiSVRFTV8wX1NPUlQiOiIxIn0sImlkIjoiYTk5NTdkNDZjNmU0NGI4YTgwNjUwZDJlYzk5OWQyIiwidHlwZSI6ImJ1dHRvbiJ9fSwidHJlZSI6eyJpZCI6IkFTWUR5WmRBU1lEeVpkR3loaiIsInR5cGUiOiJib2R5IiwiY2VsbHMiOlt7ImlkIjoiQVNZRHlaZGdMekV5WmRNU3lGIiwidHlwZSI6ImdyaWQifSx7ImlkIjoiYTk5NTdkNDZjNmU0NGI4YTgwNjUwZDJlYzk5OWQyIiwidHlwZSI6ImJ1dHRvbiJ9XX0sImluZm8iOnsiUEFUSCI6Ii9Db250cmFj
+        dC9Qcm9ncmVzcy9Db250cmFjdFByb2dyZXNzTGlzdFB1c2hSZXNlbmRQb3B1cC54bWwiLCJQUk9KRUNUIjoiQ0JPIiwiQ09ERSI6IjEwMl9QT1BVUCIsIlBSRUZJWCI6IkNUIiwiUEFUSF8yIjoiUHJvZ3Jlc3MiLCJQQVRIXzMiOiJDb250cmFjdFByb2dyZXNzIiwiUEFUSF8xIjoiQ29udHJhY3QiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJMaXN0UHVzaFJlc2VuZFBvcHVwIiwiU0NSRUVOX0lEIjoiQ1RfMTAyX1BPUFVQIn19LCJodG1sIjoiPGRpdiBpZD1cIkFTWUR5WmRBU1lEeVpkR3loalwiIGNsYXNzPVwiY29udGFpbmVyXCI+XG4gICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfb3V0
+        ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb250YWluZXJfaW5uZXJcIiBzdHlsZT1cIm1hcmdpbi10b3A6MDttYXJnaW4tcmlnaHQ6MjBweDttYXJnaW4tYm90dG9tOjA7bWFyZ2luLWxlZnQ6MjBweDt3aWR0aDpjYWxjKDEwMCUgLSAyMHB4IC0gMjBweCk7XCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfb3V0ZXIgXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2dyaWRfaW5u
+        ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiQVNZRHlaZGdMekV5WmRNU3lGXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9ncmlkXCIgc3R5bGU9XCJcIi8+XG4gICAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfYnV0dG9uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9j
+        ZW50ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiYTk5NTdkNDZjNmU0NGI4YTgwNjUwZDJlYzk5OWQyXCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF9idXR0b25cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+	<method name="getTargetData">
+	<![CDATA[
+		SELECT 
+			CODE AS CONT_NO
+			,SEQ AS CONT_GL_SEQ
+		FROM 
+			SDCAM 
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND TYPE = 'CONT' 
+		GROUP BY 
+			CODE, SEQ
+	]]>
+	</method>
+	
+	<method name="doQueryWorkTypeZ">
+    <![CDATA[
+        SELECT USER_ID
+             , COMPANY_CODE
+        FROM SUSMT
+        WHERE HOUSE_CODE    = ${session.HOUSE_CODE}
+          AND WORK_TYPE     = 'Z'
+    ]]>
+    </method>
+    
+    <method name="doCheckExistUser">
+    <![CDATA[
+    	SELECT
+    		USER_ID
+    		, COMPANY_CODE
+    	FROM
+    		SUSMT
+    	WHERE
+    		HOUSE_CODE = ${session.HOUSE_CODE}
+    		AND COMPANY_CODE = ${session.COMPANY_CODE}
+    		AND USER_ID = ${value}
+    ]]>
+    </method>
+    
+	<method name="doSelectContCreator">
+	<![CDATA[
+		SELECT
+			CREATOR AS USER_ID
+			, COMPANY_CODE
+            , CONT_TYPE
+		FROM
+			SCTGL
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CONT_NO = ${CONT_NO}
+			AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+	]]>
+	</method>
+	
+	<method name="doSelectContSigner">
+	<![CDATA[
+		SELECT
+			SIGNER_ID AS USER_ID
+			,SIGNER_COMPANY_CODE AS COMPANY_CODE
+		FROM
+			SSIGN
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CONT_NO = ${CONT_NO}
+			AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+	]]>
+	</method>
+	
+	<method name="doSelectContReviewer">
+	<![CDATA[
+		SELECT
+			REVIEWER_ID AS USER_ID
+			, REVIEWER_COMPANY_CODE AS COMPANY_CODE
+		FROM
+			SCTRV
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CONT_NO = ${CONT_NO}
+			AND CONT_GL_SEQ = ${CONT_GL_SEQ}
+	]]>
+	</method>
+	
+	<method name="doSelectCurrentAuthUser">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SDCAM
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND CODE = ${CONT_NO}
+			AND SEQ = ${CONT_GL_SEQ}
+	]]>
+	</method>
+	
+	<method name="doSelectSBALN">
+	<![CDATA[
+		SELECT 
+			CTRL_PERSON_ID AS USER_ID
+			, COMPANY_CODE 
+		FROM 
+			SBALN 
+		WHERE 
+			HOUSE_CODE = ${session.HOUSE_CODE} 
+			AND CTRL_CODE ='QnA_MANAGER'
+	]]>
+	</method>
+	
+	<method name="doSelectTeamManagersByCreatorDept">
+	<![CDATA[
+		SELECT DISTINCT
+		       USMT.COMPANY_CODE
+		     , USMT.USER_ID
+		FROM SUSMT CREATOR_USMT
+		INNER JOIN SUSMT USMT
+		   ON CREATOR_USMT.HOUSE_CODE = USMT.HOUSE_CODE
+		  AND CREATOR_USMT.COMPANY_CODE = USMT.COMPANY_CODE
+		  AND CREATOR_USMT.DEPT = USMT.DEPT
+		INNER JOIN SCODE CODE
+		   ON CODE.HOUSE_CODE = USMT.HOUSE_CODE
+		  AND CODE.TYPE = 'UX050'
+		  AND CODE.LANGUAGE = ${session.LANGUAGE}
+		  AND CODE.CODE = USMT.RESPONSIBILITY
+		WHERE CREATOR_USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND CREATOR_USMT.COMPANY_CODE = ${CREATOR_COMPANY_CODE}
+		  AND CREATOR_USMT.USER_ID = ${CREATOR_USER_ID}
+		  AND #DB_OWNER#NVL(USMT.DEL_FLAG, 'N') = 'N'
+	]]>
+	</method>
+</service>
