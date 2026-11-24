@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service>
+	<method name="doCountSSIAD">
+	<![CDATA[
+		SELECT COUNT(*) AS CNT FROM SSIAD
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSSIAD">
+	<![CDATA[
+		SELECT
+			  SIAD.SUBJECT 							AS SUBJECT
+			, SIAD.EXPLANATION 						AS EXPLANATION
+			, #DB_OWNER#GETCODETEXT('012', 'SL003', SIAD.RE_FLAG, 'KO')	AS RE_FLAG
+			, SIAD.RE_FLAG							AS REFLAG
+			, UDGL.SUBJECT 							AS REQ_SEAL_USE_TYPE
+			, UDGL.USE_NUMBER
+			, SIAD.SUBMISSION_PLACE 					AS SUBMISSION_PLACE
+			, SIAD.REMARK 							AS REMARK
+			, SIAD.SMR_NUMBER 					AS SMR_NUMBER
+		FROM SSIAD SIAD 
+		JOIN sudgl UDGL
+		  ON UDGL.HOUSE_CODE = SIAD.house_code
+		AND UDGL.COMPANY_CODE = SIAD.company_code
+		AND UDGL.USE_NUMBER = SIAD.REQ_SEAL_USE_TYPE
+		AND UDGL.DEL_FLAG = 'N'
+		WHERE SIAD.HOUSE_CODE 	= ${session.HOUSE_CODE}
+		AND SIAD.COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND SIAD.SMR_NUMBER 	= ${SMR_NUMBER}
+		ORDER BY SIAD.SMR_NUMBER DESC
+	]]>
+	</method>
+	<method name="doSelectSSIAD_CERT">
+	<![CDATA[
+		SELECT
+			  SUBJECT 						AS SUBJECT
+			, SUBMISSION_PLACE 				AS SUBMISSION_PLACE
+			, EXPLANATION 					AS EXPLANATION
+		FROM SSIAD  
+		WHERE HOUSE_CODE 	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER 	= ${SMR_NUMBER}
+		ORDER BY SMR_NUMBER DESC
+	]]>
+	</method>
+	<method name="doSelectSSIPD">
+	<![CDATA[
+		SELECT
+			  GETCODETEXT('012', 'SM001', SIPD.SEAL_TYPE, 'KO') 	AS SEAL_TYPE
+			, SEAL.SUBJECT 		AS SEAL_MG_SUBJECT
+			, SIPD.SUBJECT 		AS SUBJECT
+			, SIPD.COUNT 			AS COUNT
+			, SIPD.ACCESS_LINK		AS ACCESS_LINK
+			, SIPD.REAL_ATTACH_NO AS ATTACH_NO
+		FROM SSIPD SIPD
+		JOIN SSIPD_SEAL SIPD_SEAL
+		  ON SIPD_SEAL.HOUSE_CODE = SIPD.HOUSE_CODE
+		 AND SIPD_SEAL.COMPANY_CODE = SIPD.COMPANY_CODE
+		 AND SIPD_SEAL.SMR_NUMBER = SIPD.SMR_NUMBER
+		 AND SIPD_SEAL.SMD_NUMBER = SIPD.SMD_NUMBER
+	   	JOIN SSEAL SEAL
+	     	  ON SEAL.HOUSE_CODE = SIPD.HOUSE_CODE
+	    	 AND SEAL.COMPANY_CODE = SIPD.COMPANY_CODE
+	    	 AND SEAL.MANAGE_NUMBER = SIPD_SEAL.MANAGE_NUMBER
+		WHERE SIPD.HOUSE_CODE = ${session.HOUSE_CODE}
+		  AND SIPD.COMPANY_CODE = ${session.COMPANY_CODE}
+		  AND SIPD.SMR_NUMBER   = ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSSRAD">
+	<![CDATA[
+ 	      SELECT
+		  SRAD.SUBJECT		AS SUBJECT
+		, CASE WHEN SISD.REAL_DOC_CHK = 'R' THEN '실물' ELSE '전자' END AS REAL_DOC_CHK
+		, SISD.REAL_DOC_CHK AS REAL_DOC_CHK_LOC
+		, SISD.CONTENTS		AS CONTENTS
+		, SISD.ACCESS_LINK  	AS ACCESS_LINK
+		, SISD.COUNT		AS COUNT
+		FROM SSISD SISD 
+		JOIN SSRAD SRAD
+		  ON SRAD.HOUSE_CODE = SISD.HOUSE_CODE
+		 AND SRAD.COMPANY_CODE = SISD.COMPANY_CODE
+		 AND SRAD.SMI_NUMBER = SISD.SMI_NUMBER
+	       WHERE SISD.HOUSE_CODE = ${session.HOUSE_CODE}
+		 AND SISD.COMPANY_CODE = ${session.COMPANY_CODE}
+		 AND SISD.SMR_NUMBER  = ${SMR_NUMBER}
+    ]]>
+	</method>
+	<method name="doSelectSFMFI">
+	<![CDATA[
+ 	      SELECT
+ 	      	  FI.FILE_NAME_CLIENT
+ 	      	, FI.FILE_NAME_SERVER
+ 	      	, FI.LAYER
+ 	        FROM SFMFI FI
+ 	        JOIN SSIPD PD
+ 	          ON FI.HOUSE_CODE = PD.HOUSE_CODE
+ 	         AND FI.COMPANY_CODE = PD.COMPANY_CODE
+ 	         AND FI.DOC_NUMBER = CONCAT(PD.SMR_NUMBER, '_', PD.SMD_NUMBER)
+			 AND #DB_OWNER#NVL(PD.DEL_FLAG, 'N') = 'N'
+	       WHERE FI.HOUSE_CODE = ${session.HOUSE_CODE}
+		     AND FI.COMPANY_CODE = ${session.COMPANY_CODE}
+		     AND FI.DOC_NUMBER LIKE CONCAT(${SMR_NUMBER}, '%')
+    ]]>
+	</method>
+	<method name="updateSGWGL">
+	<![CDATA[
+		UPDATE SGWGL
+		   SET SUX_WKEY4 = ${IAMS_DOC_NO}
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+		   AND APP_NO = ${APP_NO}
+		   AND APP_NO_SEQ = ${APP_NO_SEQ}
+    ]]>
+	</method>
+	<method name="updateSSETL">
+	<![CDATA[
+		UPDATE SSETL
+		   SET SMR_STATUS = ${SMR_STATUS}
+  		     , REJECT_REMARK = ${APPR_COMMENT}
+  		     , CONFIRM_USER_ID = ${APPR_USER_ID}
+  		     , CONFIRM_DATE = ${ACCEPT_DATE}
+  		     , CONFIRM_TIME = ${ACCEPT_TIME}
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+	<method name="doSelectSSETL">
+	<![CDATA[
+		SELECT 
+			SETL.SUBJECT 							AS SUBJECT
+			, SETL.SUBMISSION_PLACE 				AS SUBMISSION_PLACE
+			, SETL.REMARK 							AS REMARK				
+			, SETL.EXT_OUT_EXPECT_DATE				AS EXT_OUT_EXPECT_DATE
+			, SETL.EXT_OUT_EXPECT_TIME				AS EXT_OUT_EXPECT_TIME
+			, SETL.EXT_IN_EXPECT_DATE				AS EXT_IN_EXPECT_DATE
+			, SETL.EXT_IN_EXPECT_TIME				AS EXT_IN_EXPECT_TIME
+			, UDGL.SUBJECT 							AS REQ_SEAL_USE_TYPE
+		FROM SSETL SETL
+		JOIN SUDGL UDGL
+		  ON UDGL.HOUSE_CODE = SETL.HOUSE_CODE
+		AND UDGL.COMPANY_CODE = SETL.COMPANY_CODE
+		AND UDGL.USE_NUMBER = SETL.SEAL_USE_TYPE 
+		WHERE SETL.HOUSE_CODE = ${session.HOUSE_CODE}
+	      AND SETL.COMPANY_CODE = ${session.COMPANY_CODE}
+	      AND SETL.SMR_NUMBER = ${SMR_NUMBER} 
+	]]>
+	</method>
+	<method name="doSelectSSEDC">
+	<![CDATA[
+		SELECT 
+			#DB_OWNER#GETUSERNAME('012','1000',SEDC_SEAL.MANAGER_ID,'KO') AS MANAGER_NAME
+		  , SEAL.MANAGE_NUMBER
+		  ,	SEAL.SUBJECT 		AS SEAL_MG_SUBJECT
+		  , SEDC.SUBJECT 		AS SUBJECT
+		  , ACCESS_LINK   
+		FROM SSEDC SEDC
+		JOIN SSEDC_SEAL SEDC_SEAL 
+		  ON  SEDC.HOUSE_CODE = SEDC_SEAL.HOUSE_CODE
+		  AND SEDC.COMPANY_CODE = SEDC_SEAL.COMPANY_CODE
+		  AND SEDC.SMR_NUMBER = SEDC_SEAL.SMR_NUMBER
+		  AND SEDC.SMD_NUMBER = SEDC_SEAL.SMD_NUMBER
+		  AND SEDC.MANAGE_NUMBER = SEDC_SEAL.MANAGE_NUMBER
+		JOIN SSEAL SEAL 
+		  ON  SEAL.HOUSE_CODE = SEDC.HOUSE_CODE
+		  AND SEAL.COMPANY_CODE = SEDC.COMPANY_CODE
+		  AND SEAL.MANAGE_NUMBER = SEDC_SEAL.MANAGE_NUMBER
+		WHERE SEDC.HOUSE_CODE = ${session.HOUSE_CODE}
+	      AND SEDC.COMPANY_CODE = ${session.COMPANY_CODE}
+	      AND SEDC.SMR_NUMBER = ${SMR_NUMBER} 
+	]]>
+	</method>
+	<method name="doSearchAttchNo">
+	<![CDATA[
+		SELECT 
+			ATTACH_NO
+		FROM SSEDC 
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+	      AND COMPANY_CODE = ${session.COMPANY_CODE}
+	      AND SMR_NUMBER = ${SMR_NUMBER}
+	]]>
+	</method>
+	<method name="doSearchFile">
+	<![CDATA[
+		SELECT DOC_NO
+			  ,DOC_SEQ
+			  ,TYPE
+			  ,DES_FILE_NAME
+			  ,SRC_FILE_NAME
+			  ,FILE_SIZE
+		FROM SFILE
+		WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+	      AND DOC_NO IN ($IN{DOC_VALUE})
+	      AND #DB_OWNER#NVL(DEL_FLAG,	'N') = 'N'
+	]]>
+	</method>
+	
+	<method name="updateSSIAD">
+	<![CDATA[
+		UPDATE SSIAD
+		   SET SMR_STATUS = ${SMR_STATUS}
+  		     , REJECT_REASON = ${APPR_COMMENT}
+  		     , CONFIRM_USER_ID = ${APPR_USER_ID}
+  		     , CONFIRM_DATE = ${ACCEPT_DATE}
+  		     , CONFIRM_TIME = ${ACCEPT_TIME}
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+	<method name="doQuerySSIAD">
+	<![CDATA[
+		SELECT CONCAT(APPLY_TYPE, 'S') AS APPLY_FOR
+		     , RE_FLAG
+		  FROM SSIAD
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+	<method name="doQuerySSETL">
+	<![CDATA[
+		SELECT CONCAT(APPLY_TYPE, 'S') AS APPLY_FOR
+		  FROM SSETL
+		 WHERE HOUSE_CODE 	= ${session.HOUSE_CODE} 
+		   AND COMPANY_CODE = ${session.COMPANY_CODE}
+		   AND SMR_NUMBER 	= ${SMR_NUMBER}
+    ]]>
+	</method>
+
+    <method name="doAddSAPPP">
+    <![CDATA[
+		INSERT INTO SAPPP (
+		       HOUSE_CODE
+		     , COMPANY_CODE
+		     , SMR_NUMBER
+		     , SEQ
+		     , RECENT
+		     , APP_STATUS
+		     , APPLY_FOR
+		     , POSTPROCESSED
+		     , ADD_DATE
+		     , ADD_TIME
+		     , CONFIRM_USER_ID
+		     , APP_COMMENT
+		     , APP_NO
+		     , APP_NO_SEQ
+		     , APP_LINE_SEQ
+		     , RE_FLAG
+		) VALUES(
+		       ${session.HOUSE_CODE}
+		     , ${session.COMPANY_CODE}
+		     , ${SMR_NUMBER}
+		     , CAST((CAST(NVL(
+		     			(SELECT PP.SEQ
+						  FROM SAPPP PP
+				 		 WHERE PP.HOUSE_CODE = ${session.HOUSE_CODE}
+				   		   AND PP.COMPANY_CODE = ${session.COMPANY_CODE}
+				   		   AND PP.SMR_NUMBER = ${SMR_NUMBER})
+		       , '0') as number(5)) + 1) as varchar2(5))
+		     , 'Y'
+		     , ${SMR_STATUS}
+		     , ${APPLY_FOR}
+		     , 'N'
+		     , ${ACCEPT_DATE}
+		     , ${ACCEPT_TIME}
+		     , ${APPR_USER_ID}
+		     , ${APPR_COMMENT}
+		     , ${APP_NO}
+		     , ${APP_NO_SEQ}
+		     , ${APP_LINE_SEQ}
+		     , ${RE_FLAG}
+		)
+    ]]>
+    </method>
+    <method name="doChangeFlag">
+	<![CDATA[
+		UPDATE SSEDC_SEAL SET
+			COMPLETE_FLAG	= ${COMPLETE_FLAG}
+		WHERE HOUSE_CODE	= ${session.HOUSE_CODE}
+		AND COMPANY_CODE	= ${session.COMPANY_CODE}
+		AND SMR_NUMBER		= ${SMR_NUMBER}
+	]]>
+	</method>
+	
+	<method name="doInsertSPMGT">
+	<![CDATA[
+	    INSERT INTO SPMGT (
+			HOUSE_CODE
+			,COMPANY_CODE
+			,CONT_NO
+			,CONT_GL_SEQ
+			,SEQ
+			,ADD_DATE
+			,ADD_TIME
+			,USER_COMPANY_CODE
+			,USER_ID
+			,ACTION
+			,IP
+	    ) VALUES (
+            ${session.HOUSE_CODE}
+            ,${session.COMPANY_CODE}
+            ,${SMR_NUMBER}
+            ,'1'
+            ,(SELECT COUNT(1) + 1
+                  FROM SPMGT InPMGT
+                 WHERE InPMGT.HOUSE_CODE   = ${session.HOUSE_CODE}
+                   AND InPMGT.COMPANY_CODE = ${session.COMPANY_CODE}
+                   AND InPMGT.CONT_NO      = ${SMR_NUMBER}
+                   AND InPMGT.CONT_GL_SEQ  = '1'
+               )
+			,${current.DATE}
+			,${current.TIME}
+			,${session.COMPANY_CODE}
+			,${session.ID}
+			,${ACTION}
+			,${IP}
+	    )
+	]]>
+	</method>
+	
+	<method name="doUpdateSQNAQ">
+	<![CDATA[
+		UPDATE 
+			SQNAQ
+		SET 
+			STATUS 				= ${STATUS}
+			,CHANGE_DATE		= ${ACCEPT_DATE}
+  		    ,CHANGE_TIME 		= ${ACCEPT_TIME}
+		WHERE 
+			HOUSE_CODE 			= ${session.HOUSE_CODE} 
+			AND COMPANY_CODE 	= ${session.COMPANY_CODE}
+			AND QNA_NUMBER 		= ${QNA_NUMBER}
+	]]>
+	</method>
+	<method name="doSelectSQNAQ">
+	<![CDATA[
+		SELECT
+			*
+		FROM
+			SQNAQ
+		WHERE
+			HOUSE_CODE = ${session.HOUSE_CODE}
+			AND COMPANY_CODE = ${session.COMPANY_CODE}
+			AND QNA_NUMBER = ${QNA_NUMBER} 
+	]]>
+	</method>
+</service>

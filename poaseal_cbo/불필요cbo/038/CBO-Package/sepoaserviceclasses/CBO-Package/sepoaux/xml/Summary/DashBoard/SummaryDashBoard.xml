@@ -1,0 +1,1090 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="DASHBOARD_000" header="false" pageCloseWarn="false">
+    <link>
+    <![CDATA[
+        <link rel="stylesheet" type="text/css" href="<%=CONTEXT_NAME%>/resource/plugin/sepoasoft/dashboard/dashboard.css" />
+    ]]>
+    </link>
+    <usercss>
+    <![CDATA[
+        >div {
+            background: #eee;
+        }
+    ]]>
+    </usercss>
+    <variable>
+        <var name="viewContainer" value="$($sObject._vp).find('#f51c3e3af1aa4ac68bdd841676528c')[0]"/>
+        <var name="f160d5bbc9b046448dbf7fda1af279" value="$($sObject._vp).find('#e3309e5407e4433d8530d2aa2c30cf')[0]"/>
+    </variable>
+    <onloadscript>
+        <call name="init"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{}"/>
+        <var name="orgCount" value="0"/>
+        <function name="init">
+        <![CDATA[
+            import(window.CONTEXT_NAME + "/resource/plugin/sepoasoft/dashboard/dashboard.js").then((module) => {
+                $share.dashboard = new module.SepoaDashboard(viewContainer);
+                drawBoard();
+            });
+        ]]>
+        </function>
+        <function name="drawBoard">
+        <![CDATA[
+            //checkModule
+            const module = {};
+            if(sUtils.workflow.check('DSB')){
+            	if(Sepoa.config.get('sepoa.supplier.default.profile_code') == Sepoa.info.MENU_PROFILE_CODE){
+            		module.Contract = ['CT'].filter(moduleChecker).length > 0;
+            	}else {
+	                module.ReqSeal = ['USW', 'CSW'].filter(moduleChecker).length > 0;
+	                module.SealMng = ['US', 'CS', 'SM', 'SR', 'SL'].filter(moduleChecker).length > 0;
+	                module.SealExt = ['ET'].filter(moduleChecker).length > 0;
+	                module.Contract = ['CT'].filter(moduleChecker).length > 0;
+                    module.EmployeeContract = ['ECT'].filter(moduleChecker).length > 0;
+                }
+            }
+            
+            if(Sepoa.config.get('sepoa.system.manager.profile.code') == Sepoa.info.MENU_PROFILE_CODE){
+                module.isSystemAdmin = true;
+            }
+            
+            if(!sUtils.string.isBlank(Sepoa.info.MY_SEAL)){
+                module.isSealOwner = true;
+            }
+            
+            module.isSealManager = Sepoa.config.get('sepoa.seal.manager.porfile.code').split(',').indexOf(Sepoa.info.MENU_PROFILE_CODE) >= 0
+            
+            const ctrlList = Sepoa.info.CTRL_CODE.split(',');
+            module.isMarkConfirmer = ctrlList.indexOf("SEAL_CONFIRM") >= 0
+            module.isManageConfirmer = ctrlList.indexOf("MANAGE_CONFIRM") >= 0
+            module.isExtConfirmer = ctrlList.indexOf("EXT_CONFIRM") >= 0
+            module.isAttachConfirmer = ctrlList.indexOf("ATTACH_CONFIRM") >= 0
+            
+            //draw
+            $share.dashboard.addItem({
+                type: 'button',
+                items:[{
+                    text:'전체 메뉴 보기',
+                    onclick:()=>{
+                        callFunction('p', 'changeCarousel', ['summary'])
+                    }
+                }]
+            });
+            
+            const date = new Date();
+            date.setMonth(date.getMonth()-1);
+            
+            const defaultParams = {
+            	// 커스텀 - 매 연단위 검색조건 요청
+                F_CALENDAR_FROM: sUtils.date.toString(date, '20231005') ,
+                F_CALENDAR_TO: sUtils.date.getToday()
+            }
+            
+            if(module.ReqSeal || module.SealMng || module.SealExt){
+                 const todoList = $share.dashboard.addItem({
+                    label: Sepoa.cache.text.get('SUMMARY.TITLE_TODO_LIST'),
+                    type: 'groupbox'
+                });
+                
+                if(module.ReqSeal){
+                    const group = todoList.addItem({
+                        label: Sepoa.cache.text.get('SUMMARY.TITLE_REQ_SEAL')
+                    });
+                    
+                    const targetStatus = ['T'];
+                    if(['USW1635987860041', 'CSW1635988016443'].filter(moduleChecker).length > 0){
+                        targetStatus.push('I', 'R');
+                    }
+                    if(moduleChecker('CSW1635988016964')){
+                        targetStatus.push('G', 'N');
+                    }
+                    if(moduleChecker('USW1637309480717')){
+                        targetStatus.push('W', 'F');
+                    }
+                    if(['USW1635987861018', 'CSW1635988019236'].filter(moduleChecker).length > 0){
+                        targetStatus.push('CR', 'C');
+                    }
+                    
+                    new Promise((rs, rj)=>{
+                        setTimeout(()=>{
+                            rs(sUtils.cache.combo.get('SL0001,'+Sepoa.info.HOUSE_CODE+'#'+Sepoa.info.LANGUAGE+'#SM032'));
+                        })
+                    }).then((allStatus)=>{
+                        const filteredData = []
+                        allStatus.forEach((item) => {
+                            const targetIdx = targetStatus.indexOf(item.value);
+                            if(targetIdx >= 0){
+                                filteredData[targetIdx] = {
+                                    id:item.value,   
+                                    label:item.text,
+                                    value:"...",
+                                    events:{
+                                        click:()=>{
+                                            linkTo({
+                                                id:"SLM_200",
+                                                url:"/Seal/Document/Request/SealDocumentRequestLayout.sux",
+                                                param:{
+                                                    status:item.value
+                                                },
+                                                label:sUtils.cache.text.get('SLM_200.LAYOUT_A_HEADER')
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                        
+                        const list = group.addItem({
+                            type:'list',
+                            theme:'summary',
+                            items:filteredData
+                        });
+                        
+                        if((moduleChecker('CSW1635988016964') && (module.isMarkConfirmer || module.isSystemAdmin))
+                        || (moduleChecker('USW1637309480717') && module.isSealManager)){
+                            list.addItem({
+                                id:"TODO",
+                                label:sUtils.cache.text.get("SLM_190.LAYOUT_A_HEADER"),
+                                value:"...",
+                                events:{
+                                    click:()=>{
+                                        linkTo({
+                                            id:"SLM_190",
+                                            url:"/Seal/Document/Todo/SealDocumentTodoLayout.sux",
+                                            param:{
+                                                status:'TODO'
+                                            },
+                                            label:sUtils.cache.text.get('SLM_190.LAYOUT_A_HEADER')
+                                        });
+                                    }
+                                }
+                            })
+                        }
+                        
+                        new Promise((rs, rj)=>{
+                            sUtils.connector.service({
+                                progress:false,
+                                conType:"CONNECTION",
+                                requestMode:"doServiceAjax",
+                                async:true,
+                                nickName:"sepoa.svc.seal.SepoaReqSealService",
+                                methodName:"doCountRequestList",
+                                callback:(so)=>{
+                                    if(so.status == "1"){
+                                        const counterObj = {};
+                                        const resultStr = so.result[0];
+                                        resultStr.substring(1, resultStr.length-1).split(',').forEach(val => {
+                                            const kv = val.trim().split('=');
+                                            counterObj[kv[0].replace('REQ_SEAL_COUNT_', '')] = kv[1];
+                                        });
+                                        rs(counterObj);
+                                    }else{
+                                        console.error(so)
+                                        rj(false);
+                                    }
+                                }
+                            }, {[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams(sUtils.object.extend(true, {}, defaultParams, {REQ_SEAL_STATUS_LIST:targetStatus.join(',')}),false))});
+                        }).then((counter)=>{
+                            list.setItemValue(counter);
+                        })
+                    })
+                }
+                
+                if(module.SealMng){
+                    const group = todoList.addItem({
+                        label: Sepoa.cache.text.get('SUMMARY.TITLE_SEAL_MNG'),
+                        width:180
+                    })
+                    
+                    const targetStatus = [];
+                    if(['US', 'CS'].filter(moduleChecker).length > 0){
+                        targetStatus.push('NE');
+                    }
+                    
+                    if (module.isSystemAdmin || module.isSealOwner || module.isSealManager) {
+                        if(moduleChecker('SM')){
+                            targetStatus.push('UP');
+                        }
+                        if(moduleChecker('SR')){
+                            targetStatus.push('RE');
+                        }
+                        if(moduleChecker('SL')){
+                            targetStatus.push('LO');
+                        }
+                    }
+                    
+                    new Promise((rs, rj)=>{
+                        setTimeout(()=>{
+                            rs(sUtils.cache.combo.get('SL0002,'+Sepoa.info.HOUSE_CODE+'#'+Sepoa.info.LANGUAGE+'#SM031'));
+                        })
+                    }).then((allStatus)=>{
+                        const filteredData = []
+                        allStatus.forEach((item) => {
+                            const targetIdx = targetStatus.indexOf(item.value);
+                            if(targetIdx >= 0){
+                                filteredData[targetIdx] = {
+                                    id:item.value,
+                                    label:item.text,
+                                    value:"...",
+                                    events:{
+                                        click:()=>{
+                                            linkTo({
+                                                id:"SLM_170",
+                                                url:"/Seal/Manage/SealManageRequestCarousel.sux",
+                                                param:{
+                                                    status:item.value
+                                                },
+                                                label:sUtils.cache.text.get('SLM_170.LAYOUT_A_HEADER')
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                        
+                        const list = group.addItem({
+                            type:'list',
+                            theme:'summary',
+                            items:filteredData
+                        });
+                        
+                        if((module.isMarkConfirmer || module.isSystemAdmin) 
+                            && (["US1635932977187", "CS1635987524638", "SM1635987583152", "SR1635987653583", "SL1635987694835"].filter(moduleChecker).length > 0)){
+                            list.addItem({
+                                id:"TODO",
+                                label:sUtils.cache.text.get("SLM_160.LAYOUT_A_HEADER"),
+                                value:"...",
+                                events:{
+                                    click:()=>{
+                                        linkTo({
+                                            id:"SLM_160",
+                                            url:"/Seal/Manage/SealManageToDoCarousel.sux",
+                                            param:{
+                                                status:'TODO'
+                                            },
+                                            label:sUtils.cache.text.get('SLM_160.LAYOUT_A_HEADER')
+                                        });
+                                    }
+                                }
+                            })
+                        }
+                        
+                        new Promise((rs, rj)=>{
+                            sUtils.connector.service({
+                                progress:false,
+                                conType:"CONNECTION",
+                                requestMode:"doServiceAjax",
+                                async:true,
+                                nickName:"sepoa.svc.seal.SepoaSealManagementService",
+                                methodName:"doCountRequestList",
+                                callback:(so)=>{
+                                    if(so.status == "1"){
+                                        const counterObj = {};
+                                        const resultStr = so.result[0];
+                                        resultStr.substring(1, resultStr.length-1).split(',').forEach(val => {
+                                            const kv = val.trim().split('=');
+                                            counterObj[kv[0].replace('SEAL_MNG_COUNT_', '')] = kv[1];
+                                        });
+                                        rs(counterObj);
+                                    }else{
+                                        console.error(so)
+                                        rj(false);
+                                    }
+                                }
+                            }, {[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams(sUtils.object.extend(true, {}, defaultParams, {SEAL_MNG_TYPE_LIST:targetStatus.join(',')}),false))});
+                        }).then((counter)=>{
+                            list.setItemValue(counter);
+                        })
+                    })
+                }
+                
+                if(module.SealExt){
+                    const group = todoList.addItem({
+                        label: Sepoa.cache.text.get('SUMMARY.TITLE_SEAL_EXT')
+                    })
+                    
+                    const targetStatus = ['T'];
+                    if(moduleChecker('ET1644374538390')){
+                        targetStatus.push('W');
+                    }
+                    if(moduleChecker('ET1644372420935')){
+                        targetStatus.push('I');
+                    }
+                    if(moduleChecker('ET1647222908416')){
+                        targetStatus.push('RW', 'RR');
+                    }
+                    if(moduleChecker('ET1644375000197')){
+                        targetStatus.push('C');
+                    }
+                    if(moduleChecker('ET1644374538390')){
+                        targetStatus.push('F');
+                    }
+                    if(moduleChecker('ET1644372420935')){
+                        targetStatus.push('R');
+                    }
+                    
+                    new Promise((rs, rj)=>{
+                        setTimeout(()=>{
+                            rs(sUtils.cache.combo.get('SL0001,'+Sepoa.info.HOUSE_CODE+'#'+Sepoa.info.LANGUAGE+'#SM034'));
+                        })
+                    }).then((allStatus)=>{
+                        const filteredData = []
+                        allStatus.forEach((item) => {
+                            const targetIdx = targetStatus.indexOf(item.value);
+                            if(targetIdx >= 0){
+                                filteredData[targetIdx] = {
+                                    id:item.value,
+                                    label:item.text,
+                                    value:"...",
+                                    events:{
+                                        click:()=>{
+                                            linkTo({
+                                                id:"SLM_510",
+                                                url:"/Seal/Document/External/Request/SealExternalRequestLayout.sux",
+                                                param:{
+                                                    status:item.value
+                                                },
+                                                label:sUtils.cache.text.get('SLM_511.LAYOUT_A_HEADER')
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                        
+                        const list = group.addItem({
+                            type:'list',
+                            theme:'summary',
+                            items:filteredData
+                        });
+                        
+                        if((module.isMarkConfirmer || module.isSystemAdmin || module.isExtConfirmer) && moduleChecker("ET1644374538390")){
+                            list.addItem({
+                                id:"TODO",
+                                label:sUtils.cache.text.get("SLM_160.LAYOUT_A_HEADER"),
+                                value:"...",
+                                events:{
+                                    click:()=>{
+                                        linkTo({
+                                            id:"SLM_520",
+                                            url:"/Seal/Document/External/Todo/SealDocumentExternalTodoLayout.sux",
+                                            param:{
+                                                status:'TODO'
+                                            },
+                                            label:sUtils.cache.text.get('SLM_521.LAYOUT_A_HEADER')
+                                        });
+                                    }
+                                }
+                            })
+                        }
+                        
+                        new Promise((rs, rj)=>{
+                            sUtils.connector.service({
+                                progress:false,
+                                conType:"CONNECTION",
+                                requestMode:"doServiceAjax",
+                                async:true,
+                                nickName:"sepoa.svc.seal.SepoaReqExternalService",
+                                methodName:"doCountRequestList",
+                                callback:(so)=>{
+                                    if(so.status == "1"){
+                                        const counterObj = {};
+                                        const resultStr = so.result[0];
+                                        resultStr.substring(1, resultStr.length-1).split(',').forEach(val => {
+                                            const kv = val.trim().split('=');
+                                            counterObj[kv[0].replace('SEAL_EXT_COUNT_', '')] = kv[1];
+                                        });
+                                        rs(counterObj);
+                                    }else{
+                                        console.error(so)
+                                        rj(false);
+                                    }
+                                }
+                            }, {[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams(sUtils.object.extend(true, {}, defaultParams, {SEAL_EXT_STATUS_LIST:targetStatus.join(',')}),false))});
+                        }).then((counter)=>{
+                            list.setItemValue(counter);
+                        })
+                    })
+                }
+            }
+            
+            if(module.Contract){
+                const contractList = $share.dashboard.addItem({
+                    label: Sepoa.cache.text.get('SUMMARY.TITLE_CONTRACT'),              // '계약현황'
+                    type: 'groupbox'
+                });
+                
+                const groupContractTarget = contractList.addItem({
+                    label: Sepoa.cache.text.get('CT_202.TITLE'),                        // '계약대상현황'
+                    width : 400
+                });
+                const itemContractTarget = [
+                    {
+                        id : 'target',
+                        label : Sepoa.cache.text.get('CT_202.TITLE'),
+                        value : '...',
+                        events : {
+                            click : () => {
+                                linkTo({
+                                    id : 'CT_200',
+                                    url : '/Contract/Object/ContractObjectCarousel.sux',
+                                    label : Sepoa.cache.text.get('CT_202.TITLE')
+                                });
+                            }
+                        }
+                    }
+                ];
+                const listContractTarget = groupContractTarget.addItem({
+                    type : 'list',
+                    theme : 'summary',
+                    items : itemContractTarget
+                });
+                new Promise((rs, rj) => {
+                    const config = {
+                        url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        on : {
+                            callback : (res, config, param) => {
+                                if(res.flag) {
+                                    rs(res);
+                                } else {
+                                    rj(res);
+                                }
+                            }
+                        }
+                    }
+                    
+                    const params = {
+                        module : 'sepoa.svc.ct.CT_201',
+                        action : 'doQuery',
+                    }
+                    
+                    sUtils.multipart.send(config, params);
+                }).then((so) => {
+                    const data = so.result[0];
+                    listContractTarget.setItemValue({
+                        target : data.length
+                    });
+                });
+                
+                const groupContractProgress = contractList.addItem({
+                    label: Sepoa.cache.text.get('CT_101.TITLE_CONTRACT')                // '계약진행현황'
+                });
+                new Promise((rs, rj)=>{
+                    setTimeout(()=>{
+                        rs(sUtils.cache.combo.get('SL0001,'+Sepoa.info.HOUSE_CODE+'#'+Sepoa.info.LANGUAGE+'#CT002'));
+                    })
+                }).then((allStatus)=>{
+                    const targetStatus = ['T'];
+                    const itemContractProgress = []
+                    for(let status of allStatus) {
+                        const {text, value} = status;
+                        if(targetStatus.includes(value)) {
+                            itemContractProgress[targetStatus.indexOf(value)] = {
+                                id : value,
+                                label : text,
+                                value : '...',
+                                events: {
+                                    click : () => {
+                                        linkTo({
+                                            id : 'CT_100_CONTRACT',
+                                            url : '/Contract/Progress/ContractProgressCarousel.sux?alias=CONTRACT',
+                                            label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT')
+                                        });
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    
+                    const listContractProgress = groupContractProgress.addItem({
+                        type : 'list',
+                        theme : 'summary',
+                        items : itemContractProgress
+                    });
+                    
+                    new Promise((rs, rj) => {
+                        const config = {
+                            url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                            on : {
+                                callback : (res, config, param) => {
+                                    if(res.flag) {
+                                        rs(res);
+                                    } else {
+                                        rj(res);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        const params = {
+                            module : 'sepoa.svc.ct.CT_205',
+                            action : 'doDocumentList',
+                            TYPE : 'CONTRACT'
+                        }
+                        
+                        sUtils.multipart.send(config, params);
+                    }).then((so) => {
+                        const data = new SepoaFormater(so.result[0]).getArrayMap();
+                        for(let status of targetStatus) {
+                            const count = data.filter(e => e.CONT_STATUS == status).length;
+                            listContractProgress.setItemValue({
+                                [status] : count
+                            });
+                        }
+                    });
+                });
+                
+                const groupContractComplete = contractList.addItem({
+                    label: Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE'),      // '계약완료현황'
+                    width : 500
+                });
+                const itemContractComplete = [
+                    {
+                        id : 'complete',
+                        label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE'),
+                        value : '...',
+                        events : {
+                            click : () => {
+                                linkTo({
+                                    id : 'CT_100_CONTRACT_COMPLETE',
+                                    url : '/Contract/Progress/ContractProgressCarousel.sux?alias=CONTRACT_COMPLETE',
+                                    label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE')
+                                });
+                            }
+                        }
+                    }
+                ];
+                const listContractComplete = groupContractComplete.addItem({
+                    type : 'list',
+                    theme : 'summary',
+                    items : itemContractComplete
+                });
+                new Promise((rs, rj) => {
+                    const config = {
+                        url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        on : {
+                            callback : (res, config, param) => {
+                                if(res.flag) {
+                                    rs(res);
+                                } else {
+                                    rj(res);
+                                }
+                            }
+                        }
+                    }
+                    
+                    const params = {
+                        module : 'contract',
+                        action : 'doDocumentList',
+                        TYPE : 'CONTRACT_COMPLETE'
+                    }
+                    
+                    sUtils.multipart.send(config, params);
+                }).then((so) => {
+                    const data = new SepoaFormater(so.result[0]).getArrayMap();
+                    listContractComplete.setItemValue({
+                        complete : data.length
+                    });
+                });
+                
+                const groupContractCount = contractList.addItem({
+                    label: '총 계약완료 현황',
+                    width : 600
+                });
+                
+                const itemContractOldCount = {
+                        id : 'orgComplete',
+                        label : '구)계약관리',
+                        value : '...',
+                        events : {
+                            click : () => {
+                                linkTo({
+                                    id : 'CT_100_CONTRACT_COMPLETE',
+                                    url : '/Contract/Migration/ContractHistoryLayout.sux',
+                                    label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE')
+                                });
+                            }
+                        }
+                    };
+                
+                const itemContractIngCount = {
+                        id : 'ingComplete',
+                        label : '총 계약완료',
+                        value : '...',
+                    };
+                
+                const contractFilteredData = []
+                contractFilteredData.push(itemContractOldCount);
+                contractFilteredData.push(itemContractIngCount);
+                
+                const listContractCount = groupContractCount.addItem({ 
+                    type : 'list',
+                    theme : 'summary',
+                    items : contractFilteredData
+                });
+                
+                new Promise((rs, rj) => {
+                    const config = {
+                        url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        on : {
+                            callback : (res, config, param) => {
+                                if(res.flag) {
+                                    rs(res);
+                                } else {
+                                    rj(res);
+                                }
+                            }
+                        }
+                    }
+                    
+                    const params = {
+                        module : 'sepoa.svc.seal.SepoaReqSealService',
+                        action : 'doSelectContractHistory',
+                    }
+                    
+                    sUtils.multipart.send(config, params);
+                }).then((so) => {
+                    const data = new SepoaFormater(so.result[0]).getArrayMap();
+                    orgCount = data.length;
+                    listContractCount.setItemValue({
+                        orgComplete : data.length
+                    });
+                });
+                
+                new Promise((rs, rj) => {
+                    const config = {
+                        url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                        on : {
+                            callback : (res, config, param) => {
+                                if(res.flag) {
+                                    rs(res);
+                                } else {
+                                    rj(res);
+                                }
+                            }
+                        }
+                    }
+                    
+                    const params = {
+                        module : 'contract',
+                        action : 'doDocumentList',
+                        TYPE : 'CONTRACT_COMPLETE'
+                    }
+                    
+                    sUtils.multipart.send(config, params);
+	                }).then((so) => {
+	                    const data = new SepoaFormater(so.result[0]).getArrayMap();
+	                    listContractCount.setItemValue({
+	                        ingComplete : data.length + orgCount
+	                    });
+	                });
+	            }
+            
+            if(module.EmployeeContract) {
+                // 임직원 계약
+                const employeeContractList = $share.dashboard.addItem({
+                    label : Sepoa.cache.text.get('SUMMARY.TITLE_EMPLOYEE_CONTRACT'),    // '임직원 계약현황'
+                    type : 'groupbox'
+                });
+                
+                const groupEmployeeContractProgress = employeeContractList.addItem({
+                    label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT'),              // '계약진행현황'
+                });
+                
+                const groupEmployeeContractComplete = employeeContractList.addItem({
+                    label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE'),     // '계약완료현황'
+                    width : 500
+                });
+                
+                if(groupEmployeeContractProgress) {
+                    // 계약진행현황 그룹의 아이템 추가
+                    const statusList = sUtils.cache.combo.get(`SL0001,${Sepoa.info['HOUSE_CODE']}#${Sepoa.info['LANGUAGE']}#ECT002`);
+                    const targetStatus = ['T', 'G'];
+                    const itemContractProgress = [];
+                    for(const status of statusList) {
+                        const {text, value} = status;
+                        if(targetStatus.includes(value)) {
+                            const index = targetStatus.indexOf(value);
+                            itemContractProgress[index] = {
+                                id : value,
+                                label : text,
+                                value : '...',
+                                events : {
+                                    click : () => {
+                                        linkTo({id : 'ECT_100_CONTRACT', url : '/EmployeeContract/Progress/EmployeeContractProgressCarousel.sux?alias=CONTRACT', label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT')});
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    
+                    const listContractProgress = groupEmployeeContractProgress.addItem({
+                        type : 'list',
+                        theme : 'summary',
+                        items : itemContractProgress
+                    });
+                    
+                    const config = {
+                        url : window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on : {
+                            callback : (res, config, param) => {
+                                if(res.flag) {
+                                    const data = new SepoaFormater(res.result[0]).getArrayMap();
+                                    for(const status of targetStatus) {
+                                        const count = data.filter(e => e['CONT_STATUS'] == status)?.length ?? 0;
+                                        listContractProgress.setItemValue({[status] : count});
+                                    }
+                                } else {
+                                }
+                            }
+                        }
+                    };
+                    
+                    const params = {
+                        module : 'sepoa.svc.contract.SepoaEmployeeContractService',
+                        action : 'doDocumentList',
+                        TYPE : 'CONTRACT'
+                    };
+                    
+                    sUtils.multipart.send(config, params);
+                }
+                
+                if(groupEmployeeContractComplete) {
+                    // 계약완료현황 그룹의 아이템 추가
+                    const itemContractComplete = [];
+                    itemContractComplete.push({
+                        id : 'complete',
+                        label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE'),
+                        value : '...',
+                        events : {
+                            click : () => {
+                                linkTo({ id : 'ECT_100_CONTRACT_COMPLETE', url : '/EmployeeContract/Progress/EmployeeContractProgressCarousel.sux?alias=CONTRACT_COMPLETE', label : Sepoa.cache.text.get('CT_101.TITLE_CONTRACT_COMPLETE') });
+                            }
+                        }
+                    });
+                    
+                    const listContractComplete = groupEmployeeContractComplete.addItem({
+                        type : 'list',
+                        theme : 'summary',
+                        items : itemContractComplete
+                    });
+                    
+                    const config = {
+                        url : window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        on : {
+                            callback : (res, config, param) => {
+                                if(res.flag) {
+                                    const data = new SepoaFormater(res.result[0]).getArrayMap();
+                                    listContractComplete.setItemValue({complete : data.length});
+                                } else {
+                                }
+                            }
+                        }
+                    };
+                    
+                    const params = {
+                        module : 'sepoa.svc.contract.SepoaEmployeeContractService',
+                        action : 'doDocumentList',
+                        TYPE : 'CONTRACT_COMPLETE'
+                    };
+                    
+                    sUtils.multipart.send(config, params);
+                }
+            }
+            
+            if(moduleChecker("DSB1649060242862")){ //결재함
+                const tabObject = $share.dashboard.addItem({
+                    type: 'tabbar',
+                    label: Sepoa.cache.text.get('SUMMARY.TITLE_APP_MANAGE')
+                });
+                
+                tabObject.addItem({
+                    label: Sepoa.cache.text.get('AP_101.TITLE_TURN'),
+                    items: [{
+                        type: "grid",
+                        grid: [{
+                            id: "APP_NO",
+                            label: Sepoa.cache.text.get("AP_102.APP_NO"),
+                            width: 200
+                        },
+                        {
+                            id: "APP_TYPE",
+                            label: Sepoa.cache.text.get("AP_102.APP_TYPE"),
+                            width: 200,
+                            mapping:"$COMBO{[SL0001,"+Sepoa.info.HOUSE_CODE+"#"+Sepoa.info.LANGUAGE+"#AP001]APP_TYPE}"
+                        },
+                        {
+                            id: "APP_SUBJECT",
+                            label: Sepoa.cache.text.get("AP_102.APP_SUBJECT"),
+                            align: "left"
+                        },
+                        {
+                            id: "REQ_USER_NAME",
+                            width: 200,
+                            label: Sepoa.cache.text.get("AP_102.REQ_USER_NAME"),
+                        },
+                        {
+                            id: "REQ_USER_DEPT_NAME",
+                            width: 200,
+                            label: Sepoa.cache.text.get("AP_102.REQ_USER_DEPT_NAME"),
+                        },
+                        {
+                            id: "REQ_DATE",
+                            label: Sepoa.cache.text.get("AP_102.REQ_DATE"),
+                            width: 100,
+                            mapping: "$DATE{REQ_DATE}"
+                        }],
+                        data: {
+                            service: "sepoa.svc.approval.SepoaApprovalService",
+                            method: "doQuery",
+                            param:{[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams({MODE : 'TURN'},false))}
+                        },
+                        maxDataCount:3
+                    }],
+                    events:{
+                        cellClick:()=>{
+                            linkTo({
+                                id: "AP_100_TURN",
+                                url: "/Seal/Approval/SealApprovalCarousel.sux?MODE=TURN",
+                                label: sUtils.cache.text.get("AP_101.TITLE_TURN")
+                            })
+                        }
+                    }
+                });
+                
+                tabObject.addItem({
+                    label: Sepoa.cache.text.get('AP_101.TITLE_DONE'),
+                    items: [{
+                        type: "grid",
+                        grid: [{
+                            id: "APP_NO",
+                            label: Sepoa.cache.text.get("AP_102.APP_NO"),
+                            width: 200
+                        },
+                        {
+                            id: "APP_TYPE",
+                            label: Sepoa.cache.text.get("AP_102.APP_TYPE"),
+                            width: 200,
+                            mapping:"$COMBO{[SL0001,"+Sepoa.info.HOUSE_CODE+"#"+Sepoa.info.LANGUAGE+"#AP001]APP_TYPE}"
+                        },
+                        {
+                            id: "APP_STATUS",
+                            label: Sepoa.cache.text.get("AP_102.APP_STATUS"),
+                            width: 200,
+                            mapping:"$COMBO{[SL0002,"+Sepoa.info.HOUSE_CODE+"#"+Sepoa.info.LANGUAGE+"#CT002]APP_STATUS}"
+                        },
+                        {
+                            id: "APP_SUBJECT",
+                            label: Sepoa.cache.text.get("AP_102.APP_SUBJECT"),
+                            align: "left"
+                        },
+                        {
+                            id: "REQ_USER_NAME",
+                            label: Sepoa.cache.text.get("AP_102.REQ_USER_NAME"),
+                            width: 200
+                        },
+                        {
+                            id: "REQ_USER_DEPT_NAME",
+                            label: Sepoa.cache.text.get("AP_102.REQ_USER_DEPT_NAME"),
+                            width: 200
+                        },
+                        {
+                            id: "REQ_DATE",
+                            label: Sepoa.cache.text.get("AP_102.REQ_DATE"),
+                            width: 100,
+                            mapping: "$DATE{REQ_DATE}"
+                        }],
+                        data: {
+                            service: "sepoa.svc.approval.SepoaApprovalService",
+                            method: "doQuery",
+                            param:{[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams({MODE : 'DONE'},false))}
+                        },
+                        maxDataCount:3
+                    }],
+                    events:{
+                        cellClick:()=>{
+                            linkTo({
+                                id: "AP_100_DONE",
+                                url: "/Seal/Approval/SealApprovalCarousel.sux?MODE=DONE",
+                                label: sUtils.cache.text.get("AP_101.TITLE_DONE")
+                            })
+                        }
+                    }
+                });
+                tabObject.setActive(tabObject.getTabID(0));
+            }
+            
+            if(moduleChecker("DSB1649060260590") && (Sepoa.config.get('sepoa.supplier.default.profile_code') != Sepoa.info.MENU_PROFILE_CODE)){ //게시판
+                const tabObject = $share.dashboard.addItem({
+                    type: 'tabbar',
+                    label: '' 
+                });
+                
+                if(moduleChecker("DSB1649060343601")){ //공지사항
+                    tabObject.addItem({
+                        label: Sepoa.cache.text.get('AD_202.LAYOUT_B_HEADER'),
+                        items: [{
+                            type: "grid",
+                            grid: [{
+                                id: "NOTICE_NUMBER",
+                                label: Sepoa.cache.text.get("SUMMARY.COL_NT_NOTICE_NUMBER"),
+                                width: 200
+                            },
+                            {
+                                id: "SUBJECT",
+                                label: Sepoa.cache.text.get("SUMMARY.COL_NT_SUBJECT"),
+                                align: "left"
+                            },
+                            {
+                                id: "ADD_USER_NAME",
+                                label: Sepoa.cache.text.get("SUMMARY.COL_NT_ADD_USER_NAME"),
+                                width: 200
+                            },
+                            {
+                                id: "ADD_DATE",
+                                label: Sepoa.cache.text.get("SUMMARY.COL_NT_ADD_DATE"),
+                                width: 100,
+                                mapping:"$DATE{ADD_DATE}"
+                            }],
+                            data: {
+                                service: "sepoa.svc.admin.AD_202_3",
+                                method: "doQuery",
+                                param:{[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams({QUERY_MODE : 'doList'},false))}
+                            },
+                            maxDataCount:3
+                        }],
+                        events:{
+                            cellClick:()=>{
+                                linkTo({
+                                    id: "AD_202",
+                                    url: "/Admin/NoticeView/AdminNoticeViewLayout.sux",
+                                    label: sUtils.cache.text.get("AD_202.LAYOUT_B_HEADER")
+                                })
+                            }
+                        }
+                    });
+                }
+                
+                if(moduleChecker("DSB1649060352966")){ //게시판 QnA
+                    tabObject.addItem({
+                        label: Sepoa.cache.text.get('QA_002.LAYOUT_A_HEADER'),
+                        items: [{
+                            type: "grid",
+                            grid: [{
+                                id: "QNA_NUMBER",
+                                label: Sepoa.cache.text.get("QA_002_1.QNA_NUMBER"),
+                                width: 200
+                            },
+                            {
+                                id: "SUBJECT",
+                                label: Sepoa.cache.text.get("QA_002_1.SUBJECT"),
+                                align: "left"
+                            },
+                            {
+                                id: "REPLY_CNT",
+                                label: Sepoa.cache.text.get("QA_002_1.REPLY_CNT"),
+                                width: 100
+                            },
+                            {
+                                id: "ADD_USER_NAME",
+                                label: Sepoa.cache.text.get("QA_002_1.ADD_USER_NAME"),
+                                width: 200
+                            },
+                            {
+                                id: "ADD_DATE",
+                                label: Sepoa.cache.text.get("QA_002_1.ADD_DATE"),
+                                width: 100,
+                                mapping:"$DATE{ADD_DATE}"
+                            }],
+                            data: {
+                                service: "sepoa.svc.board.SepoaQAService",
+                                method: "doQuery",
+                                param:{[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams({QUERY_MODE : 'doList'},false))}
+                            },
+                            maxDataCount:3
+                        }],
+                        events:{
+                            cellClick:()=>{
+                                linkTo({
+                                    id: "QA_002",
+                                    url: "/Seal/Board/Qna/BoardQnaLayout.sux",
+                                    label: sUtils.cache.text.get("QA_002.LAYOUT_A_HEADER")
+                                })
+                            }
+                        }
+                    });
+                    
+                    // 일반 법무검토 요청현황 (CNTR_TYPE=C)
+                    tabObject.addItem({
+                        label: Sepoa.cache.text.get('QA_002.LAYOUT_A_HEADER_C'),
+                        items: [{
+                            type: "grid",
+                            grid: [{
+                                id: "QNA_NUMBER",
+                                label: Sepoa.cache.text.get("QA_002_1.QNA_NUMBER"),
+                                width: 200
+                            },
+                            {
+                                id: "SUBJECT",
+                                label: Sepoa.cache.text.get("QA_002_1.SUBJECT"),
+                                align: "left"
+                            },
+                            {
+                                id: "REPLY_CNT",
+                                label: Sepoa.cache.text.get("QA_002_1.REPLY_CNT"),
+                                width: 100
+                            },
+                            {
+                                id: "ADD_USER_NAME",
+                                label: Sepoa.cache.text.get("QA_002_1.ADD_USER_NAME"),
+                                width: 200
+                            },
+                            {
+                                id: "ADD_DATE",
+                                label: Sepoa.cache.text.get("QA_002_1.ADD_DATE"),
+                                width: 100,
+                                mapping:"$DATE{ADD_DATE}"
+                            }],
+                            data: {
+                                service: "sepoa.svc.board.SepoaQAService",
+                                method: "doQuery",
+                                param:{[Sepoa.common.KEY_PARAMS]:encodeURIComponent(sUtils.url.toSepoaParams({QUERY_MODE : 'doList', CNTR_TYPE : 'C'},false))}
+                            },
+                            maxDataCount:3
+                        }],
+                        events:{
+                            cellClick:()=>{
+                                linkTo({
+                                    id: "QA_002",
+                                    url: "/Seal/Board/Qna/BoardQnaLayout.sux",
+                                    param: {cntrType: 'C'},
+                                    label: sUtils.cache.text.get("QA_002.LAYOUT_A_HEADER_C")
+                                })
+                            }
+                        }
+                    });
+                }
+                tabObject.setActive(tabObject.getTabID(0));
+            }
+        ]]>
+        </function>
+        
+        <function name="moduleChecker" args="m">
+        <![CDATA[
+            return sUtils.workflow.check(m);
+        ]]>
+        </function>
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiZWRhNjQwZjg2Y2FmNDhlMDg1MzU4ZGUyN2JmMzIxIjp7ImxheW91dCI6eyJTQ1JPTEwiOiIiLCJTQ1JFRU5fU0NST0xMIjoiMSIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiQ09OVEVOVF9NSU5fV0lEVEgiOiIiLCJkaHhJZF91Zk53N2ZTeFNMU00iOiJudWxsIiwiU0laRV9BVVRPSEVJR0hUIjoiMCIsImRoeElkX1FOOWJKbE0wSjEzYiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiQ09MVU1OIjoxLjAsIlZBUiI6IkRBU0hCT0FSRF8wMDAiLCJPQkpFQ1RfSUQiOiJlZGE2NDBmODZjYWY0OGUwODUzNThkZTI3YmYzMjEiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6IkZVTEwifSwiaWQi
+        OiJlZGE2NDBmODZjYWY0OGUwODUzNThkZTI3YmYzMjEiLCJ0eXBlIjoiYm9keSJ9LCJmNTFjM2UzYWYxYWE0YWM2OGJkZDg0MTY3NjUyOGMiOnsibGF5b3V0Ijp7IlNJWkVfSEVJR0hUIjoiIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6IiJ9LCJjb21wb25lbnQiOnsiVkFSIjoidmlld0NvbnRhaW5lciIsIk9CSkVDVF9JRCI6ImY1MWMzZTNhZjFhYTRhYzY4YmRkODQxNjc2NTI4YyJ9LCJpZCI6ImY1MWMzZTNhZjFhYTRhYzY4YmRkODQxNjc2NTI4YyIsInR5cGUiOiJjb2x1bW4iLCJuYW1lIjoiYSJ9LCJlMzMwOWU1NDA3ZTQ0MzNkODUzMGQyYWEyYzMwY2YiOnsibGF5b3V0Ijp7IlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJBUkVBX0RJVklTSU9OIjoi
+        bnVsbCIsIlNJWkVfV0lEVEgiOiIxMDAlIiwiU0laRV9IRUlHSFQiOiIiLCJkaHhJZF9hTDhJcWlQNmlHaFEiOiJudWxsIiwiTUFSR0lOX1RPUCI6IiIsIk1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsImRoeElkX29OM0xmTHNkMDVqVSI6Im51bGwiLCJBTElHTl9IT1JJWk9OVEFMIjoiIiwiQUxJR05fVkVSVElDQUwiOiIiLCJkaHhJZF9aRlRha2xkY1FkRFMiOiJudWxsIiwiQ0xBU1MiOiIiLCJkaHhJZF84ZDhCOEtkOTZVM0ciOiJudWxsIiwiZGh4SWRfRDBGbVplNndJODNYIjoibnVsbCIsImRoeElkX29oWm8zYkx1ZFJPVCI6Im51bGwiLCJkaHhJZF80SGVCbm1ibGhrQnEiOiJudWxsIiwiZGh4SWRfc2REYW92
+        ZHFvNmNMIjoibnVsbCIsImRoeElkX1Nrb1ZPWUl5RlB0WSI6Im51bGwifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6IjEiLCJWQVIiOiJmMTYwZDViYmM5YjA0NjQ0OGRiZjdmZGExYWYyNzkiLCJPQkpFQ1RfSUQiOiJlMzMwOWU1NDA3ZTQ0MzNkODUzMGQyYWEyYzMwY2YiLCJBUkVBX0RJVklTSU9OIjoibnVsbCJ9LCJpZCI6ImUzMzA5ZTU0MDdlNDQzM2Q4NTMwZDJhYTJjMzBjZiIsInR5cGUiOiJjb250YWluZXIifX0sInRyZWUiOnsiaWQiOiJlZGE2NDBmODZjYWY0OGUwODUzNThkZTI3YmYzMjEiLCJ0eXBlIjoiYm9keSIsImNlbGxzIjpbeyJpZCI6ImUzMzA5ZTU0MDdlNDQzM2Q4NTMwZDJhYTJjMzBjZiIsInR5cGUiOiJjb250YWluZXIiLCJjZWxscyI6W3si
+        aWQiOiJmNTFjM2UzYWYxYWE0YWM2OGJkZDg0MTY3NjUyOGMiLCJ0eXBlIjoiY29sdW1uIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvU3VtbWFyeS9EYXNoQm9hcmQvU3VtbWFyeURhc2hCb2FyZC54bWwiLCJQUk9KRUNUIjoiU1JNIiwiUEFUSF8yIjoiRGFzaEJvYXJkIiwiUEFUSF8zIjoiU3VtbWFyeURhc2hCb2FyZCIsIlBBVEhfMSI6IlN1bW1hcnkiLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiIiLCJDT0RFIjoiMDAwIiwiUFJFRklYIjoiREFTSEJPQVJEIiwiU0NSRUVOX0lEIjoiREFTSEJPQVJEXzAwMCJ9fSwiaHRtbCI6IjxkaXYgaWQ9XCJlZGE2NDBmODZjYWY0OGUwODUzNThkZTI3YmYzMjFcIiBjbGFzcz1cImNvbnRhaW5lciBzZXBvYXV4X3NjcmVlbl9z
+        Y3JvbGxcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICAgICAgPGRpdiBpZD1cImUzMzA5
+        ZTU0MDdlNDQzM2Q4NTMwZDJhYTJjMzBjZlwiIGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX3dyYXBwZXJcIiBzdHlsZT1cIndpZHRoOjEwMCU7XCI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfY29sdW1uX2NlbGxcIiBzdHlsZT1cImZsZXg6MTt3aWR0aDoxMDAlO1wiPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9vdXRlcl93cmFwcGVyIHNlcG9hdXhfY29sdW1uX291dGVyIFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJmNTFjM2UzYWYxYWE0YWM2OGJkZDg0MTY3NjUy
+        OGNcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9jb2x1bW5faW5uZXJcIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>

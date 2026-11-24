@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+    <method name="doSelectSIAD">
+    <![CDATA[
+    	SELECT
+			SIAD.HOUSE_CODE
+			, SIAD.COMPANY_CODE
+			, SIAD.SMR_NUMBER
+			, SIAD.SMR_STATUS
+			, SIAD.SUBJECT
+			, SIAD.RE_FLAG
+			, SIAD.REQ_SEAL_USE_TYPE
+			, SIAD.ADD_USER_ID
+			, CASE ${session.LANGUAGE} WHEN 'KO' THEN USMT.USER_NAME_LOC
+				ELSE USMT.USER_NAME_ENG 
+		     	END AS ADD_USER_NAME
+		    , USMT.EMAIL
+		FROM SSIAD SIAD 
+  		LEFT JOIN SUSMT USMT 
+   			ON USMT.HOUSE_CODE = SIAD.HOUSE_CODE
+       		AND USMT.USER_ID = SIAD.ADD_USER_ID
+	  	LEFT OUTER JOIN (   
+	  			SELECT 
+		        	SIPD.HOUSE_CODE
+		            , SIPD.COMPANY_CODE
+		            , SIPD.SMR_NUMBER
+		            , COUNT(REQ_SEAL_CNT) REQ_SEAL_CNT
+		            , COUNT(REQ_SEAL_REAL_DOC_CNT) REQ_SEAL_REAL_DOC_CNT
+		      	FROM ( SELECT DISTINCT
+		             		CASE WHEN LAYER = 'REQ_SEAL' THEN 1 END REQ_SEAL_CNT
+		             		, CASE WHEN LAYER = 'REQ_SEAL_REAL_DOC' THEN 1 END REQ_SEAL_REAL_DOC_CNT
+		             		, SIPD.HOUSE_CODE, SIPD.COMPANY_CODE, SIPD.SMR_NUMBER, LAYER
+	            		FROM SFMFI FI
+		            	JOIN SSIPD SIPD
+		              		ON FI.HOUSE_CODE = SIPD.HOUSE_CODE
+				            AND FI.COMPANY_CODE = SIPD.COMPANY_CODE
+		             		AND FI.DOC_NUMBER = SIPD.SMR_NUMBER || '_' || SIPD.SMD_NUMBER
+		       				AND NVL(SIPD.DEL_FLAG, 'N') = 'N'
+						WHERE FI.HOUSE_CODE = ${session.HOUSE_CODE}
+							AND FI.COMPANY_CODE = ${session.COMPANY_CODE}
+				) SIPD
+		        GROUP BY SIPD.HOUSE_CODE, SIPD.COMPANY_CODE, SIPD.SMR_NUMBER
+		  	) RRDOC
+	        ON RRDOC.HOUSE_CODE = SIAD.HOUSE_CODE 
+	      	AND RRDOC.COMPANY_CODE = SIAD.COMPANY_CODE 
+	      	AND RRDOC.SMR_NUMBER = SIAD.SMR_NUMBER  
+		WHERE SIAD.HOUSE_CODE  = ${session.HOUSE_CODE}
+			AND SIAD.COMPANY_CODE   = ${session.COMPANY_CODE}
+			AND SIAD.APPLY_TYPE  IN('C','U')
+			AND NVL(SIAD.DEL_FLAG,'N') = 'N'
+			AND RRDOC.REQ_SEAL_CNT > RRDOC.REQ_SEAL_REAL_DOC_CNT
+			AND SIAD.SMR_STATUS = 'C'
+			AND ( SIAD.RE_FLAG = 'R' OR SIAD.REQ_SEAL_USE_TYPE IN ($INS{USE_NUMBER}) )
+		ORDER BY SIAD.SMR_NUMBER
+    ]]>
+    </method>
+    
+    <method name="doSelect_Extra">
+    <![CDATA[
+        SELECT 
+			SMR_NUMBER
+			,DATA
+        FROM SSIAD_EXTRA_INFO
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND COMPANY_CODE = ${session.COMPANY_CODE}
+          AND SMR_NUMBER = ${SMR_NUMBER}
+    ]]>
+    </method>
+    
+    <method name="doSelectLastDate">
+    <![CDATA[
+        SELECT 
+			SMR_NUMBER
+			,DATA
+        FROM SSIAD_EXTRA_INFO
+        WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+          AND COMPANY_CODE = ${session.COMPANY_CODE}
+          AND SMR_NUMBER = ${SMR_NUMBER}
+          AND DATA LIKE '%LAST_SEND_DATE%'
+    ]]>
+    </method>
+    
+    <method name="doUpdate_Extra">
+    <![CDATA[
+        UPDATE SSIAD_EXTRA_INFO SET 
+        	DATA = ${DATA}
+           	, CHANGE_DATE       = ${current.DATE}
+			, CHANGE_TIME       = ${current.TIME}
+			, CHANGE_USER_ID    = ${session.ID}
+        WHERE HOUSE_CODE    = ${session.HOUSE_CODE}
+         	AND COMPANY_CODE = ${session.COMPANY_CODE}
+        	AND SMR_NUMBER = ${SMR_NUMBER}
+    ]]>
+    </method>
+    
+    
+    <method name="doInsert_Extra">
+    <![CDATA[
+        INSERT INTO SSIAD_EXTRA_INFO (
+        	HOUSE_CODE
+        	,COMPANY_CODE
+        	,SMR_NUMBER
+        	,ADD_DATE
+        	,ADD_TIME
+        	,ADD_USER_ID
+        	,DATA
+        ) VALUES (
+        	${session.HOUSE_CODE}
+         	,${session.COMPANY_CODE}
+         	,${SMR_NUMBER}
+        	,${current.DATE}
+			,${current.TIME}
+			,${session.ID}
+			,${DATA}
+        )
+        		
+    ]]>
+    </method>
+</service>

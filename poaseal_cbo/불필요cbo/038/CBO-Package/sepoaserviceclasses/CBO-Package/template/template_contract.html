@@ -1,0 +1,82 @@
+아래와 같이 전자계약을 신청합니다.
+<br/>
+<table class='sepoa-table'>
+    <colgroup>
+    <col style='width: 20%'>
+    <col style='width: 30%'>
+    <col style='width: 20%'>
+    <col style='width: 30%'>
+    </colgroup>
+    <thead>
+        <tr class='sepoa-tr'>
+          <td class='sepoa-td' style='background-color:#CCCCCC;'>신청명</td>
+          <td class='sepoa-td'>#SUBJECT#</td>
+          <td class='sepoa-td'></td>
+        </tr>
+        <tr class='sepoa-tr'>
+          <td class='sepoa-td' style='background-color:#CCCCCC;'>계약일</td>
+          <td class='sepoa-td'>#CONT_DATE#</td>
+          <td class='sepoa-td' style='background-color:#CCCCCC;'>계약 기간</td>
+          <td class='sepoa-td'>#CONT_FROM# ~ #CONT_TO#</td>
+        </tr>
+    </thead>
+</table>
+<br/>
+<table>
+    <colgroup>
+    <col style='width: 50%'>
+    <col style='width: 50%'>
+    </colgroup>
+    <thead>
+	<tr>
+	<td style='background-color:#CCCCCC;'>서류 종류</td>
+	<td style='background-color:#CCCCCC;'>서류 명</td>
+	</tr>
+    </thead>
+    <tbody>
+#FILE_INFO#
+    </tbody>
+</table>
+<table>
+    <colgroup>
+    <col style='width: 25%'>
+    <col style='width: 25%'>
+    <col style='width: 25%'>
+    <col style='width: 25%'>
+    </colgroup>
+    <thead>
+	<tr>
+	<td style='background-color:#CCCCCC;'>업체명</td>
+	<td style='background-color:#CCCCCC;'>계약자명</td>
+	<td style='background-color:#CCCCCC;'>이메일</td>
+	<td style='background-color:#CCCCCC;'>연락처</td>
+	</tr>
+    </thead>
+    <tbody>
+#SIGNER_INFO#
+    </tbody>
+</table>
+<br/>
+<br/>
+
+<style>
+    .sepoa-table {
+        table-layout: fixed;
+        width: 100%;
+        border: 1px;
+        border-collapse: collapse;
+    }
+
+    .sepoa-tr {
+        border: 1px solid;
+        height: 40px;
+    }
+
+    .sepoa-td {
+        text-align: center;
+        border: 1px solid;
+        vertical-align: middle;
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+</style>

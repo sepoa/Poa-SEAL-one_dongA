@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="EUC-KR" ?>
+<service>
+    <method name="doSelectSIAD">
+    <![CDATA[
+    	SELECT
+              SIAD.SMR_NUMBER
+            , SIAD.SMR_STATUS
+            , SIAD.ADD_DATE
+            , SIAD.ADD_TIME
+            , SIAD.ADD_USER_ID
+            , SIAD.SUBJECT
+			, CASE ${session.LANGUAGE} WHEN 'KO' THEN USMT.USER_NAME_LOC
+				ELSE USMT.USER_NAME_ENG 
+		     	END AS ADD_USER_NAME
+		    , USMT.EMAIL
+			, USMT.DEPT
+        FROM SSIAD SIAD
+        LEFT JOIN SUSMT USMT 
+   			ON USMT.HOUSE_CODE = SIAD.HOUSE_CODE
+       		AND USMT.USER_ID = SIAD.ADD_USER_ID
+		WHERE SIAD.HOUSE_CODE = ${session.HOUSE_CODE}
+			AND SIAD.COMPANY_CODE = ${session.COMPANY_CODE}
+          	AND nvl(SIAD.DEL_FLAG, 'N') = 'N'
+			AND SIAD.SMR_STATUS = 'C'
+			AND SIAD.REQ_SEAL_USE_TYPE IN ('001','002','008')
+			AND SIAD.SMR_NUMBER NOT IN (
+            	SELECT SOURCE_NO
+                FROM SSCGL
+				WHERE HOUSE_CODE = ${session.HOUSE_CODE}
+					AND COMPANY_CODE = ${session.COMPANY_CODE}
+					AND nvl(DEL_FLAG, 'N') = 'N'
+                    AND SOURCE_NO IS NOT NULL
+            	)
+		ORDER BY SIAD.SMR_NUMBER DESC            
+    ]]>
+    </method>
+    <method name="doQueryDeptManager">
+    <![CDATA[
+    	SELECT
+			CODE.TEXT1 AS RESPONSIBILITY_NAME
+			, USMT.USER_ID AS MANAGER_ID
+			, USMT.USER_NAME_LOC AS MANAGER_NAME
+			, USMT.EMAIL AS MANAGER_EMAIL
+    	FROM
+    		SUSMT USMT
+		INNER JOIN SCODE CODE
+			ON CODE.HOUSE_CODE = USMT.HOUSE_CODE
+			AND CODE.TYPE = 'UX050'
+			AND CODE.LANGUAGE = ${session.LANGUAGE}
+			AND CODE.CODE = USMT.RESPONSIBILITY
+    	WHERE
+    		USMT.HOUSE_CODE = ${session.HOUSE_CODE}
+    		AND USMT.COMPANY_CODE = ${session.COMPANY_CODE}
+    		AND USMT.DEPT = ${DEPT}
+    ]]>
+    </method>
+</service>

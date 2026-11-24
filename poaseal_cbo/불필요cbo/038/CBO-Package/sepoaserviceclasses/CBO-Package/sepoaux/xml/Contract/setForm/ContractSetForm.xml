@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body screen_id="CT_205" header="false">
+    <button id="btnObj">
+<!--         <btn div="RPFbNUcEmmdBHulaJH" id="MANUAL_COMPLETE" type="save" text="{CT_205.MANUAL_COMPLETE}" toggle="false" reverse="false" onclick="onManualComplete()"/> -->
+<!--         <btn div="RPFbNUcEmmdBHulaJH" id="DOWN" type="save" text="{CT_205.DOWN_COPY}" toggle="false" reverse="false" onclick="onButtonClick( 'DOWN' )"/> -->
+<!--         <btn div="RPFbNUcEmmdBHulaJH" id="VIEW" type="save" text="{CT_205.VIEW_CONTRACT}" toggle="false" reverse="false" onclick="onButtonClick( 'VIEW' )"/> -->
+        <btn div="RPFbNUcEmmdBHulaJH" id="SAVE" type="save" text="{BUTTON.save}" toggle="false" reverse="false" onclick="onButtonClick( 'SAVE' )"/>
+        <btn div="RPFbNUcEmmdBHulaJH" id="CANCEL" type="default" text="{BUTTON.cancel}" toggle="false" reverse="false" onclick="onButtonClick( 'CANCEL' )"/>
+    </button>
+    <form id="formObj" div="RPFbNUcwbtdBHultoy" form-id="CT_205">
+        <event type="onChange" callback="onChange"/>
+        <event type="onFocus" callback="onFocus"/>
+        <event type="onXLE" callback="onXLE"/>
+    </form>
+    <tabbar id="tabObj" div="VDQQGicYgVQGicwqtu">
+        <item id="BASIC" name="CT_205.TABBAR_BASIC_NAME" selected="true">
+            <attach file="/Contract/setForm/ContractsetFormBasic.xml"/>
+        </item>
+        <item id="SIGNNER" name="CT_205.TABBAR_SIGNNER_NAME">
+            <attach file="/Contract/setForm/ContractsetFormSignner.xml"/>
+        </item>
+        <item id="VENDOR" name="CT_205.TABBAR_NEW_VENDOR">
+            <attach file="/Contract/CompanyManagement/ContractCompanyManagementLayout.xml"/>
+        </item>
+        <event type="onTabClick" callback="onTabClick"/>
+    </tabbar>
+    <onloadscript>
+        <call name="init" />
+        <call name="onReady"/>
+    </onloadscript>
+    <userscript>
+        <var name="$share" value="{childScreen:{}}"/>
+        <var name="DEFAULT_TAB_LIST" value="['BASIC', 'SIGNNER']"/>
+        <var name="viewFlag" value="false"/>
+        <function name="init">
+        <![CDATA[
+            //기본탭 제외하고 숨김처리
+            tabObj.forEachCell(function(e){
+                const tId = e._idd
+                if(!DEFAULT_TAB_LIST.includes(tId)) {
+                    tabObj.tabs(tId).hide();
+                }
+            });
+            
+            //결재문서함 또는링크모드 모드일때 취소버튼 제거
+            if(Sepoa.request.onLink || Sepoa.request.MODE == 'POPUP'){
+                btnObj.showButton('CANCEL', false);
+            }
+            
+            //서명방식 기본 값 지정
+            formObj.setValue('CONT_METHOD', 'D');    // D : 디지털 서명
+            
+            //템플릿 번호 아이템 readonly
+            formObj.setReadOnly('CONT_FORM_NO', true);
+            
+            //협력사일때 동작
+            if(Sepoa.info.USER_TYPE == 'S'){
+                formObj.hideItem('SELECT_CFGL');
+            }
+            
+            formObj.setValue('SELECT_CFGL', '');
+            formObj.reloadComboBox('SELECT_CFGL', ['SL0067', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE + "#__EMPTY__"]);
+            
+            //모듈에 의한 탭 활성화
+            const childTabModule = sUtils.workflow.getChildren('CT1636946702720');
+            for(let i in childTabModule){
+                const tID = sUtils.workflow.getAlias(childTabModule[i]);
+                if(tID != undefined){
+                    if(sUtils.workflow.check(childTabModule[i])){
+                        tabObj.tabs(tID).show();
+                        tabObj.callEvent("onSelect", [tID]);
+                    }
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="onReady">
+        <![CDATA[
+            callFunction('p', 'childScreenReady', [{
+                name:'FORM',
+                fn:{
+                    doOpenDocument:doOpenDocument,
+                    doClear:doClear,
+                    setViewMode:setViewMode
+                }
+            }])
+        ]]>
+        </function>
+        
+        <function name="childScreenReady" args="config">
+        <![CDATA[
+            const child = $share.childScreen[config.name] = config;
+            if ($share.config && $share.config.data) {
+                child.fn.doOpenDocument($share.config);
+            }
+            
+            if(viewFlag === true) {
+                if(child.fn.setViewMode){
+                    child.fn.setViewMode(viewFlag);
+                }
+            }
+        ]]>
+        </function>
+        
+        <function name="onButtonClick" args="id">
+        <![CDATA[
+            if (id == 'DOWN') {
+                doDownloadContract();
+            } else if (id == 'VIEW') {
+                callContractEditor($share.config.data.CONT_NO,$share.config.data.CONT_GL_SEQ);
+            } else if (id == 'SAVE') {
+                doSave('INSERT');
+            } else if (id == 'CANCEL') {
+                formObj.setValue("CATEGORY", "");
+                formObj.setValue("SELECT_CFGL", "");
+                callFunction(['p'], 'changeView', [{
+                    view: 'LIST'
+                }]);
+            }
+        ]]>
+        </function>
+        <function name="doClear" args="">
+        <![CDATA[
+            tabObj.tabs('BASIC').setActive();
+            formObj.clear();
+            
+            for (var i in $share.childScreen) {
+                $share.childScreen[i].fn.doClear();
+            }
+            
+            delete $share.config;
+        ]]>
+        </function>
+        <function name="doNewManualDocument" args="">
+        <![CDATA[
+            doClear();
+            var cont_no = getDocumentNumber('CT');
+            $share.config = {
+                document : {},
+                data : { DOC_TYPE: "MA"
+                        ,DOC_NO : cont_no
+                        ,CONT_NO : cont_no
+                        ,CONT_GL_SEQ : "1"
+                        ,STATUS:"T"
+                }
+            };
+            doServiceAjax("sepoa.svc.ct.CT_205", "CONNECTION", 'doQueryGetBuyerInfo', null, function(so) {
+                if (so.status != 1) {
+                    Alert(so.message);
+                    return;
+                } else {
+                    var sf = new SepoaFormater(so.result[0]);
+                    if (sf.getRowCount() > 0) {
+                        $share.config.data = $.extend(true, $share.config.data, sf.getArrayMap()[0]);
+                        callFunction(['CT_205_B'], 'doOpenDocument', [$share.config]);
+                    }
+                }
+                setViewMode(false);
+                formObj.setValue('CONT_METHOD', 'C');
+                formObj.setValue('SIGN_ORDER', 'S');
+            });
+        ]]>
+        </function>
+        
+        <function name="doOpenDocument" args="config">
+        <![CDATA[
+        	debugger;
+            doClear();
+            
+            //서명방식 기본 값 지정
+            formObj.setValue('CONT_METHOD', 'D');    // D : 디지털 서명
+            
+            $share.config = config;
+            
+            if($share.config.document.CONT_TYPE == 'ALTER') {
+                console.log($share.config.document);
+                //변경계약 버튼 클릭시 진입점
+                var docInfo = $share.config.document;
+            }else{
+                const docInfo = $share.config.document;
+                if(docInfo.SMR_NUMBER) {                // 계약 대상현황에서 진입 시 계약 서식 선택을 제한한다.
+                    hideTemplateFormItem(true);
+                }
+                
+                if($share.config.data === undefined) {
+                    $share.config.data = {};
+                }
+                
+                if(docInfo.CONT_NO && docInfo.CONT_GL_SEQ) {
+                    const config = {
+                        url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                        async : false,
+                        contentType: "json"
+                    }
+                    
+                    const params = $.extend(true, {
+                        module: 'sepoa.svc.ct.CT_205',
+                        action: 'doQueryContract'
+                    }, docInfo);
+                    
+                    const res = sUtils.multipart.send(config, params);
+                    if(res.status == 1) {
+                        if(res.result.length > 0) {
+                            const docData = res.result[0];
+                            if(docData.CONT_FORM_NO) {
+                                docData.SELECT_CFGL = [docData.CATEGORY ? docData.CATEGORY : 'I', docData.CONT_FORM_NO].join('^');
+                                if(docData.CATEGORY){
+                                	formObj.reloadComboBox('SELECT_CFGL', ['SL0067', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE + "#" + docData.CATEGORY]);
+                                }
+                            }
+                            
+                            
+                            formObj.dataMapper(docData, 'json');
+                            
+                            if(docData instanceof Object) {
+                                $share.config.data = $.extend(true, {}, docData);
+                                if(String($share.config.data.IS_WRITABLE).toUpperCase() === "FALSE") {
+                                	setViewMode(true);
+                                } else {
+                                    if(String($share.config.data.CREATOR).toUpperCase() === Sepoa.info.ID) {
+                                        setViewMode(false);
+                                    } else {
+                                        setViewMode(true);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Alert(res.message);
+                    }
+                }
+            }
+            
+            for (let i in $share.childScreen) {
+                $share.childScreen[i].fn.doOpenDocument($share.config);
+            }
+        ]]>
+        </function>
+        
+        <function name="setViewMode" args="flag">
+        <![CDATA[
+            viewFlag = flag;
+            btnObj.showButton('SAVE', !flag);
+            btnObj.showButton('MANUAL_COMPLETE', flag);
+            btnObj.showButton('VIEW', flag);
+            btnObj.showButton('DOWN', flag);
+            if($share.config.data.CONT_METHOD != 'S' || Sepoa.info.USER_TYPE == 'S'){
+                btnObj.showButton('MANUAL_COMPLETE', false);
+            }
+            
+            formObj.setViewMode(flag);
+            for (var i in $share.childScreen) {
+                if($share.childScreen[i].fn.setViewMode){
+                    $share.childScreen[i].fn.setViewMode(flag);
+                }
+            }
+        ]]>
+        </function>
+        <function name="onChange" args="name, value, state">
+        <![CDATA[
+            if (name == 'CATEGORY') {
+                if(value != ""){
+                	if(!$share?.config?.data?.SELECT_CFGL){
+                		formObj.setValue('SELECT_CFGL', '');  
+                	}
+                    formObj.reloadComboBox('SELECT_CFGL', ['SL0067', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE + "#" + value]);
+                } else {
+                    formObj.setValue('SELECT_CFGL', ''); 
+                    formObj.reloadComboBox('SELECT_CFGL', ['SL0067', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE + "#__EMPTY__"]);
+                } 
+            } else if (name == 'SELECT_CFGL') {
+                const isHidden = formObj._apiConnector('isItemHidden', ['SELECT_CFGL']);
+                if(isHidden === false) {
+                    if (value != '') {
+                        const code = value.split('^');
+                        //formObj.setValue("CONT_CATEGORY", code[0]);
+                        formObj.setValue("CONT_FORM_NO", code[1], true);
+                        
+                        if($share.childScreen['BASIC']?.fn?.hideVaultContract) {
+                            $share.childScreen['BASIC'].fn.hideVaultContract(true);
+                        }
+                    }else{
+                        formObj.setValue("CONT_FORM_NO", "", true);
+                        
+                        if(sUtils.string.isBlank($share.config.data?.EXTRA?.EX_SOURCE_NO)) {
+                            if($share.childScreen['BASIC']?.fn?.hideVaultContract) {
+                                $share.childScreen['BASIC'].fn.hideVaultContract(false);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            //const formData = formObj.getFormData(true);
+            const formData = {
+                SELECT_CFGL : formObj.getValue('SELECT_CFGL'),
+                CONT_FORM_NO : formObj.getValue('CONT_FORM_NO'),
+                CATEGORY : formObj.getValue('CATEGORY'),
+                CONT_METHOD : formObj.getValue('CONT_METHOD'),
+                EXPIRED_ALARM : formObj.getValue('EXPIRED_ALARM')
+            }
+            
+            if(!$share.config) {
+                $share.config = {};
+            }
+            
+            if(!$share.config.data) {
+                $share.config.data = {};
+            }
+            
+            $.extend(true, $share.config.data, formData);
+        ]]>
+        </function>
+        <function name="onFocus" args="name">
+        <![CDATA[
+            /*
+            if(name == 'SELECT_CFGL') {
+                formObj.reloadComboBox('SELECT_CFGL', ['SL0062', Sepoa.info.HOUSE_CODE + "#" + Sepoa.info.COMPANY_CODE]);
+            }
+            */
+        ]]>
+        </function>
+        <function name="onXLE" args="">
+        <![CDATA[
+            if ($share.config.data?.CATEGORY) {
+                onChange("CATEGORY", $share.config.data.CATEGORY)
+            }
+            if (formObj.getValue("CATEGORY") == "") {
+                formObj.setValue("CATEGORY", "I");
+            }
+        ]]>
+        </function>
+        <function name="onChangeData" args="type">
+        <![CDATA[
+            for (var i in $share.childScreen) {
+                if($share.childScreen[i].fn.onScreenDataUpdate){
+                    $share.childScreen[i].fn.onScreenDataUpdate(type);
+                }
+            }
+        ]]>
+        </function>
+        <function name="doSave" args="mode">
+        <![CDATA[
+            if (!doValidate()) {
+                return;
+            }
+            
+            const data = $share.config.data;
+            data.grid = $share.config.grid;
+            data.SAVE_MODE = mode;
+            data.ALTER_TYPE = $share.config.document.CONT_TYPE;
+            
+            if($share.config.document) {
+                data.SMR_NUMBER = $share.config.document.SMR_NUMBER;
+                data.NEXT_STEP = 'MODULE';
+            }
+            
+            if (!data.CONT_FORM_NO && !$share.childScreen.BASIC.fn.doValidateAttach()) {
+                Alert(Sepoa.cache.text.get('CT_205.MSG10')); // 계약 문서 또는 계약 서식이 입력되지 않았습니다.
+                return;
+            }
+            
+            const config = {
+                url: window.CONTEXT_NAME + '/SepoaActionController.sux',
+                on: {
+                    callback : function(res, config, params) {
+                        if(res.status == 1) {
+                            if(res.result.length > 0) {
+                                const docData = res.result[0];
+                                if(docData instanceof Object) {
+                                    $.extend(true, $share.config.data, docData)
+                                }
+                                
+                                callContractEditor(docData.CONT_NO, docData.CONT_GL_SEQ);
+                            } else {
+                                console.error('Document Create Failed.')
+                            }
+                        } else {
+                            Alert(res.message);
+                        }
+                    }
+                },
+                contentType: "json"
+            }
+            
+            var params = $.extend(true, {
+                module: 'sepoa.svc.ct.CT_205',
+                action: 'doSaveContract'
+            }, data);
+            sUtils.multipart.send(config, params);
+        ]]>
+        </function>
+        <function name="doValidate">
+        <![CDATA[
+            if (!formObj.validate()) {
+                Alert(Sepoa.cache.text.get('CT_205.MSG6'))
+                return false;
+            }
+           
+            for (var i in $share.childScreen) {
+                if (!$share.childScreen[i].fn.doValidate()) {
+                    tabObj.tabs($share.childScreen[i].name).setActive();
+                    return false;
+                }
+            }
+           
+            return true;
+        ]]>
+        </function>
+        <function name="callContractEditor" args="contNo, contGlSeq">
+        <![CDATA[
+            var options = {
+                url: window.CONTEXT_NAME + '/Contract/Module/ContractModuleLayout.sux',
+                params: {
+                    CONT_NO: contNo,
+                    CONT_GL_SEQ: contGlSeq,
+                    PARENT:$sObject.getOAObject('p','changeView')
+                },
+                title: sUtils.cache.text.get('POA_CONTRACT.TITLE_EDITOR')
+            }
+            if(["T", "P"].indexOf($share.config.data.STATUS) >= 0){
+                options.params.CONT_MODULE = 'EDITOR'
+            }else if($share.config.data.STATUS == 'R') {
+                options.params.CONT_MODULE = 'APPROVAL_REJECT'
+            }else if($share.config.data.STATUS == 'RP') {
+                options.params.CONT_MODULE = 'REVIEW';
+            }else if(['RA', 'RR'].includes($share.config.data.STATUS)) {
+                options.params.CONT_MODULE = 'REVIEW_DONE';
+            }else if($share.config.data.STATUS == "G"){
+                options.params.CONT_MODULE = 'SIGN'
+            }else if(["X", "K"].indexOf($share.config.data.STATUS) >= 0 ){
+                options.params.CONT_MODULE = 'TERMINATION'
+            }else if(["F", "C", "A"].indexOf($share.config.data.STATUS) >= 0 ){
+                options.params.CONT_MODULE = 'COMPLETE'
+            }else{
+                options.params.CONT_MODULE = 'VIEW'
+            }
+            sUtils.popup.modal(options);
+        ]]>
+        </function>
+        <function name="onTabClick" args="id, lastId">
+        <![CDATA[
+            if (formObj.getValue("CONT_TYPE") == 'S' && !formObj.getValue("CONT_FORM_NO")) {
+                Alert(Sepoa.cache.text.get('CT_205.MSG1')); //템플릿 문서가 선택되지 않았습니다.
+                return;
+            }
+        ]]>
+        </function>
+        <function name="doDownloadContract">
+        <![CDATA[
+            var config = {
+                url:window.CONTEXT_NAME+'/SepoaActionController.sux',
+                on:{
+                    callback:function(res, config, params){
+                        if(res.flag){
+                            
+                        }else{
+                            console.log(arguments);
+                            Alert(res.message);
+                        }
+                    }
+                }
+            }
+            
+            var params = {
+                module:"contract",
+                action: "doDocumentDownload",
+                CONT_NO: $share.config.data.CONT_NO,
+                CONT_GL_SEQ:  $share.config.data.CONT_GL_SEQ,
+                CONT_TYPE: $share.config.data.CONT_TYPE
+            }
+            
+            sUtils.multipart.download(config, params);
+        ]]>
+        </function>
+        <function name="onManualComplete">
+        <![CDATA[
+            callFunction('CT_101','doManualContractUpload',[$share.config.data]);
+            //onButtonClick('CANCEL');
+        ]]>
+        </function>
+        <function name="hideTemplateFormItem" args="flag">
+        <![CDATA[
+            if(flag) {
+                formObj.setValue('SELECT_CFGL', '');
+                formObj.hideItem('SELECT_CFGL');
+                formObj.hideItem('CONT_FORM_NO');
+            } else {
+                formObj.showItem('SELECT_CFGL');
+                formObj.showItem('CONT_FORM_NO');
+            }
+        ]]>
+        </function>
+        
+    </userscript>
+    <template editor="true">
+        eyJkYXRhIjp7Im9iamVjdHMiOnsiUlBGYk5VY0VtbWRCSHVsYUpIIjp7ImxheW91dCI6eyJNQVJHSU5fQk9UVE9NIjoiIiwiTUFSR0lOX0xFRlQiOiIiLCJNQVJHSU5fUklHSFQiOiIiLCJNQVJHSU5fVE9QIjoiIiwiU0laRV9XSURUSCI6IiIsIlNJWkVfSEVJR0hUIjoiIiwiQUxJR05fSE9SSVpPTlRBTCI6InJpZ2h0IiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJDTEFTUyI6Im1haW5fYnRuIn0sImNvbXBvbmVudCI6eyJWQVIiOiJidG5PYmoiLCJJVEVNXzBfUkVWRVJTRSI6ZmFsc2UsIklURU1fMF9TTENPREUiOiJCVVRUT04uc2F2ZSIsIklURU1fMV9TTENPREUiOiJCVVRUT04uY2FuY2VsIiwiSVRFTV8wX1RZUEUiOiJzYXZlIiwiSVRFTV8wX1BBUkFNIjoi
+        JiMzOTtTQVZFJiMzOTsiLCJJVEVNXzFfUkVWRVJTRSI6ZmFsc2UsIklURU1fMV9PTkNMSUNLIjoib25CdXR0b25DbGljayIsIklURU1fMV9QQVJBTSI6IiYjMzk7Q0FOQ0VMJiMzOTsiLCJJVEVNXzBfT05DTElDSyI6Im9uQnV0dG9uQ2xpY2siLCJJVEVNXzFfVEVYVCI6Iuy3qOyGjCIsIklURU1fMV9UT0dHTEUiOmZhbHNlLCJJVEVNXzBfVE9HR0xFIjpmYWxzZSwiSVRFTV8wX1NPUlQiOiIxIiwiSVRFTV8xX1NPUlQiOiIyIiwiT0JKRUNUX0lEIjoiUlBGYk5VY0VtbWRCSHVsYUpIIiwiSVRFTV8xX1RZUEUiOiJkZWZhdWx0IiwiSVRFTV8wX0lEIjoiU0FWRSIsIklURU1fMV9JRCI6IkNBTkNFTCIsIklURU1fMF9URVhUIjoi7KCA7J6lIn0sImlkIjoiUlBGYk5V
+        Y0VtbWRCSHVsYUpIIiwidHlwZSI6ImJ1dHRvbiIsImJ1dHRvbiI6ImJ1dHRvbiJ9LCJSUEZiTlVjZ1JkZEJIdWxYdWwiOnsibGF5b3V0Ijp7IlNDUk9MTCI6IiIsIlNDUk9MTF9WIjoiIiwiU0NSRUVOX1NDUk9MTCI6IjAiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkNPTlRFTlRfTUlOX1dJRFRIIjoiIiwiZGh4SWRfTTV3bHI1MU1BSXE4IjoibnVsbCIsIlNJWkVfQVVUT0hFSUdIVCI6IjAiLCJkaHhJZF8wV3ZnYnpXS1F5MjgiOiJudWxsIiwiQ0xBU1MiOiIifSwiY29tcG9uZW50Ijp7IkNPTFVNTiI6MS4wLCJWQVIiOiJDVF8yMDUiLCJPQkpFQ1RfSUQiOiJSUEZiTlVjZ1JkZEJIdWxYdWwiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsIkZSQU1FX1BSRVNFVCI6
+        IkRFRkFVTFQifSwiaWQiOiJSUEZiTlVjZ1JkZEJIdWxYdWwiLCJ0eXBlIjoiYm9keSJ9LCJSUEZiTlVjd2J0ZEJIdWx0b3kiOnsibGF5b3V0Ijp7Ik1BUkdJTl9CT1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJBUkVBX0RJVklTSU9OIjoibnVsbCIsImRoeElkX3dPOEs4Vk5EelZIbCI6Im51bGwiLCJkaHhJZF9jM3ZXdjBxaTUwS0IiOiJudWxsIiwiQUxJR05fSE9SSVpPTlRBTCI6ImNlbnRlciIsImRoeElkX2xQbVB6VnhmOVk1TSI6Im51bGwiLCJkaHhJZF9zTzJkVUM5eEpsbUQiOiJudWxsIiwiZGh4SWRfZUY1NFhyOE1PQ3V1IjoibnVs
+        bCIsImRoeElkX05nNWVvNFBHZUtFYSI6Im51bGwifSwiY29tcG9uZW50Ijp7IlZBUiI6ImZvcm1PYmoiLCJPQkpFQ1RfSUQiOiJSUEZiTlVjd2J0ZEJIdWx0b3kiLCJGT1JNX0lEIjoiQ1RfMjA1In0sImlkIjoiUlBGYk5VY3didGRCSHVsdG95IiwidHlwZSI6ImZvcm0iLCJmb3JtIjoiZm9ybSIsImV2ZW50cyI6W3siQ0FMTEJBQ0siOiJvbkNoYW5nZSIsInR5cGUiOiJldmVudCIsIkNBTExCQUNLX1RZUEUiOiJuYW1lIiwiTkFNRSI6Im9uQ2hhbmdlIn0seyJDQUxMQkFDSyI6Im9uWExFIiwidHlwZSI6ImV2ZW50IiwiQ0FMTEJBQ0tfVFlQRSI6Im5hbWUiLCJOQU1FIjoib25YTEUifV19LCJWRFFRR2ljWWdWUUdpY3dxdHUiOnsibGF5b3V0Ijp7Ik1BUkdJTl9C
+        T1RUT00iOiIiLCJNQVJHSU5fTEVGVCI6IiIsIk1BUkdJTl9SSUdIVCI6IiIsIk1BUkdJTl9UT1AiOiIiLCJTSVpFX1dJRFRIIjoiIiwiU0laRV9IRUlHSFQiOiIiLCJTSVpFX0FVVE9IRUlHSFQiOiIxIiwiQVJFQV9ESVZJU0lPTiI6Im51bGwiLCJkaHhJZF9xOHZrNlpKUGNOZ1QiOiJudWxsIiwiZGh4SWRfWXVReUtTZmJsNGE1IjoibnVsbCIsImRoeElkX1BLMUpDVDdLcUFSSiI6Im51bGwiLCJkaHhJZF9JRXl0RDdyTThxb2ciOiJudWxsIiwiZGh4SWRfYVpNUVk3MjBkWFR1IjoibnVsbCIsIkFMSUdOX0hPUklaT05UQUwiOiIiLCJBTElHTl9WRVJUSUNBTCI6IiIsImRoeElkX1ZGMGlweXNweTRiSyI6Im51bGwiLCJDTEFTUyI6IkNPTlRfVEFCIiwiZGh4SWRf
+        MTJEbEsxTDVBWUJtIjoibnVsbCIsImRoeElkX21YS2tTTkNHRU9lRSI6Im51bGwiLCJkaHhJZF9mVU1iaFVyRE5wVlIiOiJudWxsIiwiZGh4SWRfTHBpVHB6UVBvS3RmIjoibnVsbCIsImRoeElkX3kxeVVJVjlMOU1rRCI6Im51bGwiLCJkaHhJZF9QeXQ0czlOdVFKVUIiOiJudWxsIiwiZGh4SWRfR2tBdDgxQUhXRFFkIjoibnVsbCIsImRoeElkX0lValFlcFFGMEpuQiI6Im51bGwiLCJkaHhJZF9wajFPdEM4MHRSaG4iOiJudWxsIiwiZGh4SWRfTU4wZll6RkhzbXcyIjoibnVsbCIsImRoeElkX2ZaQm85N2lSWEVmTSI6Im51bGwiLCJkaHhJZF9zbmNsWElXUnY2SWsiOiJudWxsIiwiZGh4SWRfVXJNVHRsR1FLTDNoIjoibnVsbCIsImRoeElkX1huWWdZZ1ZJVnpy
+        ayI6Im51bGwiLCJkaHhJZF9tY2J0cGhETzA0QTUiOiJudWxsIn0sImNvbXBvbmVudCI6eyJWQVIiOiJ0YWJPYmoiLCJJVEVNX0hMV0dTVEVFV01QWkpERFhVX1RZUEUiOiJVIiwiSVRFTV9ITFdHU1RFRVdNUFpKRERYVV9SRU5ERVIiOiJsYXp5IiwiSVRFTV9HTFdHU1RFWUNVT1pKRERQSF9UWVBFIjoiVSIsIklURU1fSExXR1NURVlZVFBaSkRRUldfVFlQRSI6IlUiLCJJVEVNX0dMV0dTVEVZQ1VPWkpERFBIX1NFTEVDVEVEIjoidHJ1ZSIsIk9CSkVDVF9JRCI6IlZEUVFHaWNZZ1ZRR2ljd3F0dSIsIklURU1fR0xXR1NURVlDVU9aSkREUEhfTkFNRSI6IuydvOuwmOygleuztCIsIklURU1fSExXR1NURUNBRFFaSkRIWUFfU09SVCI6IjQiLCJJVEVNX0hMV0dTVEVD
+        QURRWkpESFlBX1RBUkdFVCI6Ii9Db250cmFjdC9zZXRGb3JtL0NvbnRyYWN0c2V0Rm9ybU1hdGVyaWFsLnhtbCIsIklURU1fSExXR1NURVlZVFBaSkRRUldfU09SVCI6IjIiLCJJVEVNX0hMV0dTVEVDQURRWkpESFlBX1RZUEUiOiJVIiwiSVRFTV9ITFdHU1RFRVdNUFpKRERYVV9TT1JUIjoiMyIsIklURU1fSExXR1NURVlZVFBaSkRRUldfSUQiOiJTSUdOTkVSIiwiSVRFTV9HTFdHU1RFWUNVT1pKRERQSF9UQVJHRVQiOiIvQ29udHJhY3Qvc2V0Rm9ybS9Db250cmFjdHNldEZvcm1CYXNpYy54bWwiLCJJVEVNX0hMV0dTVEVZWVRQWkpEUVJXX1RBUkdFVCI6Ii9Db250cmFjdC9zZXRGb3JtL0NvbnRyYWN0c2V0Rm9ybVNpZ25uZXIueG1sIiwiSVRFTV9HTFdHU1RF
+        WUNVT1pKRERQSF9JRCI6IkJBU0lDIiwiSVRFTV9HTFdHU1RFWUNVT1pKRERQSF9TT1JUIjoiMSIsIklURU1fSExXR1NURUNBRFFaSkRIWUFfUkVOREVSIjoibGF6eSIsIklURU1fSExXR1NURVlZVFBaSkRRUldfTkFNRSI6IuqzhOyVveyekCIsIklURU1fSExXR1NURUVXTVBaSkREWFVfTkFNRSI6IuuMgOq4iCDsp4Drtogg7J287KCVIiwiSVRFTV9ITFdHU1RFQ0FEUVpKREhZQV9OQU1FIjoi66qp7KCB66y8L+q1rOunpOuMgOq4iCIsIklURU1fSExXR1NURUVXTVBaSkREWFVfSUQiOiJQQVlURVJNIiwiSVRFTV9ITFdHU1RFRVdNUFpKRERYVV9UQVJHRVQiOiIvQ29udHJhY3Qvc2V0Rm9ybS9Db250cmFjdHNldEZvcm1QYXl0ZXJtLnhtbCIsIklURU1fSExXR1NU
+        RUNBRFFaSkRIWUFfSUQiOiJNQVRFUklBTCIsIkFSRUFfRElWSVNJT04iOiJudWxsIiwiSVRFTV9ITFdHU1RFRVdNUFpKRERYVV9TRUxFQ1RFRCI6ImZhbHNlIiwiSVRFTV9ITFdHU1RFQ0FEUVpKREhZQV9TRUxFQ1RFRCI6ImZhbHNlIn0sImlkIjoiVkRRUUdpY1lnVlFHaWN3cXR1IiwidHlwZSI6InRhYmJhciIsImV2ZW50cyI6W3siTkFNRSI6Im9uVGFiQ2xpY2siLCJ0eXBlIjoiZXZlbnQiLCJDQUxMQkFDSyI6Im9uVGFiQ2xpY2sifV19LCJHTFdHU1RFWUNVT1pKRERQSCI6eyJsYXlvdXQiOnt9LCJjb21wb25lbnQiOnsiVFlQRSI6IlUiLCJTRUxFQ1RFRCI6InRydWUiLCJOQU1FIjoi7J2867CY7KCV67O0IiwiVEFSR0VUIjoiL0NvbnRyYWN0L3NldEZvcm0v
+        Q29udHJhY3RzZXRGb3JtQmFzaWMueG1sIiwiSUQiOiJCQVNJQyIsIml0ZW1JRCI6IkdMV0dTVEVZQ1VPWkpERFBIIiwiU09SVCI6IjEifSwiaWQiOiJHTFdHU1RFWUNVT1pKRERQSCIsIm1heENoaWxkQ291bnQiOjEuMCwidHlwZSI6InRhYmJhckNlbGwiLCJuYW1lIjoiQkFTSUMifSwiSExXR1NURVlZVFBaSkRRUlciOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlRZUEUiOiJVIiwiU09SVCI6IjIiLCJJRCI6IlNJR05ORVIiLCJpdGVtSUQiOiJITFdHU1RFWVlUUFpKRFFSVyIsIlRBUkdFVCI6Ii9Db250cmFjdC9zZXRGb3JtL0NvbnRyYWN0c2V0Rm9ybVNpZ25uZXIueG1sIiwiTkFNRSI6IuqzhOyVveyekCJ9LCJpZCI6IkhMV0dTVEVZWVRQWkpEUVJXIiwi
+        bWF4Q2hpbGRDb3VudCI6MS4wLCJ0eXBlIjoidGFiYmFyQ2VsbCIsIm5hbWUiOiJTSUdOTkVSIn0sIkhMV0dTVEVFV01QWkpERFhVIjp7ImxheW91dCI6e30sImNvbXBvbmVudCI6eyJUWVBFIjoiVSIsIlJFTkRFUiI6ImxhenkiLCJTT1JUIjoiMyIsIk5BTUUiOiLrjIDquIgg7KeA67aIIOydvOyglSIsIklEIjoiUEFZVEVSTSIsIml0ZW1JRCI6IkhMV0dTVEVFV01QWkpERFhVIiwiVEFSR0VUIjoiL0NvbnRyYWN0L3NldEZvcm0vQ29udHJhY3RzZXRGb3JtUGF5dGVybS54bWwiLCJTRUxFQ1RFRCI6ImZhbHNlIn0sImlkIjoiSExXR1NURUVXTVBaSkREWFUiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6IlBBWVRFUk0ifSwi
+        SExXR1NURUNBRFFaSkRIWUEiOnsibGF5b3V0Ijp7fSwiY29tcG9uZW50Ijp7IlNPUlQiOiI0IiwiVEFSR0VUIjoiL0NvbnRyYWN0L3NldEZvcm0vQ29udHJhY3RzZXRGb3JtTWF0ZXJpYWwueG1sIiwiVFlQRSI6IlUiLCJSRU5ERVIiOiJsYXp5IiwiTkFNRSI6IuuqqeyggeusvC/qtazrp6TrjIDquIgiLCJJRCI6Ik1BVEVSSUFMIiwiaXRlbUlEIjoiSExXR1NURUNBRFFaSkRIWUEiLCJTRUxFQ1RFRCI6ImZhbHNlIn0sImlkIjoiSExXR1NURUNBRFFaSkRIWUEiLCJtYXhDaGlsZENvdW50IjoxLjAsInR5cGUiOiJ0YWJiYXJDZWxsIiwibmFtZSI6Ik1BVEVSSUFMIn19LCJ0cmVlIjp7ImlkIjoiUlBGYk5VY2dSZGRCSHVsWHVsIiwidHlwZSI6ImJvZHkiLCJjZWxs
+        cyI6W3siaWQiOiJSUEZiTlVjRW1tZEJIdWxhSkgiLCJ0eXBlIjoiYnV0dG9uIn0seyJpZCI6IlJQRmJOVWN3YnRkQkh1bHRveSIsInR5cGUiOiJmb3JtIn0seyJpZCI6IlZEUVFHaWNZZ1ZRR2ljd3F0dSIsInR5cGUiOiJ0YWJiYXIiLCJjZWxscyI6W3siaWQiOiJHTFdHU1RFWUNVT1pKRERQSCIsInR5cGUiOiJ0YWJiYXJDZWxsIn0seyJpZCI6IkhMV0dTVEVZWVRQWkpEUVJXIiwidHlwZSI6InRhYmJhckNlbGwifSx7ImlkIjoiSExXR1NURUVXTVBaSkREWFUiLCJ0eXBlIjoidGFiYmFyQ2VsbCJ9LHsiaWQiOiJITFdHU1RFQ0FEUVpKREhZQSIsInR5cGUiOiJ0YWJiYXJDZWxsIn1dfV19LCJpbmZvIjp7IlBBVEgiOiIvQ29udHJhY3Qvc2V0Rm9ybS9Db250cmFj
+        dFNldEZvcm0ueG1sIiwiUFJPSkVDVCI6IlNSTSIsIkNPREUiOiIyMDUiLCJQUkVGSVgiOiJDVCIsIlBBVEhfMiI6IiIsIk5PTlNURF9QQVRIIjoiWSIsIlBBVEhfMyI6IiIsIlBBVEhfMSI6IkNvbnRyYWN0L3NldEZvcm0iLCJIRUFERVIiOiJmYWxzZSIsIk5BTUUiOiJDb250cmFjdFNldEZvcm0iLCJTQ1JFRU5fSUQiOiJDVF8yMDUifX0sImh0bWwiOiI8ZGl2IGlkPVwiUlBGYk5VY2dSZGRCSHVsWHVsXCIgY2xhc3M9XCJjb250YWluZXJcIj5cbiAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9vdXRlciBcIiBzdHlsZT1cIlwiPlxuICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21w
+        b25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2NvbnRhaW5lcl9pbm5lclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2J1dHRvbl9vdXRlciBtYWluX2J0blwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X2lubmVyX3dyYXBwZXIgc2Vwb2F1eF9idXR0b25faW5uZXIgc2Vwb2F1eF93cmFwcGVyX3N0eWxlX2hhbGlnbl9yaWdodFwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJSUEZiTlVjRW1tZEJIdWxhSkhcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBv
+        YXV4X2J1dHRvblwiIHN0eWxlPVwiXCIvPlxuICAgICAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfb3V0ZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1fb3V0ZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudF9pbm5lcl93cmFwcGVyIHNlcG9hdXhfZm9ybV9pbm5lciBzZXBvYXV4X3dyYXBwZXJfc3R5bGVfaGFsaWduX2NlbnRlclwiIHN0eWxlPVwiXCI+XG4gICAgICAgICAgICAgICAgICAgIDxkaXYgaWQ9XCJSUEZiTlVjd2J0ZEJIdWx0b3lcIiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50ICBzZXBv
+        YXV4X2Zvcm1cIiBzdHlsZT1cIlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgICAgPGRpdiBjbGFzcz1cInNlcG9hdXhfY29tcG9uZW50X291dGVyX3dyYXBwZXIgc2Vwb2F1eF9mb3JtX291dGVyIENPTlRfVEFCXCIgc3R5bGU9XCJcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPVwic2Vwb2F1eF9jb21wb25lbnRfaW5uZXJfd3JhcHBlciBzZXBvYXV4X2Zvcm1faW5uZXJcIiBzdHlsZT1cIlwiPlxuICAgICAgICAgICAgICAgICAgICA8ZGl2IGlkPVwiVkRRUUdpY1lnVlFHaWN3cXR1XCIgY2xhc3M9XCJzZXBvYXV4X2NvbXBvbmVudCAgc2Vwb2F1eF90YWJiYXIgbG93ZXJEaXZcIiBzdHlsZT1c
+        IlwiLz5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICA8L2Rpdj5cbiAgICA8L2Rpdj5cbjwvZGl2PiJ9
+    </template>
+</body>
